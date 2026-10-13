@@ -3,7 +3,7 @@
 // fixed stroke, same-hue two-stop washes lit from the top-left, a white rim light + glint, a deep-tone bevel shade
 // bottom-right, no gloss, no faces, no hands. Objects stand on a navy ground line that is also the chart baseline,
 // so the drawing and the data share the same ink. Illustrations never carry numbers; pieces come from the generator.
-import { fmtDuration, fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
+import { fmtDuration, fmtInt, fmtSignedPct, escapeHtml as h } from '../../../src/design/page.ts';
 import { generateJigsaw } from '../../../src/pieces/jigsaw.ts';
 import { LOGO_URL, assignUnits, barGeometry, flagUrl, pieceGrid, rankGeometry } from '../../../src/design/svg.ts';
 import type { Content } from '../content.ts';
@@ -467,11 +467,413 @@ function xp(c: Content): Post {
     ${foot(c.source)}`) }] };
 }
 
+// ══ Round 2: weekly, event, feature and month posts. New objects follow the same kit: one ink at SW,
+// details at DET, same-hue two-stop washes lit top-left, rim + glint, bevel shade, no numbers in the art. ══
+
+/** Closed scallop outline (k bulges between points on the inner radius), as the level medallion uses. */
+function scallop(cx: number, cy: number, R: number, k = 12, inner = 0.86) {
+  const rIn = R * inner;
+  let d = '';
+  for (let i = 0; i < k; i++) {
+    const a0 = -90 + (360 / k) * i, a1 = a0 + 360 / k;
+    const [x0, y0] = P(cx, cy, rIn, a0), [x1, y1] = P(cx, cy, rIn, a1);
+    const chord = Math.hypot(x1 - x0, y1 - y0), sag = R - rIn * Math.cos(rad(180 / k));
+    const r0 = (chord * chord / 4 + sag * sag) / (2 * sag);
+    d += `${i === 0 ? `M${x0} ${y0}` : ''}A${n(r0)} ${n(r0)} 0 0 1 ${x1} ${y1}`;
+  }
+  return { d: d + 'Z', rIn };
+}
+
+/** Desk calendar on a lavender foot. 'week' marks one row of seven days; 'month' fills the month. */
+function calendar(variant: 'week' | 'month'): Art {
+  const W = 372, x = 22, w = W - 44, top = 36, bandH = 66, r = 20;
+  const cols = 7, rows = 5, cell = 30, gap = 8;
+  const gridW = cols * cell + (cols - 1) * gap;
+  const gx = x + (w - gridW) / 2, gy = top + bandH + 30;
+  const pageH = bandH + 30 + rows * cell + (rows - 1) * gap + 34;
+  const footH = 36, footY = top + pageH - 12, base = footY + footH;
+  const s: string[] = [];
+  s.push(fill(rr(x, top, w, pageH, r), 'face'));
+  // Header band with the rounded top corners of the page.
+  s.push(`<path d="M${x + r} ${top}H${x + w - r}A${r} ${r} 0 0 1 ${x + w} ${top + r}V${top + bandH}H${x}V${top + r}A${r} ${r} 0 0 1 ${x + r} ${top}Z" fill="url(#w-coral)"/>`);
+  s.push(rim(`M${x + IN} ${top + bandH - 10}V${top + r}A${n(r - IN)} ${n(r - IN)} 0 0 1 ${x + r} ${top + IN}H${n(x + w * 0.36)}`));
+  s.push(shade(`M${x + w - IN} ${top + r + 6}V${top + bandH - IN + 2}`, 'coral'));
+  const weekRow = 1;
+  if (variant === 'week') {
+    const ry = gy + weekRow * (cell + gap);
+    s.push(fill(rr(gx - 12, ry - 12, gridW + 24, cell + 24, 14), 'pale') + ink(rr(gx - 12, ry - 12, gridW + 24, cell + 24, 14), DET));
+  }
+  for (let i = 0; i < rows * cols; i++) {
+    const c = i % cols, ri = Math.floor(i / cols);
+    const on = variant === 'week' ? ri === weekRow : i < 30;
+    s.push(`<path d="${rr(gx + c * (cell + gap), gy + ri * (cell + gap), cell, cell, 8)}" fill="${on ? 'url(#w-coral)' : 'url(#w-skyp)'}"/>`);
+  }
+  s.push(rrLight(x, top, w, pageH, r, 'face', { rim: false }));
+  s.push(ink(rr(x, top, w, pageH, r)) + ink(`M${x} ${top + bandH}H${x + w}`));
+  // Binding rings across the top edge.
+  for (const f of [0.22, 0.5, 0.78]) {
+    const rx = x + w * f;
+    s.push(fill(rr(rx - 12, top - 26, 24, 54, 12), 'sky') + ink(rr(rx - 12, top - 26, 24, 54, 12)));
+  }
+  s.push(fill(rr(4, footY, W - 8, footH, 14), 'lav') + rrLight(4, footY, W - 8, footH, 14, 'lav', { glint: false }) + ink(rr(4, footY, W - 8, footH, 14)));
+  return art(W, base + SW, base, s.join(''));
+}
+
+/** Chequered flag on a pole: the cells follow the wave of the cloth. */
+function chequeredFlag(): Art {
+  const W = 330, poleX = 40, poleW = 26, top = 46, footH = 42, base = 262;
+  const fx0 = poleX + poleW - 2, fx1 = W - 16, fy = top + 14, FH = 128, A = 12, FW = fx1 - fx0;
+  const wave = (xx: number) => A * Math.sin(((xx - fx0) / FW) * Math.PI * 1.9);
+  const edge = (yOff: number, xa: number, xb: number, k: number) =>
+    Array.from({ length: k + 1 }, (_, i) => { const xx = xa + ((xb - xa) * i) / k; return `${n(xx)} ${n(fy + yOff + wave(xx))}`; });
+  const cloth = `M${[...edge(0, fx0, fx1, 40), ...edge(FH, fx1, fx0, 40)].join('L')}Z`;
+  const cc = 6, cr = 4, cw = FW / cc, ch = FH / cr; // ~40 px cells
+  const cells: string[] = [];
+  for (let j = 0; j < cr; j++) for (let i = 0; i < cc; i++) if ((i + j) % 2 === 0) {
+    cells.push(`M${[...edge(j * ch, fx0 + i * cw, fx0 + (i + 1) * cw, 8), ...edge((j + 1) * ch, fx0 + (i + 1) * cw, fx0 + i * cw, 8)].join('L')}Z`);
+  }
+  const poleH = base - footH - top + 12;
+  const s = [
+    fill(rr(poleX, top, poleW, poleH, 12), 'sky') + rrLight(poleX, top, poleW, poleH, 12, 'sky', { glint: false }) + ink(rr(poleX, top, poleW, poleH, 12)),
+    `<path d="${cloth}" fill="#fff"/>`,
+    `<path d="${cells.join('')}" fill="${INK}"/>`,
+    rim(`M${fx0 + 14} ${n(fy + IN + wave(fx0 + 14))}${edge(IN, fx0 + 14, fx0 + FW * 0.24, 8).map(p => 'L' + p).join('')}`).replace('stroke="#fff"', `stroke="${WASH.sky[0]}"`),
+    ink(cloth),
+    fill(circ(poleX + poleW / 2, top - 20, 22), 'coral') + rim(arc(poleX + poleW / 2, top - 20, 22 - IN, 200, 250)) + ink(circ(poleX + poleW / 2, top - 20, 22)),
+    fill(rr(poleX + poleW / 2 - 74, base - footH, 148, footH, 16), 'lav') + rrLight(poleX + poleW / 2 - 74, base - footH, 148, footH, 16, 'lav') + ink(rr(poleX + poleW / 2 - 74, base - footH, 148, footH, 16)),
+  ];
+  return art(W, base + SW, base, s.join(''));
+}
+
+/** A-frame sign board, the kind that stands outside a venue: trapezoid board whose side rails run on to the
+ *  ground as legs, a coral header strip, a piece and two lines of "text" (no words). */
+function easelSign(): Art {
+  const W = 340, cx = 170, by = 34, bh = 330, tw = 112, bw = 146, base = 444, lw = 24;
+  const sl = (bw - tw) / bh; // outward slope of the rails per px
+  const s: string[] = [];
+  // Legs: the rails continue below the board along the same slope.
+  for (const dir of [-1, 1] as const) {
+    const x1 = cx + dir * (bw - 12), y1 = by + bh - 30, x2 = cx + dir * (bw - 12 + sl * (base - y1));
+    const L = Math.hypot(x2 - x1, base - y1), ang = (-Math.asin((x2 - x1) / L) * 180) / Math.PI;
+    s.push(`<g transform="translate(${n(x1)} ${y1}) rotate(${n(ang)})">${fill(rr(-lw / 2, 0, lw, n(L), 11), 'sky')}${ink(rr(-lw / 2, 0, lw, n(L), 11))}</g>`);
+  }
+  const trap = (inset: number, y0: number, y1: number) => {
+    const at = (y: number) => tw + (bw - tw) * ((y - by) / bh) - inset;
+    return `M${n(cx - at(y0))} ${y0}H${n(cx + at(y0))}L${n(cx + at(y1))} ${y1}H${n(cx - at(y1))}Z`;
+  };
+  const board = trap(0, by, by + bh);
+  s.push(fill(board, 'sky'));
+  s.push(rim(`M${n(cx - tw + IN + 2)} ${by + 90}L${n(cx - tw + IN)} ${by + IN}H${n(cx - 20)}`) + glint(cx + 6, by + IN));
+  s.push(shade(`M${n(cx + bw - IN - 2 - sl * 120)} ${by + bh - 120}L${n(cx + bw - IN - 2)} ${by + bh - IN}H${n(cx + 30)}`, 'sky'));
+  const p0 = by + 30, p1 = by + bh - 30, hdr = p0 + 56;
+  s.push(fill(trap(30, p0, p1), 'face'));
+  s.push(`<path d="${trap(30, p0, hdr)}" fill="url(#w-coral)"/>` + ink(`M${n(cx - (tw + (bw - tw) * ((hdr - by) / bh) - 30))} ${hdr}H${n(cx + (tw + (bw - tw) * ((hdr - by) / bh) - 30))}`, DET));
+  s.push(piece(cx, hdr + 92, 66, 33, 'coral', { rot: -6 }));
+  s.push(ink(`M${cx - 70} ${p1 - 66}H${cx + 70}`, DET) + ink(`M${cx - 44} ${p1 - 32}H${cx + 44}`, DET));
+  s.push(ink(trap(30, p0, p1), DET) + ink(board));
+  return art(W, base + SW, base, s.join(''));
+}
+
+/** Open logbook: log lines with piece bullets on the left page, a level seal on the right, a bookmark. */
+function logbook(): Art {
+  const W = 520, cx = 260, pw = 214, yT = 64, dip = 24, yB = 312, stack = 16;
+  const x0 = cx - pw;
+  const page = (side: -1 | 1, dy = 0) => {
+    const xo = cx + side * pw;
+    return `M${cx} ${yT + dip + dy}C${cx + side * 70} ${yT - 2 + dy} ${xo - side * 70} ${yT - 8 + dy} ${xo} ${yT + dy}V${yB + dy}C${xo - side * 70} ${yB - 8 + dy} ${cx + side * 70} ${yB - 2 + dy} ${cx} ${yB + dip + dy}Z`;
+  };
+  const cy0 = yT + 34, base = yB + dip + stack + 24;
+  const cover = [x0 - 24, cy0, 2 * pw + 48, base - cy0, 20] as const;
+  const s: string[] = [];
+  s.push(fill(rr(...cover), 'coral') + rrLight(...cover, 'coral', { glint: false }) + ink(rr(...cover)));
+  // Bookmark peeking out of the top, behind the pages.
+  const bm = cx + 46;
+  s.push(fill(`M${bm} ${yT + 40}V${yT - 44}L${bm + 17} ${yT - 30}L${bm + 34} ${yT - 44}V${yT + 40}Z`, 'lav') + ink(`M${bm} ${yT + 40}V${yT - 44}L${bm + 17} ${yT - 30}L${bm + 34} ${yT - 44}V${yT + 40}Z`));
+  for (const side of [-1, 1] as const) s.push(fill(page(side, stack), 'face') + ink(page(side, stack)));
+  for (const side of [-1, 1] as const) s.push(fill(page(side), 'face'));
+  // Left page: four log lines with generator-piece bullets.
+  [0, 1, 2].forEach(k => {
+    const y = yT + 84 + k * 68;
+    s.push(piece(x0 + 58, y, 34, [4, 7, 33][k], k === 2 ? 'skyp' : 'coral', { stroke: DET, rot: [0, 90, 180][k] }));
+    s.push(ink(`M${x0 + 100} ${y}H${cx - 34 - (k % 2) * 44}`, DET));
+  });
+  // Right page: the level seal and two lines.
+  const sc = scallop(cx + pw / 2 + 4, yT + 122, 62);
+  s.push(fill(sc.d, 'coral') + rim(arc(cx + pw / 2 + 4, yT + 122, sc.rIn - IN * 0.6, 198, 244)) + shade(arc(cx + pw / 2 + 4, yT + 122, sc.rIn - IN * 0.6, 20, 100), 'coral'));
+  s.push(`<circle cx="${cx + pw / 2 + 4}" cy="${yT + 122}" r="${n(62 * 0.62)}" fill="#fff"/>` + ink(sc.d));
+  s.push(piece(cx + pw / 2 + 4, yT + 122, 32, 4, 'sky', { stroke: DET, rot: 0 }));
+  s.push(ink(`M${cx + pw / 2 - 60} ${yT + 226}H${cx + pw / 2 + 68}`, DET) + ink(`M${cx + pw / 2 - 40} ${yT + 262}H${cx + pw / 2 + 48}`, DET));
+  for (const side of [-1, 1] as const) s.push(ink(page(side)));
+  s.push(ink(`M${cx} ${yT + dip}V${yB + dip + stack}`));
+  return art(W, base + SW, base, s.join(''));
+}
+
+/** Three old logbooks stacked spine-out: end bands and a label plate on each spine. */
+function bookStack(): Art {
+  const W = 330, base = 318;
+  const books: Array<{ x: number; w: number; hh: number; wash: Wash }> = [
+    { x: 12, w: 300, hh: 74, wash: 'sky' },
+    { x: 34, w: 270, hh: 64, wash: 'coral' },
+    { x: 20, w: 286, hh: 68, wash: 'lav' },
+  ];
+  const s: string[] = [];
+  let y = base;
+  for (const b of books) {
+    y -= b.hh;
+    s.push(fill(rr(b.x, y, b.w, b.hh, 14), b.wash) + rrLight(b.x, y, b.w, b.hh, 14, b.wash, { glint: false }));
+    const pw = b.w * 0.36, ph = b.hh * 0.42;
+    s.push(`<path d="${rr(b.x + (b.w - pw) / 2, y + (b.hh - ph) / 2, pw, ph, 8)}" fill="#fff"/>` + ink(rr(b.x + (b.w - pw) / 2, y + (b.hh - ph) / 2, pw, ph, 8), DET));
+    for (const f of [0.13, 0.87]) s.push(ink(`M${n(b.x + b.w * f)} ${y + 4}V${y + b.hh - 4}`, DET));
+    s.push(ink(rr(b.x, y, b.w, b.hh, 14)));
+  }
+  s.unshift(piece(220, y - 40, 66, 7, 'coral', { rot: 14 }));
+  return art(W, base + SW, base, s.join(''));
+}
+
+// ── Round-2 helpers ───────────────────────────────────────────────────────────────────────────────────
+const flagDisc = (code: string, size: number) =>
+  code ? `<span class="fl" style="width:${size}px; height:${size}px"><img src="${flagUrl(code)}" alt=""><i></i></span>` : '';
+const dayLabel = (iso: string) => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const monthLabel = (ym: string, o: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' }) =>
+  new Date(ym + '-01T00:00:00Z').toLocaleDateString('en-GB', { ...o, timeZone: 'UTC' });
+const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+
+/** Consecutive results by one player on one puzzle collapse into one entry ("also 17:59 and 18:10"). */
+function groupRuns<T extends { player: string; puzzle: string; time: string }>(list: T[]) {
+  const out: Array<T & { more: string[] }> = [];
+  for (const r of list) {
+    const last = out.at(-1);
+    if (last && last.player === r.player && last.puzzle === r.puzzle) last.more.push(r.time);
+    else out.push({ ...r, more: [] });
+  }
+  return out;
+}
+
+const css2 = `
+.hd .kick.series { color: var(--ink); font-weight: 700; }
+.fl { position: relative; flex: none; display: inline-block; }
+.fl img { width: 100%; height: 100%; display: block; }
+.fl i { position: absolute; inset: -2px; border: 4px solid var(--ink); border-radius: 50%; }
+.up { font-weight: 700; color: var(--indigo-500); }
+.tp { position: absolute; left: ${X0}px; width: 640px; }
+.tp .r { position: absolute; left: 0; width: 640px; height: 104px; }
+.tp .k { position: absolute; left: 0; top: 0; width: 44px; font-size: 36px; font-weight: 700; color: var(--ink-muted); }
+.tp .nm { position: absolute; left: 56px; top: 0; font-size: 36px; font-weight: 700; white-space: nowrap; }
+.tp .br { font-size: 30px; font-weight: 400; color: var(--ink-soft); margin-left: 14px; }
+.tp .bar { position: absolute; left: 56px; top: 56px; height: 30px; border-radius: 0 6px 6px 0; background: var(--context); }
+.tp .r.first .bar { background: ${CORAL}; outline: 4px solid var(--ink); outline-offset: -2px; border-radius: 0 8px 8px 0; }
+.tp .v { position: absolute; top: 48px; font-size: 36px; font-weight: 700; white-space: nowrap; }
+.tp .v span { font-weight: 400; color: var(--ink-soft); }
+.fc { position: absolute; top: 262px; width: 440px; }
+.fc .sec { display: inline-block; font-size: 30px; font-weight: 700; padding: 2px 18px; border: 4px solid var(--ink); border-radius: 999px; background: var(--sky-100); }
+.fc .who { display: flex; align-items: center; gap: 16px; margin-top: 30px; font-size: 44px; font-weight: 700; line-height: 1.1; }
+.fc .hdl { font-size: 32px; font-weight: 500; color: var(--indigo-500); margin-top: 6px; }
+.fc .time { position: relative; isolation: isolate; display: inline-block; margin-top: 14px; font-size: 108px; font-weight: 700; line-height: 1; letter-spacing: -4px; }
+.fc .time::after { content: ''; position: absolute; left: -6px; right: -10px; bottom: 2px; height: 26px; z-index: -1; background: ${CORAL}; border-radius: 8px; }
+.fc .what { font-size: 34px; line-height: 1.25; font-weight: 500; margin-top: 22px; }
+.fc .what .brand { font-size: 30px; font-weight: 400; color: var(--ink-soft); }
+.fc .tags { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.fc .pill { font-size: 30px; font-weight: 700; padding: 2px 16px; border: 3px solid var(--ink); border-radius: 999px; background: var(--coral-100); }
+.fc .also { font-size: 32px; color: var(--ink-soft); }
+.fc .ru { margin-top: 30px; }
+.fc .ru > div { display: flex; align-items: center; gap: 14px; min-height: 66px; border-top: 3px solid var(--line); }
+.fc .rk { width: 26px; font-size: 32px; font-weight: 700; color: var(--ink-muted); }
+.fc .rn { flex: 1 1 0; min-width: 0; font-size: 34px; font-weight: 500; line-height: 1.15; }
+.fc .rn em { display: block; font-style: normal; font-size: 30px; color: var(--indigo-500); }
+.fc .rt { flex: none; font-size: 32px; font-weight: 700; }
+.stat { position: absolute; left: ${X0}px; width: ${CW}px; display: flex; flex-direction: column; }
+.stat > div { display: flex; align-items: baseline; gap: 22px; padding: 22px 0; border-top: 3px solid var(--line); }
+.stat b { font-size: 72px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+.stat span { font-size: 38px; color: var(--ink-soft); }
+.stat .pill { align-self: center; font-size: 30px; font-weight: 700; padding: 2px 16px; border: 3px solid var(--ink); border-radius: 999px; background: var(--coral-100); color: var(--ink); }
+.nw { white-space: nowrap; }
+.halo { paint-order: stroke; stroke: #fff; stroke-width: 10px; stroke-linejoin: round; }
+`;
+
+function weekly(c: Content): Post {
+  const w = c.weekly, total = 4;
+  const ep = `Season ${w.season} · Episode ${w.episode}`;
+  const hd = (no: string) => `${DEFS}<header class="hd"><span class="kick series">${h(w.series)}</span><span class="no">${h(no)}</span></header>`;
+
+  const cal = calendar('week');
+  const stack = boxStack();
+  const flag = chequeredFlag();
+  const box = puzzleBox();
+
+  const top = w.topPuzzles;
+  const rows = rankGeometry(top, { value: d => d.solvers, width: 480, rowHeight: 104, gap: 12, domain: [0, Math.max(...top.map(t => t.solvers))] });
+
+  const col = (label: string, list: typeof w.fastest500) => {
+    const [win, ...rest] = groupRuns(list);
+    if (!win) return `<p class="sec">${h(label)}</p><p class="what">No results this week</p>`;
+    return `<p class="sec">${h(label)}</p>
+      <p class="who">${flagDisc(win.country, 56)}<span>${h(win.player)}</span></p>
+      ${win.handle ? `<p class="hdl">@${h(win.handle)}</p>` : ''}
+      <p class="time">${win.time}</p>
+      <p class="what">${h(win.puzzle)}<br><span class="brand">${h(win.brand)}</span></p>
+      ${win.firstAttempt || win.more.length ? `<p class="tags">${win.firstAttempt ? '<span class="pill">First try</span>' : ''}${win.more.length ? `<span class="also">also ${andList(win.more)}</span>` : ''}</p>` : ''}
+      ${rest.length ? `<div class="ru">${rest.map((r, i) => `<div><span class="rk">${i + 2}</span>${flagDisc(r.country, 40)}<span class="rn">${h(r.player)}${r.handle ? `<em>@${h(r.handle)}</em>` : ''}</span><span class="rt">${r.time}</span></div>`).join('')}</div>` : ''}`;
+  };
+
+  return {
+    key: 'weekly',
+    slides: [
+      { id: 'weekly-1', body: frame(`${DEFS}<header class="hd"><span class="kick">${h(ep)}</span><span class="no">MSP DATA</span></header>
+        <h1 class="h1">${h(w.series)}</h1>
+        <p class="dek" style="top:390px">${h(w.range)}</p>
+        <p class="big" style="top:500px; font-size:250px">${fmtInt(w.results)}</p>
+        <p class="dek" style="top:780px; width:500px">results logged by ${fmtInt(w.puzzlers)} puzzlers, <span class="up">${fmtSignedPct(w.resultsChangePct)}</span> on the week before</p>
+        ${place(cal, 992 - cal.w + 14)}
+        ${foot(c.source)}`) },
+      { id: 'weekly-2', body: frame(`${hd(`2 / ${total}`)}
+        <h2 class="h2">${h(top[0].puzzle)} was the most-solved puzzle</h2>
+        <p class="dek" style="top:300px; font-size:34px">Puzzlers who logged each puzzle, ${h(w.range)}</p>
+        <div class="tp" style="top:400px">${rows.map((r, i) => `<div class="r ${i === 0 ? 'first' : ''}" style="top:${r.y}px">
+          <span class="k">${i + 1}</span><span class="nm">${h(r.datum.puzzle)}<span class="br">${h(r.datum.brand)}</span></span>
+          <span class="bar" style="width:${n(r.width)}px"></span><span class="v" style="left:${n(56 + r.width + 18)}px">${fmtInt(r.datum.solvers)}${i === 0 ? ' <span>puzzlers</span>' : ''}</span></div>`).join('')}</div>
+        ${place(stack, 992 - stack.w + 10)}
+        ${foot(c.source)}`) },
+      { id: 'weekly-3', body: frame(`${hd(`3 / ${total}`)}
+        <h2 class="h2">Fastest of the week</h2>
+        <div class="fc" style="left:${X0}px">${col('Solo 500', w.fastest500)}</div>
+        <div class="fc" style="left:${X0 + 464}px">${col('Solo 1,000', w.fastest1000)}</div>
+        ${place(flag, 992 - flag.w + 14)}
+        ${foot(c.source)}`) },
+      { id: 'weekly-4', body: frame(`${hd(`4 / ${total}`)}
+        <p class="big" style="top:150px">${fmtInt(w.personalBests)}</p>
+        <h2 class="h2" style="top:460px; width:860px">personal bests set last week</h2>
+        <p class="dek" style="top:640px; width:580px">${fmtInt(w.newPuzzlers)} new puzzlers joined in, and together you placed ${fmtInt(w.pieces)} pieces.</p>
+        <p class="q" style="top:900px; width:540px">${h(w.question)}</p>
+        ${place(box, 992 - box.w + 14)}
+        ${foot(c.source)}`) },
+    ],
+  };
+}
+
+function event(c: Content): Post {
+  const e = c.event;
+  const sign = easelSign(), hg = hourglass();
+  const slides = [
+    { id: 'event-1', body: frame(`${head('Event preview', 'MSP DATA')}
+      <h2 class="h2" style="width:860px">${h(e.name)}</h2>
+      <p class="dek" style="top:310px"><b style="color:var(--ink)">${h(e.date)}</b> · ${h(e.location)}</p>
+      <p class="big" style="top:440px">${fmtInt(e.registered)}</p>
+      <p class="dek" style="top:740px; width:520px">puzzlers registered. ${fmtInt(e.onMsp)} of them already log their times on MySpeedPuzzling.</p>
+      ${place(sign, 992 - sign.w + 10)}
+      ${foot(c.source)}`) },
+  ];
+  if (e.usMedianPb) slides.push({ id: 'event-2', body: frame(`${head('Event preview', '2 / 2')}
+      <h2 class="h2" style="width:860px">A typical US personal best on a 500</h2>
+      <p class="big" style="top:300px; font-size:220px">${e.usMedianPb}</p>
+      <p class="dek" style="top:560px; width:600px">Median solo 500 personal best of the ${fmtInt(e.usPuzzlers ?? 0)} US puzzlers on MySpeedPuzzling</p>
+      <p class="q" style="top:900px; width:560px">${h(e.question)}</p>
+      ${place(hg, 992 - hg.w + 8)}
+      ${foot(c.source)}`) });
+  return { key: 'event', slides };
+}
+
+function feature(c: Content): Post {
+  const f = c.feature;
+  const book = logbook(), books = bookStack();
+  const launch = f.days.reduce((a, b) => (b.results > a.results ? b : a));
+  const days = f.days.filter(d => d.day <= launch.day);
+  const GW = 540, GH = 650;
+  const g = barGeometry(days, { x: d => d.day, y: d => d.results, width: GW, height: GH, padding: 0.24 });
+  const lb = g.bars.find(b => b.datum.day === launch.day)!;
+  const split = g.yScale(launch.results - launch.backfilled);
+  const bars = g.bars.map(b => b.datum.day === launch.day
+    ? `<rect x="${n(b.x)}" y="${n(split)}" width="${n(b.width)}" height="${n(GH - split + 3)}" fill="var(--context)"/>
+       <rect x="${n(b.x)}" y="${n(b.y)}" width="${n(b.width)}" height="${n(split - b.y)}" fill="${CORAL}"/>
+       <rect x="${n(b.x)}" y="${n(b.y)}" width="${n(b.width)}" height="${n(GH - b.y + 3)}" rx="4" fill="none" stroke="${INK}" stroke-width="4"/>`
+    : `<rect x="${n(b.x)}" y="${n(b.y)}" width="${n(b.width)}" height="${n(b.height + 3)}" rx="3" fill="var(--context)"/>`).join('');
+  const typ = g.yScale(f.typicalDay);
+  const cxb = (b: { x: number; width: number }) => b.x + b.width / 2;
+  return {
+    key: 'feature',
+    slides: [
+      { id: 'feature-1', body: frame(`${head(f.kicker, 'MSP DATA')}
+        <h2 class="h2" style="width:820px">${h(f.title)}</h2>
+        <p class="big" style="top:330px; font-size:250px">${fmtInt(f.results)}</p>
+        <p class="dek" style="top:610px; width:640px">results logged on <span class="nw">${h(f.launchDate)}</span>,<br><span class="up">${f.multiple}×</span> a typical day</p>
+        ${place(book, 992 - book.w + 16)}
+        ${foot(c.source)}`) },
+      { id: 'feature-2', body: frame(`${head(f.kicker, '2 / 2')}
+        <h2 class="h2" style="width:880px">${f.backfilledPct}% of them were puzzles solved before that day</h2>
+        <p class="dek" style="top:310px; font-size:36px">${h(f.dek)}</p>
+        <svg class="art" width="${GW}" height="${GH + 70}" style="left:${X0}px; top:${GROUND - GH}px">
+          ${bars}
+          <line x1="0" x2="${n(lb.x - 10)}" y1="${n(typ)}" y2="${n(typ)}" stroke="${INK}" stroke-width="4" stroke-dasharray="10 9"/>
+          <text class="lab" x="0" y="${n(typ - 56)}" style="font-size:32px">typical day</text>
+          <text class="lab-strong" x="0" y="${n(typ - 16)}" style="font-size:34px">${fmtInt(f.typicalDay)}</text>
+          <text class="lab-strong" x="${n(cxb(lb))}" y="${n(lb.y - 18)}" text-anchor="middle">${fmtInt(launch.results)}</text>
+          <text class="lab-accent" x="${n(lb.x - 18)}" y="${n((lb.y + split) / 2 + 2)}" text-anchor="end">${fmtInt(launch.backfilled)} solved earlier</text>
+          <text class="lab" x="0" y="${GH + 50}">${dayLabel(days[0].day)}</text>
+          <text class="lab" x="${n(lb.x + lb.width)}" y="${GH + 50}" text-anchor="end">${dayLabel(launch.day)}</text>
+        </svg>
+        ${place(books, 992 - books.w + 10)}
+        ${foot(c.source)}`) },
+    ],
+  };
+}
+
+function month(c: Content): Post {
+  const m = c.month;
+  const cal = calendar('month'), pod = podium(), tr = trophy();
+  const cur = m.series.at(-1)!;
+  const [yy, mm] = cur.month.split('-');
+  const prevKey = `${Number(yy) - 1}-${mm}`;
+  const prev = m.series.find(x => x.month === prevKey);
+  const GW = 620, GH = 650;
+  const g = barGeometry(m.series, { x: d => d.month, y: d => d.results, width: GW, height: GH, padding: 0.24 });
+  const bars = g.bars.map(b => {
+    const isCur = b.datum.month === cur.month, isPrev = b.datum.month === prevKey;
+    return `<rect x="${n(b.x)}" y="${n(b.y)}" width="${n(b.width)}" height="${n(b.height + 3)}" rx="3" ${isCur ? `fill="${CORAL}" stroke="${INK}" stroke-width="4"` : isPrev ? `fill="url(#w-sky)" stroke="${INK}" stroke-width="4"` : 'fill="var(--context)"'}/>`;
+  }).join('');
+  const bc = g.bars.at(-1)!, bp = g.bars.find(b => b.datum.month === prevKey);
+  const metrics = [
+    { key: 'active' as const, label: 'puzzlers logged a result', value: m.active },
+    { key: 'newPlayers' as const, label: 'new puzzlers', value: m.newPlayers },
+    { key: 'pieces' as const, label: 'pieces', value: m.pieces },
+  ];
+  const isRecord = (k: 'active' | 'newPlayers' | 'pieces') => m.series.every(x => x[k] <= cur[k]);
+  const allRecords = metrics.every(x => isRecord(x.key));
+  const name = monthLabel(cur.month, { month: 'long' });
+  return {
+    key: 'month',
+    slides: [
+      { id: 'month-1', body: frame(`${head(m.label, 'MSP DATA')}
+        <h2 class="h2" style="width:820px">${h(m.title)}</h2>
+        <p class="big" style="top:330px; font-size:240px">${fmtInt(m.results)}</p>
+        <p class="dek" style="top:610px; width:500px">results logged in ${h(m.label)}</p>
+        ${place(cal, 992 - cal.w + 14)}
+        ${foot(c.source)}`) },
+      { id: 'month-2', body: frame(`${head(m.label, '2 / 3')}
+        <h2 class="h2" style="width:880px">${fmtSignedPct(m.vsLastYearPct, 0)} on ${h(name)} last year</h2>
+        <p class="dek" style="top:304px; font-size:36px">Results logged per month since ${h(monthLabel(m.series[0].month, { month: 'long', year: 'numeric' }))}</p>
+        <svg class="art" width="${GW}" height="${GH + 70}" style="left:${X0}px; top:${GROUND - GH}px">
+          ${bars}
+          <text class="lab-strong" x="${n(bc.x + bc.width)}" y="${n(bc.y - 18)}" text-anchor="end">${fmtInt(cur.results)}</text>
+          ${bp && prev ? `<text class="lab halo" x="${n(bp.x + bp.width / 2)}" y="${n(bp.y - 18)}" text-anchor="middle">${fmtInt(prev.results)}</text>` : ''}
+          ${bp ? `<text class="lab" x="${n(bp.x + bp.width / 2)}" y="${GH + 50}" text-anchor="middle">${monthLabel(prevKey)}</text>` : ''}
+          <text class="lab" x="${n(bc.x + bc.width)}" y="${GH + 50}" text-anchor="end">${monthLabel(cur.month)}</text>
+        </svg>
+        ${place(pod, 992 - pod.w + 12)}
+        ${foot(c.source)}`) },
+      { id: 'month-3', body: frame(`${head(m.label, '3 / 3')}
+        <h2 class="h2" style="width:880px">${allRecords ? 'Records across the board' : `More of you than ever in ${h(name)}`}</h2>
+        <div class="stat" style="top:290px">${metrics.map(x => `<div><b>${fmtInt(x.value)}</b><span>${h(x.label)}</span>${isRecord(x.key) ? '<em class="pill" style="font-style:normal">Record</em>' : ''}</div>`).join('')}</div>
+        <p class="q" style="top:900px; width:540px">${h(m.question)}</p>
+        ${place(tr, 992 - tr.w + 14)}
+        ${foot(c.source)}`) },
+    ],
+  };
+}
+
 const direction: Direction = {
   id: 'D7',
   name: 'House Illustrated',
   idea: 'White pages where one hand-drawn object in the MSP badge style (one navy ink, same-hue washes, lit top-left) stands on the same navy ground line as the chart; the drawing never carries data.',
-  css,
-  posts: c => [wall(c), record(c), countries(c), share(c), xp(c)],
+  css: css + css2,
+  posts: c => [wall(c), record(c), countries(c), share(c), xp(c), weekly(c), event(c), feature(c), month(c)],
 };
 export default direction;

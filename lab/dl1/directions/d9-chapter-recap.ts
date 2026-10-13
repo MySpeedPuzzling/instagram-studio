@@ -2,7 +2,7 @@
 // Six 9:16 frames, one chapter each. The ground colour changes per chapter (all brand tones, flat), the chapter
 // marker is identical on every frame: a strip of six interlocking generator pieces that fills in as the story
 // advances. A tonal jigsaw floor sits under the reply bar. All text stays inside the Story safe area.
-import { fmtDuration, fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
+import { fmtDuration, fmtInt, fmtSignedPct, escapeHtml as h } from '../../../src/design/page.ts';
 import { generateJigsaw } from '../../../src/pieces/jigsaw.ts';
 import { LOGO_URL, assignUnits, barGeometry, flagUrl, pieceGrid, rankGeometry } from '../../../src/design/svg.ts';
 import { FRAMES } from '../../../src/render/render.ts';
@@ -322,11 +322,250 @@ function story(c: Content): Post {
   return { key: 'story', slides: [ch1(c), ch2(c), ch3(c), ch4(c), ch5(c), ch6(c)] };
 }
 
+// ══ Round 2: the weekly Story pack, event Stories and a 4:5 month carousel, same chapter devices. ══
+
+const STRIP2 = strip(2, 50, 9);
+const STRIP3 = strip(3, 50, 9);
+const LINE: Record<string, string> = { dark: 'rgba(255,255,255,0.18)', light: 'rgba(43,52,69,0.16)' };
+
+/** A Story chapter of any length (the original `frame` stays fixed at six chapters). */
+function chapter(o: { id: string; ch: number; total: number; strip: ReturnType<typeof strip>; name: string; theme: string; inner: string; src?: string; seed: number }): Slide {
+  const t = THEMES[o.theme];
+  return {
+    id: o.id,
+    frame: 'story',
+    body: `<div class="st ${t.dark ? 'dark' : ''}" aria-label="Chapter ${o.ch}: ${h(o.name)}" style="background:${t.bg}; color:${t.ink}; --ink-c:${t.ink}; --soft-c:${t.soft}; --line-c:${t.dark ? LINE.dark : LINE.light}">
+      ${floor(t, o.seed)}
+      ${marker(o.ch, t, o.strip, o.total)}
+      ${o.inner}
+      ${foot(t, o.src)}
+    </div>`,
+  };
+}
+
+/** A 4:5 chapter of any length (the original `feedFrame` stays fixed at four). */
+function feedChapter(o: { id: string; ch: number; total: number; strip: ReturnType<typeof strip>; theme: string; inner: string; src?: string }): Slide {
+  const t = THEMES[o.theme];
+  return {
+    id: o.id,
+    body: `<div class="fd" style="background:${t.bg}; color:${t.ink}; --ink-c:${t.ink}; --soft-c:${t.soft}; --line-c:${t.dark ? LINE.dark : LINE.light}">
+      <div class="fmark">${marker(o.ch, t, o.strip, o.total)}</div>
+      ${o.inner}
+      <footer class="foot" style="top:1196px; left:${FX}px">
+        <span class="disc"><img src="${LOGO_URL}" alt=""></span>${o.src ? `<span class="src" style="color:${t.soft}">${h(o.src)}</span>` : ''}
+      </footer>
+    </div>`,
+  };
+}
+
+/** Font size that keeps a one-line string inside a width (Rubik bold digits/letters ≈ 0.58 em). */
+const fit = (text: string, max: number, width = CW, em = 0.58) => Math.min(max, Math.floor(width / (text.length * em)));
+const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+const flagImg = (code: string, size: number) => (code ? `<img src="${flagUrl(code)}" alt="" style="width:${size}px; height:${size}px">` : '');
+const monthName = (ym: string, o: Intl.DateTimeFormatOptions) => new Date(ym + '-01T00:00:00Z').toLocaleDateString('en-GB', { ...o, timeZone: 'UTC' });
+
+/** Consecutive results by one player on one puzzle collapse into one entry ("also 17:59 and 18:10"). */
+function groupRuns<T extends { player: string; puzzle: string; time: string }>(list: T[]) {
+  const out: Array<T & { more: string[] }> = [];
+  for (const r of list) {
+    const last = out.at(-1);
+    if (last && last.player === r.player && last.puzzle === r.puzzle) last.more.push(r.time);
+    else out.push({ ...r, more: [] });
+  }
+  return out;
+}
+
+const css2 = `
+.kk { position: absolute; left: ${X0}px; width: ${CW}px; font-size: 40px; font-weight: 700; color: var(--soft-c); }
+.who { position: absolute; left: ${X0}px; width: ${CW}px; display: flex; align-items: center; gap: 24px; font-size: 64px; font-weight: 700; line-height: 1.05; }
+.who img { flex: none; }
+.hdl { position: absolute; left: ${X0}px; width: ${CW}px; font-size: 42px; font-weight: 500; }
+.hero.hl { isolation: isolate; }
+.hero.hl::after { content: ''; position: absolute; left: -4px; right: 2px; bottom: 0.05em; height: 0.15em; border-radius: 12px; background: ${CORAL}; z-index: -1; }
+.pill { display: inline-block; font-size: 38px; font-weight: 700; padding: 4px 22px; border-radius: 999px; background: #ffe6e3; color: ${INK}; border: 4px solid ${INK}; }
+.tags { position: absolute; left: ${X0}px; width: ${CW}px; display: flex; gap: 22px; align-items: center; font-size: 42px; color: var(--soft-c); }
+.ru { position: absolute; left: ${X0}px; width: ${CW}px; }
+.ru > div { display: flex; align-items: center; gap: 22px; min-height: 92px; border-top: 3px solid var(--line-c); font-size: 44px; }
+.ru .n { width: 34px; font-weight: 700; color: var(--soft-c); }
+.ru .nm { flex: 1 1 0; min-width: 0; font-weight: 500; line-height: 1.12; }
+.ru .nm em { display: block; font-style: normal; font-size: 36px; color: var(--soft-c); }
+.ru .tm { flex: none; font-weight: 700; }
+.tl { position: absolute; left: ${X0}px; width: ${CW}px; }
+.tl .r { position: absolute; left: 0; width: ${CW}px; height: 92px; }
+.tl .k { position: absolute; left: 0; top: 0; font-size: 40px; font-weight: 700; color: var(--soft-c); }
+.tl .nm { position: absolute; left: 56px; top: 0; font-size: 40px; font-weight: 700; white-space: nowrap; }
+.tl .nm span { font-size: 34px; font-weight: 400; color: var(--soft-c); margin-left: 14px; }
+.tl .bar { position: absolute; left: 56px; top: 56px; height: 30px; border-radius: 0 8px 8px 0; background: #fff; }
+.tl .v { position: absolute; top: 48px; font-size: 40px; font-weight: 700; }
+.row2 { position: absolute; left: ${X0}px; width: ${CW}px; display: flex; align-items: baseline; gap: 26px; }
+.recs { position: absolute; left: ${X0}px; width: ${CW}px; display: flex; flex-direction: column; }
+.recs > div { display: flex; align-items: baseline; gap: 22px; padding: 22px 0; border-top: 4px solid ${INK}; }
+.recs b { font-size: 84px; font-weight: 700; letter-spacing: -2px; line-height: 1; }
+.recs span { font-size: 42px; font-weight: 700; }
+.recs .pill { align-self: center; margin-left: auto; font-size: 34px; background: #fff; }
+`;
+
+// ── The weekly Story pack: "This week in speed puzzling", six chapters ─────────────────────────────────
+function weeklyStory(c: Content): Post {
+  const w = c.weekly, total = 6;
+  const ch = (n: number, name: string, theme: string, inner: string, src?: string) =>
+    chapter({ id: `wstory-${n}`, ch: n, total, strip: STRIP, name, theme, inner, src, seed: 50 + n });
+
+  const [first] = w.topPuzzles;
+  const BW = 520;
+  const rest = rankGeometry(w.topPuzzles.slice(1), { value: d => d.solvers, width: BW, rowHeight: 92, gap: 0, domain: [0, first.solvers] });
+
+  const fastest = (n: number, label: string, theme: string, list: typeof w.fastest500) => {
+    const t = THEMES[theme];
+    const [win, ...more] = groupRuns(list);
+    if (!win) return ch(n, label, theme, `<p class="t" style="top:410px; font-size:76px">${h(label)}</p><p class="d" style="top:600px">No results this week.</p>`, c.source);
+    const tSize = fit(win.time, 260, CW, 0.6);
+    const dy = more.length ? 0 : 80; // no runner-up rows: centre the winner block a little lower
+    const tags = [win.firstAttempt ? '<span class="pill">First try</span>' : '', win.more.length ? `<span>also ${andList(win.more)}</span>` : ''].filter(Boolean).join('');
+    return ch(n, label, theme, `
+      <p class="kk" style="top:410px">Fastest of the week</p>
+      <p class="t" style="top:466px; font-size:84px; letter-spacing:-2.5px">${h(label)}</p>
+      <div class="who" style="top:${620 + dy}px">${flagImg(win.country, 84)}<span>${h(win.player)}</span></div>
+      ${win.handle ? `<p class="hdl" style="top:${712 + dy}px; color:${t.soft}">@${h(win.handle)}</p>` : ''}
+      <p class="hero hl" style="top:${(win.handle ? 770 : 740) + dy}px; left:${X0}px; font-size:${tSize}px; letter-spacing:-8px">${win.time}</p>
+      <p class="t" style="top:${(win.handle ? 1036 : 1006) + dy}px; font-size:52px; letter-spacing:-1px">${h(win.puzzle)}</p>
+      <p class="d" style="top:${(win.handle ? 1100 : 1070) + dy}px; font-size:40px">${h(win.brand)}</p>
+      ${tags ? `<div class="tags" style="top:${(win.handle ? 1170 : 1140) + dy}px">${tags}</div>` : ''}
+      ${more.length ? `<div class="ru" style="top:${(win.handle ? 1250 : 1240) + dy}px">${more.slice(0, 2).map((r, i) => `<div><span class="n">${i + 2}</span>${flagImg(r.country, 56)}<span class="nm">${h(r.player)}${r.handle ? `<em>@${h(r.handle)}</em>` : ''}</span><span class="tm">${r.time}</span></div>`).join('')}</div>` : ''}`, c.source);
+  };
+
+  const nameSize = fit(first.puzzle, 120, CW, 0.56);
+  return {
+    key: 'weekly-story',
+    slides: [
+      ch(1, 'This week', 'navy', `
+        <p class="kk" style="top:410px">${h(w.series)} · Episode ${w.episode}</p>
+        <p class="t" style="top:470px; font-size:80px; letter-spacing:-2.5px">This week in speed puzzling</p>
+        <p class="d" style="top:654px">${h(w.range)}</p>
+        <p class="hero" style="top:750px; font-size:250px; letter-spacing:-12px; color:${CORAL}">${fmtInt(w.results)}</p>
+        <p class="d" style="top:1004px; font-size:50px; color:#fff; font-weight:500">results logged</p>
+        <div class="stats" style="top:1090px">
+          <div><b>${fmtSignedPct(w.resultsChangePct)}</b><span>on the week before</span></div>
+          <div><b>${fmtInt(w.puzzlers)}</b><span>puzzlers</span></div>
+          <div><b>${fmtInt(w.pieces)}</b><span>pieces</span></div>
+        </div>`, c.source),
+      ch(2, 'The top puzzle', 'sky', `
+        <p class="kk" style="top:410px; color:#4b566b">Most-solved puzzle of the week</p>
+        <p class="t" style="top:470px; font-size:${nameSize}px; letter-spacing:-3px; white-space:nowrap">${h(first.puzzle)}</p>
+        <p class="d" style="top:612px; font-size:44px">${h(first.brand)}</p>
+        <div class="row2" style="top:716px"><span style="font-size:180px; font-weight:700; line-height:0.9; letter-spacing:-7px">${fmtInt(first.solvers)}</span><span style="font-size:50px; font-weight:500">puzzlers logged it</span></div>
+        <svg width="${BW + 10}" height="56" style="position:absolute; left:${X0 + 50}px; top:900px" aria-hidden="true"><rect x="2" y="2" width="${BW}" height="44" rx="8" fill="${CORAL}" stroke="${INK}" stroke-width="4"/></svg>
+        <p class="kk" style="top:990px; color:#4b566b">Then</p>
+        <div class="tl" style="top:1060px">${rest.map((r, i) => `<div class="r" style="top:${r.y}px">
+          <span class="k">${i + 2}</span><span class="nm">${h(r.datum.puzzle)}<span>${h(r.datum.brand)}</span></span>
+          <span class="bar" style="width:${n(r.width)}px"></span><span class="v" style="left:${n(56 + r.width + 18)}px">${fmtInt(r.datum.solvers)}</span></div>`).join('')}</div>`, c.source),
+      fastest(3, 'Solo 500', 'indigo', w.fastest500),
+      fastest(4, 'Solo 1,000', 'lilac', w.fastest1000),
+      ch(5, 'Bests and firsts', 'coral', `
+        <p class="t" style="top:410px; font-size:64px">You set</p>
+        <p class="hero" style="top:500px; font-size:360px; letter-spacing:-16px">${fmtInt(w.personalBests)}</p>
+        <p class="t" style="top:850px; font-size:76px; letter-spacing:-2px">personal bests</p>
+        <div class="recs" style="top:1010px">
+          <div><b>${fmtInt(w.newPuzzlers)}</b><span>new puzzlers joined in</span></div>
+          <div><b>${fmtInt(w.puzzlers)}</b><span>of you logged a result</span></div>
+        </div>`),
+      ch(6, 'Your week', 'paper', `
+        <p class="kk" style="top:410px; color:#4b566b">Your turn</p>
+        <p class="t" style="top:470px; font-size:96px; letter-spacing:-3px; color:#4e54c8">${h(w.question)}</p>
+        <div class="sticker" style="top:760px; height:420px" data-qa-ignore></div>
+        <p class="d" style="top:1250px; font-size:44px">${h(w.series)}, Episode ${w.episode + 1}: next week.</p>`),
+    ],
+  };
+}
+
+// ── Event Stories: preview + "results on …" ────────────────────────────────────────────────────────────
+function eventStory(c: Content): Post {
+  const e = c.event;
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const wd = days.indexOf(e.date.split(' ')[0]);
+  const nextDay = wd >= 0 ? days[(wd + 1) % 7] : 'the day after';
+  const ch = (n: number, name: string, theme: string, inner: string, src?: string) =>
+    chapter({ id: `estory-${n}`, ch: n, total: 2, strip: STRIP2, name, theme, inner, src, seed: 70 + n });
+  return {
+    key: 'event-story',
+    slides: [
+      ch(1, 'The preview', 'navy', `
+        <p class="kk" style="top:410px">Event preview</p>
+        <p class="t" style="top:470px; font-size:84px; letter-spacing:-2.5px">${h(e.name)}</p>
+        <p class="d" style="top:760px; font-size:46px; color:#fff"><b>${h(e.date)}</b> · ${h(e.location)}</p>
+        <p class="hero" style="top:880px; font-size:300px; letter-spacing:-14px; color:${CORAL}">${fmtInt(e.registered)}</p>
+        <p class="d" style="top:1160px; font-size:50px; color:#fff; font-weight:500">puzzlers registered</p>
+        <div class="stats" style="top:1250px">
+          <div><b>${fmtInt(e.onMsp)}</b><span>of them log their times on MSP</span></div>
+        </div>`, c.source),
+      ch(2, 'Results', 'sky', `
+        <p class="t" style="top:410px; font-size:104px; letter-spacing:-3.5px">Results on ${h(nextDay)}</p>
+        <p class="d" style="top:650px">Times from ${h(e.location)}, posted here the day after.</p>
+        ${e.usMedianPb ? `<p class="kk" style="top:790px; color:#4b566b">A typical US personal best, solo 500</p>
+        <p class="hero" style="top:850px; font-size:190px; letter-spacing:-8px">${e.usMedianPb}</p>
+        <p class="d" style="top:1030px; font-size:36px">Median of ${fmtInt(e.usPuzzlers ?? 0)} US puzzlers on MySpeedPuzzling</p>` : ''}
+        <p class="q" style="top:1130px; color:#4e54c8">${h(e.question)}</p>
+        <div class="sticker" style="top:1290px; height:150px" data-qa-ignore></div>`, c.source),
+    ],
+  };
+}
+
+// ── The record month as a 4:5 carousel in the chapter style ───────────────────────────────────────────
+function monthFeed(c: Content): Post {
+  const m = c.month, total = 3;
+  const cur = m.series.at(-1)!;
+  const [yy, mm] = cur.month.split('-');
+  const prevKey = `${Number(yy) - 1}-${mm}`;
+  const prev = m.series.find(x => x.month === prevKey);
+  const name = monthName(cur.month, { month: 'long' });
+  const H = 560;
+  const g = barGeometry(m.series, { x: d => d.month, y: d => d.results, width: FW, height: H, padding: 0.24 });
+  const bars = g.bars.map(b => {
+    const isCur = b.datum.month === cur.month, isPrev = b.datum.month === prevKey;
+    return `<rect x="${n(b.x)}" y="${n(b.y)}" width="${n(b.width)}" height="${n(b.height)}" rx="4" ${isCur ? `fill="${CORAL}" stroke="${INK}" stroke-width="4"` : isPrev ? `fill="#4e54c8"` : 'fill="#fff"'}/>`;
+  }).join('');
+  const bc = g.bars.at(-1)!, bp = g.bars.find(b => b.datum.month === prevKey);
+  const metrics = [
+    { key: 'active' as const, label: 'active puzzlers', value: m.active },
+    { key: 'newPlayers' as const, label: 'new puzzlers', value: m.newPlayers },
+    { key: 'pieces' as const, label: 'pieces', value: m.pieces },
+  ];
+  const isRecord = (k: 'active' | 'newPlayers' | 'pieces') => m.series.every(x => x[k] <= cur[k]);
+  const ch = (i: number, theme: string, inner: string, src?: string) => feedChapter({ id: `month-${i}`, ch: i, total, strip: STRIP3, theme, inner, src });
+  return {
+    key: 'month',
+    slides: [
+      ch(1, 'navy', `
+        <p class="kk" style="top:186px">${h(m.label)}</p>
+        <p class="t" style="top:246px; font-size:100px; letter-spacing:-3px; line-height:1">${h(m.title)}</p>
+        <p class="hero" style="top:640px; left:${FX}px; font-size:250px; letter-spacing:-12px; color:${CORAL}">${fmtInt(m.results)}</p>
+        <p class="d" style="top:880px; font-size:50px; color:#fff; font-weight:500">results logged in ${h(name)}</p>
+        <div class="stats" style="top:980px"><div><b>${fmtSignedPct(m.vsLastYearPct, 0)}</b><span>on ${h(monthName(prevKey, { month: 'long', year: 'numeric' }))}</span></div></div>`, c.source),
+      ch(2, 'sky', `
+        <p class="t" style="top:190px; font-size:72px; letter-spacing:-2px">${fmtSignedPct(m.vsLastYearPct, 0)} on ${h(name)} last year</p>
+        <p class="d" style="top:364px; font-size:38px">Results logged per month since ${h(monthName(m.series[0].month, { month: 'long', year: 'numeric' }))}</p>
+        <svg width="${FW}" height="${H + 70}" style="position:absolute; left:${FX}px; top:${1110 - H}px">
+          ${bars}
+          <line x1="0" x2="${FW}" y1="${H}" y2="${H}" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+          <text class="lab-b" fill="${INK}" x="${n(bc.x + bc.width)}" y="${n(bc.y - 20)}" text-anchor="end">${fmtInt(cur.results)}</text>
+          ${bp && prev ? `<text class="lab-b" fill="#4e54c8" x="${n(bp.x + bp.width / 2)}" y="${n(bp.y - 20)}" text-anchor="middle">${fmtInt(prev.results)}</text>
+          <text class="lab" fill="${INK}" x="${n(bp.x + bp.width / 2)}" y="${H + 50}" text-anchor="middle">${h(monthName(prevKey, { month: 'short', year: 'numeric' }))}</text>` : ''}
+          <text class="lab" fill="${INK}" x="${n(bc.x + bc.width)}" y="${H + 50}" text-anchor="end">${h(monthName(cur.month, { month: 'short', year: 'numeric' }))}</text>
+        </svg>`, c.source),
+      ch(3, 'coral', `
+        <p class="t" style="top:190px; font-size:84px; letter-spacing:-2.5px">${metrics.every(x => isRecord(x.key)) ? 'Records across the board' : `More of you than ever in ${h(name)}`}</p>
+        <div class="recs" style="top:410px">${metrics.map(x => `<div><b>${fmtInt(x.value)}</b><span>${h(x.label)}</span>${isRecord(x.key) ? '<em class="pill" style="font-style:normal">Record</em>' : ''}</div>`).join('')}</div>
+        <p class="q" style="top:910px; color:${INK}; font-size:60px">${h(m.question)}</p>`),
+    ],
+  };
+}
+
+
 const direction: Direction = {
   id: 'D9',
   name: 'Chapter Recap',
   idea: 'Six Story chapters, one ground colour each; a strip of six interlocking pieces fills in as the marker, a tonal jigsaw floor sits under the reply bar, and one frame leaves room for a poll sticker.',
-  css,
-  posts: c => [wallFeed(c), story(c)],
+  css: css + css2,
+  posts: c => [wallFeed(c), story(c), weeklyStory(c), eventStory(c), monthFeed(c)],
 };
 export default direction;

@@ -8,12 +8,12 @@
 secrets/
 
 # --- generated / local-only ---
-var/
-drafts/
-output/
-renders/
-cache/
-models/
+/var/
+/drafts/
+/output/
+/renders/
+/cache/
+/models/
 *.safetensors
 *.gguf
 *.ckpt

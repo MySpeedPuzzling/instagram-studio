@@ -75,6 +75,16 @@ The owner delegates execution: Claude drives the next steps and builds, asking o
 - **Recompression test:** no private or test account and no test posts on the main account. Measure
   Instagram's recompression from posts already published (served copies vs the originals on disk).
 
+## 2026-10-13: creative formats
+
+- **The feed is not only data posts.** Data is roughly a third; the rest is visual, community and fun
+  (collages, puzzle spotlights, quizzes, cartoons, seasonal art, Reels).
+- **No player photos.** Players' finished-puzzle photos are not used in posts (collages, mosaics or otherwise).
+- **Box images: yes, credit the brand.** Puzzle box images from the MSP catalogue may be used for spotlights,
+  quizzes, collages and mosaics, naming/tagging the manufacturer; remove if a brand objects.
+- **Prototype all four creative families:** box-image collages and mosaics, puzzle of the week + quiz,
+  cartoons and seasonal art, Reels/motion.
+
 **Compute budget.** This Mac's CPU, GPU and RAM are the limit for now (a bigger machine may come
 later). Every prototype and lab records the resources it used. Heavy runs happen on a calm machine, with
 Docker and other unneeded apps turned off.

@@ -13,6 +13,9 @@ export interface Slide {
 export interface Post {
   /** wall | record | countries | share | xp | story */
   key: string;
+  /** Gallery label and sample caption (otherwise looked up by key). */
+  label?: string;
+  caption?: string;
   slides: Slide[];
 }
 

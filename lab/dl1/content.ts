@@ -100,7 +100,7 @@ export function loadContent() {
       const t = rows('weekly-totals')[0];
       const start = new Date(t.week_start + 'T00:00:00Z');
       const end = new Date(start.getTime() + 6 * 86400000);
-      const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+      const fmt = (d: Date) => `${d.getUTCDate()} ${d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; // en-GB gives "Sept"
       const fastest = featurable(rows('weekly-fastest') as Array<Record<string, string> & { player_id: string }>).map(r => ({
         player: r.player, country: r.country, pieces: num(r.pieces), time: fmtDuration(num(r.seconds) / 60), firstAttempt: r.first_attempt === 't',
         puzzle: r.puzzle, brand: r.brand, handle: r.ig_handle || null,

@@ -84,7 +84,7 @@ export function qaInPage(o: QaOptions): QaReport {
       if (!cs.fontFamily.toLowerCase().includes(o.fontFamily.toLowerCase())) warnings.push(`not ${o.fontFamily}: ${cs.fontFamily} ${label(el)}`);
     }
     if (/\d/.test(text) && !cs.fontVariantNumeric.includes('tabular-nums')) errors.push(`digits without tabular-nums: ${label(el)}`);
-    if (/\p{Extended_Pictographic}/u.test(text)) errors.push(`emoji in a graphic: ${label(el)}`);
+    if (/\p{Extended_Pictographic}/u.test(text.replace(/[\u00A9\u00AE\u2122]/g, ''))) errors.push(`emoji in a graphic: ${label(el)}`); // © ® ™ are not emoji
 
     const range = document.createRange();
     range.selectNodeContents(node);

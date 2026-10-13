@@ -47,7 +47,7 @@ export function lintCaption(text: string, pillar: Pillar = 'carousel'): LintResu
   if (/\bnot (just |only |merely )?[\p{L}' -]{1,40}, but\b/iu.test(caption) || /\brather than\b/i.test(caption)) warnings.push('"not X but Y" / "rather than" construction');
   for (const r of BANNED_CTA) if (r.test(caption)) errors.push(`engagement-bait CTA: ${r}`);
 
-  const emoji = caption.match(/\p{Extended_Pictographic}/gu) ?? [];
+  const emoji = caption.replace(/[\u00A9\u00AE\u2122]/g, '').match(/\p{Extended_Pictographic}/gu) ?? []; // © ® ™ are not emoji
   if (emoji.length > 3) errors.push(`${emoji.length} emoji; budget is 0–3`);
   for (const e of emoji) if (BANNED_EMOJI.includes(e)) errors.push(`banned emoji ${e}`);
   for (const l of lines) if (/^\s*\p{Extended_Pictographic}/u.test(l)) errors.push(`emoji at a line start: "${l.slice(0, 30)}"`);

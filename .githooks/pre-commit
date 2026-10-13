@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Refuses commits that would leak secrets into this public repository.
+#
+#   1. any staged .env file other than .env.example
+#   2. any staged line containing a value from the local .env (keys that look secret)
+#   3. any staged line containing a literal from the gitignored .secret-patterns file
+#      (one string per line - e.g. server hostnames that must not appear in the hook itself)
+#   4. generic credential shapes: credentialed DB URLs, Meta/Instagram tokens, API keys, private keys
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+fail=0
+
+staged_env=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '(^|/)\.env($|\.)' | grep -v -E '\.env\.example$' || true)
+if [ -n "$staged_env" ]; then
+  echo "pre-commit: refusing to commit env files:" >&2
+  echo "$staged_env" | sed 's/^/  /' >&2
+  fail=1
+fi
+
+added=$(git diff --cached -U0 --no-color | grep -E '^\+' | grep -v -E '^\+\+\+ ' || true)
+
+literals=$(mktemp)
+trap 'rm -f "$literals"' EXIT
+if [ -f .env ]; then
+  grep -E '^[A-Z0-9_]*(PASSWORD|SECRET|TOKEN|KEY|URL|USER)[A-Z0-9_]*=' .env | cut -d= -f2- \
+    | sed -E 's/^"(.*)"$/\1/' | awk 'length($0) >= 8' >> "$literals" || true
+fi
+[ -f .secret-patterns ] && grep -v -E '^\s*(#|$)' .secret-patterns >> "$literals" || true
+
+if [ -s "$literals" ] && [ -n "$added" ] && printf '%s\n' "$added" | grep -q -F -f "$literals"; then
+  echo "pre-commit: a staged line contains a value from .env or .secret-patterns (not shown)." >&2
+  printf '%s\n' "$added" | grep -n -F -f "$literals" | cut -d: -f1 | sed 's/^/  diff line /' >&2
+  fail=1
+fi
+
+patterns='postgres(ql)?://[^:/@ ]+:[^@ ]+@|IGAA[A-Za-z0-9_-]{20,}|EAA[A-Za-z0-9]{30,}|access_token=[A-Za-z0-9_-]{20,}|sk-(ant-|proj-)?[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+if [ -n "$added" ] && printf '%s\n' "$added" | grep -q -E "$patterns"; then
+  echo "pre-commit: a staged line looks like a credential:" >&2
+  printf '%s\n' "$added" | grep -o -E "$patterns" | cut -c1-12 | sed 's/$/…/; s/^/  /' >&2
+  fail=1
+fi
+
+[ "$fail" -eq 0 ] || { echo "pre-commit: commit blocked. Remove the secret (or fix a false positive) and retry." >&2; exit 1; }

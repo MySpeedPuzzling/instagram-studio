@@ -1,0 +1,33 @@
+# --- secrets: never commit ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*token*.json
+secrets/
+
+# --- generated / local-only ---
+var/
+drafts/
+output/
+renders/
+cache/
+models/
+*.safetensors
+*.gguf
+*.ckpt
+__pycache__/
+.venv/
+node_modules/
+.DS_Store
+.idea/
+
+# local-only list of literals the pre-commit hook must block (hostnames etc.)
+.secret-patterns
+
+# --- pipeline working data (drafts mix in DB-derived data; never commit) ---
+content/
+*.sqlite
+*.sqlite-*
+logs/

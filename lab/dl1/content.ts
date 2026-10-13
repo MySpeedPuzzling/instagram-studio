@@ -47,6 +47,7 @@ export function loadContent() {
       context: 'There is no such step at 45 or 50 minutes. The hour is the line people race for.',
       subHour: { puzzlers: num(pb.puzzlers), under60: num(pb.under_60), pct: Math.round((num(pb.under_60) / num(pb.puzzlers)) * 100) },
       question: 'Which side of the wall is your PB?',
+      wallMinute: 59,
     },
 
     /** Single image: anonymous record hero number. */
@@ -57,6 +58,9 @@ export function loadContent() {
       context: `The overall record is ${fmtDuration(num(rec.fastest_any) / 60)}, set on a puzzle its solver had done before.`,
       firstTries: num(rec.first_tries),
       footnote: `Fastest of ${fmtInt(num(rec.first_tries))} first attempts on 500 pieces`,
+      firstTrySeconds: num(rec.fastest_first_try),
+      overallSeconds: num(rec.fastest_any),
+      overall: fmtDuration(num(rec.fastest_any) / 60),
     },
 
     /** Single image: country top 10 by median personal best. */
@@ -64,6 +68,7 @@ export function loadContent() {
       title: 'Danish puzzlers are the fastest on a 500',
       dek: 'Median personal best, solo 500 pieces (countries with 40+ puzzlers)',
       top: countries.slice(0, 10),
+      minPuzzlers: 40,
       reference: [
         { label: 'United States', value: countries.find(c => c.code === 'US')?.medianPb ?? null },
         { label: 'Everyone', value: num(pb.median_pb) },

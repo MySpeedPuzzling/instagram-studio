@@ -67,17 +67,22 @@ export function qaInPage(o: QaOptions): QaReport {
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const seen = new Set<Element>();
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    // Every text node is checked for geometry (a number split by inline spans has several);
+    // style checks run once per element to avoid duplicate messages.
     const text = (node.textContent ?? '').trim();
     const el = node.parentElement;
-    if (!text || !el || seen.has(el) || el.closest('[data-qa-ignore]') || el.closest('svg')) continue;
-    seen.add(el);
-    textCount++;
+    if (!text || !el || el.closest('[data-qa-ignore]') || el.closest('svg')) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0) continue;
     const size = parseFloat(cs.fontSize);
-    const small = el.closest('[data-qa-small]');
-    if (size < (small ? 24 : o.minFontPx)) errors.push(`font ${size}px below the ${small ? 24 : o.minFontPx}px floor: ${label(el)}`);
-    if (!cs.fontFamily.toLowerCase().includes(o.fontFamily.toLowerCase())) warnings.push(`not ${o.fontFamily}: ${cs.fontFamily} ${label(el)}`);
+    const firstVisit = !seen.has(el);
+    seen.add(el);
+    if (firstVisit) {
+      textCount++;
+      const small = el.closest('[data-qa-small]');
+      if (size < (small ? 24 : o.minFontPx)) errors.push(`font ${size}px below the ${small ? 24 : o.minFontPx}px floor: ${label(el)}`);
+      if (!cs.fontFamily.toLowerCase().includes(o.fontFamily.toLowerCase())) warnings.push(`not ${o.fontFamily}: ${cs.fontFamily} ${label(el)}`);
+    }
     if (/\d/.test(text) && !cs.fontVariantNumeric.includes('tabular-nums')) errors.push(`digits without tabular-nums: ${label(el)}`);
     if (/\p{Extended_Pictographic}/u.test(text)) errors.push(`emoji in a graphic: ${label(el)}`);
 
@@ -92,6 +97,7 @@ export function qaInPage(o: QaOptions): QaReport {
       }
     }
 
+    if (!firstVisit) continue;
     const fg = parse(cs.color);
     const g = ground(el);
     if (fg && g.color) {

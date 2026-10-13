@@ -59,3 +59,6 @@ export function fmtDuration(minutes: number): string {
   const pad = (v: number) => String(v).padStart(2, '0');
   return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
+
+/** Signed percentage with a true minus sign (U+2212) and an explicit plus: "−7.4%", "+4.8%". */
+export const fmtSignedPct = (v: number, digits = 1) => `${v < 0 ? '\u2212' : v > 0 ? '+' : ''}${Math.abs(v).toFixed(digits)}%`;

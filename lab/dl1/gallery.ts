@@ -110,6 +110,8 @@ section.dir { background: var(--card); border: 1px solid var(--line); border-rad
 .rate button.on[data-r="no-go"] { background: #fde8e7; border-color: var(--bad); color: var(--bad); }
 .rate textarea { width: 100%; font: inherit; font-size: 13px; border: 1px solid var(--line); border-radius: 8px; padding: 6px; }
 .rate .saved { font-size: 12px; color: var(--ok); }
+.auto { margin: 4px 10px 0; padding: 0; list-style: none; font-size: 11.5px; line-height: 1.35; color: var(--muted); }
+.auto li.pass { color: var(--ok); } .auto li.fail { color: var(--bad); }
 .verdict { background: #f7f8fb; border-radius: 12px; margin: 12px 0 16px; }
 .verdict .rate textarea { min-height: 54px; }
 </style></head><body>
@@ -122,7 +124,10 @@ brand device, applied the same way every time so people recognise an MSP post in
 It's separate from the voice of the captions (that has its own playbook).</p>
 ${labId === 'DL1' ? `<p>Here, the same content is rendered in nine different styles (D1–D9). Nothing has to be picked as a single winner:
 the best result is usually a small system, e.g. one style for the regular feed and others for milestones, events and Stories,
-plus single devices borrowed from styles that don't make it.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
+plus single devices borrowed from styles that don't make it.</p>` : labId.startsWith('AI') ? `<p>Here each section (E1, E2, …) is one experiment of the
+overnight AI image batch: AI paints only the stage (rooms, skies, water, materials, spot animals); code later adds the type, boxes
+and pieces. Each row is one prompt with its seeds. The lines under a slide are automatic code checks (ok/FAIL) and the model,
+licence and resources used; they sort, they don't decide. Mark the candidates you would post.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
 are worth having in the feed, which need work, and which are no-gos.</p>`}
 <h3>How to give feedback</h3>
 <p>Every slide has a code like <b>D4-3</b>. Under each slide tap <b>Works</b>, <b>Unsure</b> or <b>No-go</b> and, if you like,
@@ -147,7 +152,7 @@ ${dirs.map(d => `<section class="dir" id="${d.id}">
 <div class="verdict"><p class="label" style="padding:10px 10px 0">Your verdict on ${d.id} as a whole</p>${rate(d.id, 'data-kind="direction"')}</div>
 <div class="tiles">${coded[d.id].flatMap(p => p.slides.map(s => `<div class="tile ${s.frame !== 'feed' ? 'story' : ''}">
   ${(s as CodedSlide).video ? `<video src="${(s as CodedSlide).video}" poster="${s.preview}" controls playsinline loop muted preload="none" style="width:100%;display:block"></video>` : `<a href="${s.jpg}" target="_blank"><img loading="lazy" src="${s.preview}" alt="${s.code}"></a>`}
-  <p class="code"><b>${s.code}</b> <span>${h(POST_LABEL[p.key] ?? p.key)}</span></p>${rate(s.code, `data-kind="slide" data-post="${p.key}"`)}</div>`)).join('')}</div>
+  <p class="code"><b>${s.code}</b> <span>${h(POST_LABEL[p.key] ?? p.key)}</span></p>${labId.startsWith('AI') && (s as { warnings?: string[] }).warnings?.length ? `<ul class="auto">${(s as { warnings: string[] }).warnings.map(w => `<li class="${/^auto FAIL/.test(w) ? 'fail' : /^auto ok/.test(w) ? 'pass' : ''}">${h(w)}</li>`).join('')}</ul>` : ''}${rate(s.code, `data-kind="slide" data-post="${p.key}"`)}</div>`)).join('')}</div>
 </section>`).join('')}
 </main>
 <script>

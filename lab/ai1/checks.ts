@@ -98,7 +98,8 @@ export function seam(l: Float32Array, w: number, h: number) {
     for (let y = Math.floor(by * h / 4); y < Math.floor((by + 1) * h / 4); y++) for (let x = Math.floor(bx * w / 4); x < Math.floor((bx + 1) * w / 4); x++) { s += b[y * w + x]; n++; }
     means.push(s / n);
   }
-  return { ratioH: (sh / w) / (ih / ((h - 1) * w)), ratioV: (sv / h) / (iv / (w - 1) / h), blockRange: Math.max(...means) - Math.min(...means) };
+  // Floor the typical neighbour difference so a perfectly flat image gives a finite ratio.
+  return { ratioH: (sh / w) / Math.max(0.25, ih / ((h - 1) * w)), ratioV: (sv / h) / Math.max(0.25, iv / (w - 1) / h), blockRange: Math.max(...means) - Math.min(...means) };
 }
 
 export async function spot(file: string) {

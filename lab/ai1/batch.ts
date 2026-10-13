@@ -10,7 +10,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT } from '../../src/render/server.ts';
 
-export const LAB_ID = 'AI1';
+/** AI_LAB_ID only for the runner's dry tests against a mock ComfyUI (keeps them out of content/labs/AI1). */
+export const LAB_ID = process.env.AI_LAB_ID ?? 'AI1';
 export const OUT_DIR = join(ROOT, 'content/labs', LAB_ID);
 export const WORKFLOW_DIR = join(ROOT, 'lab/ai1/workflows');
 

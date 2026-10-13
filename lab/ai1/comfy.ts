@@ -27,6 +27,7 @@ export function comfyConfig(): { cfg?: ComfyConfig; missing: string[] } {
 export const comfyArgs = (c: ComfyConfig) => [
   join(c.dir, 'main.py'), '--listen', '127.0.0.1', '--port', String(c.port), '--base-directory', c.baseDir,
   '--cache-none', '--disable-auto-launch', '--disable-all-custom-nodes', '--whitelist-custom-nodes', 'ComfyUI-GGUF', '--disable-api-nodes',
+  '--database-url', 'sqlite:///:memory:', // the default file DB fails to open in the core folder (harmless, but noisy)
 ];
 export const COMFY_FLAGS_LOGGED = ['--cache-none', '--disable-all-custom-nodes', '--whitelist-custom-nodes ComfyUI-GGUF', '--disable-api-nodes', 'PYTORCH_ENABLE_MPS_FALLBACK=1'];
 

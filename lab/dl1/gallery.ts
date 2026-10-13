@@ -127,7 +127,7 @@ document.querySelectorAll('form.pick').forEach(f => f.addEventListener('submit',
   e.preventDefault();
   const data = Object.fromEntries(new FormData(f));
   const r = await fetch('/api/feedback', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lab: 'DL1', direction: f.dataset.dir, ...data }) });
-  f.querySelector('.saved').textContent = r.ok ? 'Saved' : 'Not saved (is tools/serve.ts running?)';
+  f.querySelector('.saved').textContent = r.ok ? 'Saved' : 'Not saved (is tools/review.ts running?)';
 }));
 </script>
 </body></html>`;

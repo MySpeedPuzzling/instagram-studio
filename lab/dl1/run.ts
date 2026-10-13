@@ -83,6 +83,6 @@ if (import.meta.main) {
     await renderer.close();
   }
   buildGallery(readManifest(), content);
-  console.log(`\ngallery: content/labs/DL1/index.html (serve with: node tools/serve.ts)`);
+  console.log(`\ngallery: content/labs/DL1/index.html (serve with: node tools/review.ts)`);
   if (errors) process.exitCode = 1;
 }

@@ -28,7 +28,10 @@ is gitignored and loaded automatically. Keep those details out of every committe
 - Personal data (players' e-mails, sessions) is in there: don't copy it into files in the repo.
 - Numbers that go into posts follow the app's rules: exclude suspicious results, skip embargoed puzzles
   and non-public events, and **exclude private profiles from every query, aggregates included**
-  (`player.is_private`). Ranking opt-outs are excluded from anything that names or ranks players. Re-run the query right
+  (`player.is_private`). Ranking opt-outs are excluded from anything that names or ranks players.
+- **Fresh data for every post (owner rule):** plans hold ideas and query names, never final numbers. A post's
+  numbers are queried with `--fresh` on the day it's finalised; the publisher refuses drafts whose facts.json is
+  older than 24 h. Re-query and re-render before showing a draft for approval if its data is older than that. Re-run the query right
   before posting and record the date it was queried.
 
 ## Featuring players

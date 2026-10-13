@@ -9,8 +9,11 @@ A draft is a folder `content/drafts/<id>/` (see `src/drafts/model.ts`): `draft.y
 `feedback.jsonl`. Drafts are local only (member data).
 
 ## New draft
-1. **Facts:** re-run every query the post uses with `--fresh`; save the rows the post relies on into `facts.json`.
-   Every number on a slide or in the caption must come from it.
+1. **Facts:** re-run every query the post uses with `--fresh`; save the query results the post relies on into
+   `facts.json` (name → result with `queried_at`; `{"no_data": true}` for posts without numbers). Every number on a
+   slide or in the caption must come from it. Draft at most a day before the post goes out: the publisher refuses
+   data older than 24 h (`MAX_FACTS_AGE_HOURS`), and the review app shows a red "Data is not fresh" panel.
+   **Refresh** = re-run the queries, re-render the slides, re-check the caption numbers, bump the version.
 2. **Visuals:** build slides with the chosen house direction's components (design lab decision in
    `docs/decisions.md`; templates in `lab/` until promoted to `templates/`). Render through `src/render/render.ts`
    (1080-wide CSS canvas → 1440×1800 JPEG + `.ig.jpg` preview). Fix every QA error; look at the previews

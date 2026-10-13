@@ -3,7 +3,7 @@
 //
 //   node src/publish/publish.ts <draft-id>     # publish one approved draft now
 //   node src/publish/publish.ts --due          # publish scheduled drafts that are due (for launchd)
-import { statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import { lintCaption } from '../captions/lint.ts';
@@ -15,12 +15,35 @@ import { r2Host, type MediaHost } from './r2.ts';
 
 /** Refuse posts that are this late; they wait for the owner to reschedule. */
 const MAX_LATE_HOURS = 6;
+/** Owner rule: every number is fresh. Facts must have been queried at most this long before publishing. */
+export const MAX_FACTS_AGE_HOURS = 24;
+
+/**
+ * Age of the draft's data: facts.json maps query names to QueryResult snapshots (each with queried_at), or is
+ * { "no_data": true } for posts without numbers (cartoons, seasonal art).
+ */
+export function factsAge(draftId: string, now = new Date()): { ok: boolean; problem?: string; oldest?: string } {
+  const f = join(ROOT, 'content/drafts', draftId, 'facts.json');
+  if (!existsSync(f)) return { ok: false, problem: 'no facts.json: every post needs its data snapshot (or {"no_data": true})' };
+  const facts = JSON.parse(readFileSync(f, 'utf8'));
+  if (facts.no_data === true) return { ok: true };
+  const dates = Object.values(facts).map((r: any) => r?.queried_at).filter(Boolean) as string[];
+  if (!dates.length) return { ok: false, problem: 'facts.json has no queried_at dates' };
+  const oldest = dates.sort()[0];
+  const hours = (now.getTime() - Date.parse(oldest)) / 3_600_000;
+  if (hours > MAX_FACTS_AGE_HOURS) {
+    return { ok: false, oldest, problem: `data is ${Math.round(hours)} h old (queried ${oldest.slice(0, 16).replace('T', ' ')} UTC); re-query and re-render before publishing (max ${MAX_FACTS_AGE_HOURS} h)` };
+  }
+  return { ok: true, oldest };
+}
 
 export interface PreflightIssue { slide?: number; problem: string }
 
 /** Every Instagram API limit that would otherwise fail mid-publish (as of 2026-10-13). */
 export async function preflight(d: Draft): Promise<PreflightIssue[]> {
   const issues: PreflightIssue[] = [];
+  const age = factsAge(d.id);
+  if (!age.ok) issues.push({ problem: `stale or missing data: ${age.problem}` });
   const n = d.slides.length;
   if (d.format === 'carousel' && (n < 2 || n > 10)) issues.push({ problem: `carousel needs 2–10 slides, has ${n}` });
   if (d.format === 'single' && n !== 1) issues.push({ problem: `single image needs exactly 1 slide, has ${n}` });

@@ -7,6 +7,7 @@ import { lintCaption, type Pillar } from '../captions/lint.ts';
 import { escapeHtml as h } from '../design/page.ts';
 import { addFeedback, feedback, listDrafts, loadDraft, REJECT_REASONS, saveDraft, transition, type Draft } from '../drafts/model.ts';
 import { ROOT, type Handler } from '../render/server.ts';
+import { factsAge, MAX_FACTS_AGE_HOURS } from '../publish/publish.ts';
 
 export interface ReviewHooks {
   /** Called when the owner approves with "publish now"; returns a message for the page. */
@@ -126,6 +127,9 @@ function draftPage(d: Draft) {
         <p class="meta">Top-left tile: this draft, cropped to the grid's 3:4. Others: the latest real posts.</p></div>
     </div>
     <div>
+      ${(() => { const a = factsAge(d.id); return a.ok
+        ? `<div class="panel"><h3>Data</h3><p class="meta">${a.oldest ? `Queried ${h(a.oldest.slice(0, 16).replace('T', ' '))} UTC (fresh: under ${MAX_FACTS_AGE_HOURS} h).` : 'No data in this post.'}</p></div>`
+        : `<div class="panel" style="border-color:#f04438"><h3 style="color:#b42318">Data is not fresh</h3><p class="meta" style="color:#b42318">${h(a.problem ?? '')}. Ask Claude to refresh this draft; it can't be published until then.</p></div>`; })()}
       <div class="panel"><h3>Caption ${d.caption_author === 'human' ? '<span class="pill">edited by you</span>' : ''}</h3>
         <textarea class="caption" id="caption">${h(d.caption)}</textarea>
         <div class="meta"><span id="chars"></span><span id="tags"></span><span id="mentions"></span></div>

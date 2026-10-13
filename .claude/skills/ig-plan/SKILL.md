@@ -24,5 +24,7 @@ never get repetitive.
 4. **Recommend** 3 posts a week (Monday Weekly Numbers, Thursday Did-you-know, a weekend slot) plus 3–5 Stories,
    with one in three posts spending the novelty budget (new template, mechanic or topic). Prefer timely anchors
    (events from `queries/upcoming-events.sql`, milestones, launches).
+   Plans carry the idea, the query names and *approximate* numbers only; the real numbers are queried fresh when
+   the post is drafted (at most a day before it goes out), never copied from the plan.
 5. **Ask the owner** with AskUserQuestion: the recommended slate first, alternatives as options; then update
    `content/ideas/backlog.md` and draft the chosen ones with the `ig-draft` skill.

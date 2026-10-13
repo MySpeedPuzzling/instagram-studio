@@ -1,0 +1,28 @@
+{
+  "name": "msp-instagram",
+  "private": true,
+  "type": "module",
+  "description": "Claude-Code-driven, human-approved Instagram pipeline for MySpeedPuzzling",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "tokens": "node src/design/build-tokens.ts",
+    "test": "node --test 'src/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "culori": "4.0.2",
+    "d3": "7.9.0",
+    "playwright": "1.64.0",
+    "sharp": "0.35.5",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/culori": "4.0.1",
+    "@types/d3": "7.4.3",
+    "@types/node": "26.6.5",
+    "typescript": "7.0.2"
+  }
+}

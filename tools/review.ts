@@ -15,6 +15,8 @@ const token = lan ? randomBytes(9).toString('base64url') : '';
 // Drafts hold member data: on the LAN every request needs the token (set as a cookie by the first URL).
 const gate: Handler = (req, res) => {
   if (!lan) return false;
+  // Requests from this Mac itself never need the token; only other devices on the network do.
+  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress ?? '')) return false;
   const u = new URL(req.url ?? '/', 'http://x');
   if (u.searchParams.get('t') === token) { res.setHeader('set-cookie', `t=${token}; HttpOnly; SameSite=Strict; Path=/`); return false; }
   if ((req.headers.cookie ?? '').includes(`t=${token}`)) return false;

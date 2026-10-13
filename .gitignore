@@ -37,3 +37,7 @@ CLAUDE.local.md
 
 # do-not-feature list holds player IDs (personal data); it lives in content/, this is a safety net
 do-not-feature*
+
+# Claude Code personal settings and third-party skills (restored from skills-lock.json, never vendored)
+.claude/settings.local.json
+.agents/

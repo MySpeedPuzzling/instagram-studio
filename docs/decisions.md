@@ -56,6 +56,25 @@ puzzle and competition data only.
 **Feature explainer videos.** HyperFrames-style motion is also a fit for explaining new MSP features in
 short videos: another automatable content type next to the data posts (a hint, not a must).
 
+## 2026-10-13: owner hands over driving; answers to the round-2 questions
+
+The owner delegates execution: Claude drives the next steps and builds, asking only for decisions
+(interactively, with a recommendation).
+
+- **Traffic rule:** daily signed-in-player counts count as traffic, so they are not used; use
+  solve-based numbers instead.
+- **Emoji:** 0–3 functional emoji per caption.
+- **Heavy jobs:** Claude pings the owner per batch while a lab type is being measured; once measured,
+  that lab type may run overnight automatically when the calm-machine check passes.
+- **Image host for API publishing:** a Cloudflare R2 bucket; objects are deleted after publishing.
+- **Disk:** keep whatever models are needed and download what labs need. Notify the owner when free
+  disk drops below 30 GB.
+- **Disclosure:** none. No bio statement and no proactive AI flag; Instagram's own detection may
+  still label hosted-model images.
+- **Juniors:** treated like everyone else under the app's visibility rules.
+- **Recompression test:** no private or test account and no test posts on the main account. Measure
+  Instagram's recompression from posts already published (served copies vs the originals on disk).
+
 **Compute budget.** This Mac's CPU, GPU and RAM are the limit for now (a bigger machine may come
 later). Every prototype and lab records the resources it used. Heavy runs happen on a calm machine, with
 Docker and other unneeded apps turned off.

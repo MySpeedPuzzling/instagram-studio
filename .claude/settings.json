@@ -1,0 +1,43 @@
+{
+  "env": {
+    "DO_NOT_TRACK": "1",
+    "DISABLE_TELEMETRY": "1",
+    "HYPERFRAMES_NO_TELEMETRY": "1",
+    "HYPERFRAMES_NO_UPDATE_CHECK": "1",
+    "HYPERFRAMES_SKIP_SKILLS": "1"
+  },
+  "disableSkillShellExecution": true,
+  "enabledPlugins": {
+    "ui-ux-pro-max@ui-ux-pro-max-skill": false
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Bash(printenv*)",
+      "Bash(env)",
+      "Bash(*hyperframes usage*)",
+      "Bash(*hyperframes publish*)",
+      "Bash(*hyperframes cloud*)",
+      "Bash(*hyperframes skills*)",
+      "mcp__comfyui__runpod",
+      "mcp__comfyui__runpod_watch",
+      "mcp__comfyui__install_comfyui",
+      "mcp__comfyui__install_custom_node",
+      "mcp__comfyui__comfy_cli",
+      "mcp__comfyui__node_pack",
+      "mcp__comfyui__apply_manifest",
+      "mcp__comfyui__apps",
+      "mcp__comfyui__bisect",
+      "mcp__comfyui__report_issue",
+      "mcp__comfyui__workspace"
+    ],
+    "ask": [
+      "mcp__comfyui__generate_image",
+      "mcp__comfyui__enqueue_workflow",
+      "mcp__comfyui__batch",
+      "mcp__comfyui__download_model",
+      "mcp__comfyui__restart_comfyui",
+      "mcp__comfyui__call_tool"
+    ]
+  }
+}

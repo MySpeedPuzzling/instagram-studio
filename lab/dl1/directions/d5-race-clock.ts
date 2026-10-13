@@ -105,10 +105,11 @@ body { background: var(--ink); font-variant-numeric: tabular-nums lining-nums sl
 .sw { display: inline-block; width: 12px; height: 34px; border-radius: 3px; vertical-align: -6px; margin-right: 16px; }
 .ask { font-size: 54px; font-weight: 700; line-height: 1.12; color: var(--paper); text-wrap: balance; }
 .br .who { flex: 1; min-width: 0; padding: 18px 0; }
+.br .who .nm span { min-width: 0; overflow-wrap: anywhere; }
 .br .who .nm { display: flex; align-items: center; line-height: 1.15; }
 .br .who .nm img { width: 40px; height: 40px; margin-right: 16px; }
 .br .sub { font-size: 30px; line-height: 1.25; color: var(--context); margin-top: 6px; }
-.br .ig { font-size: 30px; font-weight: 500; color: var(--sky-500); margin-left: 16px; }
+.br .ig { font-size: 30px; font-weight: 500; line-height: 1.2; color: var(--sky-500); margin-top: 6px; overflow-wrap: anywhere; }
 .strip { display: flex; }
 .strip > div { flex: 1; border-left: 2px solid var(--ink-soft); padding-left: 26px; }
 .strip > div:first-child { border-left: 0; padding-left: 0; }
@@ -318,11 +319,16 @@ const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, 
 const dayLabel = (iso: string) => `${Number(iso.slice(8, 10))} ${new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; // "28 Sep"
 const monthLabel = (ym: string, month: 'short' | 'long' = 'short') => new Date(ym + '-01T12:00:00Z').toLocaleDateString('en-US', { month, timeZone: 'UTC' });
 const pad2 = (n: number) => String(n).padStart(2, '0');
+/** Shortens text to at most `max` characters at a word boundary, with an ellipsis. */
+const cut = (s: string, max: number) => {
+  if (s.length <= max) return s;
+  const head = s.slice(0, max - 1);
+  return `${(/\s/.test(s[max - 1]) ? head : head.replace(/\s+\S*$/, '') || head).replace(/[\s,.:;·–-]+$/, '')}…`;
+};
 const strip = (items: Array<[string, string]>) => `<div class="strip">${items.map(([k, v]) => `<div><p class="k">${h(k)}</p><p class="v">${clock(v)}</p></div>`).join('')}</div>`;
 
 function weekly(c: Content): Post {
   const w = c.weekly;
-  const n = 4;
   const kick = `${w.series} · Ep. ${w.episode}`;
 
   // 1 · Cover: a one-week dial (a full coral lap, day initials round the bezel) carrying the episode number.
@@ -343,18 +349,27 @@ function weekly(c: Content): Post {
     ${dayTicks}${dayNames}
   </svg>`;
 
-  // 3 · Fastest boards, one row per puzzler.
+  // 3–4 · Fastest boards, one slide per size, one row per puzzler (repeat finishes fold into "Also").
   const g500 = byPlayer(w.fastest500), g1000 = byPlayer(w.fastest1000);
-  const leaders = [...new Set([g500[0]?.player, g1000[0]?.player].filter(Boolean))] as string[];
+  const n = 3 + (g500.length ? 1 : 0) + (g1000.length ? 1 : 0);
+  // The detail line wraps to at most two lines of the 608 px column; long puzzle names are cut at a word.
+  const detail = (g: FastGroup) => {
+    const brand = cut(g.brand, 24);
+    return `${h(cut(g.puzzle, 66 - brand.length - 3 - (g.firstAttempt ? 16 : 0)))}&nbsp;· ${h(brand)}${g.firstAttempt ? '&nbsp;· first&nbsp;attempt' : ''}`;
+  };
   const fastRow = (g: FastGroup, i: number) => `<div class="br ${i === 0 ? 'hot' : ''}">
     <span class="rk">${pad2(i + 1)}</span>
-    <div class="who"><p class="nm">${g.country ? `<img src="${flagUrl(g.country)}" alt="">` : ''}<span>${h(g.player)}</span>${g.handle ? `<span class="ig">@${h(g.handle)}</span>` : ''}</p>
-      <p class="sub">${h(g.puzzle)} · ${h(g.brand)}${g.firstAttempt ? ' · first attempt' : ''}</p>
+    <div class="who" style="padding:30px 0"><p class="nm" style="font-size:42px">${g.country ? `<img src="${flagUrl(g.country)}" alt="">` : ''}<span>${h(cut(g.player, 48))}</span></p>
+      ${g.handle ? `<p class="ig">@${h(g.handle)}</p>` : ''}
+      <p class="sub">${detail(g)}</p>
       ${g.also.length ? `<p class="sub">Also ${andList(g.also)}${g.samePuzzle ? ' on the same puzzle' : ''}</p>` : ''}</div>
-    <span class="big" style="width:200px; text-align:right; font-size:44px">${clock(g.time)}</span></div>`;
-  const board = (label: string, gs: FastGroup[], first: boolean) => gs.length ? `
-    <div class="bh" ${first ? '' : 'style="margin-top:44px"'}><span style="width:76px">#</span><span style="flex:1">${label}</span><span style="width:200px; text-align:right">Time</span></div>
-    ${gs.map(fastRow).join('')}` : '';
+    <span class="big" style="width:220px; text-align:right; font-size:52px">${clock(g.time)}</span></div>`;
+  // The leader is named in the title when it still fits two lines; the board always names everyone.
+  const title = (size: string, leader: string) => (`The week's fastest solo ${size}: ${leader}`.length <= 48 ? `The week's fastest solo ${size}: ${leader}` : `The week's fastest solo ${size}`);
+  const fastest = (gs: FastGroup[], size: string): Array<(i: number) => Slide> => gs.length ? [i => ({ id: `weekly-${i}`, body: frame({ kicker: kick, idx: [i, n], src: c.source, title: title(size, gs[0].player), body: `
+      <div class="board" style="top:380px">
+        <div class="bh"><span style="width:76px">#</span><span style="flex:1">Solo ${size} pieces</span><span style="width:220px; text-align:right">Time</span></div>
+        ${gs.map(fastRow).join('')}</div>` }) })] : [];
 
   const tp = w.topPuzzles;
   const slides: Slide[] = [
@@ -372,9 +387,8 @@ function weekly(c: Content): Post {
           <div class="who"><p class="nm" ${i === 0 ? 'style="font-weight:700"' : ''}>${h(p.puzzle)}</p><p class="sub">${h(p.brand)} · ${fmtInt(p.pieces)} pieces</p></div>
           <span class="tm" style="width:180px">${fmtInt(p.solvers)}</span></div>`).join('')}
       </div>` }) },
-    { id: 'weekly-3', body: frame({ kicker: kick, idx: [3, n], src: c.source, title: `The week's fastest: ${andList(leaders)}`, body: `
-      <div class="board" style="top:360px">${board('Solo 500 pieces', g500, true)}${board('Solo 1,000 pieces', g1000, !g500.length)}</div>` }) },
-    { id: 'weekly-4', body: frame({ kicker: kick, idx: [4, n], src: c.source, body: `
+    ...[...fastest(g500, '500'), ...fastest(g1000, '1,000')].map((slide, k) => slide(3 + k)),
+    { id: `weekly-${n}`, body: frame({ kicker: kick, idx: [n, n], src: c.source, body: `
       <p class="big" data-qa-bleed style="position:absolute; left:${inkLeft(String(w.personalBests), 290)}px; top:${206 - 0.8425 * 290 + 230}px; font-size:290px">${clock(fmtInt(w.personalBests))}</p>
       <p class="dek" style="position:absolute; left:${X0}px; width:${CW}px; top:500px; font-size:44px; color:var(--paper); font-weight:500">personal bests were set last week</p>
       <div class="board" style="top:620px">

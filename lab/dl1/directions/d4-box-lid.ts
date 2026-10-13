@@ -291,6 +291,13 @@ const toMinutes = (t: string) => t.split(':').map(Number).reduce((a, v) => a * 6
 const flagImg = (cc: string) => (cc ? `<img src="${flagUrl(cc)}" alt="">` : '<span style="width:44px; flex:none"></span>');
 const signedInt = (v: number) => `${v < 0 ? '−' : '+'}${fmtInt(Math.abs(v))}`;
 
+/** Shortens text to at most `max` characters at a word boundary, with an ellipsis. */
+const cut = (s: string, max: number) => {
+  if (s.length <= max) return s;
+  const head = s.slice(0, max - 1);
+  return `${(/\s/.test(s[max - 1]) ? head : head.replace(/\s+\S*$/, '') || head).replace(/[\s,.:;·–-]+$/, '')}…`;
+};
+
 /** Same player listed several times (one person can own the whole podium): one entry, best time first. */
 function byPlayer<T extends { player: string }>(list: T[]) {
   const out: Array<{ rank: number; first: T; more: T[] }> = [];
@@ -311,7 +318,6 @@ type Fastest = Content['weekly']['fastest500'][number];
 
 function weekly(c: Content): Post {
   const wk = c.weekly, s = SERIES.weekly;
-  const N = 5;
   const no = String(wk.episode).padStart(2, '0');
   const box = (page?: string, src = true) => ({ badge: [compact(wk.pieces), 'pieces'] as [string, string], kicker: wk.range, issue: no, page, src: src ? c.source : undefined });
 
@@ -325,18 +331,22 @@ function weekly(c: Content): Post {
   const tpMax = CW - 130;
   const tpY = 530, tpStep = 120;
 
-  // Fastest, grouped by player.
+  // Fastest: one lid per size, grouped by player (repeat finishes fold into "also").
   const sections = [
     { label: 'Solo 500 pieces', list: wk.fastest500 },
     { label: 'Solo 1,000 pieces', list: wk.fastest1000 },
   ].filter(x => x.list.length);
+  const N = 4 + sections.length;
   const entry = (gp: { rank: number; first: Fastest; more: Fastest[] }) => {
     const f = gp.first;
-    const notes = [...(f.handle ? [`<span class="hi">@${h(f.handle)}</span>`] : []), `${h(f.puzzle)} · ${h(f.brand)}`];
+    // The handle gets its own line; the puzzle line (tag included) wraps to at most two lines of 672 px.
+    const brand = cut(f.brand, 24);
+    const notes = [`${h(cut(f.puzzle, 72 - brand.length - 3 - (f.firstAttempt ? 16 : 0)))}&nbsp;· ${h(brand)}`];
     if (gp.more.length) notes.push(`also ${gp.more.map(m => `<b>${m.time}</b>`).join(' and ')}`);
-    return `<div style="margin-top:22px">
-      <div class="row"><span class="who"><span class="rk">${gp.rank}</span>${flagImg(f.country)}<span class="pn">${h(f.player)}</span></span><span class="tm">${f.time}</span></div>
-      <p class="lab" style="margin:4px 0 0 88px">${notes.join(' · ')}${f.firstAttempt ? ` <span class="tag">first attempt</span>` : ''}</p></div>`;
+    return `<div style="margin-top:36px">
+      <div class="row"><span class="who"><span class="rk">${gp.rank}</span>${flagImg(f.country)}<span class="pn" style="white-space:normal; overflow-wrap:anywhere; line-height:1.1; min-width:0">${h(cut(f.player, 48))}</span></span><span class="tm" style="flex:none">${f.time}</span></div>
+      ${f.handle ? `<p class="lab hi" style="margin:8px 0 0 88px; overflow-wrap:anywhere">@${h(f.handle)}</p>` : ''}
+      <p class="lab" style="margin:6px 0 0 88px">${notes.join('&nbsp;· ')}${f.firstAttempt ? ` <span class="tag">first attempt</span>` : ''}</p></div>`;
   };
 
   const pbPer100 = Math.round((wk.personalBests / wk.results) * 100);
@@ -359,19 +369,19 @@ function weekly(c: Content): Post {
         <p class="abs lab" style="left:${L}px; top:${tpY - 76}px; width:${CW}px">Puzzlers who solved it</p>
         ${tp.map((p, i) => `<p class="abs lab" style="left:${L}px; top:${tpY + i * tpStep}px; width:${CW}px; white-space:nowrap"><b>${i + 1}&nbsp;&nbsp;${h(p.puzzle)}</b> · ${h(p.brand)}</p>
           ${barRow(L, tpY + i * tpStep + 46, '', (p.solvers / tp[0].solvers) * tpMax, i === 0 ? 'var(--coral-500)' : s.mark, fmtInt(p.solvers), 0)}`).join('')}`) },
-      { id: 'weekly-3', body: lid('weekly', box(`3/${N}`), `
+      ...sections.map((x, i) => ({ id: `weekly-${3 + i}`, body: lid('weekly', box(`${3 + i}/${N}`), `
         <h2 class="abs h2" style="left:${L}px; top:220px; width:${CW}px">Fastest of the week</h2>
-        <div class="abs" style="left:${L}px; top:316px; width:${CW}px">
-          ${sections.map((x, i) => `<div style="margin-top:${i ? 46 : 0}px"><p class="lbl sec">${h(x.label)}</p>${byPlayer(x.list).map(entry).join('')}</div>`).join('')}
-        </div>`) },
-      { id: 'weekly-4', body: lid('weekly', box(`4/${N}`), `
+        <div class="abs" style="left:${L}px; top:330px; width:${CW}px">
+          <p class="lbl sec">${h(x.label)}</p>${byPlayer(x.list).map(entry).join('')}
+        </div>`) })),
+      { id: `weekly-${N - 1}`, body: lid('weekly', box(`${N - 1}/${N}`), `
         <p class="abs hero" style="left:${L - 8}px; top:250px">${fmtInt(wk.personalBests)}</p>
         <h2 class="abs h2" style="left:${L}px; top:520px; width:${CW}px">personal bests set last week</h2>
         <p class="abs dek" style="left:${L}px; top:680px; width:${CW}px">${pbPer100} in every 100 of the week’s ${fmtInt(wk.results)} results</p>
         <div class="abs" style="left:${L}px; top:806px; width:${CW}px; height:14px; background:var(--coral-500); border-radius:7px"></div>
         <p class="abs" style="left:${L - 4}px; top:880px; font-size:150px; font-weight:700; letter-spacing:-5px; line-height:0.86">${fmtInt(wk.newPuzzlers)}</p>
         <p class="abs h2" style="left:${L}px; top:1040px; width:${CW}px">new puzzlers joined us</p>`) },
-      { id: 'weekly-5', body: lid('weekly', box(`5/${N}`), `
+      { id: `weekly-${N}`, body: lid('weekly', box(`${N}/${N}`), `
         <p class="abs lbl" style="left:${L}px; top:300px">Inside last week’s box</p>
         <p class="abs" style="left:${L - 4}px; top:352px; font-size:132px; font-weight:700; letter-spacing:-4px; line-height:0.9">${fmtInt(wk.pieces)}</p>
         <h2 class="abs h2" style="left:${L}px; top:510px; width:${CW}px">pieces placed by ${fmtInt(wk.puzzlers)} puzzlers</h2>

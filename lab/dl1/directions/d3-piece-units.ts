@@ -324,6 +324,13 @@ function formation(n: number, minCols: number, maxCols: number) {
   return best;
 }
 
+/** Shortens text to at most `max` characters at a word boundary, with an ellipsis. */
+const cut = (s: string, max: number) => {
+  if (s.length <= max) return s;
+  const head = s.slice(0, max - 1);
+  return `${(/\s/.test(s[max - 1]) ? head : head.replace(/\s+\S*$/, '') || head).replace(/[\s,.:;·–-]+$/, '')}…`;
+};
+
 /** Same player listed several times (one person can own the whole podium): one entry, best time first. */
 function byPlayer<T extends { player: string }>(list: T[]) {
   const out: Array<{ rank: number; first: T; more: T[] }> = [];
@@ -353,7 +360,6 @@ type Fastest = Content['weekly']['fastest500'][number];
 
 function weekly(c: Content): Post {
   const wk = c.weekly;
-  const N = 5;
   const kick = wk.series;
 
   // Cover marker, same place every week: this episode as a placed navy piece carrying its number, next
@@ -388,19 +394,23 @@ function weekly(c: Content): Post {
   const tpSize = Math.min(56, CW / tpCols);
   const tpGap = 146, tpY = 530;
 
-  // Fastest: grouped by player, one section per size.
+  // Fastest: one slide per size, grouped by player (repeat finishes fold into "also").
   const sections = [
     { label: 'Solo 500 pieces', list: wk.fastest500 },
     { label: 'Solo 1,000 pieces', list: wk.fastest1000 },
   ].filter(s => s.list.length);
+  const N = 4 + sections.length;
   const entry = (gp: { rank: number; first: Fastest; more: Fastest[] }) => {
     const f = gp.first;
-    const notes = [`${h(f.puzzle)} · ${h(f.brand)}`];
-    if (f.firstAttempt) notes.push('<span class="flag">first attempt</span>');
+    // The note wraps to at most two lines of the 854 px column; long puzzle names are cut at a word.
+    const brand = cut(f.brand, 24);
+    const notes = [`${h(cut(f.puzzle, 88 - brand.length - 3 - (f.firstAttempt ? 16 : 0)))}&nbsp;· ${h(brand)}`];
+    if (f.firstAttempt) notes.push('<span class="flag">first&nbsp;attempt</span>');
     if (gp.more.length) notes.push(`also ${gp.more.map(m => `<b>${m.time}</b>`).join(' and ')}`);
-    return `<div style="margin-top:44px">
-      <div class="row" style="align-items:center"><span class="who"><span class="rk">${gp.rank}</span>${flagImg(f.country)}<span class="pn">${h(f.player)}</span>${f.handle ? `<span class="ig">@${h(f.handle)}</span>` : ''}</span><span class="tm">${f.time}</span></div>
-      <p class="lab" style="margin:8px 0 0 50px">${notes.join(' · ')}</p></div>`;
+    return `<div style="margin-top:60px">
+      <div class="row" style="align-items:center"><span class="who"><span class="rk">${gp.rank}</span>${flagImg(f.country)}<span class="pn" style="white-space:normal; overflow-wrap:anywhere; line-height:1.1; min-width:0">${h(cut(f.player, 48))}</span></span><span class="tm" style="flex:none">${f.time}</span></div>
+      ${f.handle ? `<p class="ig" style="margin:6px 0 0 50px; white-space:normal; overflow-wrap:anywhere">@${h(f.handle)}</p>` : ''}
+      <p class="lab" style="margin:8px 0 0 50px">${notes.join('&nbsp;· ')}</p></div>`;
   };
 
   // Personal bests as a share of the week's results.
@@ -438,18 +448,18 @@ function weekly(c: Content): Post {
         ${svgAt(X0, tpY, CW, tpGap * tp.length, strips(tpUnits, { cols: tpCols, size: tpSize, gap: tpGap, seed: 29, mark: i => (i === 0 ? 'hl' : 'unit') }))}
         ${tp.map((p, i) => `<p class="abs lab row" style="left:${X0}px; top:${tpY + i * tpGap - 56}px; width:${CW}px"><span><b>${h(p.puzzle)}</b> · ${h(p.brand)}</span><span><b>${fmtInt(p.solvers)}</b> solvers</span></p>`).join('')}
         ${foot(c.source)}`) },
-      { id: 'weekly-3', body: frame(`${top(kick, `3 / ${N}`)}
+      ...sections.map((s, i) => ({ id: `weekly-${3 + i}`, body: frame(`${top(kick, `${3 + i} / ${N}`)}
         <h2 class="h2">Fastest of the week</h2>
-        ${sections.map((s, i) => `<div style="margin-top:${i ? 100 : 60}px"><p class="sec">${h(s.label)}</p>${byPlayer(s.list).map(entry).join('')}</div>`).join('')}
-        ${foot(c.source)}`) },
-      { id: 'weekly-4', body: frame(`${top(kick, `4 / ${N}`)}
+        <div style="margin-top:60px"><p class="sec">${h(s.label)} · best time per puzzler</p>${byPlayer(s.list).map(entry).join('')}</div>
+        ${foot(c.source)}`) })),
+      { id: `weekly-${N - 1}`, body: frame(`${top(kick, `${N - 1} / ${N}`)}
         <h2 class="h2">${pbPct} in 100 results last week were personal bests</h2>
         ${key(`1% of ${fmtInt(wk.results)} results`)}
         ${svgAt(X0, wY, waffle.width, waffle.height, drawPieces(pbItems))}
         ${at(X0 + waffle.width + 48, wY, `${legendRow('hl', fmtInt(wk.personalBests), 'personal bests')}<div style="margin-top:44px">${legendRow('unit', fmtInt(wk.results - wk.personalBests), 'other results')}</div>`)}
         <p class="abs lab" style="left:${X0}px; top:${wY + waffle.height + 40}px; width:${CW}px">And welcome to the <b>${fmtInt(wk.newPuzzlers)}</b> puzzlers who joined MySpeedPuzzling last week.</p>
         ${foot(c.source)}`) },
-      { id: 'weekly-5', body: frame(`${top(kick, `5 / ${N}`)}
+      { id: `weekly-${N}`, body: frame(`${top(kick, `${N} / ${N}`)}
         <h2 class="h2">Together you placed ${fmtInt(wk.pieces)} pieces</h2>
         ${key(`${fmtInt(ppUnit)} pieces placed`, 'unit')}
         ${svgAt(X0, ppY, ppGrid.width, ppGrid.height, drawPieces(ppItems))}

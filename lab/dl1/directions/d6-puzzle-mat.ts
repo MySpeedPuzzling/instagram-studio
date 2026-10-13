@@ -308,6 +308,12 @@ const countryName = (code: string) => (code ? regionName.of(code) ?? code : '');
 const pad2 = (n: number) => String(n).padStart(2, '0');
 const utc = (iso: string) => new Date(iso.length === 7 ? `${iso}-15T12:00:00Z` : `${iso}T12:00:00Z`);
 const monthOf = (iso: string, month: 'long' | 'short' | 'narrow' = 'long') => utc(iso).toLocaleDateString('en-US', { month, timeZone: 'UTC' });
+/** Shortens text to at most `max` characters at a word boundary, with an ellipsis. */
+const cut = (s: string, max: number) => {
+  if (s.length <= max) return s;
+  const head = s.slice(0, max - 1);
+  return `${(/\s/.test(s[max - 1]) ? head : head.replace(/\s+\S*$/, '') || head).replace(/[\s,.:;·–-]+$/, '')}…`;
+};
 /** A small tray tag: rounded, navy-outlined, on the well. */
 const tag = (text: string) => `<span style="display:inline-block; font-size:30px; font-weight:700; color:var(--ink); border:2.5px solid var(--ink); border-radius:999px; padding:0 16px; line-height:42px; background:var(--well)">${h(text)}</span>`;
 /** Pieces as a drawing in a cell: sand, or coral for the first `hl`. */
@@ -316,7 +322,8 @@ const piecesSvg = (ps: Piece[], w: number, hgt: number, x: number, y: number, hl
 
 function weekly(c: Content): Post {
   const wk = c.weekly;
-  const N = 5, kick = `${wk.series} · Ep ${wk.episode}`;
+  const sizes = [{ label: 'Solo 500 pieces', list: wk.fastest500 }, { label: 'Solo 1,000 pieces', list: wk.fastest1000 }].filter(x => x.list.length);
+  const N = 4 + sizes.length, kick = `${wk.series} · Ep ${wk.episode}`;
   const pg = (i: number) => `${i} / ${N}`;
 
   // 1 · Cover. The coral episode cell is what the profile grid is read by.
@@ -350,7 +357,7 @@ function weekly(c: Content): Post {
     ${cell(X0, 440, CW, tp.length * rowH + 6, rows2)}
     ${foot(c.source)}`);
 
-  // 3 · Fastest of the week: one tray per size, one slot per puzzler (repeat finishes fold into "also").
+  // 3–4 · Fastest of the week: one slide and tray per size, one slot per puzzler (repeat finishes fold into "also").
   type Fast = (typeof wk.fastest500)[number];
   const group = (list: Fast[]) => list.reduce<Array<Fast & { more: string[] }>>((out, f) => {
     const g = out.find(o => o.player === f.player);
@@ -359,32 +366,34 @@ function weekly(c: Content): Post {
   }, []);
   const fastRow = (f: Fast & { more: string[] }, i: number) => {
     const meta = [
-      f.firstAttempt ? tag('first try') : '',
-      f.handle ? `<span style="font-size:30px; font-weight:700; color:var(--indigo-500)">@${h(f.handle)}</span>` : '',
+      f.handle ? `<span style="font-size:30px; font-weight:700; color:var(--indigo-500); min-width:0; overflow-wrap:anywhere">@${h(f.handle)}</span>` : '',
       f.more.length ? `<span style="font-size:30px; color:var(--ink-soft)">also ${f.more.join(' and ')}</span>` : '',
     ].filter(Boolean);
-    return `<div style="display:flex; align-items:center; gap:24px; padding:22px 28px; ${i ? 'border-top:2px solid var(--sand);' : ''}">
-      <div style="flex:none; width:252px"><span style="display:inline-block; font-size:58px; font-weight:700; letter-spacing:-1.5px; line-height:1.15; color:var(--ink); border-radius:16px; ${i === 0 ? 'background:var(--coral-500); border:3px solid var(--ink); padding:2px 16px;' : 'padding:2px 19px;'}">${f.time}</span></div>
+    // The puzzle line (with the first-try tag) wraps to at most two lines of the 590 px column.
+    const brand = cut(f.brand, 24);
+    const puzzle = cut(f.puzzle, 66 - brand.length - 3 - (f.firstAttempt ? 14 : 0));
+    return `<div style="display:flex; align-items:center; gap:24px; padding:30px 28px; ${i ? 'border-top:2px solid var(--sand);' : ''}">
+      <div style="flex:none; width:228px"><span style="display:inline-block; font-size:52px; font-weight:700; letter-spacing:-1.5px; line-height:1.15; color:var(--ink); border-radius:16px; ${i === 0 ? 'background:var(--coral-500); border:3px solid var(--ink); padding:2px 14px;' : 'padding:2px 17px;'}">${f.time}</span></div>
       <div style="flex:1; min-width:0">
-        <p style="display:flex; align-items:center; gap:14px">${f.country ? `<img src="${flagUrl(f.country)}" alt="" style="width:38px; height:38px">` : ''}<span style="font-size:40px; font-weight:700; color:var(--ink)">${h(f.player)}</span>${f.country ? `<span style="font-size:30px; color:var(--ink-soft)">${h(countryName(f.country))}</span>` : ''}</p>
-        <p style="font-size:30px; line-height:1.3; color:var(--ink-soft); margin-top:4px">${h(f.puzzle)} · ${h(f.brand)}</p>
-        ${meta.length ? `<p style="display:flex; align-items:center; flex-wrap:wrap; gap:8px 18px; margin-top:10px">${meta.join('')}</p>` : ''}
+        <p style="font-size:40px; font-weight:700; line-height:1.15; color:var(--ink); overflow-wrap:anywhere">${f.country ? `<img src="${flagUrl(f.country)}" alt="" style="width:38px; height:38px; vertical-align:-5px; margin-right:14px">` : ''}${h(cut(f.player, 48))}${f.country ? ` <span style="font-size:30px; font-weight:400; color:var(--ink-soft); white-space:nowrap">${h(countryName(f.country))}</span>` : ''}</p>
+        ${meta.length ? `<p style="display:flex; align-items:center; flex-wrap:wrap; gap:8px 18px; margin-top:6px">${meta.join('')}</p>` : ''}
+        <p style="font-size:30px; line-height:1.4; color:var(--ink-soft); margin-top:6px">${h(puzzle)}&nbsp;· ${h(brand)}${f.firstAttempt ? ` <span style="display:inline-block; margin-left:6px">${tag('first try')}</span>` : ''}</p>
       </div>
     </div>`;
   };
   const section = (label: string, list: Fast[]) => list.length ? `<p style="font-size:34px; font-weight:700; color:var(--ink); padding:0 0 12px 4px">${label}</p>
     <div class="cell" style="position:relative; left:0; top:0">${group(list).map(fastRow).join('')}</div>` : '';
-  const s3 = frame(`${top(kick, pg(3))}
+  const s3 = sizes.map((x, i) => frame(`${top(kick, pg(3 + i))}
     ${block(X0, 196, CW, `<h2 class="h2">Fastest of the week</h2>`)}
-    ${block(X0, 304, CW, `${section('Solo 500 pieces', wk.fastest500)}<div style="height:30px"></div>${section('Solo 1,000 pieces', wk.fastest1000)}`)}
-    ${foot(c.source)}`);
+    ${block(X0, 304, CW, section(`${x.label} · best time per puzzler`, x.list))}
+    ${foot(c.source)}`));
 
   // 4 · Personal bests and new puzzlers: the slide itself is a sorting tray of unequal compartments.
   const perRow = 21, ps = 34;
   const newbies = cluster(wk.newPuzzlers, perRow, ps, 0, 0, 41);
   const nRows = Math.ceil(wk.newPuzzlers / perRow);
   const c4y = 316, pbH = 236, nbY = c4y + pbH + GUT, nbH = 112 + nRows * ps + 40, smY = nbY + nbH + GUT, half = (CW - GUT) / 2;
-  const s4 = frame(`${top(kick, pg(4))}
+  const s4 = frame(`${top(kick, pg(N - 1))}
     ${block(X0, 196, CW, `<h2 class="h2">The week in numbers</h2>`)}
     ${cell(X0, c4y, CW, pbH, `<p class="abs big" style="left:34px; top:40px; font-size:180px">${fmtInt(wk.personalBests)}</p>
       <p class="abs" style="left:400px; top:58px; font-size:48px; font-weight:700; line-height:1.15; color:var(--ink)">personal bests<br>set this week</p>`, 'coral')}
@@ -402,7 +411,7 @@ function weekly(c: Content): Post {
   const art = cluster(12, cols5, s5p, 64, (artH - 2 * s5p) / 2, 52);
   const hole = art[holeAt];
   const hx = hole.bbox.x + hole.bbox.width / 2, hy = hole.bbox.y + hole.bbox.height / 2;
-  const s5 = frame(`${top(kick, pg(5))}
+  const s5 = frame(`${top(kick, pg(N))}
     ${block(X0, 196, CW, `<p class="cta" style="font-size:116px; line-height:1.0; letter-spacing:-3px">${h(wk.question)}</p>`)}
     ${cell(X0, artY, CW, artH, `<svg class="abs" width="${CW}" height="${artH}" style="left:-3px; top:-3px">
       ${art.map((p, i) => i === holeAt ? `<path d="${p.d}" fill="var(--mat)" stroke="var(--ink)" stroke-width="3" stroke-dasharray="10 8" stroke-linejoin="round"/>` : piecePath(p, 'var(--sand)', 2.5)).join('')}
@@ -411,7 +420,7 @@ function weekly(c: Content): Post {
     ${block(X0, artY + artH + 30, CW, `<p class="dek">Answer in the comments.</p><p class="note" style="margin-top:8px">Episode ${wk.episode + 1} next week.</p>`)}
     ${foot(`${wk.series} · ${wk.range}`)}`);
 
-  return { key: 'weekly', slides: [cover, s2, s3, s4, s5].map((body, i) => ({ id: `weekly-${i + 1}`, body })) };
+  return { key: 'weekly', slides: [cover, s2, ...s3, s4, s5].map((body, i) => ({ id: `weekly-${i + 1}`, body })) };
 }
 
 function event(c: Content): Post {

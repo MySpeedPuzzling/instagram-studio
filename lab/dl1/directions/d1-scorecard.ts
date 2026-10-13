@@ -49,16 +49,16 @@ const css = `
 .prow .bar { height: 30px; border-radius: 0 4px 4px 0; background: var(--context); flex: none; }
 .prow.first .bar { background: var(--coral-500); }
 .prow .val { font-size: 38px; font-weight: 700; margin-left: 16px; }
-.fastlist { position: absolute; left: ${X0}px; width: ${CW}px; }
+.fastlist { width: ${CW}px; margin-top: 64px; }
 .sect { font-size: 34px; font-weight: 500; color: var(--ink-soft); padding-bottom: 12px; border-bottom: 3px solid var(--line); }
-.sect + .sect, .fast + .sect { margin-top: 40px; }
-.fast { display: grid; grid-template-columns: 236px 1fr; column-gap: 20px; padding: 22px 0 20px; border-bottom: 3px solid var(--line); }
-.fast .t { font-size: 50px; font-weight: 700; line-height: 1; letter-spacing: -0.5px; padding-top: 2px; }
+.fast { display: grid; grid-template-columns: 236px 1fr; column-gap: 20px; padding: 34px 0 32px; border-bottom: 3px solid var(--line); }
+.fast .t { font-size: 56px; font-weight: 700; line-height: 1; letter-spacing: -0.5px; padding-top: 2px; }
 .fast .t span { display: inline-block; line-height: 0.82; }
 .fast.first .t span { border-bottom: 8px solid var(--coral-500); }
-.fast .nm { display: flex; align-items: center; gap: 14px; font-size: 38px; font-weight: 600; line-height: 1.15; }
-.fast .nm img { width: 40px; height: 40px; }
-.fast .ig { font-size: 32px; font-weight: 500; color: var(--indigo-500); }
+.fast .nm { display: flex; align-items: center; gap: 14px; font-size: 40px; font-weight: 600; line-height: 1.15; }
+.fast .nm img { width: 40px; height: 40px; flex: none; }
+.fast .nm span { min-width: 0; overflow-wrap: anywhere; }
+.fast .ig { font-size: 32px; font-weight: 500; line-height: 1.2; color: var(--indigo-500); margin-top: 6px; overflow-wrap: anywhere; }
 .fast .sub { font-size: 30px; line-height: 1.25; color: var(--ink-soft); margin-top: 6px; }
 .stat2 { display: flex; align-items: baseline; gap: 28px; margin-top: 52px; }
 .stat2 .n { font-size: 112px; font-weight: 700; line-height: 1; letter-spacing: -2.5px; }
@@ -221,10 +221,15 @@ const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, 
 const dayLabel = (iso: string) => `${Number(iso.slice(8, 10))} ${new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; // "28 Sep"
 const monthLabel = (ym: string, month: 'short' | 'long' = 'short') => new Date(ym + '-01T12:00:00Z').toLocaleDateString('en-US', { month, timeZone: 'UTC' });
 const badge = singlePiece(60, 13); // an interior piece with four tabs: the weekly series' episode badge
+/** Shortens text to at most `max` characters at a word boundary, with an ellipsis. */
+const cut = (s: string, max: number) => {
+  if (s.length <= max) return s;
+  const head = s.slice(0, max - 1);
+  return `${(/\s/.test(s[max - 1]) ? head : head.replace(/\s+\S*$/, '') || head).replace(/[\s,.:;·–-]+$/, '')}…`;
+};
 
 function weekly(c: Content): Post {
   const w = c.weekly;
-  const total = 4;
   const kick = `${w.series} · Ep. ${w.episode}`;
 
   // 1 · Cover: series name, a coral episode piece (the series mark in the grid), the week's headline number.
@@ -241,15 +246,27 @@ function weekly(c: Content): Post {
   const tp = w.topPuzzles;
   const prows = rankGeometry(tp, { value: d => d.solvers, width: 300, rowHeight: 100, gap: 26 });
 
-  // 3 · Fastest of the week, one row per puzzler.
+  // 3–4 · Fastest of the week: one slide per size, one row per puzzler (repeat finishes fold into "Also").
   const g500 = byPlayer(w.fastest500), g1000 = byPlayer(w.fastest1000);
-  const leaders = [...new Set([g500[0]?.player, g1000[0]?.player].filter(Boolean))] as string[];
+  const total = 3 + (g500.length ? 1 : 0) + (g1000.length ? 1 : 0);
+  // The detail line wraps to at most two lines of the 648 px column; long puzzle names are cut at a word.
+  const detail = (g: FastGroup) => {
+    const tail = `&nbsp;· ${h(cut(g.brand, 24))}${g.firstAttempt ? '&nbsp;· first&nbsp;attempt' : ''}`;
+    return `${h(cut(g.puzzle, 70 - cut(g.brand, 24).length - 3 - (g.firstAttempt ? 16 : 0)))}${tail}`;
+  };
   const fastRow = (g: FastGroup, i: number) => `<div class="fast ${i === 0 ? 'first' : ''}">
     <p class="t"><span>${g.time}</span></p>
-    <div><p class="nm">${g.country ? `<img src="${flagUrl(g.country)}" alt="">` : ''}<span>${h(g.player)}</span>${g.handle ? `<span class="ig">@${h(g.handle)}</span>` : ''}</p>
-      <p class="sub">${h(g.puzzle)} · ${h(g.brand)}${g.firstAttempt ? ' · first attempt' : ''}</p>
+    <div><p class="nm">${g.country ? `<img src="${flagUrl(g.country)}" alt="">` : ''}<span>${h(cut(g.player, 48))}</span></p>
+      ${g.handle ? `<p class="ig">@${h(g.handle)}</p>` : ''}
+      <p class="sub">${detail(g)}</p>
       ${g.also.length ? `<p class="sub">Also ${andList(g.also)}${g.samePuzzle ? ' on the same puzzle' : ''}</p>` : ''}</div></div>`;
-  const section = (label: string, gs: FastGroup[]) => gs.length ? `<p class="sect">${label}</p>${gs.map(fastRow).join('')}` : '';
+  // The leader is named in the headline when it still fits two lines; the rows below always name everyone.
+  const headline = (size: string, leader: string) => (`The week's fastest solo ${size}: ${leader}`.length <= 48 ? `The week's fastest solo ${size}: ${leader}` : `The week's fastest solo ${size}`);
+  const fastest = (gs: FastGroup[], size: string): Array<(i: number) => string> => gs.length ? [i => frame(`${top(kick, `${i} / ${total}`)}
+    <h2 class="h2">${h(headline(size, gs[0].player))}</h2>
+    <div class="fastlist"><p class="sect">Solo ${size} pieces · best time per puzzler</p>${gs.map(fastRow).join('')}</div>
+    ${foot(c.source)}`)] : [];
+  const fastSlides = [...fastest(g500, '500'), ...fastest(g1000, '1,000')];
 
   return {
     key: 'weekly',
@@ -274,13 +291,8 @@ function weekly(c: Content): Post {
           <div class="who"><p class="pn">${h(r.datum.puzzle)}</p><p class="pb">${h(r.datum.brand)} · ${fmtInt(r.datum.pieces)} pieces</p></div>
           <span class="bar" style="width:${r.width.toFixed(1)}px"></span><span class="val">${fmtInt(r.datum.solvers)}</span></div>`).join('')}</div>
         ${foot(c.source)}`) },
-      { id: 'weekly-3', body: frame(`${top(kick, `3 / ${total}`)}
-        <h2 class="h2">The week's fastest: ${h(andList(leaders))}</h2>
-        <div class="fastlist" style="top:${leaders.join('').length > 22 ? 470 : 400}px">
-          ${section('Solo 500 pieces', g500)}${section('Solo 1,000 pieces', g1000)}
-        </div>
-        ${foot(c.source)}`) },
-      { id: 'weekly-4', body: frame(`${top(kick, `4 / ${total}`)}
+      ...fastSlides.map((body, k) => ({ id: `weekly-${3 + k}`, body: body(3 + k) })),
+      { id: `weekly-${total}`, body: frame(`${top(kick, `${total} / ${total}`)}
         <p class="big" style="margin-top:110px"><span class="underline">${fmtInt(w.personalBests)}</span></p>
         <h2 class="h2" style="margin-top:56px; text-wrap:balance">personal bests were set last week</h2>
         <div class="stat2"><span class="n">${fmtInt(w.newPuzzlers)}</span><span class="l">new puzzlers logged their first time on MSP</span></div>

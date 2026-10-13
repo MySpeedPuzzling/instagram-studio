@@ -33,7 +33,7 @@ is gitignored and loaded automatically. Keep those details out of every committe
 ## Featuring players
 
 - Feature players only the way MSP already shows them publicly: respect private profiles and ranking
-  opt-outs, and check `do-not-feature` (local, gitignored) before naming or tagging anyone.
+  opt-outs, and check `content/do-not-feature.json` (gitignored: it holds player IDs) before naming or tagging anyone.
 - Tag players only with the Instagram handle from their MSP profile.
 
 ## Heavy local jobs

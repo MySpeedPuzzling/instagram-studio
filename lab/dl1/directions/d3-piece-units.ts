@@ -2,7 +2,7 @@
 // Every chart is a partly assembled puzzle: units are pieces cut from one tessellating generator grid,
 // each piece has a fixed value stated in a key, placed pieces are filled (navy outline), open slots are
 // pale outlines, and the total is always printed as a number. White ground, one coral highlight.
-import { fmtDuration, fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
+import { fmtDuration, fmtInt, fmtSignedPct, escapeHtml as h } from '../../../src/design/page.ts';
 import { LOGO_URL, flagUrl, singlePiece } from '../../../src/design/svg.ts';
 import { generateJigsaw, type Piece } from '../../../src/pieces/jigsaw.ts';
 import type { Content } from '../content.ts';
@@ -66,6 +66,17 @@ svg .tb { font-family: Rubik; font-variant-numeric: tabular-nums; font-size: 34p
 .p-open { fill: none; stroke: var(--ink); stroke-width: 3; stroke-dasharray: 9 7; stroke-linejoin: round; }
 .p-hl { fill: var(--coral-500); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
 .wall { stroke: var(--ink); stroke-width: 4; stroke-dasharray: 10 8; }
+.row { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; }
+.sec { font-size: 32px; font-weight: 500; color: var(--ink-soft); border-bottom: 3px solid var(--line); padding-bottom: 12px; }
+.who { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.who img { width: 46px; height: 46px; flex: none; }
+.rk { width: 34px; flex: none; font-size: 34px; font-weight: 700; color: var(--ink-muted); }
+.pn { font-size: 50px; font-weight: 700; letter-spacing: -0.5px; white-space: nowrap; }
+.ig { font-size: 32px; color: var(--ink-soft); white-space: nowrap; }
+.tm { font-size: 64px; font-weight: 700; letter-spacing: -1px; }
+.stat { display: flex; align-items: baseline; gap: 22px; padding: 18px 0; border-bottom: 3px solid var(--line); }
+.stat .num { width: 190px; flex: none; }
+.flag { color: var(--indigo-500); font-weight: 700; }
 `;
 
 const top = (kicker: string, page: string) => `<header class="top"><span class="kicker">${h(kicker)}</span><span class="page">${h(page)}</span></header>`;
@@ -290,11 +301,335 @@ function xp(c: Content): Post {
   </div>` }] };
 }
 
+// ---------------------------------------------------------------- helpers for the series posts
+
+const NICE = [1, 2, 4, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1e3, 2e3, 2500, 5e3, 1e4, 2e4, 25e3, 5e4, 1e5, 2e5, 25e4, 5e5, 1e6, 2e6, 5e6];
+/** Smallest round unit so the largest value needs at most `limit` pieces. */
+const unitFor = (max: number, limit: number) => NICE.find(u => Math.round(max / u) <= limit) ?? NICE[NICE.length - 1];
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const dayLabel = (iso: string) => `${Number(iso.slice(8, 10))} ${MON[Number(iso.slice(5, 7)) - 1]}`;
+const monthLabel = (ym: string, long = false) => `${(long ? MONTH : MON)[Number(ym.slice(5, 7)) - 1]} ${ym.slice(0, 4)}`;
+const flagImg = (cc: string) => (cc ? `<img src="${flagUrl(cc)}" alt="">` : '<span style="width:46px; flex:none"></span>');
+/** "h:mm:ss" or "m:ss" → minutes. */
+const toMinutes = (t: string) => t.split(':').map(Number).reduce((a, v) => a * 60 + v, 0) / 60;
+
+/** A compact formation for n units: the column count with the fewest open slots, widest first. */
+function formation(n: number, minCols: number, maxCols: number) {
+  let best = { cols: maxCols, rows: Math.ceil(n / maxCols) };
+  for (let cols = maxCols; cols >= minCols; cols--) {
+    const rows = Math.ceil(n / cols);
+    if (cols * rows - n < best.cols * best.rows - n) best = { cols, rows };
+  }
+  return best;
+}
+
+/** Same player listed several times (one person can own the whole podium): one entry, best time first. */
+function byPlayer<T extends { player: string }>(list: T[]) {
+  const out: Array<{ rank: number; first: T; more: T[] }> = [];
+  list.forEach((f, i) => {
+    const g = out.find(o => o.first.player === f.player);
+    if (g) g.more.push(f); else out.push({ rank: i + 1, first: f, more: [] });
+  });
+  return out;
+}
+
+/** Rows lifted out of one grid (so they keep column alignment), one per value, `gap` px apart. */
+function strips(values: number[], opts: { cols: number; size: number; gap: number; seed: number; mark: (i: number) => Mark }) {
+  const grid = puzzle(opts.cols, values.length + 2, opts.size, opts.seed);
+  return values.map((v, i) => {
+    const items = Array.from({ length: opts.cols }, (_, col) => ({ piece: grid.at(col, i + 1), mark: (col < v ? opts.mark(i) : 'empty') as Mark }));
+    return `<g transform="translate(0 ${i * opts.gap - (i + 1) * opts.size})">${drawPieces(items)}</g>`;
+  }).join('');
+}
+
+const at = (x: number, y: number, inner: string, style = '') => `<div class="abs" style="left:${x}px; top:${y}px; ${style}">${inner}</div>`;
+const keyAt = (x: number, y: number, unit: string, cls: Mark = 'unit') => at(x, y, key(unit, cls).replace('class="key"', 'class="key" style="margin:0"'));
+const legendRow = (cls: Mark, value: string, label: string) => `<p class="key" style="margin:0">${keySwatch(cls)}<span class="num">${value}</span></p><p class="lab" style="margin:4px 0 0 60px">${label}</p>`;
+
+// ---------------------------------------------------------------- weekly (The Weekly Numbers, recurring)
+
+type Fastest = Content['weekly']['fastest500'][number];
+
+function weekly(c: Content): Post {
+  const wk = c.weekly;
+  const N = 5;
+  const kick = wk.series;
+
+  // Cover marker, same place every week: this episode as a placed navy piece carrying its number, next
+  // week's piece still an open slot beside it, so the profile grid reads as a numbered sequence.
+  const ep = wk.episode;
+  const eSize = 128;
+  const eGrid = puzzle(2, 3, eSize, 5, 0.22);
+  const eW = 2 * eSize, eX = X0 + CW - eW, eY = 196;
+  const eSvg = `<g transform="translate(0 ${-eSize})">${drawPieces([{ piece: eGrid.at(0, 1), mark: 'dark' }])}<path class="p-open" d="${eGrid.at(1, 1).d}"/></g>
+    <text x="${eSize / 2}" y="${eSize / 2 + 26}" text-anchor="middle" style="font: 700 ${ep > 9 ? 64 : 80}px Rubik; font-variant-numeric: tabular-nums; letter-spacing: -2px; fill: var(--paper)">${ep}</text>`;
+
+  // The week in results: last week's total as pieces, the change on top in coral (or left open if it fell).
+  const per = unitFor(Math.max(wk.results, wk.resultsPrev), 90);
+  const now = Math.round(wk.results / per), prev = Math.round(wk.resultsPrev / per);
+  const rows = 5, cols = Math.ceil(Math.max(now, prev) / rows);
+  const size = Math.min(56, Math.floor(CW / cols));
+  const g = puzzle(cols, rows, size, 17);
+  const order = (p: Piece) => p.col * rows + p.row; // column by column: the change is one block at the end
+  const items = g.pieces.map(p => {
+    const i = order(p);
+    return { piece: p, mark: (i < Math.min(now, prev) ? 'unit' : i < now ? 'hl' : 'empty') as Mark };
+  });
+  const lost = g.pieces.filter(p => order(p) >= now && order(p) < prev);
+  const diff = wk.results - wk.resultsPrev;
+  const cY = 820;
+
+  // Top puzzles.
+  const tp = wk.topPuzzles;
+  const tpUnit = unitFor(tp[0].solvers, 26);
+  const tpUnits = tp.map(p => Math.round(p.solvers / tpUnit));
+  const tpCols = Math.max(...tpUnits);
+  const tpSize = Math.min(56, CW / tpCols);
+  const tpGap = 146, tpY = 530;
+
+  // Fastest: grouped by player, one section per size.
+  const sections = [
+    { label: 'Solo 500 pieces', list: wk.fastest500 },
+    { label: 'Solo 1,000 pieces', list: wk.fastest1000 },
+  ].filter(s => s.list.length);
+  const entry = (gp: { rank: number; first: Fastest; more: Fastest[] }) => {
+    const f = gp.first;
+    const notes = [`${h(f.puzzle)} · ${h(f.brand)}`];
+    if (f.firstAttempt) notes.push('<span class="flag">first attempt</span>');
+    if (gp.more.length) notes.push(`also ${gp.more.map(m => `<b>${m.time}</b>`).join(' and ')}`);
+    return `<div style="margin-top:44px">
+      <div class="row" style="align-items:center"><span class="who"><span class="rk">${gp.rank}</span>${flagImg(f.country)}<span class="pn">${h(f.player)}</span>${f.handle ? `<span class="ig">@${h(f.handle)}</span>` : ''}</span><span class="tm">${f.time}</span></div>
+      <p class="lab" style="margin:8px 0 0 50px">${notes.join(' · ')}</p></div>`;
+  };
+
+  // Personal bests as a share of the week's results.
+  const pbPct = Math.round((wk.personalBests / wk.results) * 100);
+  const waffle = puzzle(10, 10, 56, 21);
+  const pbItems = waffle.pieces.map(p => ({ piece: p, mark: (p.col * 10 + p.row < pbPct ? 'hl' : 'unit') as Mark }));
+  const wY = 450;
+
+  // Pieces placed, as pieces.
+  const ppUnit = unitFor(wk.pieces, 48);
+  const pp = Math.round(wk.pieces / ppUnit);
+  const pf = formation(pp, 6, 8);
+  const ppSize = Math.min(92, Math.floor(620 / pf.cols));
+  const ppGrid = puzzle(pf.cols, pf.rows, ppSize, 41);
+  const ppItems = ppGrid.pieces.map(p => ({ piece: p, mark: (p.row * pf.cols + p.col < pp ? 'unit' : 'empty') as Mark }));
+  const ppY = 450;
+
+  return {
+    key: 'weekly',
+    slides: [
+      { id: 'weekly-1', body: frame(`${top(kick, wk.range)}
+        <h1 class="h1">${h(wk.series).replace(/ (\S+)$/, '<br>$1')}</h1>
+        ${svgAt(eX, eY, eW, eSize, eSvg)}
+        <p class="abs lab" style="left:${eX}px; top:${eY + eSize + 44}px; width:${eW + 40}px"><b>Episode ${ep}</b></p>
+        <p class="abs big" style="left:${X0}px; top:470px; font-size:210px; letter-spacing:-7px">${fmtInt(wk.results)}</p>
+        <p class="abs dek" style="left:${X0}px; top:672px; margin:0">results logged, <b class="hl-text">${fmtSignedPct(wk.resultsChangePct)}</b> on the week before</p>
+        ${at(X0, cY - 58, `<p class="lab"><b>${fmtInt(wk.resultsPrev)}</b> the week before</p>`)}
+        ${at(X0, cY - 58, `<p class="lab"><b class="hl-text">${diff < 0 ? '−' : '+'}${fmtInt(Math.abs(diff))}</b> ${diff < 0 ? 'fewer' : 'more'}</p>`, `width:${g.width}px; text-align:right`)}
+        ${svgAt(X0, cY, g.width, g.height, drawPieces(items) + lost.map(p => `<path class="p-open" d="${p.d}"/>`).join(''))}
+        ${keyAt(X0, cY + g.height + 22, `${fmtInt(per)} results`)}
+        ${foot(c.source)}`) },
+      { id: 'weekly-2', body: frame(`${top(kick, `2 / ${N}`)}
+        <h2 class="h2">${h(tp[0].puzzle)} was the most-solved puzzle of the week</h2>
+        ${key(`${tpUnit} solvers`, 'unit')}
+        ${svgAt(X0, tpY, CW, tpGap * tp.length, strips(tpUnits, { cols: tpCols, size: tpSize, gap: tpGap, seed: 29, mark: i => (i === 0 ? 'hl' : 'unit') }))}
+        ${tp.map((p, i) => `<p class="abs lab row" style="left:${X0}px; top:${tpY + i * tpGap - 56}px; width:${CW}px"><span><b>${h(p.puzzle)}</b> · ${h(p.brand)}</span><span><b>${fmtInt(p.solvers)}</b> solvers</span></p>`).join('')}
+        ${foot(c.source)}`) },
+      { id: 'weekly-3', body: frame(`${top(kick, `3 / ${N}`)}
+        <h2 class="h2">Fastest of the week</h2>
+        ${sections.map((s, i) => `<div style="margin-top:${i ? 100 : 60}px"><p class="sec">${h(s.label)}</p>${byPlayer(s.list).map(entry).join('')}</div>`).join('')}
+        ${foot(c.source)}`) },
+      { id: 'weekly-4', body: frame(`${top(kick, `4 / ${N}`)}
+        <h2 class="h2">${pbPct} in 100 results last week were personal bests</h2>
+        ${key(`1% of ${fmtInt(wk.results)} results`)}
+        ${svgAt(X0, wY, waffle.width, waffle.height, drawPieces(pbItems))}
+        ${at(X0 + waffle.width + 48, wY, `${legendRow('hl', fmtInt(wk.personalBests), 'personal bests')}<div style="margin-top:44px">${legendRow('unit', fmtInt(wk.results - wk.personalBests), 'other results')}</div>`)}
+        <p class="abs lab" style="left:${X0}px; top:${wY + waffle.height + 40}px; width:${CW}px">And welcome to the <b>${fmtInt(wk.newPuzzlers)}</b> puzzlers who joined MySpeedPuzzling last week.</p>
+        ${foot(c.source)}`) },
+      { id: 'weekly-5', body: frame(`${top(kick, `5 / ${N}`)}
+        <h2 class="h2">Together you placed ${fmtInt(wk.pieces)} pieces</h2>
+        ${key(`${fmtInt(ppUnit)} pieces placed`, 'unit')}
+        ${svgAt(X0, ppY, ppGrid.width, ppGrid.height, drawPieces(ppItems))}
+        ${at(X0 + ppGrid.width + 48, ppY, `<p class="num">${fmtInt(wk.puzzlers)}</p><p class="lab">puzzlers</p><p class="num" style="margin-top:36px">${fmtInt(wk.results)}</p><p class="lab">results</p>`)}
+        <p class="abs cta" style="left:${X0}px; top:${ppY + ppGrid.height + 60}px; width:${CW}px">${h(wk.question)}</p>
+        ${foot(c.source)}`) },
+    ],
+  };
+}
+
+// ---------------------------------------------------------------- event preview
+
+function event(c: Content): Post {
+  const e = c.event;
+  // Everyone registered, 1 piece = 1 puzzler; the ones already on MSP placed first, in coral.
+  const f = formation(e.registered, 18, 20);
+  const size = Math.min(46, Math.floor(CW / f.cols));
+  const g = puzzle(f.cols, f.rows, size, 23);
+  const items = g.pieces.map(p => {
+    const i = p.row * f.cols + p.col;
+    return { piece: p, mark: (i < e.onMsp ? 'hl' : i < e.registered ? 'unit' : 'empty') as Mark };
+  });
+  const gY = 520;
+
+  // The US median PB against the hour: 1 piece = 1 minute, the hour as 6 rows of 10.
+  const pb = e.usMedianPb ? toMinutes(e.usMedianPb) : null;
+  const slides = [{ id: 'event-1', body: frame(`${top('Event preview', pb != null ? '1 / 2' : 'MSP DATA')}
+    <h2 class="h2">${h(e.name)}</h2>
+    <p class="dek" style="margin-top:18px">${h(e.date)} · ${h(e.location)}</p>
+    ${keyAt(X0, gY - 82, '1 registered puzzler')}
+    ${svgAt(X0, gY, g.width, g.height, drawPieces(items))}
+    ${at(X0, gY + g.height + 34, legendRow('hl', fmtInt(e.onMsp), 'already on MySpeedPuzzling'))}
+    ${at(X0 + 470, gY + g.height + 34, legendRow('unit', fmtInt(e.registered), 'registered in total'))}
+    ${foot(c.source)}`) }];
+  if (pb != null) {
+    const mins = Math.round(pb);
+    const hg = puzzle(10, Math.ceil(Math.max(mins, HOUR + 1) / 10), 64, 31);
+    const hItems = hg.pieces.map(p => {
+      const m = p.row * 10 + p.col + 1;
+      return { piece: p, mark: (m > mins ? 'empty' : m > HOUR ? 'hl' : 'unit') as Mark };
+    });
+    const hY = 470, lineY = (HOUR / 10) * hg.size;
+    slides.push({ id: 'event-2', body: frame(`${top('Event preview', '2 / 2')}
+      <h2 class="h2">The median US puzzler’s solo 500 best is ${h(e.usMedianPb!)}</h2>
+      ${key('1 minute', 'unit')}
+      ${svgAt(X0, hY, hg.width, hg.height, `${drawPieces(hItems)}<line class="wall" x1="-12" x2="${hg.width + 12}" y1="${lineY}" y2="${lineY}"/>`)}
+      ${at(X0 + hg.width + 40, hY + lineY - 66, `<p class="lab"><b>${HOUR_LABEL}</b></p>`)}
+      ${at(X0 + hg.width + 40, hY + lineY + 10, `<p class="lab"><b class="hl-text">${h(e.usMedianPb!)}</b></p>`)}
+      <p class="abs lab" style="left:${X0}px; top:${hY + hg.height + 30}px; width:${CW}px">Median personal best of ${fmtInt(e.usPuzzlers ?? 0)} US puzzlers on MySpeedPuzzling.</p>
+      <p class="abs cta" style="left:${X0}px; top:${hY + hg.height + 130}px; width:${CW}px">${h(e.question)}</p>
+      ${foot(c.source)}`) });
+  }
+  return { key: 'event', slides };
+}
+
+// ---------------------------------------------------------------- feature news: XP launch day
+
+function feature(c: Content): Post {
+  const f = c.feature;
+  const launch = f.days.find(d => d.results === f.results && d.backfilled === f.backfilled)!;
+  // The two weeks the "typical day" is averaged over, then launch day (later, partial days are left out).
+  const days = f.days.filter(d => d.day <= launch.day);
+  const per = unitFor(f.results, 15);
+  const heights = days.map(d => Math.round(d.results / per));
+  const rows = Math.max(...heights);
+  const size = Math.min(46, Math.floor(620 / rows));
+  const g = puzzle(days.length, rows, size, 12);
+  const items = g.pieces.map(p => ({ piece: p, mark: (rows - p.row > heights[p.col] ? 'empty' : days[p.col] === launch ? 'hl' : 'unit') as Mark }));
+  const gX = X0 + CW - g.width, gY = 520;
+  const typY = g.height - (f.typicalDay / per) * size;
+  const ticks = days.map((d, i) => ({ d, i })).filter(({ i }) => i % 7 === 0 || i === days.length - 1).map(({ d, i }) =>
+    `<text class="t" x="${i * size + size / 2}" y="${g.height + 46}" text-anchor="${i === days.length - 1 ? 'end' : 'middle'}" dx="${i === days.length - 1 ? size / 2 : 0}">${dayLabel(d.day)}</text>`).join('');
+
+  const pct = f.backfilledPct;
+  const waffle = puzzle(10, 10, 52, 21);
+  const wItems = waffle.pieces.map(p => ({ piece: p, mark: (p.col * 10 + p.row < pct ? 'hl' : 'unit') as Mark }));
+  const wY = 520;
+  return {
+    key: 'feature',
+    slides: [
+      { id: 'feature-1', body: frame(`${top(f.kicker, '1 / 2')}
+        <h2 class="h2">${h(f.title)}</h2>
+        ${key(`${fmtInt(per)} results logged`, 'unit')}
+        <p class="abs lab" style="right:${X0}px; top:${gY - 100}px; text-align:right"><b>${fmtInt(f.results)}</b> on ${dayLabel(launch.day)}<br><b class="hl-text">${f.multiple}×</b> a typical day</p>
+        ${svgAt(gX, gY, g.width, g.height + 60, `${drawPieces(items)}<line class="wall" x1="-16" x2="${g.width - size - 6}" y1="${typY}" y2="${typY}"/>${ticks}`)}
+        <p class="abs lab" style="left:${X0}px; top:${gY + typY - 74}px; width:${gX - X0 - 30}px">Typical day<br><b>${fmtInt(f.typicalDay)}</b></p>
+        ${foot(c.source)}`) },
+      { id: 'feature-2', body: frame(`${top(f.kicker, '2 / 2')}
+        <h2 class="h2">${pct} in 100 launch-day results were puzzles solved more than a week earlier</h2>
+        ${key(`1% of ${fmtInt(f.results)} results`)}
+        ${svgAt(X0, wY, waffle.width, waffle.height, drawPieces(wItems))}
+        ${at(X0 + waffle.width + 48, wY, `${legendRow('hl', fmtInt(f.backfilled), 'solved earlier')}<div style="margin-top:44px">${legendRow('unit', fmtInt(f.results - f.backfilled), 'solved that week')}</div>`)}
+        <p class="abs cta" style="left:${X0}px; top:${wY + waffle.height + 44}px; width:${CW}px">${h(f.question)}</p>
+        ${foot(c.source)}`) },
+    ],
+  };
+}
+
+// ---------------------------------------------------------------- monthly report
+
+function month(c: Content): Post {
+  const m = c.month;
+  const cur = m.series.find(x => x.results === m.results)!;
+  const lastYear = m.series.find(x => x.month === `${Number(cur.month.slice(0, 4)) - 1}${cur.month.slice(4)}`);
+  const kick = 'Monthly report';
+
+  // Cover: the same month a year earlier against this one, two rows lifted from one grid.
+  const pair = lastYear ? [lastYear, cur] : [cur];
+  const pPer = unitFor(cur.results, 18);
+  const pUnits = pair.map(x => Math.round(x.results / pPer));
+  const pCols = Math.max(...pUnits) + 1;
+  const pSize = Math.min(56, Math.floor(CW / pCols));
+  const pGap = 150, pY = 910;
+
+  // Every month since the series starts: columns of pieces.
+  const s = m.series;
+  const per = unitFor(Math.max(...s.map(x => x.results)), 13);
+  const heights = s.map(x => Math.round(x.results / per));
+  const rows = Math.max(...heights);
+  const size = Math.min(48, Math.floor(CW / s.length));
+  const g = puzzle(s.length, rows, size, 9);
+  const markOf = (x: typeof cur): Mark => (x === cur ? 'hl' : x === lastYear ? 'mid' : 'unit');
+  const items = g.pieces.map(p => ({ piece: p, mark: (rows - p.row > heights[p.col] ? 'empty' : markOf(s[p.col])) as Mark }));
+  const gX = X0 + (CW - g.width) / 2, gY = 540;
+  const runner = [...s].filter(x => x !== cur).sort((a, b) => b.results - a.results)[0];
+  const margin = m.results - runner.results;
+  const verdict = margin > 0 && margin < m.results * 0.01
+    ? `A photo finish: ${MONTH[Number(cur.month.slice(5, 7)) - 1]} beat ${monthLabel(runner.month, true)} by ${fmtInt(margin)} results`
+    : `${MONTH[Number(cur.month.slice(5, 7)) - 1]} topped every month since ${monthLabel(s[0].month, true)}`;
+  const colX = (x: typeof cur) => s.indexOf(x) * size + size / 2;
+  const tick = (x: typeof cur, anchor: string) => `<text class="t" x="${colX(x) + (anchor === 'end' ? size / 2 : anchor === 'start' ? -size / 2 : 0)}" y="${g.height + 46}" text-anchor="${anchor}">${monthLabel(x.month)}</text>`;
+
+  // Pieces placed, 1 piece = a round number of them.
+  const ppUnit = unitFor(m.pieces, 24);
+  const pp = Math.round(m.pieces / ppUnit);
+  const pf = formation(pp, 5, 6);
+  const ppSize = Math.min(112, Math.floor(CW / pf.cols));
+  const ppGrid = puzzle(pf.cols, pf.rows, ppSize, 77);
+  const ppItems = ppGrid.pieces.map(p => ({ piece: p, mark: (p.row * pf.cols + p.col < pp ? 'unit' : 'empty') as Mark }));
+  const ppY = 420;
+  const isRecord = (k: 'active' | 'newPlayers') => cur[k] === Math.max(...s.map(x => x[k]));
+  const stats = [
+    { v: m.active, label: 'puzzlers logged a result', rec: isRecord('active') },
+    { v: m.newPlayers, label: 'new puzzlers joined', rec: isRecord('newPlayers') },
+  ];
+
+  return {
+    key: 'month',
+    slides: [
+      { id: 'month-1', body: frame(`${top(kick, m.label)}
+        <h2 class="h2">${h(m.title)}</h2>
+        <p class="abs big" style="left:${X0}px; top:390px; font-size:210px; letter-spacing:-7px">${fmtInt(m.results)}</p>
+        <p class="abs dek" style="left:${X0}px; top:592px; margin:0">results logged${lastYear ? `, <b class="hl-text">${fmtSignedPct(m.vsLastYearPct, 0)}</b> on ${monthLabel(lastYear.month, true)}` : ''}</p>
+        ${keyAt(X0, 700, `${fmtInt(pPer)} results`)}
+        ${svgAt(X0, pY, CW, pGap * pair.length, strips(pUnits, { cols: pCols, size: pSize, gap: pGap, seed: 44, mark: i => (pair[i] === cur ? 'hl' : 'mid') }))}
+        ${pair.map((x, i) => `<p class="abs lab row" style="left:${X0}px; top:${pY + i * pGap - 58}px; width:${CW}px"><b>${monthLabel(x.month, true)}</b><span><b>${fmtInt(x.results)}</b></span></p>`).join('')}
+        ${foot(c.source)}`) },
+      { id: 'month-2', body: frame(`${top(kick, '2 / 3')}
+        <h2 class="h2">${h(verdict)}</h2>
+        ${key(`${fmtInt(per)} results`, 'unit')}
+        ${svgAt(gX, gY, g.width, g.height + 60, `${drawPieces(items)}${tick(s[0], 'start')}${lastYear ? tick(lastYear, 'middle') : ''}${tick(cur, 'end')}`)}
+        <p class="abs lab" style="right:${W - (gX + colX(cur) + size / 2)}px; top:${gY - 62}px; text-align:right"><b>${fmtInt(cur.results)}</b></p>
+        ${lastYear ? `<p class="abs lab" style="left:${gX + colX(lastYear) - 60}px; top:${gY + g.height - heights[s.indexOf(lastYear)] * size - 62}px"><b>${fmtInt(lastYear.results)}</b></p>` : ''}
+        ${foot(c.source)}`) },
+      { id: 'month-3', body: frame(`${top(kick, '3 / 3')}
+        <h2 class="h2">You placed ${fmtInt(m.pieces)} pieces in ${MONTH[Number(cur.month.slice(5, 7)) - 1]}</h2>
+        ${key(`${fmtInt(ppUnit)} pieces placed`, 'unit')}
+        ${svgAt(X0, ppY, ppGrid.width, ppGrid.height, drawPieces(ppItems))}
+        ${at(X0, ppY + ppGrid.height + 36, stats.map(st => `<div class="stat"><span class="num">${fmtInt(st.v)}</span><span class="lab">${h(st.label)}${st.rec ? ' · <b>most ever</b>' : ''}</span></div>`).join(''), `width:${CW}px`)}
+        <p class="abs cta" style="left:${X0}px; top:${ppY + ppGrid.height + 292}px; width:${CW}px">${h(m.question)}</p>
+        ${foot(c.source)}`) },
+    ],
+  };
+}
+
 const direction: Direction = {
   id: 'D3',
   name: 'Piece Units',
   idea: 'Isotype meets jigsaw: every chart is a partly assembled puzzle cut from one tessellating generator grid, 1 piece = a stated unit, totals printed as numbers, one coral highlight on white.',
   css,
-  posts: c => [wall(c), record(c), countries(c), share(c), xp(c)],
+  posts: c => [wall(c), record(c), countries(c), share(c), xp(c), weekly(c), event(c), feature(c), month(c)],
 };
 export default direction;

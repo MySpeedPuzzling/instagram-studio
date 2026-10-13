@@ -16,7 +16,9 @@ for Claude (the refresh logic already exists in the ig-giveaway prototype).
 **AI and models.** AI is welcome for marketing material; the community's dislike of AI is about puzzle
 motifs, which we don't generate. The real challenge is design: posts must look good, consistent and not
 like AI slop. "Image generation" means the whole visual process, not only diffusion models. All locally
-installed models are in scope for labs; record which model (and its licence) produced each asset.
+installed models are in scope for labs and for published posts: the posts grow the puzzle community and
+never sell directly, so the owner considers non-commercial licences such as FLUX.2 klein 9B's acceptable.
+Still record which model (and its licence) produced each asset.
 Heavy local jobs (ComfyUI, big Blender/video renders) run only in quiet hours when the owner frees RAM:
 ask first.
 

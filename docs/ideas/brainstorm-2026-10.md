@@ -379,3 +379,9 @@ check passes.
 - E1 ocean fails → a hosted Nano Banana 2.1 test (≤ 20 images, ≈ $1).
 - E3 fails → the animals become code-drawn SVG spots (D7 House Illustrated).
 - E4 fails → G1 ships with a code-drawn shelf on a flat navy ground. The data and box images carry the joke anyway.
+
+## Owner feedback (2026-10-13, idea level)
+
+Approved as ideas (visuals still to be reviewed): Puzzle Atlas / every country's signature puzzle (B1), cats vs dogs
+(A1), subject tier list / difficulty (A2), Museum of Most-Solved (A3), and the timely stories (D1 clocks go back,
+C1 night owls, G2 missing pieces, D2 75 years).

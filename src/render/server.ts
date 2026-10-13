@@ -24,7 +24,19 @@ export async function startServer(opts: { port?: number; host?: string; handlers
       let file = join(ROOT, path);
       if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
       if (!existsSync(file)) return send(res, 404, 'not found');
-      res.writeHead(200, { 'content-type': TYPES[extname(file).toLowerCase()] ?? 'application/octet-stream', 'cache-control': 'no-store' });
+      const type = TYPES[extname(file).toLowerCase()] ?? 'application/octet-stream';
+      const size = statSync(file).size;
+      // Range requests: iOS Safari only plays video when the server answers byte ranges.
+      const range = /bytes=(\d*)-(\d*)/.exec(req.headers.range ?? '');
+      if (range) {
+        const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
+        const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+        if (start >= size || start > end) { res.writeHead(416, { 'content-range': `bytes */${size}` }).end(); return; }
+        res.writeHead(206, { 'content-type': type, 'content-range': `bytes ${start}-${end}/${size}`, 'accept-ranges': 'bytes', 'content-length': end - start + 1, 'cache-control': 'no-store' });
+        createReadStream(file, { start, end }).pipe(res);
+        return;
+      }
+      res.writeHead(200, { 'content-type': type, 'content-length': size, 'accept-ranges': 'bytes', 'cache-control': 'no-store' });
       createReadStream(file).pipe(res);
     } catch (e) {
       send(res, 500, String(e));

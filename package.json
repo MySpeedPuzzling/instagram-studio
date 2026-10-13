@@ -24,6 +24,8 @@
     "@types/culori": "4.0.1",
     "@types/d3": "7.4.3",
     "@types/node": "26.6.5",
+    "gsap": "3.15.0",
+    "hyperframes": "0.8.152",
     "typescript": "7.0.2"
   }
 }

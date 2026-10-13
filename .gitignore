@@ -31,3 +31,6 @@ content/
 *.sqlite
 *.sqlite-*
 logs/
+
+# Claude Code local instructions (server/infra details; loaded automatically, never committed)
+CLAUDE.local.md

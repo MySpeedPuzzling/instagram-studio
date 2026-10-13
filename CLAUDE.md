@@ -14,16 +14,21 @@ read it before proposing architecture or content changes.
 - Never put server hostnames, IPs, emails, user IDs or names of individual members in committed files.
 - Keep `.githooks/pre-commit` enabled (`git config core.hooksPath .githooks`); never bypass it with `--no-verify`.
 
-## MySpeedPuzzling database
+## Database
 
-- Production Postgres, reached through an SSH tunnel (instructions are in the comments of `.env`).
-  The role is read-only but currently broader than needed: it can read tables with personal data.
-- Run only aggregate `SELECT`s, start each batch with `SET statement_timeout = '60s';`, run one query
-  at a time, and close the tunnel when finished.
-- Never select from `user_account` or other personal-data columns (emails, avatars, comments).
-- Follow the app's rules when counting: exclude suspicious results, respect private profiles and
-  ranking opt-outs, skip embargoed puzzles and non-public events.
-- Re-run a query right before a number goes into a post; record the date it was queried.
+How to query production (server, container, roles, exact commands) is in `CLAUDE.local.md`, which
+is gitignored and loaded automatically. Keep those details out of every committed file.
+
+- Query only as the read-only role, never as the app's superuser role. Every write is rejected; never
+  work around that. Data changes go through the app (migrations / console commands), not ad-hoc SQL.
+- The role reads every table (`pg_read_all_data`). Queries are cancelled after 5 min, and there are at
+  most 10 connections.
+- This is the live production database under real traffic: run `EXPLAIN` first on anything that might
+  scan big tables (e.g. `puzzle_solving_time`, `notification`), add `LIMIT`, avoid long-running queries.
+- Personal data (players' e-mails, sessions) is in there: don't copy it into files in the repo.
+- Numbers that go into posts follow the app's rules: exclude suspicious results, respect private
+  profiles and ranking opt-outs, skip embargoed puzzles and non-public events. Re-run the query right
+  before posting and record the date it was queried.
 
 ## Instagram
 

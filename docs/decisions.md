@@ -50,6 +50,12 @@ available if useful; the community mostly cares about puzzle data.
 **Motion.** Videos, animations and collages are not a must, but an unused opportunity for Stories and
 Reels worth exploring.
 
+**No traffic posts.** No posts based on website traffic (Grafana/Prometheus/Tempo). A WJPC recap uses
+puzzle and competition data only.
+
+**Feature explainer videos.** HyperFrames-style motion is also a fit for explaining new MSP features in
+short videos: another automatable content type next to the data posts (a hint, not a must).
+
 **Compute budget.** This Mac's CPU, GPU and RAM are the limit for now (a bigger machine may come
 later). Every prototype and lab records the resources it used. Heavy runs happen on a calm machine, with
 Docker and other unneeded apps turned off.

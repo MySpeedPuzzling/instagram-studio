@@ -1,4 +1,5 @@
 -- Finished-puzzle photos uploaded with results (all time / last 30 days / last week), from players who may be featured.
+-- Private profiles and ranking opt-outs excluded (player.is_private, player.ranking_opted_out; owner decision 2026-10-13).
 SELECT count(*) FILTER (WHERE t.finished_puzzle_photo IS NOT NULL) AS photos_all,
        count(*) FILTER (WHERE t.finished_puzzle_photo IS NOT NULL AND t.tracked_at >= now() - interval '30 days') AS photos_30d,
        count(*) FILTER (WHERE t.finished_puzzle_photo IS NOT NULL AND t.tracked_at >= date_trunc('week', now()) - interval '7 days' AND t.tracked_at < date_trunc('week', now())) AS photos_last_week,

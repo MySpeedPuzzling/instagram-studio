@@ -1,5 +1,6 @@
 -- Brainstorm 2026-10: the most-solved puzzle per theme (distinct solvers), with brand, pieces and solo median.
 -- Embargoed puzzles/images excluded. Aggregate only.
+-- Private profiles excluded (player.is_private; owner decision 2026-10-13).
 WITH themes(theme, rx) AS (VALUES
   ('cats', '\m(cats?|kittens?|kitty|kitties)\M'), ('dogs', '\m(dogs?|puppy|puppies)\M'), ('birds', '\m(birds?|parrots?|peacocks?|flamingos?|hummingbirds?)\M'),
   ('lighthouses', '\mlighthouses?\M'), ('christmas', '\m(christmas|xmas|santa|advent|nativity|snowman|winter wonderland)\M'),
@@ -13,7 +14,7 @@ WITH themes(theme, rx) AS (VALUES
 ),
 ps AS (SELECT t.puzzle_id, count(DISTINCT t.player_id) AS solvers, count(*) AS results,
          round((percentile_cont(0.5) WITHIN GROUP (ORDER BY t.seconds_to_solve) FILTER (WHERE t.puzzling_type='solo' AND t.seconds_to_solve > 0))::numeric/60,1) AS median_solo_min
-       FROM puzzle_solving_time t WHERE NOT t.suspicious GROUP BY 1),
+       FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id WHERE NOT t.suspicious AND NOT pl.is_private GROUP BY 1),
 ranked AS (
   SELECT th.theme, p.name AS puzzle, m.name AS brand, p.pieces_count AS pieces, ps.solvers, ps.results, ps.median_solo_min,
          row_number() OVER (PARTITION BY th.theme ORDER BY ps.solvers DESC) AS rk

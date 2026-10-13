@@ -1,8 +1,10 @@
 -- Brainstorm 2026-10: the life of a puzzle - days from a puzzle's first logged solve to its 100th distinct solver
 -- (by logging date), fastest risers and the median. Embargoed puzzles excluded. Aggregate only.
+-- Private profiles excluded (player.is_private; owner decision 2026-10-13).
 WITH firsts AS (
   SELECT t.puzzle_id, t.player_id, min(t.tracked_at) AS first_at
-  FROM puzzle_solving_time t WHERE NOT t.suspicious GROUP BY 1, 2),
+  FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id
+  WHERE NOT t.suspicious AND NOT pl.is_private GROUP BY 1, 2),
 ranked AS (
   SELECT puzzle_id, first_at, row_number() OVER (PARTITION BY puzzle_id ORDER BY first_at) AS n FROM firsts),
 life AS (

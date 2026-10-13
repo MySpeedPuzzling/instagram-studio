@@ -6,9 +6,9 @@ no SFX, with every word burned in.
 
 | Post | Length | What happens |
 |---|---|---|
-| `wall-reel` | 12 s, 360 frames | Hook "When do most 500s finish?" on an empty axis. Bars build (0.25–3.6 s). 55–59 min turn coral and "58 minutes" replaces the question (4.3 s). The wall drops at 60:00, the bars behind it flinch, and "−7.4% at the hour" lands (6.1 s). Then "Which side of the wall is your PB?", and it unwinds to the opening frame for a seamless loop. |
+| `wall-reel` | 12 s, 360 frames | Hook "When do most 500s finish?" on an empty axis. Bars build (0.25–3.6 s). 55–59 min turn coral and "58 minutes" replaces the question (4.3 s). The wall drops at 60:00, the bars behind it flinch, and "−7.3% at the hour" lands (6.1 s). Then "Which side of the wall is your PB?", and it unwinds to the opening frame for a seamless loop. |
 | `sep-reel` | 12 s, 360 frames | September's 5 most-solved puzzles as a countdown on an implied 120 BPM grid. Box lids flip in and land on the beat (0.5 / 2.0 / 3.5 / 5.0 s). The rank badge rolls like an odometer and pulses on the off-beats, and a 5-piece strip assembles. #1 lands last (6.5 s) with a coral ring and a solver count-up. Each box shows its credit (puzzle · brand) exactly while it is on screen. Uses the 1200 px `puzzle_large` box images. |
-| `counter-reel` | 8 s, 240 frames | 275,279,266 pieces counting up while a 9×10 full-bleed jigsaw from `src/pieces/jigsaw.ts` assembles under the number. The coral centre piece snaps in last as the counter settles (4.6 s). Then the puzzle lifts apart and the counter rewinds for the loop. |
+| `counter-reel` | 8 s, 240 frames | 274,399,467 pieces counting up while a 9×10 full-bleed jigsaw from `src/pieces/jigsaw.ts` assembles under the number. The coral centre piece snaps in last as the counter settles (4.6 s). Then the puzzle lifts apart and the counter rewinds for the loop. |
 
 All text stays inside the Reel safe area (x 60–960, y 220–1250, `FRAMES.reel`). Only `counter-reel` puts graphics
 in the band below it.

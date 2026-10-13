@@ -1,5 +1,7 @@
 -- Brainstorm 2026-10: what result comments mention (counts only, no text leaves the database).
-WITH c AS (SELECT lower(comment) AS c FROM puzzle_solving_time WHERE NOT suspicious AND comment IS NOT NULL AND comment <> '')
+-- Private profiles excluded (player.is_private; owner decision 2026-10-13).
+WITH c AS (SELECT lower(t.comment) AS c FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id
+           WHERE NOT t.suspicious AND NOT pl.is_private AND t.comment IS NOT NULL AND t.comment <> '')
 SELECT (SELECT count(*) FROM c) AS comments,
   count(*) FILTER (WHERE c ~ '\m(missing|lost) (a |one |1 |two |2 )?pieces?\M|\mpiece (is |was )?missing\M') AS missing_piece,
   count(*) FILTER (WHERE c ~ '\m(cats?|kitten|kitty)\M') AS cat,

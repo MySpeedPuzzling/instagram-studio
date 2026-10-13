@@ -1,6 +1,7 @@
 -- Fastest solo 500 and 1000 results logged last full week: each puzzler's best per size, top 3 per size,
 -- by players who may be featured (public profile, not ranking-opted-out; the local do-not-feature list is
 -- applied in code). Personal data: results stay in the gitignored cache.
+-- Private profiles excluded (player.is_private; owner decision 2026-10-13), as are ranking opt-outs.
 WITH w AS (SELECT date_trunc('week', now()) - interval '7 days' AS start, date_trunc('week', now()) AS stop),
 best AS (
   SELECT DISTINCT ON (t.player_id, pz.pieces_count)

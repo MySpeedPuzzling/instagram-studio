@@ -1,9 +1,10 @@
 -- Brainstorm 2026-10: each country's signature puzzle - the puzzle most over-represented among that country's solvers
 -- vs the world (lift; >= 15 local solvers), for countries with >= 80 puzzlers. Embargoed puzzles excluded. Aggregate only.
+-- Private profiles excluded (player.is_private; owner decision 2026-10-13).
 WITH s AS (
   SELECT DISTINCT upper(pl.country) AS cc, t.player_id, t.puzzle_id
   FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id
-  WHERE NOT t.suspicious AND nullif(pl.country, '') IS NOT NULL),
+  WHERE NOT t.suspicious AND NOT pl.is_private AND nullif(pl.country, '') IS NOT NULL),
 cn AS (SELECT cc, count(DISTINCT player_id) AS n FROM s GROUP BY 1 HAVING count(DISTINCT player_id) >= 80),
 wn AS (SELECT count(DISTINCT player_id) AS n FROM s),
 pw AS (SELECT puzzle_id, count(*) AS w FROM s GROUP BY 1),

@@ -42,7 +42,7 @@ export function loadContent() {
       mode: { minute: mode.minute, results: mode.results },
       at59: at(59),
       at60: at(60),
-      dropPct: Math.round(((at(60) - at(59)) / at(59)) * 1000) / 10, // -7.4
+      dropPct: Math.round(((at(60) - at(59)) / at(59)) * 1000) / 10, // -7.3
       quartiles: { p25: num(dist['500'].p25), median: num(dist['500'].p50), p75: num(dist['500'].p75) },
       noStepAt: [45, 50],
       context: 'There is no such step at 45 or 50 minutes. The hour is the line people race for.',

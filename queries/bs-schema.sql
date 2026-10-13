@@ -1,4 +1,5 @@
 -- Brainstorm 2026-10: column discovery for content-relevant tables (schema only, no rows).
+-- Reads no player rows, so the private-profile rule (player.is_private, 2026-10-13) has nothing to filter.
 SELECT table_name, string_agg(column_name || ':' || data_type, ', ' ORDER BY ordinal_position) AS cols
 FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name IN (

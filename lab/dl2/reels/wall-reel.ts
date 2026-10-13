@@ -1,7 +1,7 @@
 // F4 · wall-reel (12 s): the 59-minute wall as a loopable histogram build.
 //   0–4 s   hook: "When do most 500s finish?" over an empty axis; bars build left to right (0.25–3.6 s)
 //   3.9 s   the five minutes before the hour turn coral; the answer "58 minutes" replaces the question
-//   5.6 s   the wall drops at 60:00, the bars behind it flinch, "−7.4% at the hour" lands (by ~6.5 s)
+//   5.6 s   the wall drops at 60:00, the bars behind it flinch, "−7.3% at the hour" lands (by ~6.5 s)
 //   8.6 s   the question to the viewer: "Which side of the wall is your PB?"
 //   10.9 s  everything unwinds back to the opening frame, so the loop is seamless
 import { escapeHtml as h, fmtInt, fmtSignedPct } from '../../../src/design/page.ts';
@@ -20,7 +20,7 @@ export function wallReel({ dl1: c }: ReelContext): Reel {
   const barW = band * 0.8;
   const x = (minute: number) => X0 + (minute - m0) * band; // left edge of a minute's band
   const wallX = f1(x(60));
-  const peak = w.mode;                           // 58 min, 7,449 results
+  const peak = w.mode;                           // 58 min, 7,419 results
   const hot = hist.filter(b => b.minute >= 55 && b.minute <= 59).map(b => b.minute);
 
   const bars = hist.map(b => {

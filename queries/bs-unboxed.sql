@@ -1,7 +1,9 @@
 -- Brainstorm 2026-10: solving without the box image ("unboxed") - volume, puzzlers, fastest solo 500 and 1000, and the
 -- most-unboxed puzzles. Aggregate only, anonymous.
-WITH u AS (SELECT t.*, p.pieces_count, p.name, m.name AS brand FROM puzzle_solving_time t JOIN puzzle p ON p.id = t.puzzle_id JOIN manufacturer m ON m.id = p.manufacturer_id
-           WHERE NOT t.suspicious AND t.unboxed AND (p.hide_until IS NULL OR p.hide_until <= now()))
+-- Private profiles excluded (player.is_private; owner decision 2026-10-13).
+WITH u AS (SELECT t.*, p.pieces_count, p.name, m.name AS brand
+           FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id JOIN puzzle p ON p.id = t.puzzle_id JOIN manufacturer m ON m.id = p.manufacturer_id
+           WHERE NOT t.suspicious AND NOT pl.is_private AND t.unboxed AND (p.hide_until IS NULL OR p.hide_until <= now()))
 SELECT 'summary' AS kind, count(*)::text AS a, count(DISTINCT player_id)::text AS b,
        to_char(make_interval(secs => min(seconds_to_solve) FILTER (WHERE puzzling_type = 'solo' AND pieces_count = 500 AND seconds_to_solve > 0)), 'MI:SS') AS c,
        to_char(make_interval(secs => min(seconds_to_solve) FILTER (WHERE puzzling_type = 'solo' AND pieces_count = 1000 AND seconds_to_solve > 0)), 'HH24:MI:SS') AS d

@@ -1,5 +1,6 @@
 -- Brainstorm 2026-10: each big brand's signature subject - the theme most over-represented in its catalogue vs the
 -- whole catalogue (lift), for brands with >= 300 catalogue puzzles. Aggregate only.
+-- Catalogue only (puzzle names, no player rows), so the private-profile rule (player.is_private, 2026-10-13) has nothing to filter.
 WITH themes(theme, rx) AS (VALUES
   ('cats', '\m(cats?|kittens?)\M'), ('dogs', '\m(dogs?|puppy|puppies)\M'), ('birds', '\m(birds?|owls?|parrots?)\M'),
   ('christmas', '\m(christmas|xmas|santa|snowman)\M'), ('flowers/garden', '\m(flowers?|floral|roses?|garden)\M'),

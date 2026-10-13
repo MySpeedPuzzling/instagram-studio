@@ -1,5 +1,6 @@
 -- Brainstorm 2026-10: puzzle themes by whole-word match in puzzle names (aggregate: puzzles, solvers, results).
 -- A puzzle can belong to several themes. Embargoed puzzles excluded.
+-- Private profiles excluded (player.is_private; owner decision 2026-10-13).
 WITH themes(theme, rx) AS (VALUES
   ('cats', '\m(cats?|kittens?|kitty|kitties)\M'), ('dogs', '\m(dogs?|puppy|puppies)\M'),
   ('birds', '\m(birds?|owls?|parrots?|peacocks?|flamingos?|hummingbirds?)\M'),
@@ -20,7 +21,7 @@ WITH themes(theme, rx) AS (VALUES
 ),
 ps AS (
   SELECT t.puzzle_id, count(*) AS results, count(DISTINCT t.player_id) AS solvers
-  FROM puzzle_solving_time t WHERE NOT t.suspicious GROUP BY 1)
+  FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id WHERE NOT t.suspicious AND NOT pl.is_private GROUP BY 1)
 SELECT th.theme, count(DISTINCT p.id) AS puzzles_in_catalogue, count(DISTINCT ps.puzzle_id) AS puzzles_solved,
   coalesce(sum(ps.results), 0) AS results, coalesce(sum(ps.solvers), 0) AS solver_puzzle_pairs
 FROM themes th JOIN puzzle p ON p.name ~* th.rx AND (p.hide_until IS NULL OR p.hide_until <= now())

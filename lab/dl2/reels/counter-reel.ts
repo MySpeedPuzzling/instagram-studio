@@ -23,7 +23,7 @@ function rng(seed: number) {
 }
 
 export function counterReel({ dl1: c }: ReelContext): Reel {
-  const total = c.totals.pieces;     // 275,279,266
+  const total = c.totals.pieces;     // 274,399,467
   const jig = generateJigsaw({ cols: COLS, rows: ROWS, width: GRID.w, height: GRID.h, x: GRID.x, y: GRID.y, seed: 23, tabSize: 0.22, jitter: 0.035 });
   const tint = interpolate(['#c7e8ff', '#97a5f9'], 'oklch');   // sky-200 → indigo-300
   const last = jig.pieces.find(p => p.col === Math.floor(COLS / 2) && p.row === 2)!;   // centre column, inside every crop

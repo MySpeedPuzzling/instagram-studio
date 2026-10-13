@@ -372,7 +372,7 @@ function sepMosaic(c: Content): Post {
     const score = f + (dc === -1 && dr === -1 ? 0.5 : 0);
     if (score > win.score) win = { c0: cellOf.col + dc, r0: cellOf.row + dr, score };
   }
-  const zs = 150, zg = 8, zx = X0, zy = 296;
+  const zs = 140, zg = 8, zx = X0, zy = 296; // 140 leaves room for credits that wrap to two lines
   const zoom: Array<{ b: SepBox; i: number; j: number }> = [];
   for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
     const cl = at.get(`${win.c0 + i},${win.r0 + j}`);
@@ -397,10 +397,12 @@ function sepMosaic(c: Content): Post {
     <svg class="abs" style="left:${zx + zw}px; top:${zy}px" width="${mapX - zx - zw}" height="${zw}" viewBox="0 0 ${mapX - zx - zw} ${zw}">
       <path d="M 6 0 L ${win1.x - zx - zw} ${win1.y - zy} M 6 ${zw} L ${win1.x - zx - zw} ${win1.y - zy + win1.s}" stroke="var(--coral-500)" stroke-width="3" fill="none"/></svg>
     <div class="abs" style="left:${(win1.x - 3).toFixed(1)}px; top:${(win1.y - 3).toFixed(1)}px; width:${(win1.s + 6).toFixed(1)}px; height:${(win1.s + 6).toFixed(1)}px; border:3px solid var(--coral-500)"></div>
-    <ol class="abs credit" data-qa-small style="left:${X0}px; top:${listY}px; width:${CW}px; list-style:none">
-      ${zoomList.map(z => `<li><b>No. ${rank.get(z.b.puzzleId)}</b> ${h(z.b.credit)} · ${fmtInt(z.b.solvers)} puzzlers</li>`).join('')}
-    </ol>
-    <p class="abs dek" style="left:${X0}px; top:${listY + zoomList.length * 31 + 26}px; width:${CW}px; font-size:32px">No. 1 sits among the ${family(tone(top1.img).crop!)}. Together the ${fmtInt(n)} were solved <b>${fmtInt(solves)}</b> times, ${share}% of all ${fmtInt(s.results)} results in ${h(s.label)}.</p>
+    <div class="abs" style="left:${X0}px; top:${listY}px; width:${CW}px">
+      <ol class="credit" data-qa-small style="list-style:none">
+        ${zoomList.map(z => `<li><b>No. ${rank.get(z.b.puzzleId)}</b> ${h(z.b.credit)} · ${fmtInt(z.b.solvers)} puzzlers</li>`).join('')}
+      </ol>
+      <p class="dek" style="margin-top:16px; font-size:32px">No. 1 sits among the ${family(tone(top1.img).crop!)}. Together the ${fmtInt(n)} were solved <b>${fmtInt(solves)}</b> times, ${share}% of all ${fmtInt(s.results)} results in ${h(s.label)}.</p>
+    </div>
     ${foot(c.source)}`, 'night') };
 
   return {

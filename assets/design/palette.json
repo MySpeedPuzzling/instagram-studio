@@ -1,0 +1,70 @@
+{
+  "semantic": {
+    "ink": "#2b3445",
+    "ink-soft": "#4b566b",
+    "ink-muted": "#626c80",
+    "paper": "#ffffff",
+    "paper-warm": "#fbf7f3",
+    "paper-cool": "#f6f9fc",
+    "line": "#e3e9ef",
+    "context": "#dfe3ea",
+    "highlight": "#ec726f",
+    "highlight-text": "#4e54c8",
+    "accent": "#4e54c8",
+    "sky": "#69b3fe"
+  },
+  "ramps": {
+    "coral": {
+      "50": "#fff4f3",
+      "100": "#ffe6e3",
+      "200": "#ffcdc9",
+      "300": "#ffb0ab",
+      "400": "#ff8f8a",
+      "500": "#ec726f",
+      "600": "#ca5453",
+      "700": "#aa383a",
+      "800": "#8a1c23",
+      "900": "#6a000d"
+    },
+    "indigo": {
+      "50": "#f0f3ff",
+      "100": "#dde3ff",
+      "200": "#bcc8ff",
+      "300": "#97a5f9",
+      "400": "#6f7ce6",
+      "500": "#4e54c8",
+      "600": "#3d3eb0",
+      "700": "#2e2999",
+      "800": "#211281",
+      "900": "#170069"
+    },
+    "sky": {
+      "50": "#f2faff",
+      "100": "#e2f4ff",
+      "200": "#c7e8ff",
+      "300": "#a8d9ff",
+      "400": "#84c6ff",
+      "500": "#69b3fe",
+      "600": "#4892da",
+      "700": "#2a74b9",
+      "800": "#055797",
+      "900": "#003b76"
+    }
+  },
+  "brand": {
+    "coral": "#ec726f",
+    "coralSite": "#fe696a",
+    "indigo": "#4e54c8",
+    "sky": "#69b3fe",
+    "green": "#42d697",
+    "orange": "#fea569",
+    "navy": "#2b3445",
+    "gray800": "#373f50",
+    "gray700": "#4b566b",
+    "gray600": "#7d879c",
+    "gray300": "#e3e9ef",
+    "gray200": "#f3f5f9",
+    "gray100": "#f6f9fc",
+    "white": "#ffffff"
+  }
+}

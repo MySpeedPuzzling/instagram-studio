@@ -102,10 +102,10 @@ const css = [
 
 mkdirSync('assets/design', { recursive: true });
 writeFileSync('assets/design/tokens.css', css);
-writeFileSync('assets/design/tokens.json', JSON.stringify({ semantic, ramps, brand }, null, 2) + '\n');
+writeFileSync('assets/design/palette.json', JSON.stringify({ semantic, ramps, brand }, null, 2) + '\n');
 console.log(report.join('\n'));
 if (failures.length) {
   console.error('\nContrast gate FAILED:\n  ' + failures.join('\n  '));
   process.exit(1);
 }
-console.log('\ntokens written: assets/design/tokens.css, assets/design/tokens.json');
+console.log('\ntokens written: assets/design/tokens.css, assets/design/palette.json');

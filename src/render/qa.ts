@@ -104,6 +104,44 @@ export function qaInPage(o: QaOptions): QaReport {
     }
   }
 
+  // Text must not collide. Each text run is reduced to its ink box using Rubik's metrics (ascent 0.935,
+  // descent 0.25, cap height 0.70, descenders ~0.21 em), so tall line boxes of huge numbers don't count.
+  const boxes: Array<{ el: Element; l: number; r: number; t: number; b: number }> = [];
+  for (const el of document.querySelectorAll('body *')) {
+    if (el.closest('[data-qa-ignore]') || el.closest('[data-qa-overlap-ok]')) continue;
+    const own = [...el.childNodes].some(n => n.nodeType === Node.TEXT_NODE && (n.textContent ?? '').trim());
+    if (!own) continue;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0) continue;
+    const fs = parseFloat(cs.fontSize);
+    const text = el.textContent ?? '';
+    const hasDescender = /[gjpqy,;()]/.test(text);
+    const rects: DOMRect[] = [];
+    if (el instanceof SVGElement) rects.push(el.getBoundingClientRect());
+    else {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      for (const r of range.getClientRects()) rects.push(r);
+    }
+    for (const r of rects) {
+      if (r.width <= 0 || r.height <= 0) continue;
+      // Content area = ascent + descent = 1.185 em, centred in the rect; baseline sits 0.935 em below its top.
+      const contentTop = r.top + (r.height - 1.185 * fs) / 2;
+      const baseline = contentTop + 0.935 * fs;
+      boxes.push({ el, l: r.left, r: r.right, t: baseline - 0.72 * fs, b: baseline + (hasDescender ? 0.21 : 0.02) * fs });
+    }
+  }
+  const tol = 2;
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j];
+      if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue;
+      const w = Math.min(a.r, b.r) - Math.max(a.l, b.l);
+      const hgt = Math.min(a.b, b.b) - Math.max(a.t, b.t);
+      if (w > tol && hgt > tol) errors.push(`text overlaps text: ${label(a.el)} × ${label(b.el)}`);
+    }
+  }
+
   // Banned effects (house style: no glass, blur, glow or stacked shadows).
   for (const el of document.querySelectorAll('body *')) {
     if (el.closest('[data-qa-ignore]')) continue;

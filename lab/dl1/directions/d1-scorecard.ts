@@ -1,0 +1,184 @@
+// D1 · Scorecard Editorial (Economist / Our World in Data lineage).
+// White ground, one coral highlight against light-grey context, takeaway headlines, direct labels,
+// a small coral piece as the fixed brand device top left, source line and logo bottom.
+import { fmtDuration, fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
+import { LOGO_URL, assignUnits, barGeometry, flagUrl, pieceGrid, rankGeometry, scatterPieces, singlePiece } from '../../../src/design/svg.ts';
+import type { Content } from '../content.ts';
+import type { Direction, Post } from '../types.ts';
+
+const W = 1080, X0 = 88, CW = 904;
+const device = singlePiece(60, 5);
+
+const css = `
+.frame { position: relative; width: 1080px; height: 1350px; padding: 96px ${X0}px 0; background: var(--paper); }
+.top { display: flex; align-items: center; gap: 22px; height: 64px; }
+.top svg { width: 58px; height: 58px; }
+.kicker { font-size: 34px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.2px; }
+.series { margin-left: auto; font-size: 30px; font-weight: 500; color: var(--ink-muted); }
+.h1 { font-size: 112px; line-height: 1.0; font-weight: 700; letter-spacing: -2.5px; margin-top: 64px; }
+.h2 { font-size: 64px; line-height: 1.08; font-weight: 700; letter-spacing: -1px; margin-top: 44px; }
+.dek { font-size: 44px; line-height: 1.25; color: var(--ink-soft); margin-top: 32px; max-width: 860px; }
+.foot { position: absolute; left: ${X0}px; right: ${X0}px; bottom: 72px; display: flex; align-items: center; justify-content: space-between; border-top: 3px solid var(--line); padding-top: 26px; }
+.src { font-size: 30px; color: var(--ink-muted); }
+.logo { width: 64px; height: 57px; }
+.lab { font-size: 34px; fill: var(--ink-soft); font-family: Rubik; font-variant-numeric: tabular-nums; }
+.lab-strong { font-size: 40px; font-weight: 700; fill: var(--ink); font-family: Rubik; font-variant-numeric: tabular-nums; }
+.lab-hl { font-size: 40px; font-weight: 700; fill: var(--indigo-500); font-family: Rubik; font-variant-numeric: tabular-nums; }
+.big { font-size: 300px; font-weight: 700; line-height: 0.9; letter-spacing: -8px; }
+.big.hl { color: var(--ink); }
+.underline { display: inline-block; border-bottom: 18px solid var(--coral-500); line-height: 0.8; }
+.cta { position: absolute; left: ${X0}px; right: ${X0}px; bottom: 210px; font-size: 52px; font-weight: 700; line-height: 1.15; color: var(--indigo-500); }
+.rank { position: absolute; left: ${X0}px; top: 450px; width: ${CW}px; }
+.row { position: absolute; left: 0; display: flex; align-items: center; height: 58px; width: ${CW}px; }
+.row img { width: 46px; height: 46px; }
+.row .name { width: 300px; margin-left: 18px; font-size: 36px; font-weight: 500; }
+.row .val { width: 120px; text-align: right; font-size: 36px; font-weight: 700; }
+.row .bar { height: 30px; margin-left: 22px; border-radius: 0 4px 4px 0; background: var(--context); }
+.row.first .bar { background: var(--coral-500); }
+.ref { position: absolute; left: ${X0}px; right: ${X0}px; font-size: 32px; color: var(--ink-soft); }
+.legend { display: flex; gap: 34px; flex-wrap: wrap; margin-top: 40px; font-size: 34px; color: var(--ink-soft); }
+.legend b { color: var(--ink); }
+.sw { display: inline-block; width: 30px; height: 30px; border-radius: 6px; vertical-align: -5px; margin-right: 10px; border: 3px solid var(--ink); }
+`;
+
+const top = (kicker: string, n: string) => `
+<header class="top">
+  <svg viewBox="${device.viewBox}"><path d="${device.d}" fill="var(--coral-500)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/></svg>
+  <span class="kicker">${h(kicker)}</span><span class="series">${h(n)}</span>
+</header>`;
+const foot = (src: string) => `<footer class="foot"><span class="src">${h(src)}</span><img class="logo" src="${LOGO_URL}" alt=""></footer>`;
+const frame = (inner: string) => `<div class="frame">${inner}</div>`;
+
+function wall(c: Content): Post {
+  const w = c.wall;
+  // Teaser chart on the cover: 50–66 min.
+  const teaser = w.histogram.filter(d => d.minute >= 48 && d.minute <= 68);
+  const tg = barGeometry(teaser, { x: d => d.minute, y: d => d.results, width: CW, height: 420, padding: 0.22 });
+  const tBars = tg.bars.map(b => `<rect x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" rx="4" fill="${b.datum.minute >= 55 && b.datum.minute <= 59 ? 'var(--coral-500)' : 'var(--context)'}"/>`).join('');
+  const x60 = tg.xScale('60')! - (tg.xScale.step() - tg.xScale.bandwidth()) / 2;
+
+  // Full histogram: 40–80 min.
+  const H = 600;
+  const g = barGeometry(w.histogram, { x: d => d.minute, y: d => d.results, width: CW, height: H, padding: 0.2 });
+  const bars = g.bars.map(b => `<rect x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" rx="3" fill="${b.datum.minute >= 55 && b.datum.minute <= 59 ? 'var(--coral-500)' : 'var(--context)'}"/>`).join('');
+  const band = (m: number) => g.xScale(String(m))! + g.xScale.bandwidth() / 2;
+  const modeBar = g.bars.find(b => b.datum.minute === w.mode.minute)!;
+  const bar60 = g.bars.find(b => b.datum.minute === 60)!;
+  const line60 = g.xScale('60')! - (g.xScale.step() - g.xScale.bandwidth()) / 2;
+  const ticks = [40, 50, 60, 70, 80].map(m => `<text class="lab" x="${band(m)}" y="${H + 52}" text-anchor="${m === 80 ? 'end' : 'middle'}">${m === 80 ? '80 min' : m}</text>`).join('');
+
+  // Quartile strip for the context slide.
+  const qs = (m: number) => ((m - 30) / (100 - 30)) * CW;
+  const q = w.quartiles;
+
+  return {
+    key: 'wall',
+    slides: [
+      { id: 'wall-1', body: frame(`${top(w.kicker, 'MSP DATA')}
+        <h1 class="h1">The 59-minute<br>wall</h1>
+        <p class="dek">${h(w.dek)}</p>
+        <svg width="${CW}" height="470" style="position:absolute; left:${X0}px; top:690px">
+          ${tBars}
+          <line x1="${x60}" x2="${x60}" y1="-20" y2="430" stroke="var(--ink)" stroke-width="4" stroke-dasharray="10 8"/>
+          <text class="lab-strong" x="${x60 + 16}" y="10">60:00</text>
+        </svg>
+        ${foot(c.source)}`) },
+      { id: 'wall-2', body: frame(`${top(w.kicker, '2 / 4')}
+        <h2 class="h2">${w.mode.minute} minutes is the most common finish. Then the counts drop.</h2>
+        <svg width="${CW}" height="${H + 70}" style="position:absolute; left:${X0}px; top:500px">
+          ${bars}
+          <line x1="${line60}" x2="${line60}" y1="-30" y2="${H}" stroke="var(--ink)" stroke-width="4" stroke-dasharray="10 8"/>
+          <text class="lab-strong" x="${modeBar.x + modeBar.width + 18}" y="${modeBar.y - 40}" text-anchor="end">${w.mode.minute} min</text>
+          <text class="lab" x="${modeBar.x + modeBar.width + 18}" y="${modeBar.y - 2}" text-anchor="end">${fmtInt(w.mode.results)} results</text>
+          <text class="lab-hl" x="${bar60.x + 34}" y="${bar60.y + 70}">${w.dropPct}% at the hour</text>
+          ${ticks}
+        </svg>
+        ${foot(c.source)}`) },
+      { id: 'wall-3', body: frame(`${top(w.kicker, '3 / 4')}
+        <h2 class="h2">No step at 45 or 50 minutes. The hour is the line people race for.</h2>
+        <svg width="${CW}" height="360" style="position:absolute; left:${X0}px; top:640px">
+          <rect x="0" y="150" width="${CW}" height="16" rx="8" fill="var(--context)"/>
+          <rect x="${qs(q.p25)}" y="128" width="${qs(q.p75) - qs(q.p25)}" height="60" rx="10" fill="var(--indigo-100)" stroke="var(--indigo-500)" stroke-width="4"/>
+          <line x1="${qs(q.median)}" x2="${qs(q.median)}" y1="112" y2="204" stroke="var(--indigo-500)" stroke-width="8" stroke-linecap="round"/>
+          <line x1="${qs(60)}" x2="${qs(60)}" y1="40" y2="250" stroke="var(--ink)" stroke-width="4" stroke-dasharray="10 8"/>
+          <text class="lab-strong" x="${qs(60)}" y="20" text-anchor="middle">1 hour</text>
+          <text class="lab" x="${qs(q.p25)}" y="250" text-anchor="middle">${fmtDuration(q.p25)}</text>
+          <text class="lab-hl" x="${qs(q.median)}" y="300" text-anchor="middle">median ${fmtDuration(q.median)}</text>
+          <text class="lab" x="${qs(q.p75)}" y="250" text-anchor="middle">${fmtDuration(q.p75)}</text>
+        </svg>
+        <p class="ref" style="top:1040px">The middle half of all solo 500s finish between ${fmtDuration(q.p25)} and ${fmtDuration(q.p75)}.</p>
+        ${foot(c.source)}`) },
+      { id: 'wall-4', body: frame(`${top(w.kicker, '4 / 4')}
+        <p class="big" style="margin-top:110px"><span class="underline">${w.subHour.pct}%</span></p>
+        <h2 class="h2" style="margin-top:56px">of 500-piece puzzlers have a personal best under one hour</h2>
+        <p class="dek">${fmtInt(w.subHour.under60)} of ${fmtInt(w.subHour.puzzlers)} puzzlers with a solo 500 time</p>
+        <p class="cta">${h(w.question)}</p>
+        ${foot(c.source)}`) },
+    ],
+  };
+}
+
+function record(c: Content): Post {
+  const r = c.record;
+  return { key: 'record', slides: [{ id: 'record-1', body: frame(`${top(r.kicker, 'MSP DATA')}
+    <p class="big" style="margin-top:130px; font-size:290px"><span class="underline">${r.value}</span></p>
+    <h2 class="h2" style="margin-top:70px">${h(r.title)}</h2>
+    <p class="dek">${h(r.context)}</p>
+    ${foot(r.footnote + ' · ' + c.asOf)}`) }] };
+}
+
+function countries(c: Content): Post {
+  const k = c.countries;
+  const rows = rankGeometry(k.top, { value: d => d.medianPb, width: 380, rowHeight: 58, gap: 8, domain: [0, 70] });
+  return { key: 'countries', slides: [{ id: 'countries-1', body: frame(`${top('Solo 500 pieces', 'MSP DATA')}
+    <h2 class="h2">${h(k.title)}</h2>
+    <p class="dek" style="font-size:36px; margin-top:20px">${h(k.dek)}</p>
+    <div class="rank">${rows.map((r, i) => `<div class="row ${i === 0 ? 'first' : ''}" style="top:${r.y}px">
+      <img src="${flagUrl(r.datum.code)}" alt=""><span class="name">${h(r.datum.name)}</span><span class="val">${fmtDuration(r.datum.medianPb)}</span><span class="bar" style="width:${r.width}px"></span></div>`).join('')}</div>
+    <p class="ref" style="top:1132px">Everyone: ${fmtDuration(k.reference[1].value!)} · United States: ${fmtDuration(k.reference[0].value!)}</p>
+    ${foot(c.source)}`) }] };
+}
+
+function share(c: Content): Post {
+  const s = c.share;
+  const size = 640;
+  const grid = pieceGrid({ cols: 10, rows: 10, x: 0, y: 0, width: size, height: size, seed: 21 });
+  const colour: Record<string, string> = { '500': 'var(--coral-500)', 'under 500': 'var(--indigo-200)', '1000': 'var(--sky-300)', other: 'var(--ink)' };
+  const units = assignUnits(grid, s.units.map(u => ({ key: u.key, units: u.units })));
+  return { key: 'share', slides: [{ id: 'share-1', body: frame(`${top('Puzzle sizes', 'MSP DATA')}
+    <h2 class="h2">${h(s.title)}</h2>
+    <svg width="${size}" height="${size}" viewBox="-6 -6 ${size + 12} ${size + 12}" style="position:absolute; left:${(W - size) / 2}px; top:390px">
+      ${units.map(u => `<path d="${u.piece.d}" fill="${colour[u.key]}" stroke="var(--paper)" stroke-width="4" stroke-linejoin="round"/>`).join('')}
+    </svg>
+    <div class="legend" style="position:absolute; left:${X0}px; top:1066px; width:${CW}px; margin:0">
+      ${s.units.map(u => `<span><i class="sw" style="background:${colour[u.key]}"></i><b>${u.pct}%</b> ${h(s.labels[u.key])}</span>`).join('')}
+    </div>
+    ${foot(`Each piece = 1% of ${fmtInt(c.totals.results)} results · ${c.asOf}`)}`) }] };
+}
+
+function xp(c: Content): Post {
+  const x = c.xp;
+  const keep = { x: 170, y: 330, width: 740, height: 620 };
+  const pieces = scatterPieces({ count: 16, width: 1080, height: 1350, pieceSize: 150, keepOut: keep, seed: 17 });
+  const fills = ['var(--coral-400)', 'var(--indigo-300)', 'var(--sky-300)', 'var(--coral-200)', 'var(--indigo-200)', 'var(--sky-200)'];
+  return { key: 'xp', slides: [{ id: 'xp-1', body: `<div class="frame" style="padding:0">
+    <svg width="1080" height="1350" style="position:absolute; inset:0">
+      ${pieces.map((p, i) => `<path d="${p.piece.d}" transform="${p.transform}" fill="${fills[i % fills.length]}" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>`).join('')}
+    </svg>
+    <div style="position:absolute; left:${keep.x}px; top:${keep.y}px; width:${keep.width}px; text-align:center">
+      <p style="font-size:44px; font-weight:700; color:var(--indigo-500); letter-spacing:6px">LEVEL</p>
+      <p style="font-size:300px; font-weight:800; line-height:0.95">${x.level}</p>
+      <p class="h2" style="margin-top:20px">${h(x.title)}</p>
+      <p class="dek" style="margin:24px auto 0; max-width:640px">${h(x.dek)}</p>
+    </div>
+  </div>`, safe: { x0: 88, y0: 64, x1: 992, y1: 1286 } }] };
+}
+
+const direction: Direction = {
+  id: 'D1',
+  name: 'Scorecard Editorial',
+  idea: 'Newspaper-grade data pages: takeaway headlines, one coral highlight against light grey, direct labels, a small coral piece as the fixed device top left, source and logo bottom.',
+  css,
+  posts: c => [wall(c), record(c), countries(c), share(c), xp(c)],
+};
+export default direction;

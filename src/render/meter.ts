@@ -31,7 +31,8 @@ export function systemSnapshot() {
   const pressure = Number(sh('sysctl', ['-n', 'kern.memorystatus_vm_pressure_level']).trim()) || null; // 1 normal, 2 warn, 4 critical
   const swap = sh('sysctl', ['-n', 'vm.swapusage']).match(/used = ([\d.,]+)M/);
   const freePct = sh('memory_pressure', ['-Q']).match(/free percentage: (\d+)%/);
-  const docker = /com\.docker|Docker Desktop/.test(sh('ps', ['-A', '-o', 'comm=']));
+  // com.docker.vmnetd is a privileged helper that stays running when Docker is quit; only the VM/backend count.
+  const docker = /com\.docker\.(backend|virtualization|hyperkit)|Docker Desktop\.app\/Contents\/MacOS/.test(sh('ps', ['-A', '-o', 'comm=']));
   return {
     pressure,
     swap_used_gb: swap ? +(Number(swap[1].replace(',', '.')) / 1024).toFixed(2) : null,

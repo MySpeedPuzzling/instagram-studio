@@ -3,14 +3,17 @@
 //   node tools/review.ts          # http://127.0.0.1:4173/review
 //   node tools/review.ts --lan    # also reachable from a phone on the same Wi-Fi, behind a one-time token
 import { randomBytes } from 'node:crypto';
-import { appendFileSync, mkdirSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { networkInterfaces } from 'node:os';
 import { join } from 'node:path';
 import { reviewHandler } from '../src/review/app.ts';
 import { ROOT, startServer, type Handler } from '../src/render/server.ts';
 
 const lan = process.argv.includes('--lan');
-const token = lan ? randomBytes(9).toString('base64url') : '';
+// The phone token persists (content/ is gitignored), so a bookmarked phone link keeps working across restarts.
+const TOKEN_FILE = join(ROOT, 'content/.review-token');
+const token = lan ? (existsSync(TOKEN_FILE) ? readFileSync(TOKEN_FILE, 'utf8').trim() : randomBytes(9).toString('base64url')) : '';
+if (lan && !existsSync(TOKEN_FILE)) { mkdirSync(join(ROOT, 'content'), { recursive: true }); writeFileSync(TOKEN_FILE, token, { mode: 0o600 }); }
 
 // Drafts hold member data: on the LAN every request needs the token (set as a cookie by the first URL).
 const gate: Handler = (req, res) => {
@@ -26,7 +29,15 @@ const gate: Handler = (req, res) => {
 
 // Design-lab picks from the gallery pages.
 const labFeedback: Handler = async (req, res) => {
-  if (req.method !== 'POST' || !req.url?.startsWith('/api/feedback')) return false;
+  if (!req.url?.startsWith('/api/feedback')) return false;
+  if (req.method === 'GET') {
+    const lab = String(new URL(req.url, 'http://x').searchParams.get('lab') ?? '').replace(/[^\w-]/g, '');
+    const f = join(ROOT, 'content/labs', lab, 'feedback.jsonl');
+    const rows = lab && existsSync(f) ? readFileSync(f, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
+    res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(rows));
+    return true;
+  }
+  if (req.method !== 'POST') return false;
   let body = '';
   for await (const chunk of req) body += chunk;
   const data = JSON.parse(body) as { lab?: string };

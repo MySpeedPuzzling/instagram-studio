@@ -1,16 +1,18 @@
-// DL1 review gallery: every direction shown as the owner will meet it, inside an Instagram feed post
-// (phone width, carousel with dots, caption cut at "… more") and in the profile grid (3:4 crops next to
-// real recent posts). Picks and notes post to the local server and land in content/labs/DL1/feedback.jsonl.
+// DL1 review gallery. Every slide has a short code (e.g. "D4-3") so feedback can be given per slide, per
+// direction, or in chat. Feedback posts to the local review server and lands in
+// content/labs/DL1/feedback.jsonl (latest entry per target wins).
 import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { escapeHtml as h } from '../../src/design/page.ts';
 import { ROOT } from '../../src/render/server.ts';
 import type { Content } from './content.ts';
-import type { Manifest } from './run.ts';
+import type { Manifest, ManifestDirection } from './run.ts';
 
-const POST_LABEL: Record<string, string> = {
-  wall: 'The 59-minute wall (carousel)', record: 'Record hero number', countries: 'Country top 10',
-  share: 'Proportion (unit grid)', xp: 'XP card concept: Level 50 club', story: 'Story frames',
+export const POST_LABEL: Record<string, string> = {
+  wall: 'The 59-minute wall (4-slide carousel)', record: 'Record (single image)', countries: 'Country top 10 (single image)',
+  share: 'Proportion (single image)', xp: 'Level 50 club: the XP card idea (single image)', story: 'Story frames',
+  weekly: 'The Weekly Numbers (carousel)', event: 'Event preview: Wisconsin championship', feature: 'Feature news: XP launch day',
+  month: 'Monthly report: record September',
 };
 
 const CAPTION: Record<string, string> = {
@@ -19,116 +21,157 @@ const CAPTION: Record<string, string> = {
   countries: 'Denmark, Switzerland and Finland lead on median personal bests for a solo 500.',
   share: 'Three in four results logged on MySpeedPuzzling are 500-piece puzzles.',
   xp: 'Ten puzzlers already reached Level 50, the top level of the new XP system.',
-  story: 'Story frames',
+  weekly: 'The Weekly Numbers: what the community puzzled last week.',
+  event: 'The Wisconsin State Jigsaw Puzzle Championship is on Friday.',
+  feature: 'You logged 2,890 results on XP launch day, our busiest day ever.',
+  month: 'September 2026 was our biggest month ever.',
+  story: '',
 };
+
+/** Slide codes: D4-1, D4-2, … numbered through the direction in post order. */
+export function slideCodes(d: ManifestDirection) {
+  let n = 0;
+  return d.posts.map(p => ({ key: p.key, slides: p.slides.map(s => ({ ...s, code: `${d.id}-${++n}` })) }));
+}
 
 export function buildGallery(manifest: Manifest, _content: Content) {
   const realPosts = existsSync(join(ROOT, 'var/ig-compression'))
     ? readdirSync(join(ROOT, 'var/ig-compression')).filter(f => f.endsWith('_0.jpg')).sort().reverse().slice(0, 9).map(f => `/var/ig-compression/${f}`)
     : [];
   const dirs = Object.values(manifest).sort((a, b) => parseInt(a.id.slice(1)) - parseInt(b.id.slice(1)));
+  const coded = Object.fromEntries(dirs.map(d => [d.id, slideCodes(d)]));
   const keys = [...new Set(dirs.flatMap(d => d.posts.map(p => p.key)))];
 
-  const feedPost = (dirId: string, key: string, slides: { preview: string; id: string; errors: string[]; frame: string }[]) => {
-    const isStory = slides[0]?.frame !== 'feed';
-    return `
-    <div class="phone ${isStory ? 'story' : ''}">
+  type CodedSlide = { preview: string; jpg: string; id: string; frame: string; code: string };
+  const phone = (slides: CodedSlide[], key: string) => {
+    const story = slides[0]?.frame !== 'feed';
+    return `<div class="phone ${story ? 'story' : ''}">
       <div class="ig-head"><img class="avatar" src="/assets/brand/speedpuzzling-logo-square.png" alt=""><b>myspeedpuzzling</b></div>
       <div class="media" data-count="${slides.length}">
-        <div class="track">${slides.map(s => `<img loading="lazy" src="${s.preview}" alt="${h(s.id)}">`).join('')}</div>
+        <div class="track">${slides.map(s => `<img loading="lazy" src="${s.preview}" alt="${s.code}">`).join('')}</div>
         ${slides.length > 1 ? `<span class="count">1/${slides.length}</span>` : ''}
       </div>
-      ${slides.length > 1 ? `<div class="dots">${slides.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}
-      ${isStory ? '' : `<p class="cap"><b>myspeedpuzzling</b> ${h(CAPTION[key].slice(0, 110))}… <span class="more">more</span></p>`}
-      ${slides.some(s => s.errors.length) ? `<p class="qa">QA: ${slides.reduce((n, s) => n + s.errors.length, 0)} issue(s)</p>` : ''}
+      ${slides.length > 1 ? `<div class="dots">${slides.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : '<div style="height:8px"></div>'}
+      ${story || !CAPTION[key] ? '' : `<p class="cap"><b>myspeedpuzzling</b> ${h(CAPTION[key].slice(0, 100))}… <span class="more">more</span></p>`}
+      <p class="codes">${slides.map(s => s.code).join(' · ')}</p>
     </div>`;
   };
+
+  const rate = (target: string, extra: string) => `<div class="rate" data-target="${target}" ${extra}>
+      <button data-r="works">Works</button><button data-r="unsure">Unsure</button><button data-r="no-go">No-go</button>
+      <textarea placeholder="Why? (optional)" rows="2"></textarea><span class="saved"></span></div>`;
 
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DL1 design lab</title>
 <style>
 @font-face { font-family: 'Rubik'; src: url('/assets/fonts/rubik/Rubik%5Bwght%5D.ttf'); font-weight: 300 900; }
-:root { --bg: #f4f5f7; --ink: #1d2230; --muted: #667085; --line: #e3e6eb; --card: #fff; --accent: #4e54c8; }
+:root { --bg: #f4f5f7; --ink: #1d2230; --muted: #667085; --line: #e3e6eb; --card: #fff; --accent: #4e54c8; --ok: #067647; --bad: #b42318; --mid: #b54708; }
 * { box-sizing: border-box; }
-body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--ink); }
-header { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--line); padding: 12px 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-header h1 { font: 600 18px/1.2 Rubik, sans-serif; margin: 0 12px 0 0; }
-header nav a { color: var(--accent); text-decoration: none; margin-right: 12px; font-size: 14px; }
-main { padding: 20px; max-width: 1500px; margin: 0 auto; }
-h2 { font: 600 22px Rubik, sans-serif; margin: 36px 0 6px; }
+body { margin: 0; font: 15px/1.5 -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+header { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+header h1 { font: 600 17px Rubik, sans-serif; margin: 0 8px 0 0; }
+header a { color: var(--accent); text-decoration: none; font-size: 14px; }
+main { padding: 16px; max-width: 1500px; margin: 0 auto; }
+.intro { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; max-width: 900px; }
+.intro h2 { margin-top: 6px; }
+h2 { font: 600 21px Rubik, sans-serif; margin: 30px 0 6px; }
 h3 { font: 600 16px Rubik, sans-serif; margin: 22px 0 10px; }
-.idea { color: var(--muted); margin: 0 0 14px; max-width: 70ch; }
-.row { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x proximity; }
-.cell { flex: 0 0 auto; scroll-snap-align: start; }
-.cell > .label { font: 500 13px Rubik, sans-serif; margin: 0 0 6px; color: var(--muted); }
-.phone { width: 340px; background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-.phone.story { width: 240px; }
+.idea { color: var(--muted); margin: 0 0 12px; max-width: 75ch; }
+.row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 10px; }
+.cell { flex: 0 0 auto; }
+.label { font: 600 13px Rubik, sans-serif; margin: 0 0 6px; }
+.phone { width: 320px; background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.phone.story { width: 230px; }
 .ig-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; font-size: 13px; }
-.avatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); }
-.media { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #eee; }
-.story .media { aspect-ratio: 9 / 16; }
+.avatar { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line); }
+.media { position: relative; aspect-ratio: 4/5; overflow: hidden; background: #eee; }
+.story .media { aspect-ratio: 9/16; }
 .track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .track img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
 .count { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.6); color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 10px; }
-.dots { display: flex; justify-content: center; gap: 4px; padding: 6px; }
-.dots i { width: 6px; height: 6px; border-radius: 50%; background: #cfd4dc; }
-.dots i.on { background: #3897f0; }
-.cap { font-size: 13px; line-height: 1.35; margin: 2px 10px 10px; }
-.more { color: var(--muted); }
-.qa { margin: 0 10px 10px; font-size: 12px; color: #b42318; }
-.grid { display: grid; grid-template-columns: repeat(3, 110px); gap: 2px; width: max-content; background: #fff; padding: 2px; border: 1px solid var(--line); border-radius: 8px; }
-.grid img { width: 110px; aspect-ratio: 3 / 4; object-fit: cover; display: block; }
-.grid img.real { filter: grayscale(.2) opacity(.85); }
-.pick { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0 0; font-size: 14px; }
-.pick textarea { width: min(600px, 100%); height: 54px; font: inherit; }
-.pick button { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 8px 14px; font: 600 14px Rubik, sans-serif; cursor: pointer; }
-.saved { color: #067647; font-size: 13px; }
-section.dir { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px 20px 20px; margin-top: 24px; }
+.dots { display: flex; justify-content: center; gap: 4px; padding: 6px; } .dots i { width: 6px; height: 6px; border-radius: 50%; background: #cfd4dc; } .dots i.on { background: #3897f0; }
+.cap { font-size: 13px; margin: 0 10px 6px; } .more { color: var(--muted); }
+.codes { font: 600 12px Rubik, sans-serif; color: var(--accent); margin: 0 10px 10px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 108px); gap: 2px; background: #fff; padding: 2px; border: 1px solid var(--line); border-radius: 8px; width: max-content; }
+.grid3 img { width: 108px; aspect-ratio: 3/4; object-fit: cover; display: block; } .grid3 img.real { opacity: .75; }
+section.dir { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px 18px 18px; margin-top: 22px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.tile { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+.tile a img { width: 100%; display: block; aspect-ratio: 4/5; object-fit: cover; }
+.tile.story a img { aspect-ratio: 9/16; }
+.tile .code { font: 700 15px Rubik, sans-serif; padding: 8px 10px 0; display: flex; justify-content: space-between; }
+.tile .code b { white-space: nowrap; margin-right: 8px; } .tile .code span { text-align: right; font-weight: 400; color: var(--muted); font-size: 12px; }
+.rate { padding: 8px 10px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rate button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 10px; font: 600 13px Rubik, sans-serif; cursor: pointer; }
+.rate button.on[data-r="works"] { background: #e7f6ee; border-color: var(--ok); color: var(--ok); }
+.rate button.on[data-r="unsure"] { background: #fef3e6; border-color: var(--mid); color: var(--mid); }
+.rate button.on[data-r="no-go"] { background: #fde8e7; border-color: var(--bad); color: var(--bad); }
+.rate textarea { width: 100%; font: inherit; font-size: 13px; border: 1px solid var(--line); border-radius: 8px; padding: 6px; }
+.rate .saved { font-size: 12px; color: var(--ok); }
+.verdict { background: #f7f8fb; border-radius: 12px; margin: 12px 0 16px; }
+.verdict .rate textarea { min-height: 54px; }
 </style></head><body>
-<header><h1>DL1 · nine visual directions</h1><nav><a href="#compare">Compare side by side</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</nav></header>
+<header><h1>Design lab 1</h1><a href="#how">How it works</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
 <main>
-<p class="idea">Same content, rendered in every direction. Images are the Instagram-simulated previews (what followers will see after Instagram's re-encode). Swipe carousels inside each phone. Pick one primary and one secondary direction at the bottom of each section, or leave notes.</p>
+<div class="intro" id="how">
+<h2>What you're looking at</h2>
+<p><b>A "house style" is the visual look of the posts</b>: layout, colours, type, how charts look and one recognisable
+brand device, applied the same way every time so people recognise an MSP post in their feed before they read it.
+It's separate from the voice of the captions (that has its own playbook).</p>
+<p>Here, the same content is rendered in nine different styles (D1–D9). Nothing has to be picked as a single winner:
+the best result is usually a small system, e.g. one style for the regular feed and others for milestones, events and Stories,
+plus single devices borrowed from styles that don't make it.</p>
+<h3>How to give feedback</h3>
+<p>Every slide has a code like <b>D4-3</b>. Under each slide tap <b>Works</b>, <b>Unsure</b> or <b>No-go</b> and, if you like,
+write why. Each style also has an overall verdict box. It saves as you go. Or just write codes in the chat
+("D4-3 love the spine, D8 no-go, D3-5 too busy").</p>
+<p>Images are what followers will see after Instagram's re-encode; tap a slide to open it full size.</p>
+</div>
 
 <h2 id="compare">Compare side by side</h2>
 ${keys.map(key => `<h3>${h(POST_LABEL[key] ?? key)}</h3>
-<div class="row">${dirs.filter(d => d.posts.some(p => p.key === key)).map(d => `<div class="cell"><p class="label">${d.id} · ${h(d.name)}</p>${feedPost(d.id, key, d.posts.find(p => p.key === key)!.slides)}</div>`).join('')}</div>`).join('')}
+<div class="row">${dirs.filter(d => coded[d.id].some(p => p.key === key)).map(d => `<div class="cell"><p class="label">${d.id} · ${h(d.name)}</p>${phone(coded[d.id].find(p => p.key === key)!.slides as CodedSlide[], key)}</div>`).join('')}</div>`).join('')}
 
-<h3>Profile grid: each direction's covers next to the real latest posts</h3>
+<h3>In the profile grid: each style's covers next to the real latest posts</h3>
 <div class="row">${dirs.map(d => {
-  const covers = d.posts.filter(p => p.slides[0]?.frame === 'feed').map(p => p.slides[0].preview).slice(0, 6);
-  const tiles = [...covers, ...realPosts].slice(0, 12);
-  return `<div class="cell"><p class="label">${d.id} · ${h(d.name)}</p><div class="grid">${tiles.map((t, i) => `<img src="${t}" class="${i >= covers.length ? 'real' : ''}" alt="">`).join('')}</div></div>`;
-}).join('')}</div>
+    const covers = coded[d.id].filter(p => p.slides[0]?.frame === 'feed').map(p => p.slides[0].preview).slice(0, 6);
+    const tiles = [...covers, ...realPosts].slice(0, 12);
+    return `<div class="cell"><p class="label">${d.id} · ${h(d.name)}</p><div class="grid3">${tiles.map((t, i) => `<img src="${t}" class="${i >= covers.length ? 'real' : ''}" alt="">`).join('')}</div></div>`;
+  }).join('')}</div>
 
 ${dirs.map(d => `<section class="dir" id="${d.id}">
 <h2>${d.id} · ${h(d.name)}</h2><p class="idea">${h(d.idea)}</p>
-<div class="row">${d.posts.map(p => `<div class="cell"><p class="label">${h(POST_LABEL[p.key] ?? p.key)}</p>${feedPost(d.id, p.key, p.slides)}</div>`).join('')}</div>
-<form class="pick" data-dir="${d.id}">
-  <label><input type="radio" name="verdict" value="primary"> Primary</label>
-  <label><input type="radio" name="verdict" value="secondary"> Secondary</label>
-  <label><input type="radio" name="verdict" value="keep-device"> Keep one device from it</label>
-  <label><input type="radio" name="verdict" value="no"> No</label>
-  <textarea name="note" placeholder="What works, what doesn't (optional)"></textarea>
-  <button type="submit">Save</button><span class="saved"></span>
-</form>
+<div class="verdict"><p class="label" style="padding:10px 10px 0">Your verdict on ${d.id} as a whole</p>${rate(d.id, 'data-kind="direction"')}</div>
+<div class="tiles">${coded[d.id].flatMap(p => p.slides.map(s => `<div class="tile ${s.frame !== 'feed' ? 'story' : ''}">
+  <a href="${s.jpg}" target="_blank"><img loading="lazy" src="${s.preview}" alt="${s.code}"></a>
+  <p class="code"><b>${s.code}</b> <span>${h(POST_LABEL[p.key] ?? p.key)}</span></p>${rate(s.code, `data-kind="slide" data-post="${p.key}"`)}</div>`)).join('')}</div>
 </section>`).join('')}
 </main>
 <script>
 document.querySelectorAll('.media').forEach(m => {
   const track = m.querySelector('.track'), count = m.querySelector('.count'), dots = m.parentElement.querySelectorAll('.dots i');
-  track.addEventListener('scroll', () => {
-    const i = Math.round(track.scrollLeft / track.clientWidth);
-    if (count) count.textContent = (i + 1) + '/' + m.dataset.count;
-    dots.forEach((d, j) => d.classList.toggle('on', j === i));
-  });
+  track.addEventListener('scroll', () => { const i = Math.round(track.scrollLeft / track.clientWidth);
+    if (count) count.textContent = (i + 1) + '/' + m.dataset.count; dots.forEach((d, j) => d.classList.toggle('on', j === i)); });
 });
-document.querySelectorAll('form.pick').forEach(f => f.addEventListener('submit', async e => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(f));
-  const r = await fetch('/api/feedback', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lab: 'DL1', direction: f.dataset.dir, ...data }) });
-  f.querySelector('.saved').textContent = r.ok ? 'Saved' : 'Not saved (is tools/review.ts running?)';
-}));
+const qs = location.search;
+async function save(box) {
+  const on = box.querySelector('button.on');
+  const body = { lab: 'DL1', kind: box.dataset.kind, target: box.dataset.target, post: box.dataset.post, rating: on ? on.dataset.r : null, note: box.querySelector('textarea').value.trim() };
+  const r = await fetch('/api/feedback' + qs, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const s = box.querySelector('.saved'); s.textContent = r.ok ? 'saved' : 'not saved'; setTimeout(() => s.textContent = '', 1500);
+}
+document.querySelectorAll('.rate').forEach(box => {
+  box.querySelectorAll('button').forEach(b => b.onclick = () => {
+    const was = b.classList.contains('on'); box.querySelectorAll('button').forEach(x => x.classList.remove('on')); if (!was) b.classList.add('on'); save(box);
+  });
+  box.querySelector('textarea').addEventListener('change', () => save(box));
+});
+fetch('/api/feedback' + (qs ? qs + '&' : '?') + 'lab=DL1').then(r => r.ok ? r.json() : []).then(rows => {
+  const latest = {}; rows.forEach(r => { if (r.target) latest[r.target] = r; });
+  document.querySelectorAll('.rate').forEach(box => { const r = latest[box.dataset.target]; if (!r) return;
+    if (r.rating) box.querySelector('button[data-r="' + r.rating + '"]')?.classList.add('on'); box.querySelector('textarea').value = r.note || ''; });
+});
 </script>
 </body></html>`;
   writeFileSync(join(ROOT, 'content/labs/DL1/index.html'), html);

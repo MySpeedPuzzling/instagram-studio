@@ -2,6 +2,7 @@
 // queries (content/cache, refreshed with `node src/data/db.ts <name> --fresh`).
 import { query } from '../../src/data/db.ts';
 import { fmtDuration, fmtInt } from '../../src/design/page.ts';
+import { featurable } from '../../src/data/featuring.ts';
 
 const rows = (name: string) => query(name).rows;
 const num = (v: string) => Number(v);
@@ -93,6 +94,72 @@ export function loadContent() {
       context: `${xp.filter(x => x.level >= 40).reduce((s, x) => s + x.players, 0)} are at level 40 or higher, out of ${fmtInt(xp.reduce((s, x) => s + x.players, 0))} puzzlers with XP.`,
       distribution: xp,
     },
+
+    /** Carousel: The Weekly Numbers, season 1 episode 1 (last full week). Real names: local renders only. */
+    weekly: (() => {
+      const t = rows('weekly-totals')[0];
+      const start = new Date(t.week_start + 'T00:00:00Z');
+      const end = new Date(start.getTime() + 6 * 86400000);
+      const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+      const fastest = featurable(rows('weekly-fastest') as Array<Record<string, string> & { player_id: string }>).map(r => ({
+        player: r.player, country: r.country, pieces: num(r.pieces), time: fmtDuration(num(r.seconds) / 60), firstAttempt: r.first_attempt === 't',
+        puzzle: r.puzzle, brand: r.brand, handle: r.ig_handle || null,
+      }));
+      return {
+        series: 'The Weekly Numbers', episode: 1, season: 1,
+        range: `${fmt(start)} – ${fmt(end)} ${end.getUTCFullYear()}`,
+        results: num(t.results), resultsPrev: num(t.results_prev),
+        resultsChangePct: Math.round(((num(t.results) - num(t.results_prev)) / num(t.results_prev)) * 1000) / 10,
+        puzzlers: num(t.puzzlers), pieces: num(t.pieces), newPuzzlers: num(t.new_puzzlers), personalBests: num(t.personal_bests),
+        topPuzzles: rows('weekly-top-puzzles').map(r => ({ puzzle: r.puzzle, brand: r.brand, pieces: num(r.pieces), solvers: num(r.solvers) })),
+        fastest500: fastest.filter(f => f.pieces === 500).slice(0, 3),
+        fastest1000: fastest.filter(f => f.pieces === 1000).slice(0, 3),
+        question: 'What did you puzzle last week?',
+      };
+    })(),
+
+    /** Event preview: the next big event on the calendar. */
+    event: (() => {
+      const e = rows('event-wisconsin').at(-1)!;
+      const us = countries.find(c => c.code === 'US');
+      return {
+        name: 'Wisconsin State Jigsaw Puzzle Championship', short: 'Wisconsin State Championship',
+        date: new Date(e.date_from + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }),
+        location: e.location, registered: num(e.participants), onMsp: num(e.linked_players),
+        usMedianPb: us ? fmtDuration(us.medianPb) : null, usPuzzlers: us?.puzzlers ?? null,
+        question: 'Competing on Friday? Tell us your goal time.',
+        upcomingCount: rows('upcoming-events').length,
+      };
+    })(),
+
+    /** Feature news: XP launch day (12 Oct 2026) as "launch-day archaeology". */
+    feature: (() => {
+      const days = rows('logging-daily-recent').map(r => ({ day: r.day, results: num(r.results), backfilled: num(r.backfilled) }));
+      const launch = days.find(d => d.day === '2026-10-12')!;
+      const before = days.filter(d => d.day < '2026-10-12' && d.day >= '2026-09-28');
+      const avg = Math.round(before.reduce((s, d) => s + d.results, 0) / before.length);
+      return {
+        kicker: 'New on MSP: XP and levels', launchDate: '12 Oct 2026', results: launch.results, backfilled: launch.backfilled,
+        backfilledPct: Math.round((launch.backfilled / launch.results) * 100), typicalDay: avg,
+        multiple: Math.round((launch.results / avg) * 10) / 10, days,
+        title: 'XP launch day was our busiest day ever',
+        dek: 'You logged puzzles you solved weeks, months and years ago.',
+        question: 'What level did you start at?',
+      };
+    })(),
+
+    /** Monthly report: September 2026, the biggest month ever. */
+    month: (() => {
+      const m = rows('monthly').map(r => ({ month: r.month, results: num(r.results), active: num(r.active), pieces: num(r.pieces), newPlayers: num(r.new_players) }));
+      const sep = m.find(x => x.month === '2026-09')!, sep25 = m.find(x => x.month === '2025-09')!;
+      return {
+        label: 'September 2026', title: 'September was our biggest month ever',
+        results: sep.results, active: sep.active, pieces: sep.pieces, newPlayers: sep.newPlayers,
+        vsLastYearPct: Math.round(((sep.results - sep25.results) / sep25.results) * 100),
+        series: m.filter(x => x.month < '2026-10'),
+        question: 'How many puzzles did you finish in September?',
+      };
+    })(),
   };
 }
 

@@ -49,3 +49,7 @@ available if useful; the community mostly cares about puzzle data.
 
 **Motion.** Videos, animations and collages are not a must, but an unused opportunity for Stories and
 Reels worth exploring.
+
+**Compute budget.** This Mac's CPU, GPU and RAM are the limit for now (a bigger machine may come
+later). Every prototype and lab records the resources it used. Heavy runs happen on a calm machine, with
+Docker and other unneeded apps turned off.

@@ -40,6 +40,10 @@ is gitignored and loaded automatically. Keep those details out of every committe
 
 - ComfyUI generation, large Blender renders and video renders need the owner's go-ahead (they run in
   quiet hours when RAM is free). Rendering HTML/SVG templates is fine anytime.
+- The Mac is the limit (M3 Max, 36 GB, 30-core GPU; a bigger machine may come later). Before a heavy
+  run, ask the owner to calm the machine: Docker and other unneeded apps off.
+- Every prototype and lab records what it used, so runs are comparable: wall time, peak memory and swap,
+  GPU busy time, per-item time, and what else was running.
 
 ## Instagram
 

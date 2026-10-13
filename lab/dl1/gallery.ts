@@ -12,7 +12,7 @@ export const POST_LABEL: Record<string, string> = {
   wall: 'The 59-minute wall (4-slide carousel)', record: 'Record (single image)', countries: 'Country top 10 (single image)',
   share: 'Proportion (single image)', xp: 'Level 50 club: the XP card idea (single image)', story: 'Story frames',
   weekly: 'The Weekly Numbers (carousel)', event: 'Event preview: Wisconsin championship', feature: 'Feature news: XP launch day',
-  month: 'Monthly report: record September',
+  month: 'Monthly report: record September', 'weekly-story': 'Weekly Story pack', 'event-story': 'Event Stories',
 };
 
 const CAPTION: Record<string, string> = {

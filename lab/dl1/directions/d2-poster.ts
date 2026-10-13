@@ -3,7 +3,7 @@
 // The pieces meet along one real jigsaw cut line (four segments from the generator, identical on every
 // slide), which is the direction's device. Grounds rotate navy / white / coral; coral only ever sits behind navy
 // numerals. Hero times get optically centred colons; units are set small against the cap height.
-import { fmtDuration, fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
+import { fmtDuration, fmtInt, fmtSignedPct, escapeHtml as h } from '../../../src/design/page.ts';
 import { LOGO_URL, barGeometry, flagUrl } from '../../../src/design/svg.ts';
 import { generateJigsaw } from '../../../src/pieces/jigsaw.ts';
 import type { Content } from '../content.ts';
@@ -47,7 +47,7 @@ function heroText(v: string, unit?: string): string {
 }
 /** Set width in em of a hero string: Rubik 700 advances measured in Chromium (tabular figures 0.6625 em), tracking −0.035 em. */
 function heroEm(v: string, unit?: string): number {
-  const adv: Record<string, number> = { ':': 0.2916, '.': 0.284, '%': 0.6 * 0.807 + 0.03, '−': 0.645, '-': 0.645, '+': 0.607 };
+  const adv: Record<string, number> = { ':': 0.2916, '.': 0.284, ',': 0.278, '%': 0.6 * 0.807 + 0.03, '−': 0.645, '-': 0.645, '+': 0.607 };
   const em = [...v].reduce((s, ch) => s + (adv[ch] ?? 0.6625) - 0.035, 0);
   return em + (unit ? 0.19 * (0.3 + unit.length * 0.62) : 0);
 }
@@ -106,6 +106,19 @@ const css = `
 .medal { position: absolute; left: 0; width: ${W}px; text-align: center; color: var(--ink); }
 .medal .lv { font-size: 40px; font-weight: 700; letter-spacing: 0.24em; margin-left: 0.24em; }
 .medal .no { font-weight: 700; line-height: 1; letter-spacing: -0.035em; }
+.ep { position: absolute; left: ${X0}px; font-size: 40px; font-weight: 700; letter-spacing: 0.24em; color: var(--paper); }
+.pz { margin-top: 24px; }
+.pz .r { display: flex; align-items: center; height: 54px; font-size: 30px; border-top: 2px solid #46506a; }
+.pz .r .n { width: 52px; flex: none; font-weight: 600; color: var(--context); }
+.pz .r img { width: 32px; height: 32px; margin-right: 14px; }
+.pz .r .nm { font-weight: 600; color: var(--paper); white-space: nowrap; }
+.pz .r .br { flex: 1; margin-left: 16px; color: var(--context); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pz .r .v { font-weight: 700; color: var(--paper); margin-left: 16px; }
+.light .pz .r { border-top-color: var(--line); }
+.light .pz .r .n, .light .pz .r .br { color: var(--ink-soft); }
+.light .pz .r .nm, .light .pz .r .v { color: var(--ink); }
+.ig { color: var(--indigo-500); font-weight: 500; }
+.hl .ig { font-size: 0.62em; margin-left: 0.4em; }
 `;
 
 // ---------------------------------------------------------------- frame
@@ -277,11 +290,171 @@ function xp(c: Content): Post {
   }) }] };
 }
 
+// ---------------------------------------------------------------- recurring and news posts
+type Fast = Content['weekly']['fastest500'][number];
+type FastGroup = Fast & { also: string[]; samePuzzle: boolean };
+/** One row per puzzler: the best time leads, any further top times by the same puzzler are listed under it. */
+function byPlayer(rows: Fast[]): FastGroup[] {
+  const out: FastGroup[] = [];
+  for (const r of rows) {
+    const g = out.find(o => o.player === r.player);
+    if (g) { g.also.push(r.time); g.samePuzzle &&= g.puzzle === r.puzzle; } else out.push({ ...r, also: [], samePuzzle: true });
+  }
+  return out;
+}
+const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+const dayLabel = (iso: string) => `${Number(iso.slice(8, 10))} ${new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; // "28 Sep"
+const monthLabel = (ym: string, month: 'short' | 'long' = 'short') => new Date(ym + '-01T12:00:00Z').toLocaleDateString('en-US', { month, timeZone: 'UTC' });
+/** Hero size as poster() will set it, for placing labels around the hero. */
+const heroSize = (v: string, max = 330, unit?: string) => fit(v, max, unit);
+/** Largest hero size that still leaves room for the flag poster() sets after it (gap 0.12 em + flag 0.46 em). */
+const withFlag = (v: string, max: number) => Math.min(max, Math.floor((CW - 8) / (heroEm(v) + 0.62)));
+
+function weekly(c: Content): Post {
+  const w = c.weekly;
+  const n = 5;
+  const ep = String(w.episode);
+  const epSize = heroSize(ep, 470);
+  const g500 = byPlayer(w.fastest500), g1000 = byPlayer(w.fastest1000);
+  const tp = w.topPuzzles;
+  const detail = (g: FastGroup) => `${h(g.puzzle)} · ${h(g.brand)}${g.firstAttempt ? ' · first attempt' : ''}`;
+  const also = (g: FastGroup) => (g.also.length ? `Also ${andList(g.also)}${g.samePuzzle ? ' on the same puzzle' : ''}.` : '');
+  const who = (g: FastGroup) => `${h(g.player)}${g.handle ? `<span class="ig">@${h(g.handle)}</span>` : ''}`;
+  const rows = (gs: FastGroup[], from: number) => gs.length ? `<div class="pz">${gs.map((g, i) => `<div class="r"><span class="n">${from + i}</span>${g.country ? `<img src="${flagUrl(g.country)}" alt="">` : ''}<span class="nm">${h(g.player)}</span><span class="br">${g.handle ? `<span class="ig">@${h(g.handle)}</span>` : ''}</span><span class="v">${g.time}</span></div>`).join('')}</div>` : '';
+  const fastest = (g: FastGroup | undefined, rest: FastGroup[], label: string, top: Ground, idx: string): Slide[] => g ? [{ id: '', body: poster({
+    top, bottom: 'white', hero: g.country ? { text: g.time, max: withFlag(g.time, 330), flag: flagUrl(g.country) } : { text: g.time, max: 330 },
+    caption: `<p class="kick">${label}</p><h2 class="hl">${who(g)}</h2>
+      <p class="dek">${detail(g)}${g.also.length ? `<br>${also(g)}` : ''}</p>${rows(rest, 2)}`,
+    src: c.source, idx,
+  }) }] : [];
+
+  const slides: Slide[] = [
+    { id: 'weekly-1', body: poster({
+      top: 'navy', bottom: 'white', hero: { text: ep, max: 470, coral: true },
+      topHtml: `<p class="ep" data-qa-bg="${NAVY}" style="top:${(HERO_BASE - 0.7 * epSize - 96).toFixed(1)}px">EPISODE</p>`,
+      caption: `<p class="kick">Season ${w.season} · ${h(w.range)}</p><h1 class="hl" style="font-size:88px; letter-spacing:-0.022em">${h(w.series)}</h1>
+        <div class="stats">${([['Results', fmtInt(w.results)], ['On the week before', fmtSignedPct(w.resultsChangePct)], ['Puzzlers', fmtInt(w.puzzlers)]] as const).map(([k, v]) => `<div class="stat"><p class="k">${k}</p><p class="v">${v}</p></div>`).join('')}</div>`,
+      src: c.source, idx: `1/${n}`,
+    }) },
+    { id: 'weekly-2', body: poster({
+      top: 'white', bottom: 'navy', hero: { text: fmtInt(tp[0].solvers), unit: 'solvers' },
+      caption: `<h2 class="hl">${h(tp[0].puzzle)} was the most-solved puzzle of the week</h2>
+        <div class="pz">${tp.map((p, i) => `<div class="r"><span class="n">${i + 1}</span><span class="nm">${h(p.puzzle)}</span><span class="br">${h(p.brand)}</span><span class="v">${fmtInt(p.solvers)}</span></div>`).join('')}</div>`,
+      src: c.source, idx: `2/${n}`,
+    }) },
+    ...fastest(g500[0], g500.slice(1), 'Fastest solo 500 of the week', 'coral', `3/${n}`),
+    ...fastest(g1000[0], g1000.slice(1), 'Fastest solo 1,000 of the week', 'navy', `4/${n}`),
+    { id: 'weekly-5', body: poster({
+      top: 'coral', bottom: 'white', hero: { text: fmtInt(w.personalBests), max: 360 },
+      caption: `<h2 class="hl">personal bests were set last week</h2>
+        <p class="dek">And ${fmtInt(w.newPuzzlers)} new puzzlers logged their first time on MySpeedPuzzling.</p>
+        <p class="ask">${h(w.question)}</p>`,
+      src: c.source, idx: `${n}/${n}`,
+    }) },
+  ];
+  slides.forEach((s, i) => { s.id = `weekly-${i + 1}`; });
+  return { key: 'weekly', slides };
+}
+
+function event(c: Content): Post {
+  const e = c.event;
+  const slides: Slide[] = [
+    { id: 'event-1', body: poster({
+      top: 'navy', bottom: 'white', hero: { text: fmtInt(e.registered), max: 360, coral: true },
+      caption: `<p class="kick">Event preview · ${h(e.date)}</p><h1 class="hl">puzzlers are registered for the ${h(e.name)}</h1>
+        <p class="dek">${h(e.location)}. ${fmtInt(e.onMsp)} of them already log their times on MySpeedPuzzling.</p>`,
+      src: c.source, idx: e.usMedianPb ? '1/2' : '',
+    }) },
+  ];
+  if (e.usMedianPb) slides.push({ id: 'event-2', body: poster({
+    top: 'coral', bottom: 'white', hero: { text: e.usMedianPb, max: withFlag(e.usMedianPb, 300), flag: flagUrl('us') },
+    caption: `<h2 class="hl">is the median personal best of US puzzlers on a solo 500</h2>
+      <p class="dek">${e.usPuzzlers ? `Across ${fmtInt(e.usPuzzlers)} US puzzlers on MySpeedPuzzling.` : ''}</p>
+      <p class="ask">${h(e.question)}</p>`,
+    src: c.source, idx: '2/2',
+  }) });
+  return { key: 'event', slides };
+}
+
+function feature(c: Content): Post {
+  const f = c.feature;
+  // Complete days only: the as-of day is still running.
+  const days = f.days.filter(d => !c.asOf.startsWith(dayLabel(d.day) + ' '));
+  const isLaunch = (d: { day: string }) => f.launchDate.startsWith(dayLabel(d.day) + ' ');
+  const CH = 150;
+  const g = barGeometry(days, { x: d => d.day, y: d => d.results, width: CW, height: CH, padding: 0.24 });
+  const bars = g.bars.map(b => `<rect x="${f1(b.x)}" y="${f1(b.y)}" width="${f1(b.width)}" height="${f1(b.height)}" fill="${isLaunch(b.datum) ? 'var(--coral-500)' : 'var(--context)'}"/>`).join('');
+  const launch = g.bars.find(b => isLaunch(b.datum))!;
+  const ty = g.yScale(f.typicalDay);
+  return { key: 'feature', slides: [
+    { id: 'feature-1', body: poster({
+      top: 'navy', bottom: 'white', hero: { text: fmtInt(f.results), max: 340, coral: true },
+      caption: `<p class="kick">${h(f.kicker)}</p><h1 class="hl">results on launch day: our busiest day ever</h1>
+        <svg width="${CW}" height="${CH + 46}" style="margin-top:34px">
+          ${bars}
+          <line x1="0" x2="${CW}" y1="${f1(ty)}" y2="${f1(ty)}" stroke="var(--ink)" stroke-width="3"/>
+          <text class="lab" x="0" y="${f1(ty - 12)}" fill="var(--ink-soft)">Typical day ${fmtInt(f.typicalDay)}</text>
+          <text class="lab-b" x="${f1(launch.x - 14)}" y="${f1(launch.y + 28)}" text-anchor="end" fill="var(--ink)">${f.multiple}×</text>
+          <text class="lab" x="0" y="${CH + 40}" fill="var(--ink-soft)">${h(dayLabel(days[0].day))}</text>
+          <text class="lab-b" x="${f1(launch.x + launch.width)}" y="${CH + 40}" text-anchor="end" fill="var(--ink)">${h(dayLabel(launch.datum.day))}</text>
+        </svg>`,
+      src: c.source, idx: '1/2',
+    }) },
+    { id: 'feature-2', body: poster({
+      top: 'coral', bottom: 'white', hero: { text: `${f.backfilledPct}%`, max: 360 },
+      caption: `<h2 class="hl">of launch-day results were puzzles solved before that day</h2>
+        <p class="dek">${fmtInt(f.backfilled)} of ${fmtInt(f.results)}. ${h(f.dek)}</p>
+        <p class="ask">${h(f.question)}</p>`,
+      src: c.source, idx: '2/2',
+    }) },
+  ] };
+}
+
+function month(c: Content): Post {
+  const m = c.month;
+  const cur = m.series.at(-1)!;
+  const prevKey = `${Number(cur.month.slice(0, 4)) - 1}${cur.month.slice(4)}`;
+  const prev = m.series.find(x => x.month === prevKey)!;
+  const long = (ym: string) => `${monthLabel(ym, 'long')} ${ym.slice(0, 4)}`;
+  const short = (ym: string) => `${monthLabel(ym)} ${ym.slice(0, 4)}`;
+  const CH = 170;
+  const g = barGeometry(m.series, { x: d => d.month, y: d => d.results, width: CW, height: CH, padding: 0.2 });
+  const bars = g.bars.map(b => `<rect x="${f1(b.x)}" y="${f1(b.y)}" width="${f1(b.width)}" height="${f1(b.height)}" fill="${b.datum === cur ? 'var(--coral-500)' : b.datum === prev ? 'var(--context)' : 'var(--ink-muted)'}"/>`).join('');
+  const bCur = g.bars.at(-1)!, bPrev = g.bars.find(b => b.datum === prev)!;
+  const mid = (b: { x: number; width: number }) => b.x + b.width / 2;
+  return { key: 'month', slides: [
+    { id: 'month-1', body: poster({
+      top: 'navy', bottom: 'white', hero: { text: fmtInt(m.results), max: 340, coral: true },
+      caption: `<p class="kick">Monthly report · ${h(m.label)}</p><h1 class="hl" style="font-size:80px; letter-spacing:-0.02em">${h(m.title)}</h1>
+        <p class="dek">results logged, ${fmtSignedPct(m.vsLastYearPct, 0)} on ${h(long(prev.month))}</p>`,
+      src: c.source, idx: '1/3',
+    }) },
+    { id: 'month-2', body: poster({
+      top: 'white', bottom: 'navy', hero: { text: fmtSignedPct(m.vsLastYearPct, 0), max: 340 },
+      caption: `<h2 class="hl">more results than in ${h(long(prev.month))}</h2>
+        <svg width="${CW}" height="${CH + 46}" style="margin-top:40px">
+          ${bars}
+          <text class="lab" x="0" y="${CH + 40}" fill="var(--context)">${h(short(m.series[0].month))}</text>
+          <text class="lab-b" x="${f1(mid(bPrev))}" y="${CH + 40}" text-anchor="middle" fill="var(--paper)">${h(short(prev.month))}</text>
+          <text class="lab-b" x="${f1(bCur.x + bCur.width)}" y="${CH + 40}" text-anchor="end" fill="var(--paper)">${h(short(cur.month))}</text>
+        </svg>`,
+      src: c.source, idx: '2/3',
+    }) },
+    { id: 'month-3', body: poster({
+      top: 'coral', bottom: 'white', hero: { text: fmtInt(m.active), max: 340 },
+      caption: `<h2 class="hl">puzzlers logged a result in ${h(monthLabel(cur.month, 'long'))}</h2>
+        <div class="stats" style="margin-top:34px">${([['New puzzlers', fmtInt(m.newPlayers)], ['Pieces', fmtInt(m.pieces)]] as const).map(([k, v]) => `<div class="stat"><p class="k">${k}</p><p class="v">${v}</p></div>`).join('')}</div>
+        <p class="ask">${h(m.question)}</p>`,
+      src: c.source, idx: '3/3',
+    }) },
+  ] };
+}
+
 const direction: Direction = {
   id: 'D2',
   name: 'Poster Numbers',
   idea: 'Two-piece posters: one hero number on the top piece, the caption on the bottom, joined by one real jigsaw cut line that sits at the same height on every slide. Navy, white and coral grounds rotate; coral only behind navy numerals.',
   css,
-  posts: c => [wall(c), record(c), countries(c), share(c), xp(c)],
+  posts: c => [wall(c), record(c), countries(c), share(c), xp(c), weekly(c), event(c), feature(c), month(c)],
 };
 export default direction;

@@ -3,7 +3,7 @@
 // zeros, colons lifted to the figure centre. The device is a stopwatch ring top left whose coral segment
 // shows progress through a carousel (a full lap on single posts). Coral marks #1 and the record line only;
 // sky carries secondary labels. No glow, no gradients, no italics.
-import { fmtDuration, fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
+import { fmtDuration, fmtInt, fmtSignedPct, escapeHtml as h } from '../../../src/design/page.ts';
 import { LOGO_URL, barGeometry, flagUrl } from '../../../src/design/svg.ts';
 import { generateJigsaw, sampleOutline, type Point } from '../../../src/pieces/jigsaw.ts';
 import type { Content } from '../content.ts';
@@ -104,6 +104,16 @@ body { background: var(--ink); font-variant-numeric: tabular-nums lining-nums sl
 .legend b { color: var(--paper); font-weight: 700; }
 .sw { display: inline-block; width: 12px; height: 34px; border-radius: 3px; vertical-align: -6px; margin-right: 16px; }
 .ask { font-size: 54px; font-weight: 700; line-height: 1.12; color: var(--paper); text-wrap: balance; }
+.br .who { flex: 1; min-width: 0; padding: 18px 0; }
+.br .who .nm { display: flex; align-items: center; line-height: 1.15; }
+.br .who .nm img { width: 40px; height: 40px; margin-right: 16px; }
+.br .sub { font-size: 30px; line-height: 1.25; color: var(--context); margin-top: 6px; }
+.br .ig { font-size: 30px; font-weight: 500; color: var(--sky-500); margin-left: 16px; }
+.strip { display: flex; }
+.strip > div { flex: 1; border-left: 2px solid var(--ink-soft); padding-left: 26px; }
+.strip > div:first-child { border-left: 0; padding-left: 0; }
+.strip .k { font-size: 30px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sky-500); }
+.strip .v { font-size: 64px; font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; margin-top: 8px; }
 `;
 
 // ---------------------------------------------------------------- frame
@@ -292,11 +302,226 @@ function xp(c: Content): Post {
     <p class="dek" style="position:absolute; left:${X0}px; width:${CW}px; top:1046px">${h(x.dek)}. ${h(x.context)}</p>` }) }] };
 }
 
+// ---------------------------------------------------------------- recurring and news posts
+type Fast = Content['weekly']['fastest500'][number];
+type FastGroup = Fast & { also: string[]; samePuzzle: boolean };
+/** One row per puzzler: the best time leads, any further top times by the same puzzler are listed under it. */
+function byPlayer(rows: Fast[]): FastGroup[] {
+  const out: FastGroup[] = [];
+  for (const r of rows) {
+    const g = out.find(o => o.player === r.player);
+    if (g) { g.also.push(r.time); g.samePuzzle &&= g.puzzle === r.puzzle; } else out.push({ ...r, also: [], samePuzzle: true });
+  }
+  return out;
+}
+const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+const dayLabel = (iso: string) => `${Number(iso.slice(8, 10))} ${new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; // "28 Sep"
+const monthLabel = (ym: string, month: 'short' | 'long' = 'short') => new Date(ym + '-01T12:00:00Z').toLocaleDateString('en-US', { month, timeZone: 'UTC' });
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const strip = (items: Array<[string, string]>) => `<div class="strip">${items.map(([k, v]) => `<div><p class="k">${h(k)}</p><p class="v">${clock(v)}</p></div>`).join('')}</div>`;
+
+function weekly(c: Content): Post {
+  const w = c.weekly;
+  const n = 4;
+  const kick = `${w.series} · Ep. ${w.episode}`;
+
+  // 1 · Cover: a one-week dial (a full coral lap, day initials round the bezel) carrying the episode number.
+  const cx = W / 2, cy = 640, R = 226;
+  const dayTicks = Array.from({ length: 7 }, (_, d) => {
+    const a = TOP + (d / 7) * Math.PI * 2;
+    const [x0, y0] = polar(cx, cy, R - 30, a), [x1, y1] = polar(cx, cy, R - 50, a);
+    return `<line x1="${f1(x0)}" y1="${f1(y0)}" x2="${f1(x1)}" y2="${f1(y1)}" stroke="var(--paper)" stroke-width="6" stroke-linecap="round"/>`;
+  }).join('');
+  const dayNames = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((l, d) => {
+    const [x, y] = polar(cx, cy, R + 58, TOP + ((d + 0.5) / 7) * Math.PI * 2);
+    return `<text class="lab-sky" x="${f1(x)}" y="${f1(y + 11)}" text-anchor="middle" style="letter-spacing:0">${l}</text>`;
+  }).join('');
+  const dial = `<svg width="${W}" height="1350" style="position:absolute; left:0; top:0">
+    <rect x="${cx - 9}" y="${cy - R - 66}" width="18" height="16" rx="3" fill="var(--paper)"/>
+    <rect x="${cx - 36}" y="${cy - R - 82}" width="72" height="20" rx="5" fill="var(--paper)"/>
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--coral-500)" stroke-width="30"/>
+    ${dayTicks}${dayNames}
+  </svg>`;
+
+  // 3 · Fastest boards, one row per puzzler.
+  const g500 = byPlayer(w.fastest500), g1000 = byPlayer(w.fastest1000);
+  const leaders = [...new Set([g500[0]?.player, g1000[0]?.player].filter(Boolean))] as string[];
+  const fastRow = (g: FastGroup, i: number) => `<div class="br ${i === 0 ? 'hot' : ''}">
+    <span class="rk">${pad2(i + 1)}</span>
+    <div class="who"><p class="nm">${g.country ? `<img src="${flagUrl(g.country)}" alt="">` : ''}<span>${h(g.player)}</span>${g.handle ? `<span class="ig">@${h(g.handle)}</span>` : ''}</p>
+      <p class="sub">${h(g.puzzle)} · ${h(g.brand)}${g.firstAttempt ? ' · first attempt' : ''}</p>
+      ${g.also.length ? `<p class="sub">Also ${andList(g.also)}${g.samePuzzle ? ' on the same puzzle' : ''}</p>` : ''}</div>
+    <span class="big" style="width:200px; text-align:right; font-size:44px">${clock(g.time)}</span></div>`;
+  const board = (label: string, gs: FastGroup[], first: boolean) => gs.length ? `
+    <div class="bh" ${first ? '' : 'style="margin-top:44px"'}><span style="width:76px">#</span><span style="flex:1">${label}</span><span style="width:200px; text-align:right">Time</span></div>
+    ${gs.map(fastRow).join('')}` : '';
+
+  const tp = w.topPuzzles;
+  const slides: Slide[] = [
+    { id: 'weekly-1', body: frame({ kicker: `Season ${w.season} · ${w.range}`, idx: [1, n], src: c.source, body: `
+      <h1 class="title" style="font-size:84px; letter-spacing:-0.02em">${h(w.series)}</h1>
+      ${dial}
+      <p class="kick" style="position:absolute; left:0; width:${W}px; text-align:center; top:${cy - 128}px; letter-spacing:0.3em">Episode</p>
+      <p class="big" style="position:absolute; left:0; width:${W}px; text-align:center; top:${cy + 86 - 0.8425 * 196}px; font-size:196px">${clock(pad2(w.episode))}</p>
+      <div style="position:absolute; left:${X0}px; width:${CW}px; top:990px">${strip([['Results', fmtInt(w.results)], ['Week on week', fmtSignedPct(w.resultsChangePct)], ['Puzzlers', fmtInt(w.puzzlers)]])}</div>` }) },
+    { id: 'weekly-2', body: frame({ kicker: kick, idx: [2, n], src: c.source, title: `${tp[0].puzzle} was the most-solved puzzle of the week`, body: `
+      <div class="board" style="top:360px">
+        <div class="bh"><span style="width:76px">#</span><span style="flex:1">Puzzle</span><span style="width:180px; text-align:right">Solvers</span></div>
+        ${tp.map((p, i) => `<div class="br ${i === 0 ? 'hot' : ''}" style="height:132px">
+          <span class="rk">${pad2(i + 1)}</span>
+          <div class="who"><p class="nm" ${i === 0 ? 'style="font-weight:700"' : ''}>${h(p.puzzle)}</p><p class="sub">${h(p.brand)} · ${fmtInt(p.pieces)} pieces</p></div>
+          <span class="tm" style="width:180px">${fmtInt(p.solvers)}</span></div>`).join('')}
+      </div>` }) },
+    { id: 'weekly-3', body: frame({ kicker: kick, idx: [3, n], src: c.source, title: `The week's fastest: ${andList(leaders)}`, body: `
+      <div class="board" style="top:360px">${board('Solo 500 pieces', g500, true)}${board('Solo 1,000 pieces', g1000, !g500.length)}</div>` }) },
+    { id: 'weekly-4', body: frame({ kicker: kick, idx: [4, n], src: c.source, body: `
+      <p class="big" data-qa-bleed style="position:absolute; left:${inkLeft(String(w.personalBests), 290)}px; top:${206 - 0.8425 * 290 + 230}px; font-size:290px">${clock(fmtInt(w.personalBests))}</p>
+      <p class="dek" style="position:absolute; left:${X0}px; width:${CW}px; top:500px; font-size:44px; color:var(--paper); font-weight:500">personal bests were set last week</p>
+      <div class="board" style="top:620px">
+        ${([['New puzzlers', w.newPuzzlers], ['Puzzlers', w.puzzlers], ['Pieces', w.pieces]] as const).map(([k, v]) => `<div class="br" style="height:100px">
+          <span class="kick" style="flex:1">${k}</span><span class="big" style="font-size:60px">${fmtInt(v)}</span></div>`).join('')}
+      </div>
+      <p class="ask" style="position:absolute; left:${X0}px; width:${CW}px; top:1010px">${h(w.question)}</p>` }) },
+  ];
+  return { key: 'weekly', slides };
+}
+
+function event(c: Content): Post {
+  const e = c.event;
+  const facts: Array<[string, string]> = [['Date', e.date], ['Venue', e.location], ['On MSP', `${fmtInt(e.onMsp)} of ${fmtInt(e.registered)} registered`]];
+  const slides: Slide[] = [
+    { id: 'event-1', body: frame({ kicker: 'Event preview', idx: e.usMedianPb ? [1, 2] : undefined, src: c.source, title: e.name, body: `
+      <p class="big" data-qa-bleed style="position:absolute; left:${inkLeft(String(e.registered), 290)}px; top:${640 - 0.8425 * 290}px; font-size:290px">${clock(fmtInt(e.registered))}</p>
+      <p class="kick" style="position:absolute; left:${X0}px; top:672px">Registered puzzlers</p>
+      <div class="board" style="top:760px">
+        ${facts.map(([k, v]) => `<div class="br" style="height:100px"><span class="kick" style="width:230px">${k}</span><span class="nm" style="font-weight:700; font-size:40px">${clock(v)}</span></div>`).join('')}
+      </div>` }) },
+  ];
+  if (e.usMedianPb) {
+    const pb = toMin(e.usMedianPb);
+    const max = Math.ceil(pb / 30) * 30 + (Math.ceil(pb / 30) * 30 - pb < 10 ? 30 : 0); // the next half hour past the benchmark
+    const scale = (m: number) => (m / max) * CW;
+    const ticks = Array.from({ length: max / 30 + 1 }, (_, i) => i * 30);
+    slides.push({ id: 'event-2', body: frame({ kicker: 'Event preview · solo 500 pieces', idx: [2, 2], src: c.source, title: 'The benchmark: the median US personal best', body: `
+      <p class="big" data-qa-bleed style="position:absolute; left:${inkLeft(e.usMedianPb, 230)}px; top:${560 - 0.8425 * 230}px; font-size:230px">${clock(e.usMedianPb)}</p>
+      <svg width="${CW}" height="330" style="position:absolute; left:${X0}px; top:620px">
+        ${ticks.map(m => `<line x1="${f1(scale(m))}" x2="${f1(scale(m))}" y1="0" y2="270" stroke="${BAND}" stroke-width="2"/>`).join('')}
+        <text class="lab-sky" x="0" y="32">US MEDIAN PB${e.usPuzzlers ? ` · ${fmtInt(e.usPuzzlers)} PUZZLERS` : ''}</text>
+        <rect x="0" y="54" width="${CW}" height="44" fill="${BAND}"/>
+        <rect x="0" y="54" width="${f1(scale(pb))}" height="44" fill="var(--brand-gray600)"/>
+        <text class="lab-b" x="${f1(scale(pb) + 18)}" y="88">${e.usMedianPb}</text>
+        <text class="lab-sky" x="0" y="167">YOUR GOAL TIME</text>
+        <rect x="2" y="191" width="${CW - 4}" height="40" fill="none" stroke="var(--sky-500)" stroke-width="3" stroke-dasharray="12 10"/>
+        ${ticks.map(m => `<text class="lab" x="${f1(scale(m))}" y="314" text-anchor="${m === 0 ? 'start' : m === max ? 'end' : 'middle'}">${fmtDuration(m)}</text>`).join('')}
+      </svg>
+      <p class="ask" style="position:absolute; left:${X0}px; width:${CW}px; top:1010px">${h(e.question)}</p>` }) });
+  }
+  return { key: 'event', slides };
+}
+
+function feature(c: Content): Post {
+  const f = c.feature;
+  // Complete days only: the as-of day is still running.
+  const days = f.days.filter(d => !c.asOf.startsWith(dayLabel(d.day) + ' '));
+  const isLaunch = (d: { day: string }) => f.launchDate.startsWith(dayLabel(d.day) + ' ');
+  const CH = 580, top1 = 440;
+  const g = barGeometry(days, { x: d => d.day, y: d => d.results, width: CW, height: CH, padding: 0.22 });
+  const bars = g.bars.map(b => `<rect x="${f1(b.x)}" y="${f1(b.y)}" width="${f1(b.width)}" height="${f1(b.height)}" fill="${isLaunch(b.datum) ? 'var(--coral-500)' : 'var(--ink-muted)'}"/>`).join('');
+  const launch = g.bars.find(b => isLaunch(b.datum))!;
+  const ty = g.yScale(f.typicalDay);
+  const mid = (b: { x: number; width: number }) => b.x + b.width / 2;
+  const wk = g.bars[7];
+
+  const same = f.results - f.backfilled;
+  const split = (f.backfilled / f.results) * CW;
+  return { key: 'feature', slides: [
+    { id: 'feature-1', body: frame({ kicker: f.kicker, idx: [1, 2], src: c.source, title: f.title, body: `
+      <p class="dek" style="position:absolute; left:${X0}px; width:${CW}px; top:326px">Results logged per day, ${h(dayLabel(days[0].day))} – ${h(dayLabel(days.at(-1)!.day))}</p>
+      <svg width="${CW}" height="${CH + 60}" style="position:absolute; left:${X0}px; top:${top1}px">
+        ${bars}
+        <line x1="0" x2="${CW}" y1="${f1(ty)}" y2="${f1(ty)}" stroke="var(--paper)" stroke-width="3"/>
+        <text class="lab-sky" x="0" y="${f1(ty - 56)}">TYPICAL DAY</text>
+        <text class="lab-b" x="0" y="${f1(ty - 14)}">${fmtInt(f.typicalDay)}</text>
+        <text class="lab-hot" x="${f1(launch.x - 20)}" y="${f1(launch.y + 46)}" text-anchor="end">${fmtInt(f.results)}</text>
+        <text class="lab" x="${f1(launch.x - 20)}" y="${f1(launch.y + 86)}" text-anchor="end">launch day, ${f.multiple}× typical</text>
+        <text class="lab" x="0" y="${CH + 46}">${h(dayLabel(days[0].day))}</text>
+        ${wk && wk !== launch ? `<text class="lab" x="${f1(mid(wk))}" y="${CH + 46}" text-anchor="middle">${h(dayLabel(wk.datum.day))}</text>` : ''}
+        <text class="lab-b" x="${f1(launch.x + launch.width)}" y="${CH + 48}" text-anchor="end">${h(dayLabel(launch.datum.day))}</text>
+      </svg>` }) },
+    { id: 'feature-2', body: frame({ kicker: f.kicker, idx: [2, 2], src: c.source, body: `
+      <p class="big" data-qa-bleed style="position:absolute; left:${inkLeft(String(f.backfilledPct), 290)}px; top:${206 - 0.8425 * 290 + 230}px; font-size:290px">${f.backfilledPct}<span style="font-size:0.55em; margin-left:0.04em">%</span></p>
+      <p class="dek" style="position:absolute; left:${X0}px; width:${CW}px; top:500px; font-size:44px; color:var(--paper); font-weight:500">of launch-day results were puzzles solved before that day</p>
+      <svg width="${CW}" height="250" style="position:absolute; left:${X0}px; top:690px">
+        <text class="lab-sky" x="0" y="34">SOLVED EARLIER</text>
+        <text class="lab-sky" x="${CW}" y="34" text-anchor="end">SOLVED THAT DAY</text>
+        <rect x="0" y="62" width="${f1(split - 6)}" height="76" fill="var(--coral-500)"/>
+        <rect x="${f1(split + 6)}" y="62" width="${f1(CW - split - 6)}" height="76" fill="var(--ink-muted)"/>
+        <line x1="${f1(split)}" x2="${f1(split)}" y1="44" y2="156" stroke="var(--paper)" stroke-width="6"/>
+        <text class="lab-b" x="0" y="196">${fmtInt(f.backfilled)}</text>
+        <text class="lab-b" x="${CW}" y="196" text-anchor="end">${fmtInt(same)}</text>
+        <text class="lab" x="0" y="238">results</text>
+        <text class="lab" x="${CW}" y="238" text-anchor="end">results</text>
+      </svg>
+      <p class="ask" style="position:absolute; left:${X0}px; width:${CW}px; top:1010px">${h(f.question)}</p>` }) },
+  ] };
+}
+
+function month(c: Content): Post {
+  const m = c.month;
+  const cur = m.series.at(-1)!;
+  const prevKey = `${Number(cur.month.slice(0, 4)) - 1}${cur.month.slice(4)}`;
+  const prev = m.series.find(x => x.month === prevKey)!;
+  const long = (ym: string) => `${monthLabel(ym, 'long')} ${ym.slice(0, 4)}`;
+  const short = (ym: string) => `${monthLabel(ym)} ${ym.slice(0, 4)}`;
+
+  const CH = 500, top2 = 540;
+  const g = barGeometry(m.series, { x: d => d.month, y: d => d.results, width: CW, height: CH, padding: 0.2, yMax: Math.max(...m.series.map(d => d.results)) * 1.14 });
+  const bars = g.bars.map(b => `<rect x="${f1(b.x)}" y="${f1(b.y)}" width="${f1(b.width)}" height="${f1(b.height)}" fill="${b.datum === cur ? 'var(--coral-500)' : b.datum === prev ? 'var(--context)' : 'var(--ink-muted)'}"/>`).join('');
+  const bCur = g.bars.at(-1)!, iPrev = g.bars.findIndex(b => b.datum === prev), bPrev = g.bars[iPrev];
+  const prevTop = Math.min(...g.bars.slice(Math.max(0, iPrev - 1), iPrev + 2).map(b => b.y));
+  const mid = (b: { x: number; width: number }) => b.x + b.width / 2;
+  const jan = g.bars.filter(b => b.datum.month.endsWith('-01'));
+
+  const rowsT: Array<[string, number, number]> = [
+    ['Results', prev.results, cur.results], ['Active puzzlers', prev.active, cur.active],
+    ['Pieces', prev.pieces, cur.pieces], ['New puzzlers', prev.newPlayers, cur.newPlayers],
+  ];
+  const allUp = rowsT.every(([, a, b]) => b > a);
+  return { key: 'month', slides: [
+    { id: 'month-1', body: frame({ kicker: `Monthly report · ${m.label}`, idx: [1, 3], src: c.source, body: `
+      <h1 class="title" style="font-size:80px; letter-spacing:-0.02em">${h(m.title)}</h1>
+      <p class="big" data-qa-bleed style="position:absolute; left:${inkLeft(String(m.results), 250)}px; top:${640 - 0.8425 * 250}px; font-size:250px">${clock(fmtInt(m.results))}</p>
+      <p class="kick" style="position:absolute; left:${X0}px; top:704px">Results logged</p>
+      <p style="position:absolute; left:${X0}px; width:${CW}px; top:770px; display:flex; align-items:baseline; gap:22px">
+        <span class="big" style="font-size:72px; color:var(--coral-500)">${fmtSignedPct(m.vsLastYearPct, 0)}</span><span class="dek">vs ${h(long(prev.month))}</span></p>
+      <div style="position:absolute; left:${X0}px; width:${CW}px; top:970px">${strip([['Active puzzlers', fmtInt(m.active)], ['New puzzlers', fmtInt(m.newPlayers)]])}</div>` }) },
+    { id: 'month-2', body: frame({ kicker: `Monthly report · ${m.label}`, idx: [2, 3], src: c.source, title: `${monthLabel(cur.month, 'long')} results were up ${m.vsLastYearPct}% on a year earlier`, body: `
+      <svg width="${CW}" height="${CH + 60}" style="position:absolute; left:${X0}px; top:${top2}px">
+        ${bars}
+        <text class="lab-hot" x="${f1(bCur.x + bCur.width)}" y="${f1(bCur.y - 18)}" text-anchor="end">${fmtInt(cur.results)}</text>
+        <text class="lab-b" x="${f1(mid(bPrev))}" y="${f1(prevTop - 18)}" text-anchor="middle">${fmtInt(prev.results)}</text>
+        ${jan.map((b, i) => `<text class="lab" x="${f1(i === 0 ? b.x : mid(b))}" y="${CH + 46}" text-anchor="${i === 0 ? 'start' : 'middle'}">${h(short(b.datum.month))}</text>`).join('')}
+        <text class="lab-b" x="${f1(mid(bPrev))}" y="${CH + 48}" text-anchor="middle">${h(monthLabel(prev.month))}</text>
+        <text class="lab-b" x="${f1(bCur.x + bCur.width)}" y="${CH + 48}" text-anchor="end">${h(monthLabel(cur.month))}</text>
+      </svg>` }) },
+    { id: 'month-3', body: frame({ kicker: `Monthly report · ${m.label}`, idx: [3, 3], src: c.source, title: allUp ? `Every number is up on ${long(prev.month)}` : `${m.label} against a year earlier`, body: `
+      <div class="board" style="top:360px">
+        <div class="bh"><span style="flex:1"></span><span style="width:196px; text-align:right">${h(short(prev.month))}</span><span style="width:250px; text-align:right">${h(short(cur.month))}</span><span style="width:170px; text-align:right">Change</span></div>
+        ${rowsT.map(([l, a, b]) => `<div class="br" style="height:120px">
+          <span class="nm" style="font-size:36px">${l}</span>
+          <span style="width:196px; text-align:right; font-size:36px; color:var(--context)">${fmtInt(a)}</span>
+          <span class="big" style="width:250px; text-align:right; font-size:42px">${fmtInt(b)}</span>
+          <span class="big" style="width:170px; text-align:right; font-size:42px">${fmtSignedPct(((b - a) / a) * 100, 0)}</span></div>`).join('')}
+      </div>
+      <p class="ask" style="position:absolute; left:${X0}px; width:${CW}px; top:1010px">${h(m.question)}</p>` }) },
+  ] };
+}
+
 const direction: Direction = {
   id: 'D5',
   name: 'Race Clock',
   idea: 'A sports timing board on navy: slashed-zero tabular times with centred colons, a stopwatch-ring device that tracks the carousel, coral only for #1 and the record line, sky for labels.',
   css,
-  posts: c => [wall(c), record(c), countries(c), share(c), xp(c)],
+  posts: c => [wall(c), record(c), countries(c), share(c), xp(c), weekly(c), event(c), feature(c), month(c)],
 };
 export default direction;

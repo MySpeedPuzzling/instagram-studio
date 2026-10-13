@@ -26,8 +26,9 @@ is gitignored and loaded automatically. Keep those details out of every committe
 - This is the live production database under real traffic: run `EXPLAIN` first on anything that might
   scan big tables (e.g. `puzzle_solving_time`, `notification`), add `LIMIT`, avoid long-running queries.
 - Personal data (players' e-mails, sessions) is in there: don't copy it into files in the repo.
-- Numbers that go into posts follow the app's rules: exclude suspicious results, respect private
-  profiles and ranking opt-outs, skip embargoed puzzles and non-public events. Re-run the query right
+- Numbers that go into posts follow the app's rules: exclude suspicious results, skip embargoed puzzles
+  and non-public events, and **exclude private profiles from every query, aggregates included**
+  (`player.is_private`). Ranking opt-outs are excluded from anything that names or ranks players. Re-run the query right
   before posting and record the date it was queried.
 
 ## Featuring players

@@ -85,6 +85,16 @@ The owner delegates execution: Claude drives the next steps and builds, asking o
 - **Prototype all four creative families:** box-image collages and mosaics, puzzle of the week + quiz,
   cartoons and seasonal art, Reels/motion.
 
+## 2026-10-13: private profiles, member features, quizzes, first AI batch
+
+- **Private profiles are excluded from everything**, including anonymous aggregates: every query that feeds a
+  post filters out players with a private profile (`player.is_private`). Hidden profiles are never disclosed.
+- **All other data may be used**, including collections, wishlists and members-only features (predictions,
+  difficulty, tiers, badges, streaks): MSP owns the data, and posts can advertise member features.
+- **Quiz credits:** clue slides credit the brand ("Mystery puzzle · Ravensburger"); the answer slide names the puzzle.
+- **First AI image batch approved for tonight** (series backdrops, material textures, spirit animals,
+  layout-to-scene), on a calm machine, one model family at a time, resources logged.
+
 **Compute budget.** This Mac's CPU, GPU and RAM are the limit for now (a bigger machine may come
 later). Every prototype and lab records the resources it used. Heavy runs happen on a calm machine, with
 Docker and other unneeded apps turned off.

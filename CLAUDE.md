@@ -1,8 +1,8 @@
 # MSP Instagram: rules for Claude
 
 Pipeline that drafts Instagram posts for @myspeedpuzzling from MySpeedPuzzling data, with a human
-approving every post. The plan and its evidence are in `reports/MSP Instagram content pipeline.md`;
-read it before proposing architecture or content changes.
+approving every post. The plan and its evidence are in `reports/`; the owner's decisions in
+`docs/decisions.md` override the reports. Read both before proposing architecture or content changes.
 
 ## This repository is public
 
@@ -29,6 +29,17 @@ is gitignored and loaded automatically. Keep those details out of every committe
 - Numbers that go into posts follow the app's rules: exclude suspicious results, respect private
   profiles and ranking opt-outs, skip embargoed puzzles and non-public events. Re-run the query right
   before posting and record the date it was queried.
+
+## Featuring players
+
+- Feature players only the way MSP already shows them publicly: respect private profiles and ranking
+  opt-outs, and check `do-not-feature` (local, gitignored) before naming or tagging anyone.
+- Tag players only with the Instagram handle from their MSP profile.
+
+## Heavy local jobs
+
+- ComfyUI generation, large Blender renders and video renders need the owner's go-ahead (they run in
+  quiet hours when RAM is free). Rendering HTML/SVG templates is fine anytime.
 
 ## Instagram
 

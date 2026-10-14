@@ -43,6 +43,15 @@ grounds; content and concepts approved everywhere; Reels confirmed. Brief: `docs
    (Wed 21 Oct), clocks go back (Sat 24 Oct), Halloween (31 Oct), 75 years (~3 Nov).
 4. **Learning loop**: insights pulls on a schedule, weekly review with the `ig-insights` skill.
 
+## Plan for the next working day
+
+- **Daytime, any time (light, Docker can stay on):** build DL4 (house system + all approved content combined in it
+  + mock profile grid). HTML/SVG renders and short Reels need no quiet hours.
+- **Daytime prep for the night:** IL1 illustration lab: write the style directions and prompts, the scaffolds and
+  the batch file (`lab/ai2/batch.ts`), generalise `tools/ai-batch.ts` to take it, validate workflows without
+  generating (`--validate`, `--dry-run`).
+- **Quiet hours (owner's go-ahead, Docker off, restart first):** run the IL1 batch overnight; review in the morning.
+
 ## How the pieces fit
 
 ```

@@ -113,8 +113,11 @@ Owner feedback on DL1 (styles) and DL2 (formats); details in `content/labs/{DL1,
   sky) work. The cartoons themselves are loved ("funny and makes sense") and can stay, but must lose the
   "aha, AI-generated" feeling: restyle them so they don't look like generic AI clip art.
 - **The illustration style itself is open for reconsideration**, possibly for the whole MSP website too (the current
-  "semi-flat outlined" house style from the website is what reads as AI). Explore new illustration directions in a
-  dedicated lab; a winner may be proposed for the site later.
+  "semi-flat outlined" house style from the website, originally generated with ChatGPT, is what reads as AI).
+  **AI illustrations are allowed**; the goal is a refined, distinctive style. Explore it in a dedicated
+  illustration lab later (IL1); a winner may be proposed for the site.
+- **White grounds are "okayish"** when they get depth (gradient and/or shadows); pastel/cream stays out. Once the
+  house design is set, the content from all labs gets combined into it.
 - **Content and concepts are approved across the board**: the data posts, box walls and the 1,000-puzzle mosaic
   (F1-6/7/8 awesome), puzzle of the week and quizzes, funny facts, Reels.
 - **Reels: confirmed.** Use HyperFrames more, incl. feature reveals; fill the whole 9:16 frame; music later.

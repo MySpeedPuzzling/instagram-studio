@@ -61,5 +61,14 @@ illustrations (e.g. a badge, an empty state, a feature hero) in 4–6 distinct d
 - linocut or screen-print look (two or three inks, deliberate texture, code-native);
 - Blender-rendered 3D with physically correct pieces (studio light, clay or cardboard materials);
 - type-led jokes (typography as the illustration);
-- optionally an AI-assisted look with strong art direction, judged honestly against the others.
-Show them in context (Instagram posts and a mock website section) and collect per-slide feedback.
+- AI-assisted looks with strong art direction (AI is allowed; the website's current illustrations were made with
+  ChatGPT, and we now have more options): local FLUX.2 klein 9B/4B and Z-Image (the klein 9B spirit animals in
+  AI1 were a consistent set), reference-image style locking, optionally a style LoRA once 20–30 approved images
+  exist, and optionally hosted models (GPT Image, Nano Banana, Recraft) for comparison if the owner approves a small
+  budget.
+Show them in context (Instagram posts and a mock website section) and collect per-slide feedback. The outcome is a
+written illustration style guide (palette, line, shading, composition, what to avoid) plus a reference set, usable
+for Instagram and possibly the MSP website.
+
+IL1 generation is a heavy job: it runs in quiet hours with the owner's go-ahead, through `tools/ai-batch.ts`
+(generalise it to take a batch file, e.g. `lab/ai2/batch.ts`, instead of the hard-coded AI1 spec).

@@ -13,6 +13,8 @@ Updated 2026-10-14.
       or type-led jokes); keep the jokes.
 - [ ] Reels: re-skin into the house style, fill the full 9:16 frame, add a feature-reveal Reel (HyperFrames).
 - [ ] Outlined logo for dark grounds (SVG + white outline filter; ref `assets/brand/email-logo.png`), logo ≈ 1.5×.
+- [ ] Illustration lab IL1 (`docs/design/house-brief.md` last section): same jokes + a few site-like spots in 4–6
+      illustration directions; may lead to a new illustration style for the MSP website too (then a task in the MSP repo).
 - [ ] Feedback still to collect: DL3 visuals, AI1 images.
 - [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.
 

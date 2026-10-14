@@ -112,6 +112,9 @@ Owner feedback on DL1 (styles) and DL2 (formats); details in `content/labs/{DL1,
   concept; illustrations built from puzzle pieces and real arrangements (F3-4/5 edges first/last, F3-6 sorting the
   sky) work. The cartoons themselves are loved ("funny and makes sense") and can stay, but must lose the
   "aha, AI-generated" feeling: restyle them so they don't look like generic AI clip art.
+- **The illustration style itself is open for reconsideration**, possibly for the whole MSP website too (the current
+  "semi-flat outlined" house style from the website is what reads as AI). Explore new illustration directions in a
+  dedicated lab; a winner may be proposed for the site later.
 - **Content and concepts are approved across the board**: the data posts, box walls and the 1,000-puzzle mosaic
   (F1-6/7/8 awesome), puzzle of the week and quizzes, funny facts, Reels.
 - **Reels: confirmed.** Use HyperFrames more, incl. feature reveals; fill the whole 9:16 frame; music later.

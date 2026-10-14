@@ -49,3 +49,17 @@ All content is approved; only the design changes. Render each in the house syste
 
 Show the result as a mock profile grid of 3–4 weeks (mixed series + a placeholder for an owner photo post) plus
 per-slide feedback in the gallery, then ask the owner to pick or adjust.
+
+## Illustration lab (separate, "IL1")
+
+The owner may reconsider the illustration style for Instagram **and possibly the whole MSP website**: the current
+website house style (semi-flat outlined objects, pastel two-stop washes, rounded strokes; see the MSP repo's
+`docs/design-system/`) reads as AI-generated. Render the same 4–5 funny-fact jokes (F3) and 2–3 site-like spot
+illustrations (e.g. a badge, an empty state, a feature hero) in 4–6 distinct directions, for example:
+- bold flat geometric / Swiss-poster shapes (thick strokes, flat brand colours, no gradients or blush);
+- paper-cut / collage built from real generator puzzle pieces and box-image fragments;
+- linocut or screen-print look (two or three inks, deliberate texture, code-native);
+- Blender-rendered 3D with physically correct pieces (studio light, clay or cardboard materials);
+- type-led jokes (typography as the illustration);
+- optionally an AI-assisted look with strong art direction, judged honestly against the others.
+Show them in context (Instagram posts and a mock website section) and collect per-slide feedback.

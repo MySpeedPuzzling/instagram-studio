@@ -1,5 +1,4 @@
 import type { FrameKind } from '../../src/render/render.ts';
-import type { Content } from './content.ts';
 
 export interface Slide {
   /** Slide id within the post, e.g. "wall-1". */
@@ -24,5 +23,7 @@ export interface Direction {
   name: string;          // "Scorecard Editorial"
   idea: string;          // one line: what makes it recognisable
   css: string;           // theme + component styles shared by all its slides
-  posts: (c: Content) => Post[];
+  /** Each lab passes its own content object (lab/<lab>/content.ts). */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  posts: (c: any) => Post[];
 }

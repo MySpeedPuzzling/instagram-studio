@@ -138,7 +138,7 @@ export async function publishDraft(id: string, opts: { host?: MediaHost; now?: D
       urls.push(await host.put(key, join(ROOT, s.file), 'image/jpeg'));
       keys.push(key);
     }
-    const collab = d.collaborators?.length ? { collaborators: JSON.stringify(d.collaborators) } : {};
+    const collab: Record<string, string> = d.collaborators?.length ? { collaborators: JSON.stringify(d.collaborators) } : {};
     let container: string;
     if (d.format === 'single') {
       container = (await ig.post('me/media', { image_url: urls[0], caption: d.caption, alt_text: d.slides[0].alt, ...collab })).id;

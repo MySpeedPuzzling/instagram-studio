@@ -74,11 +74,12 @@ async function prepare(c: Content) {
   mkdirSync(join(CACHE, 'tile'), { recursive: true });
   const tones: Record<string, Tone> = existsSync(TONES_FILE) ? JSON.parse(readFileSync(TONES_FILE, 'utf8')) : {};
   // Medium images: every September box. Large images: the week's top 12 and the September hero.
-  const jobs: Array<{ key: string; file: string; thumb?: string }> = [
-    ...c.september.boxes.map(b => ({ key: b.img, file: join(ROOT, b.img), thumb: join(ROOT, thumbRel(b)) })),
-    ...c.weekTop.map(b => ({ key: b.img, file: join(ROOT, b.img) })),
-    ...c.september.boxes.slice(0, 1).map(b => ({ key: largeOf(b.img), file: join(ROOT, largeOf(b.img)) })),
-  ].filter(j => existsSync(j.file) && (!tones[j.key] || (j.thumb && !existsSync(j.thumb))));
+  type Job = { key: string; file: string; thumb?: string };
+  const jobs: Job[] = ([
+    ...c.september.boxes.map((b): Job => ({ key: b.img, file: join(ROOT, b.img), thumb: join(ROOT, thumbRel(b)) })),
+    ...c.weekTop.map((b): Job => ({ key: b.img, file: join(ROOT, b.img) })),
+    ...c.september.boxes.slice(0, 1).map((b): Job => ({ key: largeOf(b.img), file: join(ROOT, largeOf(b.img)) })),
+  ] as Job[]).filter(j => existsSync(j.file) && (!tones[j.key] || (j.thumb && !existsSync(j.thumb))));
   for (let i = 0; i < jobs.length; i += 8) {
     await Promise.all(jobs.slice(i, i + 8).map(async j => {
       tones[j.key] ??= await analyse(j.file, !!j.thumb);

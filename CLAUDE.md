@@ -1,8 +1,20 @@
 # MSP Instagram: rules for Claude
 
 Pipeline that drafts Instagram posts for @myspeedpuzzling from MySpeedPuzzling data, with a human
-approving every post. The plan and its evidence are in `reports/`; the owner's decisions in
-`docs/decisions.md` override the reports. Read both before proposing architecture or content changes.
+approving every post.
+
+**Start every session with `docs/STATUS.md`** (where we are, what exists, next steps), then
+`docs/decisions.md` (owner decisions; they override everything) and `docs/backlog.md` (todos and open
+questions). How-tos are in `docs/runbook.md`; evidence in `reports/` and `research_notes/`; ideas in
+`docs/ideas/`. At the end of a work session, update `docs/STATUS.md` and `docs/backlog.md`.
+
+## Working with the owner
+
+- Drive the work yourself; ask only for real decisions, interactively (AskUserQuestion) with a recommended
+  option first. Explain jargon in plain words.
+- Visual choices: show options in the lab galleries and collect per-slide feedback (Works / Unsure / No-go or
+  codes like "D4-3"); read `content/labs/<LAB>/feedback.jsonl` before proposing visuals.
+- Report findings and numbers honestly; never publish anything without the owner's approval.
 
 ## This repository is public
 

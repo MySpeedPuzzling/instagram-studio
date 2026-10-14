@@ -46,6 +46,10 @@ Claude Code: brainstorm → draft (facts, caption, alt text) ──► HTML/CSS/
 
 ## Docs
 
+- [`docs/STATUS.md`](docs/STATUS.md): where the project is, what exists, next steps (start here)
+- [`docs/backlog.md`](docs/backlog.md): todos and open questions
+- [`docs/runbook.md`](docs/runbook.md): how to run data, labs, AI batches, drafts, publishing, insights
+- [`docs/ideas/`](docs/ideas/): content idea bank
 - [`reports/`](reports/): the research behind the approach (strategy, visuals, API constraints, tooling)
 - [`docs/decisions.md`](docs/decisions.md): the owner's decisions (they override the reports)
 - [`docs/claude-code-skills.md`](docs/claude-code-skills.md): vetted Claude Code skills, plugins and MCP servers

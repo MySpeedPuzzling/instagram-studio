@@ -110,7 +110,8 @@ Owner feedback on DL1 (styles) and DL2 (formats); details in `content/labs/{DL1,
   header; the small clock icon top left (D5).
 - **Illustrations:** cute outlined objects and characters read as AI art (D7, most of F3). Keep the funny-facts
   concept; illustrations built from puzzle pieces and real arrangements (F3-4/5 edges first/last, F3-6 sorting the
-  sky) work.
+  sky) work. The cartoons themselves are loved ("funny and makes sense") and can stay, but must lose the
+  "aha, AI-generated" feeling: restyle them so they don't look like generic AI clip art.
 - **Content and concepts are approved across the board**: the data posts, box walls and the 1,000-puzzle mosaic
   (F1-6/7/8 awesome), puzzle of the week and quizzes, funny facts, Reels.
 - **Reels: confirmed.** Use HyperFrames more, incl. feature reveals; fill the whole 9:16 frame; music later.

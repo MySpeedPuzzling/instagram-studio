@@ -95,6 +95,30 @@ The owner delegates execution: Claude drives the next steps and builds, asking o
 - **First AI image batch approved for tonight** (series backdrops, material textures, spirit animals,
   layout-to-scene), on a calm machine, one model family at a time, resources logged.
 
+## 2026-10-14: visual direction from the first lab round
+
+Owner feedback on DL1 (styles) and DL2 (formats); details in `content/labs/{DL1,DL2}/feedback.jsonl` (local).
+
+- **Favourite look: D5 Race Clock** (navy ground, white text, charts). Close second: **D2 Poster Numbers** (bold
+  colour grounds, catching). **D9 Chapter Recap** works for Stories (D9-1 and D9-5 best). The house system builds on
+  these.
+- **No plain white grounds as the main look** (D1, D3 feel boring; if white is used, add depth: subtle shadow or a
+  same-hue gradient). **No pastel, cream, beige or yellow grounds** (D6, F1, F2, D9 yellow are off brand).
+- **Use more of the brand palette**: navy/grey, coral/pink, sky blue and indigo/purple, rotating; purple is an
+  accent, never the primary colour for everything (D8).
+- **No-go:** D4 box lid, D6 puzzle mat, D7 house-illustrated icons (read as AI-generated), D8 zine; the D2-8 puzzle
+  header; the small clock icon top left (D5).
+- **Illustrations:** cute outlined objects and characters read as AI art (D7, most of F3). Keep the funny-facts
+  concept; illustrations built from puzzle pieces and real arrangements (F3-4/5 edges first/last, F3-6 sorting the
+  sky) work.
+- **Content and concepts are approved across the board**: the data posts, box walls and the 1,000-puzzle mosaic
+  (F1-6/7/8 awesome), puzzle of the week and quizzes, funny facts, Reels.
+- **Reels: confirmed.** Use HyperFrames more, incl. feature reveals; fill the whole 9:16 frame; music later.
+- **Logo:** slightly bigger everywhere; on dark grounds use the outlined logo (white outline around the mark, like
+  `assets/brand/email-logo.png`) instead of a white circle.
+- **Consistency:** one recognisable brand design across the feed matters (the owner's own photo posts will be
+  mixed in occasionally).
+
 **Compute budget.** This Mac's CPU, GPU and RAM are the limit for now (a bigger machine may come
 later). Every prototype and lab records the resources it used. Heavy runs happen on a calm machine, with
 Docker and other unneeded apps turned off.

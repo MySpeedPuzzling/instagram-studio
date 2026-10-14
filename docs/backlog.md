@@ -4,13 +4,17 @@ Build and ops work for the pipeline. Content ideas live in `docs/ideas/` (public
 `content/ideas/backlog.md` (local). Tick items off here when done; add new ones at the right priority.
 Updated 2026-10-14.
 
-## Now (blocked on owner feedback)
+## Now
 
-- [ ] Read lab feedback (`content/labs/{DL1,DL2,DL3,AI1}/feedback.jsonl`) and summarise it per style/format.
-- [ ] Build 2–3 refined combinations (main look + special formats + where AI is used) and show them as a mock
-      profile grid of the next 3–4 weeks; owner picks → record in `docs/decisions.md`.
-- [ ] Port the XP share card concept (rebuilt with generator pieces; D7/D3/D5 variants exist in DL1 `xp` posts) back
-      to the MSP site once the owner picks one (MSP repo task; `docs/TODO.md` there lists the share-card rework).
+- [x] Owner feedback on DL1 styles and DL2 formats (2026-10-14) → `docs/decisions.md`, `docs/design/house-brief.md`.
+- [ ] DL4 house system: `src/design/house.ts` + all approved content re-rendered in it + mock profile grid
+      (3–4 weeks, incl. an owner-photo placeholder); owner picks → record in `docs/decisions.md`.
+- [ ] Restyle the funny-facts cartoons so they don't read as AI art (piece/box compositions, bold flat poster shapes
+      or type-led jokes); keep the jokes.
+- [ ] Reels: re-skin into the house style, fill the full 9:16 frame, add a feature-reveal Reel (HyperFrames).
+- [ ] Outlined logo for dark grounds (SVG + white outline filter; ref `assets/brand/email-logo.png`), logo ≈ 1.5×.
+- [ ] Feedback still to collect: DL3 visuals, AI1 images.
+- [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.
 
 ## Build: from labs to production
 

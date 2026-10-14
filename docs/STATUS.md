@@ -5,9 +5,10 @@ everything else) and `docs/backlog.md` (what to do next). Updated 2026-10-14.
 
 ## Where we are
 
-Phase: **research and prototypes, waiting for the owner's visual feedback.** Nothing has been published yet.
-The infrastructure (data, rendering, QA, review app, publisher, insights, AI batch) is built and tested; the house
-look and the first series are not chosen yet.
+Phase: **research and prototypes; first design feedback received (2026-10-14), house system round 2 (DL4) is next.**
+Nothing has been published yet. The infrastructure (data, rendering, QA, review app, publisher, insights, AI batch)
+is built and tested. The owner's verdict: D5 (navy, white type) is the favourite, D2 and D9 next; no white/pastel
+grounds; content and concepts approved everywhere; Reels confirmed. Brief: `docs/design/house-brief.md`.
 
 | Area | State |
 |---|---|
@@ -26,23 +27,20 @@ look and the first series are not chosen yet.
 
 ## Waiting for the owner
 
-1. Visual feedback in the labs (per slide: Works / Unsure / No-go, or codes in chat like "D4-3 love it, D8 no-go"):
-   - DL1 styles http://127.0.0.1:4173/content/labs/DL1/
-   - DL2 creative formats http://127.0.0.1:4173/content/labs/DL2/
-   - DL3 idea prototypes (visuals) http://127.0.0.1:4173/content/labs/DL3/
-   - AI1 images http://127.0.0.1:4173/content/labs/AI1/ (summary: `content/labs/AI1/SUMMARY.md`)
+1. Feedback still open on DL3 visuals and AI1 images (ideas in DL3 are approved; DL1/DL2 feedback received).
    Feedback lands in `content/labs/<LAB>/feedback.jsonl` (local). Read it before proposing anything visual.
 2. Small open questions are listed at the end of `docs/backlog.md`.
 
 ## Next steps (in order)
 
-1. **Read the owner's lab feedback** → build 2–3 refined combinations (main look + formats for milestones, events,
-   Stories, quizzes; AI only where it won) as a mock profile grid of the next 3–4 weeks → owner picks the house system.
+1. **DL4 house system** per `docs/design/house-brief.md`: first a shared house module (`src/design/house.ts`:
+   grounds rotation, type scale, header/brand device, outlined logo, chart theme), then re-render the approved
+   content (DL1 data posts, DL2 formats, DL3 ideas, restyled funny facts, Reels in full 9:16 + a feature-reveal Reel,
+   D9-style Stories) in it, and show a mock profile grid of 3–4 weeks. Owner picks/adjusts.
 2. **Productise the chosen series** (see backlog "Build"): parametric post builders in `src/posts/` that take fresh
-   query results and produce a draft folder; promote the chosen lab code into them.
-3. **First real posts** with fresh data on the day (see `content/ideas/backlog.md` locally and the slate in
-   `docs/ideas/brainstorm-2026-10.md`): Weekly Numbers ep. 1 (Mon), Wisconsin championship preview (Wed 21 Oct),
-   clocks go back (Sat 24 Oct), Halloween (shelf of fear / cartoon, 31 Oct), 75 years (~3 Nov).
+   query results and produce a draft folder.
+3. **First real posts** with fresh data on the day: Weekly Numbers ep. 1, Wisconsin championship preview
+   (Wed 21 Oct), clocks go back (Sat 24 Oct), Halloween (31 Oct), 75 years (~3 Nov).
 4. **Learning loop**: insights pulls on a schedule, weekly review with the `ig-insights` skill.
 
 ## How the pieces fit

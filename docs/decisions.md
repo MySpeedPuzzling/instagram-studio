@@ -115,7 +115,8 @@ Owner feedback on DL1 (styles) and DL2 (formats); details in `content/labs/{DL1,
 - **The illustration style itself is open for reconsideration**, possibly for the whole MSP website too (the current
   "semi-flat outlined" house style from the website, originally generated with ChatGPT, is what reads as AI).
   **AI illustrations are allowed**; the goal is a refined, distinctive style. Explore it in a dedicated
-  illustration lab later (IL1); a winner may be proposed for the site.
+  illustration lab later (IL1); a winner may be proposed for the site. IL1 uses **local models only** (no hosted
+  comparison for now).
 - **White grounds are "okayish"** when they get depth (gradient and/or shadows); pastel/cream stays out. Once the
   house design is set, the content from all labs gets combined into it.
 - **Content and concepts are approved across the board**: the data posts, box walls and the 1,000-puzzle mosaic

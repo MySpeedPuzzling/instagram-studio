@@ -64,8 +64,7 @@ illustrations (e.g. a badge, an empty state, a feature hero) in 4–6 distinct d
 - AI-assisted looks with strong art direction (AI is allowed; the website's current illustrations were made with
   ChatGPT, and we now have more options): local FLUX.2 klein 9B/4B and Z-Image (the klein 9B spirit animals in
   AI1 were a consistent set), reference-image style locking, optionally a style LoRA once 20–30 approved images
-  exist, and optionally hosted models (GPT Image, Nano Banana, Recraft) for comparison if the owner approves a small
-  budget.
+  exist. **Local models only** (owner decision 2026-10-14: no hosted-model comparison for IL1).
 Show them in context (Instagram posts and a mock website section) and collect per-slide feedback. The outcome is a
 written illustration style guide (palette, line, shading, composition, what to avoid) plus a reference set, usable
 for Instagram and possibly the MSP website.

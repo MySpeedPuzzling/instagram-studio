@@ -64,6 +64,8 @@ src/publish/publish.ts (preflight, R2, containers, publish log) ──► Instag
 tools/ai-batch.ts + lab/ai1/ (ComfyUI headless, calm check) ──► content/labs/AI1/
 ```
 
+Engineer-facing overview of the image and Reel technologies (shareable page): https://claude.ai/code/artifact/b8f714e8-204e-42b4-9018-ba3beee7a52a
+
 Commands are in `README.md` and `docs/runbook.md`. Claude Code workflows are project skills in `.claude/skills/`
 (`ig-plan`, `ig-draft`, `ig-insights`, `msp-captions`).
 

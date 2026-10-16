@@ -143,3 +143,4 @@ Docker and other unneeded apps turned off.
   session dedicated to it. Decisions on Reels (intro/outro, LM1) and illustrations (IL1, J1) come later.
 - **Keep everything in the labs** as a reference: never delete lab renders, variants, AI images or feedback, and
   don't remove losing variants from the code; the chosen style becomes the default, the others stay renderable.
+  Keeping them on this Mac only is fine (no backup needed): they are a reference and inspiration, not an archive.

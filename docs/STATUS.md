@@ -8,8 +8,8 @@ everything else) and `docs/backlog.md` (what to do next). Updated 2026-10-16.
 Phase: **research and prototypes; house system DL4 built (2026-10-16), waiting for the owner to pick a variant.**
 Nothing has been published yet. The infrastructure (data, rendering, QA, review app, publisher, insights, AI batch)
 is built and tested. DL4 renders all approved content in one house module with three variants (H1 Race Clock refined,
-H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) is prepared and waits for the owner's
-go-ahead to run overnight. Brief: `docs/design/house-brief.md`.
+H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran on 2026-10-16
+(daytime, owner's go-ahead): 199/199 images, 0 failures, waiting for the owner's review. Brief: `docs/design/house-brief.md`.
 
 | Area | State |
 |---|---|
@@ -23,7 +23,7 @@ go-ahead to run overnight. Brief: `docs/design/house-brief.md`.
 | Publishing | `src/publish/publish.ts`: single images and carousels via Instagram Login API + Cloudflare R2 (tested end to end with a test image; no real post yet). Reels/Stories publishing not implemented |
 | Insights | `node tools/insights.ts` → `content/state.sqlite` (71 historical posts backfilled) |
 | Motion | HyperFrames 0.8.152 (pinned devDependency), deterministic Reels in `lab/dl2/reels/` |
-| AI images | Overnight runner `tools/ai-batch.ts --batch <file>` (calm-gated, watchdog, resource log; shared core `lab/ai/core.ts`); AI1 done 2026-10-14 (94 images); **IL1** (`lab/ai2/`, 6 illustration directions × 7 subjects, 199 images ≈ 4 h 34 min) validated, not run |
+| AI images | Overnight runner `tools/ai-batch.ts --batch <file>` (calm-gated, watchdog, resource log; shared core `lab/ai/core.ts`); AI1 done 2026-10-14 (94 images); **IL1** (`lab/ai2/`, 6 illustration directions × 7 subjects) ran 2026-10-16 10:58–15:05: 199/199 images, 0 failures, all auto-checks pass, peak 20 GB (klein 9B) |
 | Token | Instagram token valid until **2026-12-12** (`node tools/ig-token.ts status`; refresh with `refresh`) |
 | Repo | Local git only — **no GitHub remote yet** (see backlog) |
 
@@ -33,8 +33,8 @@ go-ahead to run overnight. Brief: `docs/design/house-brief.md`.
    side-by-side rows, give a verdict per variant (H1/H2/H3) and per slide where useful; J1 asks which drawing approach
    the funny facts should use (A real pieces/boxes, B flat poster, C type-led). Feedback lands in
    `content/labs/DL4/feedback.jsonl`.
-2. **IL1 go-ahead** for a night (before bed: quit Docker and heavy apps, then the commands in `lab/ai2/README.md`
-   and `docs/runbook.md`: calm check, `--dry-run`, `--schedule --at 22:30`, `--status`).
+2. **IL1 review**: review app → "Illustration lab (IL1)" (Works / Unsure / No-go per image; `content/labs/IL1/SUMMARY.md`
+   has times and memory). Picks lead to a written style guide + reference set.
 3. Feedback still open on DL3 visuals and AI1 images (superseded in part by DL4). Small questions at the end of
    `docs/backlog.md`.
 
@@ -43,8 +43,8 @@ go-ahead to run overnight. Brief: `docs/design/house-brief.md`.
 1. **Owner picks/adjusts a DL4 variant** → record in `docs/decisions.md`; fold the agents' house proposals (shared
    art palette per ground, `cover()` with art in every layout, family CSS hook, shared geometry/board helpers,
    `heroFitUnit`) into `src/design/house.ts` and drop the losing variants.
-2. **IL1 overnight** (owner's go-ahead), morning review in `content/labs/IL1/`, then a written illustration style
-   guide + reference set (Instagram, possibly the MSP website).
+2. **IL1 review** (done generating), then a written illustration style guide + reference set (Instagram, possibly
+   the MSP website).
 3. **Productise the chosen series** (see backlog "Build"): parametric post builders in `src/posts/` on the house
    module that take fresh query results and produce a draft folder.
 4. **First real posts** with fresh data on the day: Weekly Numbers ep. 1, Wisconsin championship preview (Fri 23 Oct),
@@ -53,7 +53,7 @@ go-ahead to run overnight. Brief: `docs/design/house-brief.md`.
 
 ## Plan for the next working day
 
-- If IL1 ran: review `content/labs/IL1/` (gallery + `SUMMARY.md`), pick candidates, draft the style guide.
+- Review `content/labs/IL1/` with the owner (gallery + `SUMMARY.md`), pick candidates, draft the style guide.
 - Apply the owner's DL4 verdict to the house module; start `src/posts/` builders for the first real posts.
 
 ## How the pieces fit

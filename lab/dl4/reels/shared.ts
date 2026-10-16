@@ -9,7 +9,7 @@
 // feed crop (y 285–1635) and the 3:4 profile grid crop (y 240–1680).
 import { join } from 'node:path';
 import {
-  GROUNDS, HOUSE_CSS, groundVars, pieceMark, pieceStrip, posterTopPath, seriesOf, type Ground, type Variant,
+  GROUNDS, HOUSE_CSS, groundVars, pieceMark, pieceStrip, posterTopPath, seriesOf, siteLine, type Ground, type Variant,
 } from '../../../src/design/house.ts';
 import { escapeHtml as h } from '../../../src/design/page.ts';
 import { FRAMES } from '../../../src/render/render.ts';
@@ -96,8 +96,8 @@ export function stripState(v: Variant, beats: number, prefix: string, k: number,
 /** Masthead: device + kicker on the left, the outlined logo on the right, the source line under it, then a rule. */
 export function masthead(o: { id: string; kicker: string; src: string; device: string }): string {
   return `<div class="r-mast" id="${o.id}">
-  <header class="r-head">${o.device}<span class="h-kick">${h(o.kicker)}</span><img class="h-logo" src="assets/${o.id === 'mast' ? 'logo' : 'logo-poster'}.svg" alt="MySpeedPuzzling" style="height:84px; margin-left:auto"></header>
-  <p class="h-src r-src">${h(o.src)}</p>
+  <header class="r-head">${o.device}<span class="h-kick">${h(o.kicker)}</span><img class="h-logo" src="assets/${o.id === 'mast' ? 'logo' : 'logo-poster'}.svg" alt="MySpeedPuzzling" style="height:100px; margin-left:auto"></header>
+  <p class="h-src r-src">${siteLine(o.src)}</p>
   <div class="h-rule" style="top:${HEAD.rule}px"></div>
 </div>`;
 }

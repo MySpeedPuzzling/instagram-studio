@@ -532,7 +532,7 @@ function catsDogs(c: Content, v: Variant): Post {
         <span class="ix-bv" data-qa-bg="${T.dog.hex}" style="right:${W - X1 + 18}px; top:${y + 56 + bh / 2}px; color:${td2.css}">${h(r.fmt(r.d))}</span>`);
     });
     return slide(x, 'data', {
-      kicker, src: `Puzzles matched by title words (cat, kitten, dog, puppy…) · ${c.source}`,
+      kicker, src: `Matched by title words (cat, dog…) · ${c.source}`,
       body: STYLE + svg(art.join('')) + titleBlock(`Five rounds. Cats take ${catWins === 4 ? 'four' : catWins}.`)
         + `<div class="h-abs" style="top:268px; display:flex; justify-content:space-between">
             <span class="h-dek" style="font-size:30px; display:flex; align-items:center; gap:12px">${sw(T.cat)}<b style="color:var(--g-ink)">Cats</b> from the left</span>

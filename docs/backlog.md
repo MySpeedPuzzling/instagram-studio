@@ -19,6 +19,8 @@ Updated 2026-10-16.
 - [x] Outlined logo (`assets/brand/speedpuzzling-logo-outline.svg`), ≈ 1.5× in every footer.
 - [ ] IL1 overnight run (prepared and validated 2026-10-16; needs the owner's go-ahead, then morning review → style
       guide + reference set; may lead to a task in the MSP repo for the website).
+- [ ] Re-render the 12 DL4 Reel videos with the bigger branding (covers and QA already updated; run after IL1:
+      `node lab/dl4/reels/render.ts`, ~6 min).
 - [ ] Decide the series of `75-years` (milestone = coral in H3, or fun with the timely stories).
 - [ ] Feedback still to collect: DL3 visuals, AI1 images.
 - [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.

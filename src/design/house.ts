@@ -123,8 +123,8 @@ export const TYPE = {
 // ------------------------------------------------------------------ brand marks
 
 export const LOGO_OUTLINE_URL = '/assets/brand/speedpuzzling-logo-outline.svg';
-/** Outlined logo, `px` tall including its outline (DL1 bug was 54 px wide; 92 px tall ≈ 1.5× the mark). */
-export const outlinedLogo = (px = 92, base = '') => `<img class="h-logo" src="${base}${LOGO_OUTLINE_URL}" alt="MySpeedPuzzling" style="height:${px}px">`;
+/** Outlined logo, `px` tall including its outline (DL1 bug was 54 px wide; 112 px tall ≈ 1.8× the mark; owner 2026-10-16: branding more notable). */
+export const outlinedLogo = (px = 112, base = '') => `<img class="h-logo" src="${base}${LOGO_OUTLINE_URL}" alt="MySpeedPuzzling" style="height:${px}px">`;
 
 /** One interlocking generator piece (the brand device), `px` wide. */
 export function pieceMark(fill = 'var(--g-device)', px = 44, seed = 5): string {
@@ -204,8 +204,9 @@ body { font-variant-numeric: tabular-nums lining-nums slashed-zero; background: 
 .h-idx { margin-left: auto; font-size: 30px; font-weight: 700; letter-spacing: 0.04em; color: var(--g-ink); white-space: nowrap; }
 .h-idx i { font-style: normal; font-weight: 500; color: var(--g-soft); }
 .h-rule { position: absolute; left: ${X0}px; width: ${CW}px; height: 2px; background: var(--g-rule); }
-.h-foot { position: absolute; left: ${X0}px; width: ${CW}px; height: 92px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.h-foot { position: absolute; left: ${X0}px; width: ${CW}px; height: 112px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .h-src { font-size: 30px; line-height: 1.2; color: var(--g-soft); }
+.h-site { font-size: 32px; font-weight: 700; letter-spacing: 0.005em; color: var(--g-ink); white-space: nowrap; }
 .h-logo { display: block; flex: none; width: auto; }
 .h-title { position: absolute; left: ${X0}px; width: ${CW}px; font-size: ${TYPE.title}px; font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; color: var(--g-ink); }
 .h-title.xl { font-size: ${TYPE.display}px; line-height: 1.04; letter-spacing: -0.02em; }
@@ -278,6 +279,12 @@ export interface FrameOptions {
   headGround?: GroundKey;
 }
 
+/** Source line with the site name set as the brand mention (bold, ink, slightly larger) so every post promotes MSP. */
+export const siteLine = (src: string) => {
+  const site = '<b class="h-site">myspeedpuzzling.com</b>';
+  return /myspeedpuzzling\.com/i.test(src) ? h(src).replace(/myspeedpuzzling\.com/gi, site) : src.trim() ? `${site} · ${h(src)}` : site;
+};
+
 export function frame(o: FrameOptions): string {
   const g = GROUNDS[o.ground];
   const kind = o.kind ?? 'feed';
@@ -296,7 +303,7 @@ export function frame(o: FrameOptions): string {
   ${o.noRule ? '' : `<div class="h-rule" style="top:${r.ruleTop}px"></div>`}
   ${o.body}
   <div class="h-rule" style="top:${r.footRule}px"></div>
-  <footer class="h-foot" style="top:${r.footTop - 10}px"><span class="h-src">${h(o.src)}</span>${outlinedLogo()}</footer>
+  <footer class="h-foot" style="top:${r.footTop - 20}px"><span class="h-src">${siteLine(o.src)}</span>${outlinedLogo()}</footer>
 </div>`;
 }
 

@@ -130,3 +130,9 @@ Owner feedback on DL1 (styles) and DL2 (formats); details in `content/labs/{DL1,
 **Compute budget.** This Mac's CPU, GPU and RAM are the limit for now (a bigger machine may come
 later). Every prototype and lab records the resources it used. Heavy runs happen on a calm machine, with
 Docker and other unneeded apps turned off.
+
+## 2026-10-16: branding in the footer
+
+- **Branding more notable** (owner): every post promotes MSP. The house footer sets **myspeedpuzzling.com** in bold
+  ink (32 px) in the source line, leading the line when a slide's source doesn't name the site, and the outlined logo
+  grows to 112 px (≈ 1.8× DL1). Reels carry the same lockup in their header (logo 100 px).

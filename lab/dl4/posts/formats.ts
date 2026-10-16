@@ -442,7 +442,7 @@ function sepMosaic(c: C2, src: string, v: Variant): Post {
       ${pc.cells.map(cell => `<img class="fx-tile" src="/${thumbRel(assign.get(cell)!)}" alt="" style="left:${cell.x + gap / 2}px; top:${cell.y + gap / 2}px; width:${pitch - gap}px; height:${pitch - gap}px">`).join('')}
       <svg style="position:absolute; left:0; top:0" width="${f1(pc.w)}" height="${f1(pc.h)}"><path d="${pc.d}" fill="none" stroke="var(--g-bg)" stroke-width="${f1(10 / scale)}"/></svg>
     </div>`;
-  const credit = `${fmtInt(n)} most-solved puzzles of ${s.label} · ${brands} brands · box art by their publishers`;
+  const credit = `${fmtInt(n)} most-solved of ${s.label} · ${brands} brands · box art: publishers`;
 
   // 1 · the mosaic (F1-6)
   const s1 = (x: SlideCtx) => {

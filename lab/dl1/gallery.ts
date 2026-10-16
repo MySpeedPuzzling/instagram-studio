@@ -132,11 +132,13 @@ illustration style, applied to the same funny-fact jokes and site spots so you c
 is one subject on one model (the core model first, a second model as a control). I6 restyles code-drawn layouts whose puzzle
 pieces come from the generator; the first slide of each I6 row is that input. First judge each style as a whole (the verdict
 box), then mark single images. The aim is ONE style for Instagram and maybe the website.</p>` : labId.startsWith('LM') ? `<p>Here are short
-logo animations of the real MSP mark (rigged, so every part can move): <b>L1</b> intros that end on the settled logo (the start
-of a Reel), <b>L2</b> outros that end on the logo with myspeedpuzzling.com (the end of a Reel), and <b>L3</b> the two most promising
-intros as a phone app splash screen on coral and on white, each with the final still the app would hold. They're silent and
-2–2.4 s long, so they don't loop well on their own: play each a few times. Judge the idea and the feel (quick, crisp, on brand?)
-more than single frames. A splash pick would later be rebuilt in Rive or Lottie for the app; the timing and look carry over.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
+logo animations of the real MSP mark (rigged, so every part can move): <b>L1</b> intros that end on the settled logo, <b>L2</b>
+outros, <b>L3</b> app splash cuts (on coral and on white, each with the final still the app would hold; the 0.8 s cuts fit Android's
+1 s splash limit), and <b>L4</b> the loading loop and example chains. Round 2 (L1-6 onwards, L2-4, L3-9 onwards, L4) is a kit: every
+module starts or ends on the same hand-off frame (the settled logo in the middle, on navy), so any intro, any content and any
+outro cut together. The research says Reels should have no logo intro and, by default, no outro; the short Reel sting (L4) loops
+back into the first frame instead. The clips are silent and short: play each a few times. Judge the idea and the feel (quick,
+crisp, on brand?) more than single frames. For the app, the pick would be rebuilt as an Android vector animation, Rive or Lottie.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
 are worth having in the feed, which need work, and which are no-gos.</p>`}
 <h3>How to give feedback</h3>
 <p>Every slide has a code like <b>D4-3</b>. Under each slide tap <b>Works</b>, <b>Unsure</b> or <b>No-go</b> and, if you like,

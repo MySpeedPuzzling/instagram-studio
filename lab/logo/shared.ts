@@ -49,7 +49,7 @@ export interface Clip {
   /** Unique key, e.g. "intro-snap" or "splash-snap-coral". */
   key: string;
   /** Gallery direction: L1 intros (navy), L2 outros (navy), L3 app splash cuts. */
-  dir: 'L1' | 'L2' | 'L3';
+  dir: 'L1' | 'L2' | 'L3' | 'L4';
   label: string;
   duration: number;
   /** Second at which the logo (and text) are fully settled; the rest is the hold. */
@@ -58,6 +58,15 @@ export interface Clip {
   qaAt: number[];
   ground: Ground;
   html: string;
+  /** Extra files copied into the project: path relative to the project → absolute source. */
+  assets?: Record<string, string>;
+  /** Chains: times at which the frame must equal the hand-off frame (handoffRef, rendered alone), pixel for pixel. */
+  handoffAt?: number[];
+  handoffRef?: string;
+  /** Loop modules: [start, end] pairs whose frames must be identical (a seamless loop). */
+  loops?: Array<[number, number]>;
+  /** Chains: the module items they were built from. */
+  chain?: string[];
 }
 
 /** px per logo unit for a placement width. */
@@ -115,13 +124,14 @@ function inverseInOut(f: number, power: number): number {
  * appears (instant cut, at its own faintness) at the moment the hand passes its angle, so the hand leaves its trail
  * behind. With `hourFrom` the hour hand moves to its rest angle over the same time (a full lap = one hour = 30°).
  */
-export function sweep(o: { at: number; dur: number; from: number; power?: number; hourFrom?: number }): string {
+export function sweep(o: { at: number; dur: number; from: number; power?: number; hourFrom?: number; t0?: number }): string {
+  const t0 = o.t0 ?? 0;   // when the initial state applies (a chained module's start)
   const power = o.power ?? 2;
   const ease = `power${power}.inOut`;
-  const out = [hideAt(['trails'], 0), `tl.set('#trails', { autoAlpha: 1 }, ${o.at});`];
-  for (const t of RIG.trails) out.push(hideAt([t.id], 0));
+  const out = [hideAt(['trails'], t0), `tl.set('#trails', { autoAlpha: 1 }, ${o.at});`];
+  for (const t of RIG.trails) out.push(hideAt([t.id], t0));
   out.push(`tl.fromTo('#hand-minute', { rotation: ${o.from} }, { rotation: 360, svgOrigin: ${j(DIAL_ORIGIN)}, duration: ${o.dur}, ease: '${ease}', immediateRender: false }, ${o.at});`);
-  out.push(`tl.set('#hand-minute', { rotation: ${o.from}, svgOrigin: ${j(DIAL_ORIGIN)} }, 0);`);
+  out.push(`tl.set('#hand-minute', { rotation: ${o.from}, svgOrigin: ${j(DIAL_ORIGIN)} }, ${t0});`);
   for (const t of RIG.trails) {
     if (t.deg <= o.from) { out.push(showAt([t.id], o.at)); continue; }
     const f = (t.deg - o.from) / (360 - o.from);
@@ -129,7 +139,7 @@ export function sweep(o: { at: number; dur: number; from: number; power?: number
   }
   out.push(`tl.set('#hand-minute', { rotation: 0, svgOrigin: ${j(DIAL_ORIGIN)} }, ${+(o.at + o.dur).toFixed(3)});`);
   if (o.hourFrom !== undefined) {
-    out.push(`tl.set('#hand-hour', { rotation: ${o.hourFrom - RIG.handHourDeg}, svgOrigin: ${j(DIAL_ORIGIN)} }, 0);`);
+    out.push(`tl.set('#hand-hour', { rotation: ${o.hourFrom - RIG.handHourDeg}, svgOrigin: ${j(DIAL_ORIGIN)} }, ${t0});`);
     out.push(`tl.fromTo('#hand-hour', { rotation: ${o.hourFrom - RIG.handHourDeg} }, { rotation: 0, svgOrigin: ${j(DIAL_ORIGIN)}, duration: ${o.dur}, ease: '${ease}', immediateRender: false }, ${o.at});`);
   }
   return out.join('\n');
@@ -142,21 +152,21 @@ tl.set('#hand-minute, #trails', { rotation: 0, svgOrigin: ${j(DIAL_ORIGIN)} }, $
 }
 
 /** Speed lines shoot out leftwards from the piece (scaleX from each line's right end), top to bottom with a stagger. */
-export function speedLinesIn(at: number, dur = 0.26, each = 0.035, order: number[] = [2, 1, 3, 0, 4]): string {
+export function speedLinesIn(at: number, dur = 0.26, each = 0.035, order: number[] = [2, 1, 3, 0, 4], t0 = 0): string {
   const out: string[] = [];
   order.forEach((k, n) => {
     const l = RIG.speedLines[k];
     const origin = `${l.box.x1.toFixed(1)} ${((l.box.y0 + l.box.y1) / 2).toFixed(1)}`;
-    out.push(`tl.set('#${l.id}', { scaleX: 0, svgOrigin: '${origin}' }, 0);`);
+    out.push(`tl.set('#${l.id}', { scaleX: 0, svgOrigin: '${origin}' }, ${t0});`);
     out.push(`tl.fromTo('#${l.id}', { scaleX: 0 }, { scaleX: 1, svgOrigin: '${origin}', duration: ${dur}, ease: 'power3.out', immediateRender: false }, ${+(at + n * each).toFixed(3)});`);
   });
   return out.join('\n');
 }
 
 /** Generic scale-in of rig parts about the dial centre (or another svgOrigin), with an instant show at the start. */
-export function scaleIn(ids: string[], o: { at: number; dur: number; from: number; ease?: string; origin?: string }): string {
+export function scaleIn(ids: string[], o: { at: number; dur: number; from: number; ease?: string; origin?: string; t0?: number }): string {
   const origin = j(o.origin ?? DIAL_ORIGIN);
-  return `${hideAt(ids, 0)}
+  return `${hideAt(ids, o.t0 ?? 0)}
 tl.set(${sel(ids)}, { autoAlpha: 1, scale: ${o.from}, svgOrigin: ${origin} }, ${o.at});
 tl.fromTo(${sel(ids)}, { scale: ${o.from} }, { scale: 1, svgOrigin: ${origin}, duration: ${o.dur}, ease: '${o.ease ?? 'power3.out'}', immediateRender: false }, ${o.at});`;
 }

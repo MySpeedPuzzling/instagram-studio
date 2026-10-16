@@ -8,6 +8,7 @@
 //   node lab/logo/render.ts --qa-only                # lint + QA + settled check + cover/final PNG, no video
 //   node lab/logo/render.ts intro-snap --qa-only --snap=/tmp/f   # also save a JPEG at every QA sample time
 //   node lab/logo/render.ts --gallery                # rebuild the manifests + gallery only
+//   node lab/logo/render.ts --chain "rain start hold:0.5 breakup" [--key=…] [--ground=…] [--reveal=…] [--place=mast] [--qa-only]
 //
 // Per clip: build the project in var/render/logo-lm1/<key>/ → `hyperframes lint` → Playwright QA (repo qaInPage, Reel
 // safe area) at the clip's sample times → settled check: the last frame must equal, pixel for pixel, the same page
@@ -27,7 +28,9 @@ import { qaInPage } from '../../src/render/qa.ts';
 import { ROOT, startServer } from '../../src/render/server.ts';
 import { buildGallery } from '../dl1/gallery.ts';
 import type { Manifest, ManifestDirection, ManifestSlide } from '../dl1/run.ts';
+import { chain, plan } from './chain.ts';
 import { allClips } from './clips.ts';
+import type { GroundKey } from '../../src/design/house.ts';
 import { diffRgba } from './rig-check.ts';
 import { ASSETS, FPS, SAFE, type Clip } from './shared.ts';
 
@@ -45,6 +48,7 @@ const rel = (p: string) => '/' + p.slice(ROOT.length + 1);
 export const DIRECTIONS: Record<Clip['dir'], { name: string; idea: string }> = {
   L1: { name: 'Intros on navy', idea: 'Five logo intros (2.0–2.4 s) that end on the settled, outlined logo in the middle of a 9:16 frame, for the start of a Reel. Rate the idea and the motion; the logo itself is the real mark, rigged.' },
   L2: { name: 'Outros on navy', idea: 'Three sign-offs (2.0–2.2 s) for the end of a Reel: the outlined logo with myspeedpuzzling.com and @myspeedpuzzling in the house type (bold Rubik).' },
+  L4: { name: 'Modules and chains', idea: 'Round 2 is a kit: modules that all meet on one hand-off frame (the settled logo, centred, on navy), so any intro, any content and any outro cut together. Here: the idle / loading loop for the app (seamless) and example chains built from the modules (lab/logo/chain.ts).' },
   L3: { name: 'App splash cuts', idea: 'The two most promising intros on coral and on the white-with-depth ground, as a phone app splash screen. Each has its clip and the final frame (the still the app would hold). For the app the chosen one would be rebuilt in Rive or Lottie.' },
 };
 
@@ -108,11 +112,11 @@ function topBoxes(file: string): string[] {
 
 // ------------------------------------------------------------------ steps
 
-function writeProject(dir: string, html: string) {
+function writeProject(dir: string, html: string, extra: Record<string, string> = {}) {
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(join(dir, 'assets'), { recursive: true });
   writeFileSync(join(dir, 'index.html'), html);
-  for (const [to, from] of Object.entries(ASSETS)) {
+  for (const [to, from] of Object.entries({ ...ASSETS, ...extra })) {
     mkdirSync(dirname(join(dir, to)), { recursive: true });
     copyFileSync(from, join(dir, to));
   }
@@ -121,10 +125,11 @@ function writeProject(dir: string, html: string) {
 /** The project, plus the same page without its timeline (the settled reference) outside the HyperFrames project. */
 function buildProject(c: Clip): string {
   const dir = join(WORK_DIR, c.key);
-  writeProject(dir, c.html);
+  writeProject(dir, c.html, c.assets);
   const ref = c.html.replace(/<script>\s*const DATA[\s\S]*?<\/script>/, '<script>window.__timelines = {};</script>');
   if (ref === c.html) throw new Error(`${c.key}: could not strip the timeline for the settled reference`);
-  writeProject(join(REF_DIR, c.key), ref);
+  writeProject(join(REF_DIR, c.key), ref, c.assets);
+  if (c.handoffRef) writeProject(join(REF_DIR, `${c.key}-handoff`), c.handoffRef);
   return dir;
 }
 
@@ -150,6 +155,8 @@ async function qaAndStills(env: { browser: Browser; server: Server }, c: Clip, o
   const ctx = await env.browser.newContext({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1, colorScheme: 'light' });
   const lastT = +(c.duration - 1 / FPS).toFixed(4);
   let settled = { differing: -1, maxDelta: -1 };
+  const handoff: Array<{ at: number; differing: number }> = [];
+  const loops: Array<{ at: [number, number]; differing: number; wrapStep: number; firstStep: number }> = [];
   try {
     const page = await ctx.newPage();
     page.on('pageerror', e => errors.add(`page error: ${e.message}`));
@@ -182,14 +189,38 @@ async function qaAndStills(env: { browser: Browser; server: Server }, c: Clip, o
         await page.screenshot({ path: join(snapDir, `${c.key}-${t.toFixed(2)}s.jpg`), type: 'jpeg', quality: 85 });
       }
     }
+    const raw = async (b: Buffer) => (await sharp(b).ensureAlpha().raw().toBuffer());
+    // Seamless loops: the frame at a loop's end must equal the frame at its start, pixel for pixel.
+    for (const [a, z] of c.loops ?? []) {
+      await seek(a); const fa = await raw(await page.screenshot({ type: 'png' }));
+      await seek(z); const fz = await raw(await page.screenshot({ type: 'png' }));
+      await seek(+(z - 1 / FPS).toFixed(4)); const fl = await raw(await page.screenshot({ type: 'png' }));
+      await seek(+(a + 1 / FPS).toFixed(4)); const f1 = await raw(await page.screenshot({ type: 'png' }));
+      const d = diffRgba(fa, fz), step = diffRgba(fl, fa), inner = diffRgba(fa, f1);
+      loops.push({ at: [a, z], differing: d.differing, wrapStep: step.differing, firstStep: inner.differing });
+      if (d.differing) errors.add(`loop ${a}–${z}s: the end frame differs from the start frame on ${d.differing} px (max Δ ${d.maxDelta})`);
+    }
+    // Hand-off frames: every module boundary at the hand-off state must equal the hand-off frame rendered alone.
+    const handoffShots: Array<[number, Buffer]> = [];
+    for (const t of c.handoffAt ?? []) { await seek(t); handoffShots.push([t, await raw(await page.screenshot({ type: 'png' }))]); }
     // Seek backwards too (HyperFrames may capture frames out of order): the last frame must not depend on the path.
+    // A clip that ends on a loop shows its loop's end (= start) frame as the settled frame, one frame after the last.
+    const loopEnd = (c.loops ?? []).some(([, z]) => Math.abs(z - c.duration) < 1e-6);
     await seek(0);
-    await seek(lastT);
+    await seek(loopEnd ? c.duration : lastT);
     const last = await page.screenshot({ type: 'png' });
     await load(`${env.server.url}/var/render/logo-lm1-ref/${c.key}/index.html`);
     const ref = await page.screenshot({ type: 'png' });
-    const raw = async (b: Buffer) => (await sharp(b).ensureAlpha().raw().toBuffer());
     settled = diffRgba(await raw(last), await raw(ref));
+    if (handoffShots.length) {
+      await load(`${env.server.url}/var/render/logo-lm1-ref/${c.key}-handoff/index.html`);
+      const hand = await raw(await page.screenshot({ type: 'png' }));
+      for (const [t, shot] of handoffShots) {
+        const d = diffRgba(shot, hand);
+        handoff.push({ at: t, differing: d.differing });
+        if (d.differing) errors.add(`hand-off @${t}s: differs from the hand-off frame on ${d.differing} px (max Δ ${d.maxDelta})`);
+      }
+    }
     if (settled.differing) errors.add(`settled check: the last frame differs from the settled logo on ${settled.differing} px (max Δ ${settled.maxDelta})`);
     writeFileSync(`${outBase}-final.png`, last);
     await sharp(last).jpeg({ quality: 93, chromaSubsampling: '4:4:4' }).withIccProfile('srgb').toFile(`${outBase}.jpg`);
@@ -197,7 +228,7 @@ async function qaAndStills(env: { browser: Browser; server: Server }, c: Clip, o
   } finally {
     await ctx.close();
   }
-  return { errors: [...errors], warnings: [...warnings], ms: Math.round(performance.now() - t0), settled };
+  return { errors: [...errors], warnings: [...warnings], ms: Math.round(performance.now() - t0), settled, handoff, loops };
 }
 
 async function hfRender(dir: string, output: string, workers: number) {
@@ -254,7 +285,7 @@ async function probe(file: string, expectSeconds: number) {
 
 // ------------------------------------------------------------------ manifests + gallery
 
-interface PostRecord { key: string; label: string; caption: string; family: string; renderedAt: string; dir: Clip['dir']; duration: number; settleAt: number; slides: ManifestSlide[] }
+interface PostRecord { key: string; label: string; caption: string; family: string; renderedAt: string; dir: Clip['dir']; duration: number; settleAt: number; slides: ManifestSlide[]; chain?: string[]; handoff?: unknown; loops?: unknown }
 
 /** Assembles content/labs/LM1/<L#>/manifest.json from the clips' post.json files (clip order of clips.ts). */
 export function writeManifests(): Manifest {
@@ -265,7 +296,7 @@ export function writeManifests(): Manifest {
     if (!existsSync(dir)) continue;
     const posts = readdirSync(dir).filter(k => existsSync(join(dir, k, 'post.json')))
       .map(k => JSON.parse(readFileSync(join(dir, k, 'post.json'), 'utf8')) as PostRecord)
-      .sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+      .sort((a, b) => (order.indexOf(a.key) + 1 || 1e9) - (order.indexOf(b.key) + 1 || 1e9) || a.key.localeCompare(b.key));
     if (!posts.length) continue;
     const entry: ManifestDirection = {
       id, ...DIRECTIONS[id], renderedAt: posts.map(p => p.renderedAt).sort().at(-1)!,
@@ -290,15 +321,9 @@ export function readManifest(): Manifest {
 
 // ------------------------------------------------------------------ main
 
-if (import.meta.main) {
-  const { values: o, positionals } = parseArgs({ allowPositionals: true, options: {
-    'qa-only': { type: 'boolean' }, gallery: { type: 'boolean' }, workers: { type: 'string' }, snap: { type: 'string' },
-  } });
-  const workers = Number(o.workers ?? 1);
-  const clips = allClips();
-  for (const k of positionals) if (!clips.some(c => c.key === k)) throw new Error(`unknown clip "${k}" (have: ${clips.map(c => c.key).join(', ')})`);
-  const selected = o.gallery ? [] : clips.filter(c => !positionals.length || positionals.includes(c.key));
-
+/** Renders clips one at a time (lint, QA, checks, stills, then video unless qaOnly), writes post.json, rebuilds the gallery. */
+export async function renderClips(selected: Clip[], o: { qaOnly?: boolean; snap?: string; workers?: number } = {}) {
+  const workers = o.workers ?? 1;
   let failed = 0;
   const summary: string[] = [];
   if (selected.length) {
@@ -318,14 +343,16 @@ if (import.meta.main) {
         const errors = [...lint.errors, ...qa.errors];
         const warnings = [...lint.warnings, ...qa.warnings];
         console.log(`  lint + QA + settled check + stills: ${qa.ms} ms, ${errors.length} errors, ${warnings.length} warnings; settled diff ${qa.settled.differing} px`);
+        if (qa.handoff.length) console.log(`  hand-off frames: ${qa.handoff.map(h => `@${h.at}s ${h.differing} px`).join(', ')}`);
+        for (const l of qa.loops) console.log(`  loop ${l.at[0]}–${l.at[1]}s: end vs start ${l.differing} px; wrap step (last → first) ${l.wrapStep} px vs first step ${l.firstStep} px`);
         for (const e of errors) console.log(`  ERROR ${e}`);
         for (const w of warnings.slice(0, 8)) console.log(`  warn  ${w}`);
 
         let video: string | undefined;
         let renderMs = 0;
-        if (!o['qa-only'] && errors.length) {
+        if (!o.qaOnly && errors.length) {
           console.log('  skipping the video: fix the QA errors first');
-        } else if (!o['qa-only']) {
+        } else if (!o.qaOnly) {
           const fields: Record<string, unknown> = {
             lab: LAB_ID, run_id: `${LAB_ID}-${c.key}`, direction: c.dir, family: 'logo-motion', post: c.key, frames, fps: FPS, duration_s: c.duration,
             engine: `hyperframes-${HF_VERSION}/chrome-headless-shell-156`, workers, browser_gpu: 'software (SwiftShader)', crf: CRF,
@@ -364,6 +391,7 @@ if (import.meta.main) {
         const rec: PostRecord = {
           key: c.key, label: `${c.label} · ${c.duration} s, settled from ${c.settleAt} s (frame ${holdFrame})`, caption: '', family: 'logo-motion',
           renderedAt: new Date().toISOString(), dir: c.dir, duration: c.duration, settleAt: c.settleAt, slides,
+          ...(c.chain ? { chain: c.chain, handoff: qa.handoff, loops: qa.loops } : {}),
         };
         writeFileSync(join(outDir, 'post.json'), JSON.stringify(rec, null, 1) + '\n');
       }
@@ -377,4 +405,24 @@ if (import.meta.main) {
   if (summary.length) console.log('\n' + summary.join('\n'));
   console.log(`\ngallery: content/labs/${LAB_ID}/index.html (serve with: node tools/review.ts → /content/labs/${LAB_ID}/)`);
   if (failed) process.exitCode = 1;
+}
+
+if (import.meta.main) {
+  const { values: o, positionals } = parseArgs({ allowPositionals: true, options: {
+    'qa-only': { type: 'boolean' }, gallery: { type: 'boolean' }, workers: { type: 'string' }, snap: { type: 'string' },
+    chain: { type: 'string' }, key: { type: 'string' }, ground: { type: 'string' }, reveal: { type: 'string' }, place: { type: 'string' },
+  } });
+  if (o.chain) {
+    // An ad-hoc chain of modules (lab/logo/chain.ts), rendered into the L4 section of the gallery.
+    const items = o.chain.trim().split(/\s+/);
+    const key = o.key ?? `chain-${items.map(p => p.replace(/[^\w]+/g, '')).join('-')}`.slice(0, 60).toLowerCase();
+    console.log(plan(items).map(st => `${st.name.padEnd(12)} ${st.from} → ${st.to}  ${st.t0}–${+(st.t0 + st.dur).toFixed(3)} s`).join('\n'));
+    const c = chain({ key, dir: 'L4', label: `Chain [${items.join(' → ')}]`, items, ground: o.ground as GroundKey | undefined, reveal: o.reveal as GroundKey | undefined, place: o.place as 'center' | 'mast' | undefined });
+    await renderClips([c], { qaOnly: o['qa-only'], snap: o.snap, workers: Number(o.workers ?? 1) });
+    process.exit();
+  }
+  const clips = allClips();
+  for (const k of positionals) if (!clips.some(c => c.key === k)) throw new Error(`unknown clip "${k}" (have: ${clips.map(c => c.key).join(', ')})`);
+  const selected = o.gallery ? [] : clips.filter(c => !positionals.length || positionals.includes(c.key));
+  await renderClips(selected, { qaOnly: o['qa-only'], snap: o.snap, workers: Number(o.workers ?? 1) });
 }

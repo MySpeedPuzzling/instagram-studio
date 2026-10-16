@@ -23,8 +23,13 @@ Updated 2026-10-16.
 - [x] Logo intro/outro research (Rive vs SVG+GSAP vs Lottie: GSAP in HyperFrames for Reels, Rive for the website later).
 - [x] LM1 logo motion lab (2026-10-16): rigged logo (`assets/brand/speedpuzzling-logo-rig.svg`, 0 px diff), 5 intros,
       3 outros, 4 app-splash cuts (`lab/logo/`).
-- [ ] Owner picks an intro/outro (Claude's pick: E Start + O1 Lockup) → use in Reels; port the splash to Rive/Lottie for
-      the mobile app (task for the app).
+- [x] LM1 round 2: connectable modules on one hand-off frame (`lab/logo/chain.ts`, `--chain "converge drop hold:0.6 breakup"`),
+      new intros (rain, converge, sweep, jigsaw, relay), break-up outro, ≤ 1 s Android splash cuts, 1.2 s loading loop +
+      reduced-motion loop, 0.6 s loop-back Reel sting, example chains (app, event opener, brand Reel).
+- [ ] Owner picks in LM1 (Claude's picks: F2 Converge for intro/splash, no Reel outro but the 0.6 s sting, P Break-up for
+      long formats) → hand the app team the splash/loader spec (Android AVD ≤ 1 s inside a 192 dp circle, no masks or
+      outline, so a coral/white ground; iOS static launch screen; reduced motion) and ask for cold-start times.
+- [ ] Trial Reels test: the same Reel with no outro / 0.6 s sting / full outro (skip rate, avg watch time, sends, follows).
 - [ ] Decide the series of `75-years` (milestone = coral in H3, or fun with the timely stories).
 - [ ] Feedback still to collect: DL3 visuals, AI1 images.
 - [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.

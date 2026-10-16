@@ -76,6 +76,108 @@ Typography: the outro text is Rubik with slashed-zero tabular figures. The domai
 can hold or loop until loading finishes) or in Lottie (a fixed animation). Both can take the timings above and the rig's part
 ids. LM1 delivers the MP4 and the final PNG only. The research note covers Rive plans and the splash-screen question.
 
+## Round 2: modules that chain together
+
+Owner, 16 Oct 2026: "try the background to be assembled from puzzle pieces before the logo arrives, or maybe some other
+creative ideas too", then "I'd like the new creative ideas that we can then connect together". Durations follow
+`research_notes/MSP Instagram design and growth toolkit/logo_motion_durations.md`.
+
+**Everything meets on one hand-off frame**: the settled outlined logo, centred (540, 960), 640 px wide, on the ground (navy by
+default). Every round-2 intro ends on it, and every outro and loop starts on it. So any intro, any content and any outro cut
+together without a jump. `render.ts` checks that every hand-off moment in a clip equals that frame rendered alone, pixel for
+pixel (all 0 px).
+
+Code: `lab/logo/chain.ts`. Each module goes from one state to another (`table`, `ground`, `handoff`, `lockup`, `out`), and
+`chain()` refuses a chain whose states don't line up. Every duration is a parameter: `name:seconds` retimes the whole module
+proportionally.
+
+| Module (alias) | States | Default | What happens |
+|---|---|---|---|
+| `rain` (F1) | table → ground | 1.30 s | the 9:16 ground rains in from the top as a real 6×11 generator jigsaw (diagonal wave) onto a darker table; seams fade |
+| `converge` (F2) | table → ground | 1.05 s | the ground's pieces fly in, outer ring first; the pieces under the logo's spot lock last |
+| `drop` (F2-arrival) | ground → handoff | 0.62 s | the whole logo drops into the spot (scale 1.5 → 1); the hand ticks twice into 12 |
+| `start` (E-arrival) | ground → handoff | 1.38 s | the E · Start beat: stopwatch, crown press, a lap, the piece snaps out |
+| `jigsaw` (H) | ground → handoff | 2.20 s | the outlined logo cut into a 5×4 jigsaw flies in and locks, the seams close, it resolves into the mark; hand + trail lap |
+| `relay` (J) | ground → handoff | 1.74 s | coral, sky and indigo sweep across with a real jigsaw leading edge; the last runner, navy, carries the logo in; a lap |
+| `sweep` (G) | table → handoff | 1.64 s | clock wipe: the dial sits on the table; its hand runs a lap and a radial edge wipes the ground in behind it |
+| `idle` (loop) | handoff → handoff | 1.20 s | loading loop: hand + trail run one linear lap, the logo breathes 1.5 %; seamless |
+| `idle-reduced` | handoff → handoff | 2.40 s | reduced motion: no rotation, no scale; the static logo breathes in opacity (1 → 0.55 → 1) |
+| `sting` (reel-sting) | handoff → handoff | 0.60 s | loop-friendly Reel sting: a quick lap, the piece clicks at 12, back exactly to the start frame |
+| `hold` | any | 0.50 s | nothing moves |
+| `lockup` (O1-exit) | handoff → lockup | 1.20 s | the logo rises into the lockup, hand + trail lap, myspeedpuzzling.com wipes in, @myspeedpuzzling |
+| `breakup` (P) | handoff → lockup | 1.96 s | lockup, then the ground cracks along its jigsaw seams and falls away, revealing ocean (`--reveal`) |
+| `exit` (app-exit) | handoff → out | 0.30 s | splash exit: the logo snaps away and the ground falls away to the app's white (`--reveal`) |
+
+Item syntax: `name[:seconds][@offset]`. A negative offset overlaps the previous module; for example, `drop@-0.24` lands the logo
+as the last ground piece locks. An `exit` or `breakup` swaps the ground underneath the pieces at the crack, so the clip ends
+on the reveal ground.
+
+```sh
+node lab/logo/render.ts --chain "converge drop@-0.24 hold:0.6 breakup"            # ad-hoc chain → gallery section L4
+node lab/logo/render.ts --chain "F1 E-arrival hold:0.5 P" --key=my-chain --qa-only
+node lab/logo/render.ts --chain "sting:0.5" --place=mast                           # on the Reel masthead logo
+node lab/logo/render.ts --chain "converge:0.6 drop:0.36@-0.14" --ground=paper
+```
+
+### Round-2 clips (new codes; the round-1 codes are unchanged)
+
+| Code | Clip | Chain | Length (to hand-off) |
+|---|---|---|---|
+| L1-6 | F1 · Rain | rain → start | 3.2 s (2.68) |
+| L1-7 | F2 · Converge | converge → drop@-0.24 | 2.0 s (1.43) |
+| L1-8 | G · Sweep | sweep | 2.2 s (1.64) |
+| L1-9 | H · Jigsaw | jigsaw | 2.7 s (2.20) |
+| L1-10 | J · Relay | relay | 2.3 s (1.74) |
+| L2-4 | P · Break-up (starts on the hand-off frame) | breakup | 2.5 s (settled 1.96) |
+| L3-9…12 | App overlay F2 · Converge, coral / white, clip + final still | converge → drop | 2.0 s (1.43) |
+| L3-13…20 | **System-splash cuts ≈ 0.8 s**: F2 · Converge and E · Start, coral / white, clip + final still | converge:0.6 → drop:0.36@-0.14; start:0.8 | 1.4 / 1.3 s (0.82 / 0.80, then hold) |
+| L4-1 | Loading loop | idle | 1.2 s, seamless |
+| L4-2 | Loading loop, reduced motion | idle-reduced | 2.4 s, seamless |
+| L4-3 | (c) Reel-end sting on the masthead logo, loops back to frame 0 | sting (place: mast) | 0.6 s, seamless |
+| L4-4 | (a) App: ground ≤ 1 s → logo → loop × 2 → exit | converge:0.7 → drop:0.4@-0.16 → idle → idle → exit | 4.0 s (logo at 0.94, exit 3.34–3.64) |
+| L4-5 | (b) Event / stream opener | relay → hold:0.6 → lockup | 4.1 s (lockup at 3.54) |
+| L4-6 | Pinned brand Reel / long-form: ground in, logo, ground out (F → P mirror) | converge → drop → hold:0.6 → breakup | 4.5 s |
+
+**How the durations follow the research:**
+
+- **Android system splash ≤ 1,000 ms** (target 600–900 ms): the 0.8 s cuts (L3-13…20) settle at 0.80–0.82 s and then hold the
+  final frame. The 1.4–2 s versions stay as the in-app overlay option.
+- **Splash exit 200–300 ms**: `exit` defaults to 0.3 s.
+- **Loading loop 1.0–1.5 s per lap**, constant speed: `idle` is 1.2 s, linear. The app shows it only after 500 ms, keeps it at
+  least 500 ms, and switches to a message after 5–10 s. Those are app rules, not part of the clip.
+- **Reduced motion**: `idle-reduced` (L4-2). The splash then shows the static final frame (the `-final.png` stills).
+- **Reels**:
+  - No logo intro.
+  - By default no outro either.
+  - The 0.6 s `sting` sits on the Reel's own last beat (masthead logo) and resolves back into frame 0.
+  - The full lockup outros (O1–O3, P, L4-5/6) are for long Reels, the pinned brand Reel and event screens.
+
+**Checks added in round 2:**
+
+- **Hand-off frames**: every module boundary at the hand-off state, rendered in the chain, must equal the hand-off frame
+  rendered alone. 0 px for all 18 clips.
+- **Seamless loops**: the frame at a loop's end must equal the frame at its start. 0 px for every loop. The idle loop's wrap
+  step (last frame → first) is 17,327 px against 17,422 px for an ordinary step, so there is no jump. The sting holds its
+  last frame. The reduced loop changes less than one level per frame.
+
+**Port to the Android system splash (AVD, not built yet):**
+
+- **E · Start** (its 0.8 s cut, L3-15/19) is the easiest to port:
+  - It needs only group transforms: scale about the dial pivot, the crown's translate, and the hands' rotation.
+  - The trail ghosts appear as instant alpha changes, which an AVD can animate.
+  - Its stopwatch-case helper is a gradient-filled circle.
+- **C · Tick** is next. Its ring draw-on maps to `trimPathEnd`.
+- The ground modules (F, G, J) and the jigsaw (H) can't be in the system splash. The AVD is only the icon, on a single opaque
+  colour.
+- **Whichever variant is ported**, a few things change:
+  - The 10 gradient opacity masks (knob shading, corner shine, dial glass) must be baked into gradient fills with alpha stops.
+    Note: the masks are not on the trails, which are plain alpha fills.
+  - The white outline is a filter, so it can't be used. Pick a splash colour where the navy mark reads without it (white or
+    coral), or draw the outline once as an offset path.
+  - The depth gradient goes too: the background must be one flat colour (paper `#f3f6fa`, coral `#ec726f`).
+- **Size**: the logo must sit inside the 192 dp circle on the 432 dp canvas. That makes the mark about 144 dp wide (its
+  diagonal is 192 dp).
+
 ## Render
 
 ```sh
@@ -84,13 +186,16 @@ node lab/logo/rig-check.ts [--out=DIR]            # rig vs source, pixel by pixe
 node lab/logo/render.ts --qa-only [--snap=DIR]    # lint + QA + settled check + stills, no video (~0.3 s per clip)
 node lab/logo/render.ts [keys…]                   # render (one at a time, 1 worker), then the manifests + gallery
 node lab/logo/render.ts --gallery                 # manifests + gallery only
+node lab/logo/render.ts --chain "<items>" [--key=…] [--ground=…] [--reveal=…] [--place=mast] [--qa-only]
 ```
 
 **Code:**
 
 - `lab/logo/shared.ts`: the inline rig with its halo, placements, and GSAP snippets (sweep, lap, speed lines, scale-in,
   outline split/join).
-- `lab/logo/clips.ts`: the eight variants and the splash picks (`SPLASH_PICKS`).
+- `lab/logo/clips.ts`: the round-1 variants, the splash picks (`SPLASH_PICKS`), and the catalogue (`allClips()`, round 2
+  appended).
+- `lab/logo/chain.ts`: the round-2 modules, `chain()`, `plan()`, the hand-off frame, and the round-2 catalogue (`round2()`).
 - `lab/logo/render.ts`: the renderer, adapted from `lab/dl4/reels/render.ts`. It has the same safety rules: telemetry off,
   Playwright's headless shell, and it never runs `hyperframes usage|publish|cloud|skills|open`.
 
@@ -142,3 +247,25 @@ All 12 clips took 1 min 41 s end to end.
   joined to a Reel.
 - **By eye**: I checked every 6th frame extracted from each MP4, plus the QA-time frames. Frame 0 never flashes the logo,
   nothing is clipped, and the halo follows the moving parts.
+
+### Round 2 (16 Oct 2026, final renders)
+
+The conditions were the same: Docker off, memory pressure 1, 83–85 % free, swap steady at 1.31 GB. There were 18 clips, one
+at a time.
+
+| | per clip |
+|---|---|
+| HyperFrames render | 2.5 s (the 0.6 s sting) to 8.7 s (the 4.5 s chain); 61–137 ms per frame |
+| HyperFrames peak RSS | 0.61–1.64 GB |
+| Normalise | 0.7–9.4 s |
+| Whole metered run | 3.2–18.3 s, process-tree peak 1.15–2.19 GB |
+| Final MP4 | 0.29–6.26 MB |
+
+**Results:**
+
+- **QA**: 0 errors and 0 warnings for all 18 clips (`hyperframes lint` included).
+- **Settled check**: 0 px.
+- **Hand-off and loop checks**: 0 px.
+- **Spec**: passes for all 18. Chain lengths are rounded up to whole 0.1 s, so frame counts are exact.
+- **By eye**: I checked every 5th frame of each MP4 and the QA frames.
+

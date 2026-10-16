@@ -19,6 +19,7 @@
 //          the hand hits 12, and the domain types itself in.
 //   arrive the logo races into the lockup and brakes (as race), the domain slides in behind it with a wipe.
 import { GROUNDS, posterTopPath, type Ground, type GroundKey } from '../../src/design/house.ts';
+import { round2 } from './chain.ts';
 import { generateJigsaw } from '../../src/pieces/jigsaw.ts';
 import {
   composition, DIAL_ORIGIN, f1, H, hideAt, INK, LOGO_CSS, lapWithTail, lockupText, logoSvg, outlineJoin, outlineSplit, PLACE,
@@ -32,8 +33,8 @@ const { cx: DCX, cy: DCY } = RIG.dial;
 const CASE_R = DCY - RIG.parts.silhouette.box.y0;   // outer radius of the case outline (its round top)
 const RING = { r: ((RIG.parts['dial-ring'].box.x1 - RIG.parts['dial-ring'].box.x0) / 2) - 100.25, w: 200.5 };
 
-interface Opts { ground: GroundKey; dir: Clip['dir']; key: string; label: string }
-type Builder = (o: Opts) => Clip;
+export interface Opts { ground: GroundKey; dir: Clip['dir']; key: string; label: string }
+export type Builder = (o: Opts) => Clip;
 
 /**
  * Wraps a clip's markup and timeline into a composition. Two fix-ups on the script:
@@ -43,13 +44,13 @@ type Builder = (o: Opts) => Clip;
  *     1e-5 units) makes Chromium rasterise the mark and its halo differently (up to Δ 72 on edges), so the settled
  *     frames would not be the exact brand mark.
  */
-function clip(o: Opts, c: { duration: number; settleAt: number; qaAt: number[]; css?: string; body: string; script: string }): Clip {
+export function clip(o: Opts, c: { duration: number; settleAt: number; qaAt: number[]; css?: string; body: string; script: string; assets?: Record<string, string> }): Clip {
   const ground: Ground = GROUNDS[o.ground];
   const script = c.script.replace(/tl\.set\(([^;]*?), 0\);/g, 'gsap.set($1);')
     + `\ntl.set('#logo g, #logo path', { clearProps: 'transform' }, ${c.settleAt});`;
   c = { ...c, script };
   return {
-    key: o.key, dir: o.dir, label: o.label, duration: c.duration, settleAt: c.settleAt, qaAt: c.qaAt, ground,
+    key: o.key, dir: o.dir, label: o.label, duration: c.duration, settleAt: c.settleAt, qaAt: c.qaAt, ground, assets: c.assets,
     html: composition({ id: o.key, title: `LM1 ${o.key}`, duration: c.duration, ground, css: LOGO_CSS + (c.css ?? ''), body: c.body, script: c.script }),
   };
 }
@@ -273,7 +274,7 @@ export const arrive: Builder = o => {
 
 export const INTROS = { snap, race, tick, reveal, start } as const;
 export const OUTROS = { lockup, lap, arrive } as const;
-/** The two intros cut as app splash screens on coral and paper (picked after the navy renders; see README). */
+/** Round 1: the two intros cut as app splash screens (round 2's splash cuts are in chain.ts). */
 export const SPLASH_PICKS: Array<keyof typeof INTROS> = ['start', 'tick'];
 
 const NAME: Record<string, string> = {
@@ -283,11 +284,15 @@ const NAME: Record<string, string> = {
 
 export function allClips(): Clip[] {
   const out: Clip[] = [];
+  const r2 = round2();
   for (const [k, b] of Object.entries(INTROS)) out.push(b({ ground: 'navy', dir: 'L1', key: `intro-${k}`, label: `Intro ${NAME[k]} (navy)` }));
+  // Round 2 (lab/logo/chain.ts) is appended after round 1 in every direction, so the round-1 gallery codes stay stable.
+  out.push(...r2.L1);
   for (const [k, b] of Object.entries(OUTROS)) out.push(b({ ground: 'navy', dir: 'L2', key: `outro-${k}`, label: `Outro ${NAME[k]} (navy)` }));
+  out.push(...r2.L2);
   for (const k of SPLASH_PICKS) for (const g of ['coral', 'paper'] as const) {
     out.push(INTROS[k]({ ground: g, dir: 'L3', key: `splash-${k}-${g}`, label: `App splash ${NAME[k]} (${g === 'paper' ? 'white with depth' : g})` }));
   }
+  out.push(...r2.L3, ...r2.L4);
   return out;
 }
-

@@ -45,6 +45,9 @@ grounds; content and concepts approved everywhere; Reels confirmed. Brief: `docs
 
 ## Plan for the next working day
 
+Ready-made prompt for a fresh session: `docs/next-session-prompt.md`.
+
+
 - **Daytime, any time (light, Docker can stay on):** build DL4 (house system + all approved content combined in it
   + mock profile grid). HTML/SVG renders and short Reels need no quiet hours.
 - **Daytime prep for the night:** IL1 illustration lab: write the style directions and prompts, the scaffolds and

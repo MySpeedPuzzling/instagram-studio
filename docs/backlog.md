@@ -29,6 +29,11 @@ Updated 2026-10-16.
 - [ ] Feedback still to collect: DL3 visuals, AI1 images.
 - [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.
 
+- [ ] **GIPHY sticker pack** (owner: "awesome idea", 2026-10-16) so players can put MSP in their own Stories:
+      animated stickers from the logo rig (e.g. stopwatch sweep, piece snap, "New PB!", "Puzzle done", "MSP"), transparent
+      GIF/WebP per GIPHY specs; needs a GIPHY brand channel (verified to be searchable in Instagram). Research specs +
+      verification steps, then prototype in LM1. Durations/notes: `research_notes/…/logo_motion_durations.md`.
+
 ## Build: from labs to production
 
 - [ ] `src/posts/<series>.ts` builders: one per chosen series (Weekly Numbers, Puzzle of the week, Atlas, Museum,

@@ -136,3 +136,10 @@ Docker and other unneeded apps turned off.
 - **Branding more notable** (owner): every post promotes MSP. The house footer sets **myspeedpuzzling.com** in bold
   ink (32 px) in the source line, leading the line when a slide's source doesn't name the site, and the outlined logo
   grows to 112 px (≈ 1.8× DL1). Reels carry the same lockup in their header (logo 100 px).
+
+## 2026-10-16: priorities and keeping the labs
+
+- **Next goal, most important: decide the house style** (DL4: H1/H2/H3, per-slide feedback, what we use), in a fresh
+  session dedicated to it. Decisions on Reels (intro/outro, LM1) and illustrations (IL1, J1) come later.
+- **Keep everything in the labs** as a reference: never delete lab renders, variants, AI images or feedback, and
+  don't remove losing variants from the code; the chosen style becomes the default, the others stay renderable.

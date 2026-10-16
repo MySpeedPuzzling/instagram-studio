@@ -61,6 +61,9 @@ Updated 2026-10-16.
 
 ## Repo, security, ops
 
+- [ ] Back up `content/labs/` (1.3 GB, gitignored, the only copy of AI images and the owner's feedback; no Time Machine
+      destination configured on 2026-10-16). Owner to choose where (external disk / Time Machine / private cloud).
+
 - [ ] Create the public GitHub repo, enable push protection; run a full-history secret scan (gitleaks) before the
       first push; then push. (The local pre-commit hook already blocks `.env` values, hostnames and credential shapes.)
 - [ ] Optional: install gitleaks as a second pre-commit scanner.

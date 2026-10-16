@@ -29,24 +29,17 @@ H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran
 
 ## Waiting for the owner
 
-1. **DL4 verdict**: open `node tools/review.ts` → "House system (DL4)". Compare the three profile grids and the
-   side-by-side rows, give a verdict per variant (H1/H2/H3) and per slide where useful; J1 asks which drawing approach
-   the funny facts should use (A real pieces/boxes, B flat poster, C type-led). Feedback lands in
-   `content/labs/DL4/feedback.jsonl`.
-2. **LM1 logo motion**: review app → "Logo motion (LM1)": connectable modules (`lab/logo/README.md`), 10 intros,
-   4 outros, splash cuts (≤ 1 s for Android), loading loops, a 0.6 s loop-back Reel sting, example chains. Claude's
-   picks: F2 Converge (intro/splash), no Reel outro but the sting, P Break-up for long formats. Durations and use
-   cases: `research_notes/MSP Instagram design and growth toolkit/logo_motion_durations.md`.
-3. **IL1 review**: review app → "Illustration lab (IL1)" (Works / Unsure / No-go per image; `content/labs/IL1/SUMMARY.md`
-   has times and memory). Picks lead to a written style guide + reference set.
-4. Feedback still open on DL3 visuals and AI1 images (superseded in part by DL4). Small questions at the end of
-   `docs/backlog.md`.
+1. **Decide the house style (next session, the main goal).** Review app → "House system (DL4)": verdict per variant
+   (H1/H2/H3) and per slide, then decide what we use. Feedback lands in `content/labs/DL4/feedback.jsonl`.
+2. Later (not now): Reels intro/outro and logo motion (LM1), illustration style (IL1, J1 funny-fact approaches).
+3. Small questions at the end of `docs/backlog.md`.
 
 ## Next steps (in order)
 
-1. **Owner picks/adjusts a DL4 variant** → record in `docs/decisions.md`; fold the agents' house proposals (shared
-   art palette per ground, `cover()` with art in every layout, family CSS hook, shared geometry/board helpers,
-   `heroFitUnit`) into `src/design/house.ts` and drop the losing variants.
+1. **Owner decides the house style (DL4)** → record in `docs/decisions.md`; make the chosen variant the default and
+   fold the agents' house proposals (shared art palette per ground, `cover()` with art in every layout, family CSS
+   hook, shared geometry/board helpers, `heroFitUnit`) into `src/design/house.ts`. Keep the other variants renderable
+   (owner: keep every lab as a reference).
 2. **IL1 review** (done generating), then a written illustration style guide + reference set (Instagram, possibly
    the MSP website).
 3. **Productise the chosen series** (see backlog "Build"): parametric post builders in `src/posts/` on the house

@@ -20,8 +20,11 @@ Updated 2026-10-16.
 - [x] IL1 run (2026-10-16 10:58–15:05, 199/199 images, 0 failures).
 - [ ] IL1 owner review → style guide + reference set (may lead to a task in the MSP repo for the website).
 - [x] DL4 Reel videos re-rendered with the bigger branding (2026-10-16, 12/12 spec ok).
-- [ ] Logo intro/outro animation (owner idea 2026-10-16) for Reels and maybe the website: research Rive vs SVG+GSAP in
-      HyperFrames vs Lottie (`research_notes/MSP Instagram design and growth toolkit/rive_and_logo_motion.md`), then prototype.
+- [x] Logo intro/outro research (Rive vs SVG+GSAP vs Lottie: GSAP in HyperFrames for Reels, Rive for the website later).
+- [x] LM1 logo motion lab (2026-10-16): rigged logo (`assets/brand/speedpuzzling-logo-rig.svg`, 0 px diff), 5 intros,
+      3 outros, 4 app-splash cuts (`lab/logo/`).
+- [ ] Owner picks an intro/outro (Claude's pick: E Start + O1 Lockup) → use in Reels; port the splash to Rive/Lottie for
+      the mobile app (task for the app).
 - [ ] Decide the series of `75-years` (milestone = coral in H3, or fun with the timely stories).
 - [ ] Feedback still to collect: DL3 visuals, AI1 images.
 - [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.

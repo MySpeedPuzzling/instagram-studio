@@ -33,9 +33,11 @@ H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran
    side-by-side rows, give a verdict per variant (H1/H2/H3) and per slide where useful; J1 asks which drawing approach
    the funny facts should use (A real pieces/boxes, B flat poster, C type-led). Feedback lands in
    `content/labs/DL4/feedback.jsonl`.
-2. **IL1 review**: review app → "Illustration lab (IL1)" (Works / Unsure / No-go per image; `content/labs/IL1/SUMMARY.md`
+2. **LM1 logo motion**: review app → "Logo motion (LM1)": 5 intros, 3 outros, 4 app-splash cuts (Claude's pick:
+   E Start + O1 Lockup).
+3. **IL1 review**: review app → "Illustration lab (IL1)" (Works / Unsure / No-go per image; `content/labs/IL1/SUMMARY.md`
    has times and memory). Picks lead to a written style guide + reference set.
-3. Feedback still open on DL3 visuals and AI1 images (superseded in part by DL4). Small questions at the end of
+4. Feedback still open on DL3 visuals and AI1 images (superseded in part by DL4). Small questions at the end of
    `docs/backlog.md`.
 
 ## Next steps (in order)

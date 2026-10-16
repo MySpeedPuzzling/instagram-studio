@@ -131,7 +131,12 @@ licence and resources used; they sort, they don't decide. Mark the candidates yo
 illustration style, applied to the same funny-fact jokes and site spots so you can compare styles subject by subject. Each row
 is one subject on one model (the core model first, a second model as a control). I6 restyles code-drawn layouts whose puzzle
 pieces come from the generator; the first slide of each I6 row is that input. First judge each style as a whole (the verdict
-box), then mark single images. The aim is ONE style for Instagram and maybe the website.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
+box), then mark single images. The aim is ONE style for Instagram and maybe the website.</p>` : labId.startsWith('LM') ? `<p>Here are short
+logo animations of the real MSP mark (rigged, so every part can move): <b>L1</b> intros that end on the settled logo (the start
+of a Reel), <b>L2</b> outros that end on the logo with myspeedpuzzling.com (the end of a Reel), and <b>L3</b> the two most promising
+intros as a phone app splash screen on coral and on white, each with the final still the app would hold. They're silent and
+2–2.4 s long, so they don't loop well on their own: play each a few times. Judge the idea and the feel (quick, crisp, on brand?)
+more than single frames. A splash pick would later be rebuilt in Rive or Lottie for the app; the timing and look carry over.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
 are worth having in the feed, which need work, and which are no-gos.</p>`}
 <h3>How to give feedback</h3>
 <p>Every slide has a code like <b>D4-3</b>. Under each slide tap <b>Works</b>, <b>Unsure</b> or <b>No-go</b> and, if you like,
@@ -144,12 +149,12 @@ ${keys.some(key => dirs.filter(d => d.posts.some(p => p.key === key)).length > 1
 ${keys.filter(key => dirs.filter(d => d.posts.some(p => p.key === key)).length > 1).map(key => `<h3>${h(POST_LABEL[key] ?? key)}</h3>
 <div class="row">${dirs.filter(d => coded[d.id].some(p => p.key === key)).map(d => `<div class="cell"><p class="label">${d.id} · ${h(d.name)}</p>${phone(coded[d.id].find(p => p.key === key)!.slides as CodedSlide[], key)}</div>`).join('')}</div>`).join('')}
 
-<h3>In the profile grid: each style's covers next to the real latest posts</h3>
+${labId.startsWith('LM') ? '' : `<h3>In the profile grid: each style's covers next to the real latest posts</h3>
 <div class="row">${dirs.map(d => {
     const covers = coded[d.id].filter(p => p.slides[0]?.frame === 'feed').map(p => p.slides[0].preview).slice(0, 6);
     const tiles = [...covers, ...realPosts].slice(0, 12);
     return `<div class="cell"><p class="label">${d.id} · ${h(d.name)}</p><div class="grid3">${tiles.map((t, i) => `<img src="${t}" class="${i >= covers.length ? 'real' : ''}" alt="">`).join('')}</div></div>`;
-  }).join('')}</div>
+  }).join('')}</div>`}
 
 ${dirs.map(d => `<section class="dir" id="${d.id}">
 <h2>${d.id} · ${h(d.name)}</h2><p class="idea">${h(d.idea)}</p>

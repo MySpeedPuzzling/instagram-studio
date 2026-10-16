@@ -127,7 +127,11 @@ the best result is usually a small system, e.g. one style for the regular feed a
 plus single devices borrowed from styles that don't make it.</p>` : labId.startsWith('AI') ? `<p>Here each section (E1, E2, …) is one experiment of the
 overnight AI image batch: AI paints only the stage (rooms, skies, water, materials, spot animals); code later adds the type, boxes
 and pieces. Each row is one prompt with its seeds. The lines under a slide are automatic code checks (ok/FAIL) and the model,
-licence and resources used; they sort, they don't decide. Mark the candidates you would post.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
+licence and resources used; they sort, they don't decide. Mark the candidates you would post.</p>` : labId.startsWith('IL') ? `<p>Here each section (I1–I6) is one
+illustration style, applied to the same funny-fact jokes and site spots so you can compare styles subject by subject. Each row
+is one subject on one model (the core model first, a second model as a control). I6 restyles code-drawn layouts whose puzzle
+pieces come from the generator; the first slide of each I6 row is that input. First judge each style as a whole (the verdict
+box), then mark single images. The aim is ONE style for Instagram and maybe the website.</p>` : `<p>Here each section (F1, F2, …) is a creative post format with a few examples. Tell me which formats
 are worth having in the feed, which need work, and which are no-gos.</p>`}
 <h3>How to give feedback</h3>
 <p>Every slide has a code like <b>D4-3</b>. Under each slide tap <b>Works</b>, <b>Unsure</b> or <b>No-go</b> and, if you like,
@@ -152,7 +156,7 @@ ${dirs.map(d => `<section class="dir" id="${d.id}">
 <div class="verdict"><p class="label" style="padding:10px 10px 0">Your verdict on ${d.id} as a whole</p>${rate(d.id, 'data-kind="direction"')}</div>
 <div class="tiles">${coded[d.id].flatMap(p => p.slides.map(s => `<div class="tile ${s.frame !== 'feed' ? 'story' : ''}">
   ${(s as CodedSlide).video ? `<video src="${(s as CodedSlide).video}" poster="${s.preview}" controls playsinline loop muted preload="none" style="width:100%;display:block"></video>` : `<a href="${s.jpg}" target="_blank"><img loading="lazy" src="${s.preview}" alt="${s.code}"></a>`}
-  <p class="code"><b>${s.code}</b> <span>${h(POST_LABEL[p.key] ?? p.key)}</span></p>${labId.startsWith('AI') && (s as { warnings?: string[] }).warnings?.length ? `<ul class="auto">${(s as { warnings: string[] }).warnings.map(w => `<li class="${/^auto FAIL/.test(w) ? 'fail' : /^auto ok/.test(w) ? 'pass' : ''}">${h(w)}</li>`).join('')}</ul>` : ''}${rate(s.code, `data-kind="slide" data-post="${p.key}"`)}</div>`)).join('')}</div>
+  <p class="code"><b>${s.code}</b> <span>${h(POST_LABEL[p.key] ?? p.key)}</span></p>${/^(AI|IL)\d/.test(labId) && (s as { warnings?: string[] }).warnings?.length ? `<ul class="auto">${(s as { warnings: string[] }).warnings.map(w => `<li class="${/^auto FAIL/.test(w) ? 'fail' : /^auto ok/.test(w) ? 'pass' : ''}">${h(w)}</li>`).join('')}</ul>` : ''}${rate(s.code, `data-kind="slide" data-post="${p.key}"`)}</div>`)).join('')}</div>
 </section>`).join('')}
 </main>
 <script>

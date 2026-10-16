@@ -16,7 +16,7 @@ import { join } from 'node:path';
 import { converter, differenceCiede2000 } from 'culori';
 import sharp from 'sharp';
 import { ROOT } from '../../src/render/server.ts';
-import type { Job, Zone } from './batch.ts';
+import type { Job, Zone } from '../ai/core.ts';
 import type { Rect } from './scaffolds.ts';
 
 type Img = { data: Buffer; w: number; h: number };

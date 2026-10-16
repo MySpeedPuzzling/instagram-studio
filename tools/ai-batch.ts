@@ -1,9 +1,11 @@
-// Overnight runner for the AI image lab batch AI1 (docs/ideas/brainstorm-2026-10.md §5, approved by the owner on
-// 2026-10-13). It generates nothing before the start time and the calm-machine check; it runs one model family at a
-// time (Z-Image → klein 4B → klein 9B → Qwen, the last only if calm at 28 GB; a family whose gate passes may go before
-// an earlier one that can't get its memory), frees memory between families, aborts on critical memory pressure or
-// > 4 GB swap growth, and records every image (model, licence, seed, prompt and workflow hashes, wall time, ComfyUI
-// peak memory, pressure and swap) in content/labs/AI1/runs.jsonl. Gallery and SUMMARY.md are rebuilt after each family.
+// Overnight runner for the AI image lab batches. A batch file (lab/<lab>/batch.ts, built on lab/ai/core.ts) holds the
+// spec: AI1 (docs/ideas/brainstorm-2026-10.md §5, the default) or IL1 (lab/ai2/batch.ts, the illustration lab). The
+// runner generates nothing before the start time and the calm-machine check; it runs one model family at a time (in
+// the batch's FAMILY_ORDER; a family whose gate passes may go before an earlier one that can't get its memory;
+// LAST_FAMILIES such as AI1's Qwen only at the end and only if they fit), frees memory between families, aborts on
+// critical memory pressure or > 4 GB swap growth, and records every image (model, licence, seed, prompt and workflow
+// hashes, wall time, ComfyUI peak memory, pressure and swap) in content/labs/<LAB>/runs.jsonl. Gallery and SUMMARY.md
+// are rebuilt after each family.
 // Test mode (mock API, separate lab id, never starts ComfyUI): AI1_TEST_MODE=1 AI_LAB_ID=AI1TEST COMFYUI_PORT=<mock>.
 //
 //   node tools/ai-batch.ts --dry-run       # plan, file checks and the calm check now; starts nothing
@@ -12,34 +14,30 @@
 //   node tools/ai-batch.ts                 # wait for 22:30 and calm, run, stop at 06:00 (launchd adds --scheduled)
 //   node tools/ai-batch.ts --now           # don't wait for the start time (still waits for calm)
 //   node tools/ai-batch.ts --force         # run although DONE.json exists; finished images are skipped
-//   node tools/ai-batch.ts --gallery       # rebuild manifests, the AI1 gallery and SUMMARY.md from what exists
+//   node tools/ai-batch.ts --gallery       # rebuild manifests, the lab gallery and SUMMARY.md from what exists
 //   node tools/ai-batch.ts --schedule [--at 22:30] [--date 2026-10-13]   # install the one-night launchd agent
 //   node tools/ai-batch.ts --unschedule
-// Options: --start HH:MM (22:30), --deadline HH:MM (06:00), --only E1,E4, --no-qwen
+// Options: --batch lab/ai2/batch.ts (default lab/ai1/batch.ts), --start HH:MM (22:30), --deadline HH:MM (06:00),
+//          --only E1,E4, --no-qwen
 import { execFileSync, spawn } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import sharp from 'sharp';
-import { EXPERIMENTS, FAMILIES, FAMILY_ORDER, LAB_ID, OUT_DIR, WORKFLOWS, familyFiles, fillWorkflow, jobs as allJobs, sha256, type FamilyId, type Job } from '../lab/ai1/batch.ts';
+import { WORKFLOW_DIR, type BatchModule, type CheckKind, type FamilyId, type Job, type RunnerCtx, type Slot } from '../lab/ai/core.ts';
 import { runChecks, type CheckResult } from '../lab/ai1/checks.ts';
 import {
   COMFY_FLAGS_LOGGED, alive, client, comfyArgs, comfyConfig, freePct, gpuStats, listenerPid, missingFiles, otherComfy, pressureLevel,
   sampleProc, sleep, startComfy, stopComfy, swapUsedGb, validateGraph, waitUp, type Client, type ComfyConfig, type ImageRef, type NodeInfo,
 } from '../lab/ai1/comfy.ts';
-import { SCAFFOLD_DIR, renderScaffolds, type Rect } from '../lab/ai1/scaffolds.ts';
 import { ROOT } from '../src/render/server.ts';
 import { calmCheck } from './calm.ts';
 
-process.env.LAB = LAB_ID.toLowerCase(); // lab/dl1/run.ts reads LAB when finalize() imports it
-// Test mode (AI1_TEST_MODE=1 with AI_LAB_ID set to another lab id): the calm gate is logged but treated as passed and a
-// real ComfyUI is never started, so the control flow can be exercised against a mock API without generating anything.
-const TEST = process.env.AI1_TEST_MODE === '1';
-if (TEST && LAB_ID === 'AI1') throw new Error('AI1_TEST_MODE needs AI_LAB_ID set to a test lab id, never AI1');
-
 const { values: opt } = parseArgs({
   options: {
+    batch: { type: 'string', default: 'lab/ai1/batch.ts' },
     'dry-run': { type: 'boolean' }, validate: { type: 'boolean' }, status: { type: 'boolean' }, gallery: { type: 'boolean' },
     now: { type: 'boolean' }, force: { type: 'boolean' }, scheduled: { type: 'boolean' }, 'no-qwen': { type: 'boolean' },
     schedule: { type: 'boolean' }, unschedule: { type: 'boolean' }, at: { type: 'string' }, date: { type: 'string' },
@@ -47,13 +45,35 @@ const { values: opt } = parseArgs({
   },
 });
 
+// The batch spec. Both batch files must fit the runner's contract (checked at compile time only).
+type Conforms<T extends BatchModule> = T;
+export type BatchFilesConform = [Conforms<typeof import('../lab/ai1/batch.ts')>, Conforms<typeof import('../lab/ai2/batch.ts')>];
+const BATCH_FILE = resolve(ROOT, opt.batch!);
+const BATCH_REL = relative(ROOT, BATCH_FILE);
+if (!existsSync(BATCH_FILE)) throw new Error(`--batch ${opt.batch}: no such file`);
+const B = (await import(pathToFileURL(BATCH_FILE).href)) as BatchModule;
+const { EXPERIMENTS, FAMILIES, FAMILY_ORDER, LAB_ID, OUT_DIR, WORKFLOWS, familyFiles, fillWorkflow, sha256 } = B;
+const allJobs = () => B.jobs();
+const hooks = B.hooks ?? {};
+const LAST = B.LAST_FAMILIES ?? [];
+/** Experiment ids in spec order (E1…E5, I1…I6): manifests, summary and status follow it. */
+const EXP_IDS = [...new Set(EXPERIMENTS.map(e => e.id))];
+const lab = LAB_ID.toLowerCase();
+
+process.env.LAB = lab; // lab/dl1/run.ts reads LAB when finalize() imports it
+// Test mode (AI1_TEST_MODE=1 with AI_LAB_ID set to a test lab id such as AI1TEST or IL1TEST): the calm gate is logged
+// but treated as passed and a real ComfyUI is never started, so the control flow can be exercised against a mock API
+// without generating anything.
+const TEST = process.env.AI1_TEST_MODE === '1';
+if (TEST && (!process.env.AI_LAB_ID || /^[A-Z]+\d+$/.test(LAB_ID))) throw new Error('AI1_TEST_MODE needs AI_LAB_ID set to a test lab id (e.g. AI1TEST), never a real lab id');
+
 const F = {
   state: join(OUT_DIR, 'state.json'), done: join(OUT_DIR, 'DONE.json'), lock: join(OUT_DIR, 'runner.pid'), runs: join(OUT_DIR, 'runs.jsonl'),
   log: join(OUT_DIR, 'batch.log'), comfyLog: join(OUT_DIR, 'comfyui.log'), summary: join(OUT_DIR, 'SUMMARY.md'), validation: join(OUT_DIR, 'validation.json'),
   launchdLog: join(OUT_DIR, 'launchd.log'),
 };
-const REL = OUT_DIR.slice(ROOT.length + 1); // content/labs/AI1
-const LABEL = 'cz.myspeedpuzzling.instagram.ai1';
+const REL = OUT_DIR.slice(ROOT.length + 1); // content/labs/<LAB>
+const LABEL = B.LABEL ?? `cz.myspeedpuzzling.instagram.${lab}`;
 const PLIST = join(homedir(), 'Library/LaunchAgents', `${LABEL}.plist`);
 const DISK_MIN_GB = 30;
 const JOB_TIMEOUT_MS = 15 * 60_000; // the lab's GPU-turn cap
@@ -109,7 +129,9 @@ type FamState = { status: string; note?: string; started?: string; ended?: strin
 interface State {
   pid: number; started: string; updated: string; phase: string; window: { start: string; deadline: string };
   family?: FamilyId; job?: string; job_started?: string; comfy?: { pid?: number; ours: boolean; port: number; engine?: string };
-  families: Partial<Record<FamilyId, FamState>>; last_calm?: CalmCompact & { family: FamilyId }; e5_source?: string;
+  families: Partial<Record<FamilyId, FamState>>; last_calm?: CalmCompact & { family: FamilyId };
+  /** Values the batch's hooks keep for the night (AI1: e5_source; older AI1 state files have it at the top level). */
+  picks?: Record<string, string>;
 }
 let state: State;
 const saveState = (patch: Partial<State> = {}) => { Object.assign(state, patch, { updated: iso() }); writeFileSync(F.state, JSON.stringify(state, null, 1) + '\n'); };
@@ -139,7 +161,7 @@ let comfy: { pid?: number; ours: boolean; engine?: string } = { ours: false };
 let aborted = false;
 const wake = new Set<() => void>();
 function nap(ms: number) { return new Promise<void>(r => { const t = setTimeout(done, ms); function done() { clearTimeout(t); wake.delete(done); r(); } wake.add(done); }); }
-const CLIENT_ID = `msp-ai1-${process.pid}`;
+const CLIENT_ID = `msp-${lab}-${process.pid}`;
 
 async function ensureComfy(): Promise<boolean> {
   if (await api.up()) {
@@ -202,30 +224,22 @@ async function waitCalm(cands: Array<{ f: FamilyId; giveUpAt: Date }>): Promise<
   }
 }
 
-const scaffold = (name: string) => readJson<{ slots: Array<{ id: string; kind: 'box' | 'label'; gen: Rect }> }>(join(SCAFFOLD_DIR, `${name}.json`));
-
-/** E5 relights the E4 shelf whose slots stayed closest to the code rectangles (picked by code, not taste). */
-async function pickE4Shelf(): Promise<string | undefined> {
-  if (state?.e5_source && existsSync(state.e5_source)) return state.e5_source;
-  const shelf = scaffold('shelf');
-  let best: { file: string; key: number[] } | undefined;
-  for (const j of allJobs().filter(x => x.exp === 'E4' && x.reference === 'shelf' && isDone(x))) {
-    const c = await checksFor(j, shelf?.slots);
-    const m = c.metrics as { slot_min_iou?: number; slot_max_offset_px?: number; palette_de2000_snapped?: number };
-    // Best = highest min IoU, then smallest offset, then closest to the brand palette.
-    const key = [-(m.slot_min_iou ?? 0), m.slot_max_offset_px ?? 99, m.palette_de2000_snapped ?? 99];
-    const better = (a: number[], b: number[]) => { const i = a.findIndex((v, k) => v !== b[k]); return i >= 0 && a[i] < b[i]; };
-    if (!best || better(key, best.key)) best = { file: pngOf(j), key };
-  }
-  if (best && state) saveState({ e5_source: best.file });
-  return best?.file;
-}
+/** What the batch's hooks may use. */
+const ctx: RunnerCtx = {
+  isDone: j => isDone(j),
+  pngOf: j => pngOf(j),
+  checksFor: (j, slots) => checksFor(j, slots),
+  pick(key, value) {
+    const st = state ?? readJson<State>(F.state);
+    if (value !== undefined && state) saveState({ picks: { ...(state.picks ?? {}), [key]: value } });
+    return value ?? st?.picks?.[key] ?? (st as Record<string, any> | undefined)?.[key];
+  },
+  log: msg => log(msg),
+};
 
 function referenceFile(j: Job): Promise<string | undefined> | string | undefined {
   if (!j.reference) return undefined;
-  if (j.reference.startsWith('auto:')) return pickE4Shelf();
-  const f = join(SCAFFOLD_DIR, `${j.reference}.png`);
-  return existsSync(f) ? f : undefined;
+  return hooks.referenceFile?.(j, ctx);
 }
 
 async function waitIdle(ms = 90_000) {
@@ -258,7 +272,7 @@ async function runJob(j: Job, gate: CalmCompact, ctx: { swapStart: number; cold:
   if (j.reference) {
     refFile = await referenceFile(j);
     if (!refFile) { record(j, 'skipped', { error: `no reference image for ${j.reference}` }); log(`SKIP ${j.exp}/${j.id}: no reference image (${j.reference})`); return 'skipped'; }
-    refName = await api.upload(refFile, `msp-ai1-${j.exp}-${refFile.split('/').slice(-2).join('-')}`);
+    refName = await api.upload(refFile, `msp-${lab}-${j.exp}-${refFile.split('/').slice(-2).join('-')}`);
     if (info) Object.assign(info, await api.get('/object_info/LoadImage')); // its file list now includes the upload
   }
   const { graph, workflowSha, graphSha } = fillWorkflow(j, refName);
@@ -357,16 +371,14 @@ async function run() {
   // Keep the Mac awake while this process lives (idle sleep only; the lid must stay open on AC).
   spawn('/usr/bin/caffeinate', ['-i', '-w', String(process.pid)], { stdio: 'ignore', detached: true }).unref();
 
-  // Pre-flight: files the families need; E4 scaffolds (cheap HTML renders) if missing.
+  // Pre-flight: files the families need; the batch's cheap inputs (scaffolds, HTML renders) if missing.
   const skip = new Set<FamilyId>();
   for (const f of FAMILY_ORDER) {
     if (!JOBS.some(j => j.family === f)) continue;
     const miss = missingFiles(cfg, familyFiles(FAMILIES[f]));
     if (miss.length) { skip.add(f); famState(f, { status: 'missing', note: `missing model files: ${miss.join(', ')}` }); log(`${f}: missing ${miss.join(', ')}; dropping its experiments`); }
   }
-  if (JOBS.some(j => j.reference === 'shelf' || j.reference === 'room') && !['shelf', 'room'].every(n => existsSync(join(SCAFFOLD_DIR, `${n}.png`)))) {
-    log('rendering the E4 scaffolds'); await renderScaffolds();
-  }
+  if (hooks.prepare) { log('preparing the batch inputs (scaffolds) if missing'); await hooks.prepare(); }
 
   if (Date.now() < win.start.getTime()) {
     log(`waiting for the start time ${hhmm(win.start)}`);
@@ -381,15 +393,17 @@ async function run() {
   for (const f of FAMILY_ORDER) if (JOBS.some(j => j.family === f) && !skip.has(f) && !pendingOf(f).length) famState(f, { status: 'done', note: 'already made' });
   const remaining = FAMILY_ORDER.filter(f => !skip.has(f) && pendingOf(f).length);
   while (remaining.length && !aborted) {
-    // Spec order; Qwen (optional, needs an E4 shelf) only once everything else has had its turn.
-    const cands = remaining.filter(f => f !== 'qwen' || remaining.length === 1).map(f => {
+    // Spec order; LAST_FAMILIES (AI1: Qwen, optional, needs an E4 shelf) only once everything else has had its turn.
+    const cands = remaining.filter(f => !LAST.includes(f) || remaining.every(x => LAST.includes(x))).map(f => {
       // An optional family must be able to finish before the deadline.
       const est = pendingOf(f).reduce((s, j) => s + estFor(j), 0) + 120;
-      return { f, giveUpAt: f === 'qwen' ? new Date(win.deadline.getTime() - est * 1000) : win.deadline };
+      return { f, giveUpAt: LAST.includes(f) ? new Date(win.deadline.getTime() - est * 1000) : win.deadline };
     });
-    if (cands[0].f === 'qwen' && !(await pickE4Shelf())) {
-      famState('qwen', { status: 'skipped', note: 'no E4 shelf to relight' }); log('qwen: no E4 shelf output, skipping E5');
-      defer(pendingOf('qwen'), 'no E4 shelf'); remaining.splice(remaining.indexOf('qwen'), 1); continue;
+    const blocked = await hooks.familyBlocked?.(cands[0].f, ctx);
+    if (blocked) {
+      const f0 = cands[0].f;
+      famState(f0, { status: 'skipped', note: blocked }); log(`${f0}: ${blocked}; skipping it`);
+      defer(pendingOf(f0), blocked); remaining.splice(remaining.indexOf(f0), 1); continue;
     }
     for (const c of cands) famState(c.f, { status: 'waiting-calm' });
     const w = await waitCalm(cands);
@@ -457,7 +471,7 @@ async function run() {
 
 // ------------------------------------------------------------------ gallery, checks, summary
 
-async function checksFor(j: Job, slots?: Array<{ id: string; kind: string; gen: Rect }>): Promise<CheckResult> {
+async function checksFor(j: Job, slots?: Slot[]): Promise<CheckResult> {
   const side = readJson<Record<string, any>>(sidecarOf(j));
   if (side?.checks && side.checks_png_mtime === statSync(pngOf(j)).mtimeMs) return side.checks;
   const res = await runChecks(j, pngOf(j), slots);
@@ -488,36 +502,36 @@ async function finalize(deferred = new Map<string, string>()) {
   const { readManifest } = await import('../lab/dl1/run.ts');
   const { buildGallery, POST_LABEL } = await import('../lab/dl1/gallery.ts');
   const all = allJobs();
-  for (const expId of ['E1', 'E2', 'E3', 'E4', 'E5'] as const) {
+  for (const expId of EXP_IDS) {
     const exps = EXPERIMENTS.filter(e => e.id === expId);
     const groups = new Map<string, Job[]>();
-    for (const j of all.filter(x => x.exp === expId)) groups.set(`${j.variant ? j.variant + '-' : ''}${j.promptId}`, [...(groups.get(`${j.variant ? j.variant + '-' : ''}${j.promptId}`) ?? []), j]);
+    // Core rows first (a control model's rows after the core model's), otherwise job order.
+    for (const j of all.filter(x => x.exp === expId).sort((a, b) => +b.core - +a.core)) groups.set(`${j.variant ? j.variant + '-' : ''}${j.promptId}`, [...(groups.get(`${j.variant ? j.variant + '-' : ''}${j.promptId}`) ?? []), j]);
     const posts = [];
     for (const [key, js] of groups) {
       const made = js.filter(j => existsSync(pngOf(j)));
       if (!made.length) continue;
       const slides: Array<{ id: string; jpg: string; preview: string; frame: string; errors: string[]; warnings: string[]; ms: number }> = [];
-      const ref = js[0].reference;
-      if (ref === 'shelf' || ref === 'room') {
-        const u = await jpg(join(SCAFFOLD_DIR, `${ref}.png`));
-        slides.push({ id: 'scaffold', jpg: u, preview: u, frame: 'feed', errors: [], warnings: ['info: the code scaffold (input)'], ms: 0 });
+      // The row's input (code scaffold or source image) goes first, once.
+      for (const j of made) {
+        const input = hooks.inputSlide?.(j, readJson<Record<string, any>>(sidecarOf(j)) ?? {});
+        if (!input || !existsSync(input.file)) continue;
+        const u = await jpg(input.file);
+        slides.push({ id: input.id, jpg: u, preview: u, frame: 'feed', errors: [], warnings: [`info: ${input.note}`], ms: 0 });
+        break;
       }
-      const sc = ref?.startsWith('auto:') || ref === 'shelf' ? scaffold('shelf') : ref === 'room' ? scaffold('room') : undefined;
       for (const j of made) {
         const side = readJson<Record<string, any>>(sidecarOf(j)) ?? {};
-        if (ref?.startsWith('auto:') && side.reference && !slides.length) {
-          const u = await jpg(join(ROOT, side.reference));
-          slides.push({ id: 'source', jpg: u, preview: u, frame: 'feed', errors: [], warnings: [`info: source ${side.reference.split('/').slice(-2).join('/')} (best E4 slot fit)`], ms: 0 });
-        }
-        const c = await checksFor(j, sc?.slots);
+        const c = await checksFor(j, hooks.slotsFor?.(j));
         const u = await jpg(pngOf(j));
         const meta = `info: ${j.modelFile} (${j.licence}) · seed ${j.seed} · ${j.steps} steps · ${side.wall_s ?? '?'} s · ComfyUI ≤ ${side.proc_peak_footprint_gb ?? '?'} GB`;
         slides.push({ id: `s${j.seed}`, jpg: u, preview: u, frame: 'feed', errors: [], warnings: [...c.warnings, meta], ms: Math.round((side.wall_s ?? 0) * 1000) });
-        if (expId === 'E2') { const t = await tile(pngOf(j)); slides.push({ id: `s${j.seed}-tile`, jpg: t, preview: t, frame: 'feed', errors: [], warnings: ['info: offset tile of the slide before (a seam shows as a cross)'], ms: 0 }); }
+        if (j.checks.includes('seam')) { const t = await tile(pngOf(j)); slides.push({ id: `s${j.seed}-tile`, jpg: t, preview: t, frame: 'feed', errors: [], warnings: ['info: offset tile of the slide before (a seam shows as a cross)'], ms: 0 }); }
       }
       const missing = js.filter(j => !existsSync(pngOf(j))).map(j => `s${j.seed}${deferred.get(`${j.exp}/${j.id}`) ? ` (${deferred.get(`${j.exp}/${j.id}`)})` : ''}`);
       const v = js[0].variant;
-      const label = `${js[0].promptTitle}${v ? ` · klein ${v.toUpperCase()}` : ''} · ${js[0].use}${missing.length ? ` · not made: ${missing.join(', ')}` : ''}`;
+      const vLabel = v ? exps.find(e => e.variant === v)?.variantLabel ?? v : '';
+      const label = `${js[0].promptTitle}${v ? ` · ${vLabel}` : ''} · ${js[0].use}${missing.length ? ` · not made: ${missing.join(', ')}` : ''}`;
       POST_LABEL[`${expId}-${key}`] = label; // buildGallery only fills labels it hasn't seen (??=), and they change during the night
       posts.push({ key: `${expId}-${key}`, label, slides });
     }
@@ -556,7 +570,7 @@ function writeSummary(deferred: Map<string, string>) {
     L.push(`| ${FAMILIES[f].name} | ${FAMILIES[f].licence} | ${ok.length} / ${JOBS.filter(j => j.family === f).length} | ${rs.filter(r => r.status === 'error').length} | ${dur(ok.reduce((s, r) => s + (r.wall_s ?? 0), 0))} | ${median(warm) ?? '–'} s | ${cold ?? '–'} s | ${Math.max(0, ...ok.map(r => r.proc_peak_footprint_gb ?? 0)).toFixed(1)} GB | ${Math.max(0, ...ok.map(r => r.proc_peak_rss_gb ?? 0)).toFixed(1)} GB | ${Math.max(0, ...rs.map(r => r.pressure_max ?? 0)) || '–'} | ${sw.length ? `${sw[0].swap_used_gb_start} → ${sw[sw.length - 1].swap_used_gb_end} GB` : '–'} | ${gate} |`);
   }
   L.push('', '## Per experiment', '', '| Exp. | Made / planned | Auto-checks all pass | Not made |', '|---|---|---|---|');
-  for (const e of ['E1', 'E2', 'E3', 'E4', 'E5']) {
+  for (const e of EXP_IDS) {
     const js = JOBS.filter(j => j.exp === e);
     if (!js.length) continue;
     const made = js.filter(j => existsSync(pngOf(j)));
@@ -566,11 +580,17 @@ function writeSummary(deferred: Map<string, string>) {
   }
   const errs = [...latest.values()].filter(r => r.status === 'error');
   if (errs.length) { L.push('', '## Errors', ''); for (const r of errs.slice(0, 20)) L.push(`- ${r.exp}/${r.job}: ${r.error}`); }
-  if (st?.e5_source) L.push('', `E5 relit ${st.e5_source.split('/').slice(-2).join('/')} (the E4 shelf with the best slot fit).`);
-  L.push('', '## What the auto-checks mean', '', '- Type zone flat: luma σ ≤ 10 after a 9 px blur inside the zone where code sets the type (E1).',
-    '- Brand palette: mean ΔE2000 ≤ 10 to the nearest brand colour after a 50 % OKLab pull (the brand-LUT snap).',
-    '- Slots kept: every scaffold box edge found within ±4 px, IoU ≥ 0.98 (E4/E5). Composite-back makes the final boxes exact anyway.',
-    '- Spot art: clean white border for the flood-fill cutout, coral 30–40 % of the filled area (E3).',
+  const notes = hooks.summaryNotes?.(ctx) ?? [];
+  if (notes.length) L.push('', ...notes);
+  const used = (k: CheckKind) => EXPERIMENTS.filter(e => e.checks.includes(k)).map(e => e.id).filter((x, i, a) => a.indexOf(x) === i).join('/');
+  const CHECK_TEXT: Record<CheckKind, string> = {
+    zone: 'Type zone flat: luma σ ≤ 10 after a 9 px blur inside the zone where code sets the type',
+    palette: 'Brand palette: mean ΔE2000 ≤ 10 to the nearest brand colour after a 50 % OKLab pull (the brand-LUT snap)',
+    slots: 'Slots kept: every scaffold box edge found within ±4 px, IoU ≥ 0.98. Composite-back makes the final boxes exact anyway',
+    spot: 'Spot art: clean white border for the flood-fill cutout, coral 30–40 % of the filled area',
+    seam: 'Seamless: offset-tile seam ratio and even light (the tile slide shows a seam as a cross)',
+  };
+  L.push('', '## What the auto-checks mean', '', ...(Object.keys(CHECK_TEXT) as CheckKind[]).filter(k => used(k)).map(k => `- ${CHECK_TEXT[k]} (${used(k)}).`),
     '- Not checked by code: glyphs, anything that reads as a puzzle/person/landmark, banding after Instagram, "would post". That is the owner\'s pass.', '',
     `Records: \`${REL}/runs.jsonl\` (one line per image), sidecar JSON next to every PNG, runner log \`batch.log\`, ComfyUI log \`comfyui.log\`.`);
   writeFileSync(F.summary, L.join('\n') + '\n');
@@ -590,7 +610,11 @@ function planLines() {
     const exps = [...new Set(js.map(j => j.exp + (j.variant ? `/${j.variant}` : '')))].map(e => `${e} ${js.filter(j => j.exp + (j.variant ? `/${j.variant}` : '') === e).length}`).join(', ');
     out.push(`  ${FAMILIES[f].name.padEnd(48)} ${String(left.length).padStart(3)}/${String(js.length).padEnd(3)} images  ≈ ${dur(est).padEnd(10)} need ${FAMILIES[f].needGb} GB  [${exps}]  ${FAMILIES[f].licence}`);
   }
-  out.push(`  total ≈ ${dur(total)} of GPU time if calm all night (E2 and E5 drop first when time runs short)`);
+  const optional = EXPERIMENTS.filter(e => !e.core).map(e => e.id + (e.variant ? `/${e.variant}` : ''));
+  const win = nightWindow();
+  const winS = (win.deadline.getTime() - (win.inside ? Date.now() : win.start.getTime())) / 1000;
+  out.push(`  total ≈ ${dur(total)} of GPU time if calm all night${optional.length ? ` (${optional.join(', ')} drop first when time runs short)` : ''}`);
+  out.push(`  window ${opt.start}–${opt.deadline} = ${dur(winS)}: the plan uses ${Math.round((100 * total) / winS)} %, margin ${Math.round(100 - (100 * total) / winS)} %`);
   return out;
 }
 
@@ -600,19 +624,28 @@ function launchdLoaded() {
   return { state: out.match(/\bstate = ([^\n]+)/)?.[1]?.trim(), lastExit: out.match(/last exit code = ([^\n]+)/)?.[1]?.trim(), runs: out.match(/\bruns = (\d+)/)?.[1] };
 }
 
+const usedFamilies = () => FAMILY_ORDER.filter(f => JOBS.some(j => j.family === f));
+const usedWorkflows = () => [...new Set(allJobs().map(j => j.workflow))];
+
 async function dryRun() {
   const win = nightWindow();
-  console.log(`AI1 batch plan (${JOBS.length} images; dry run, nothing started)\n`);
+  console.log(`${LAB_ID} batch plan from ${BATCH_REL}${B.TITLE ? `: ${B.TITLE}` : ''} (${JOBS.length} images; dry run, nothing started)\n`);
   for (const l of planLines()) console.log(l);
+  console.log('\nper experiment (core first within a family; est. = planning seconds per image):');
+  for (const e of EXPERIMENTS) {
+    const js = JOBS.filter(j => j.exp === e.id && j.variant === e.variant);
+    if (!js.length) continue;
+    console.log(`  ${(e.id + (e.variant ? '/' + e.variant : '')).padEnd(8)} ${e.name.slice(0, 44).padEnd(44)} ${FAMILIES[e.family].name.split(' Q')[0].padEnd(20)} ${e.core ? 'core    ' : 'optional'} ${String(js.length).padStart(3)} images × ${e.estS} s ≈ ${dur(js.length * e.estS)}`);
+  }
   console.log(`\nwindow: start ${win.start.toLocaleString('sv-SE').slice(0, 16)}, give up / no new jobs after ${win.deadline.toLocaleString('sv-SE').slice(0, 16)}${win.inside ? ' (inside now)' : ''}`);
   const c = comfyConfig();
   if (!c.cfg) { console.log(`\n.env: MISSING ${c.missing.join(', ')}`); process.exitCode = 1; return; }
   const k = c.cfg;
   console.log(`\nComfyUI: ${existsSync(join(k.dir, 'main.py')) ? 'main.py ok' : 'main.py MISSING'}, python ${existsSync(k.python) ? 'ok' : 'MISSING'}, base dir ${k.baseDir}, port ${k.port}`);
   console.log(`launch: ${k.python.split('/').slice(-3).join('/')} ${comfyArgs(k).map(a => a.startsWith('/') ? a.split('/').pop() : a).join(' ')}`);
-  for (const f of FAMILY_ORDER) { const miss = missingFiles(k, familyFiles(FAMILIES[f])); console.log(`models ${f.padEnd(8)} ${miss.length ? 'MISSING ' + miss.join(', ') : 'ok (' + familyFiles(FAMILIES[f]).map(x => x.split('/').pop()).join(', ') + ')'}`); }
-  for (const [name, w] of Object.entries(WORKFLOWS)) console.log(`workflow ${name.padEnd(30)} ${existsSync(join(ROOT, 'lab/ai1/workflows', w.file)) ? 'ok' : 'MISSING'}`);
-  console.log(`scaffolds: ${['shelf', 'room'].map(n => `${n} ${existsSync(join(SCAFFOLD_DIR, `${n}.png`)) ? 'ok' : 'missing (rendered at start)'}`).join(', ')}`);
+  for (const f of usedFamilies()) { const miss = missingFiles(k, familyFiles(FAMILIES[f])); console.log(`models ${f.padEnd(8)} ${miss.length ? 'MISSING ' + miss.join(', ') : 'ok (' + familyFiles(FAMILIES[f]).map(x => x.split('/').pop()).join(', ') + ')'}`); }
+  for (const name of usedWorkflows()) console.log(`workflow ${name.padEnd(30)} ${existsSync(join(WORKFLOW_DIR, WORKFLOWS[name].file)) ? 'ok' : 'MISSING'}`);
+  for (const l of hooks.dryRunNotes?.() ?? []) console.log(l);
   const v = readJson<{ at: string; ok: boolean }>(F.validation);
   console.log(`last --validate: ${v ? `${v.ok ? 'all workflows accepted' : 'PROBLEMS'} (${v.at.slice(0, 16)})` : 'never'}`);
   console.log(`DONE marker: ${existsSync(F.done) ? 'present (the scheduled run will exit; use --force)' : 'none'}`);
@@ -632,36 +665,48 @@ async function validate() {
   const c = comfyConfig();
   if (!c.cfg) { console.log(`.env missing ${c.missing.join(', ')}`); process.exitCode = 1; return; }
   cfg = c.cfg; api = client(cfg);
-  const result: { at: string; ok: boolean; engine?: string; files: Record<string, string[]>; workflows: Record<string, string[]>; idle_footprint_gb?: number | null; startup_s?: number; self_test?: string } = { at: iso(), ok: true, files: {}, workflows: {} };
-  for (const f of FAMILY_ORDER) { result.files[f] = missingFiles(cfg, familyFiles(FAMILIES[f])); if (result.files[f].length) result.ok = false; }
-  if (!['shelf', 'room'].every(n => existsSync(join(SCAFFOLD_DIR, `${n}.png`)))) await renderScaffolds();
+  const result: { at: string; batch: string; ok: boolean; engine?: string; files: Record<string, string[]>; workflows: Record<string, string[]>; graphs_checked?: number; idle_footprint_gb?: number | null; startup_s?: number; self_test?: string } = { at: iso(), batch: BATCH_REL, ok: true, files: {}, workflows: {} };
+  for (const f of FAMILY_ORDER.filter(x => allJobs().some(j => j.family === x))) { result.files[f] = missingFiles(cfg, familyFiles(FAMILIES[f])); if (result.files[f].length) result.ok = false; }
+  await hooks.prepare?.();
   const t0 = Date.now();
   const wasUp = await api.up();
   let pid: number | undefined;
   if (!wasUp) {
     console.log(`starting ComfyUI headless on 127.0.0.1:${cfg.port} (no jobs) …`);
     pid = startComfy(cfg, F.comfyLog);
-    if (!(await waitUp(api, pid))) { console.log('ComfyUI did not come up; see content/labs/AI1/comfyui.log'); await stopComfy(pid); process.exitCode = 1; return; }
+    if (!(await waitUp(api, pid))) { console.log(`ComfyUI did not come up; see ${REL}/comfyui.log`); await stopComfy(pid); process.exitCode = 1; return; }
     result.startup_s = Math.round((Date.now() - t0) / 1000);
   } else pid = listenerPid(cfg.port);
   try {
     const ss = await api.systemStats();
     result.engine = `comfyui-${ss?.system?.comfyui_version}/torch-${ss?.system?.pytorch_version}/python-${String(ss?.system?.python_version).split(' ')[0]}`;
+    // Every reference input the batch uses, uploaded once (uploads are inputs, not jobs: nothing is queued).
     const refs: Record<string, string> = {};
-    for (const n of ['shelf', 'room']) refs[n] = await api.upload(join(SCAFFOLD_DIR, `${n}.png`), `msp-ai1-scaffold-${n}.png`);
+    for (const j of allJobs().filter(x => x.reference)) {
+      const file = hooks.validationReference?.(j);
+      if (!file || !existsSync(file)) { (result.workflows[`reference ${j.reference}`] ??= []).push(`no stand-in input for ${j.exp}/${j.id}`); result.ok = false; continue; }
+      refs[file] ??= await api.upload(file, `msp-${lab}-validate-${file.split('/').slice(-2).join('-')}`);
+    }
     const oi = await api.objectInfo();
     // Self-test: the validator must reject a wrong model name, a wrong node class and a bad link.
-    const probe = fillWorkflow(allJobs()[0]).graph;
+    const probe = fillWorkflow(allJobs().find(j => !j.reference)!).graph;
     const bad = JSON.parse(JSON.stringify(probe));
     bad['1'].inputs.unet_name = 'no-such-model.gguf'; bad['9'].class_type = 'NoSuchNode'; bad['8'].inputs.model = ['3', 0];
     result.self_test = validateGraph(bad, oi).length >= 3 ? 'ok: wrong model, class and link type all rejected' : 'FAILED';
-    for (const name of Object.keys(WORKFLOWS)) {
-      const j = allJobs().find(x => x.workflow === name)!;
-      const ref = j.reference ? (j.reference.startsWith('auto:') ? refs.shelf : refs[j.reference]) : undefined;
-      const { graph } = fillWorkflow(j, ref);
-      result.workflows[name] = validateGraph(graph, oi);
-      if (result.workflows[name].length) result.ok = false;
+    // Every distinct graph the batch will queue (one per workflow × experiment × reference), not just one per workflow.
+    const seen = new Set<string>();
+    for (const j of allJobs()) {
+      const key = `${j.workflow} ${j.exp}${j.variant ? '/' + j.variant : ''}${j.reference ? ' ' + j.reference : ''}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const file = j.reference ? hooks.validationReference?.(j) : undefined;
+      if (j.reference && !(file && refs[file])) continue;
+      const { graph } = fillWorkflow(j, file ? refs[file] : undefined);
+      const errs = validateGraph(graph, oi);
+      result.workflows[j.workflow] = [...(result.workflows[j.workflow] ?? []), ...errs.map(e => `${key}: ${e}`)];
+      if (errs.length) result.ok = false;
     }
+    result.graphs_checked = seen.size;
     if (pid) result.idle_footprint_gb = round(sampleProc(pid).footprint_gb);
   } finally {
     if (!wasUp && pid) { await stopComfy(pid); console.log('ComfyUI stopped'); }
@@ -670,7 +715,7 @@ async function validate() {
   console.log(`\nengine ${result.engine}${result.startup_s ? `, started in ${result.startup_s} s` : ''}, idle footprint ${result.idle_footprint_gb ?? '?'} GB`);
   for (const [f, miss] of Object.entries(result.files)) console.log(`models   ${f.padEnd(30)} ${miss.length ? 'MISSING ' + miss.join(', ') : 'ok'}`);
   for (const [w, errs] of Object.entries(result.workflows)) console.log(`workflow ${w.padEnd(30)} ${errs.length ? 'REJECTED\n    ' + errs.join('\n    ') : 'accepted (node classes, inputs, link types, model names, ranges)'}`);
-  console.log(`validator self-test: ${result.self_test}`);
+  console.log(`validator self-test: ${result.self_test}; ${result.graphs_checked ?? 0} distinct job graphs checked`);
   console.log(result.ok ? '\nall workflows valid' : '\nPROBLEMS found');
   if (!result.ok) process.exitCode = 1;
 }
@@ -689,7 +734,7 @@ function status() {
   const c = comfyConfig().cfg;
   const pid = c ? listenerPid(c.port) : undefined;
   console.log(`ComfyUI: ${pid ? `up on 127.0.0.1:${c!.port} (pid ${pid}, footprint ${round(sampleProc(pid).footprint_gb, 1)} GB)` : 'not running'}`);
-  const byExp = ['E1', 'E2', 'E3', 'E4', 'E5'].map(e => {
+  const byExp = EXP_IDS.map(e => {
     const js = JOBS.filter(j => j.exp === e);
     const ok = js.filter(isDone).length, err = js.filter(j => !isDone(j) && latest.get(`${e}/${j.id}`)?.status === 'error').length;
     return js.length ? `${e} ${ok}/${js.length}${err ? ` (${err} err)` : ''}` : '';
@@ -715,15 +760,15 @@ function schedule() {
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
   // The stable Homebrew symlink survives a node upgrade; the resolved Cellar path would not.
   const node = ['/opt/homebrew/bin/node', '/usr/local/bin/node'].find(p => { try { return realpathSync(p) === realpathSync(process.execPath); } catch { return false; } }) ?? process.execPath;
-  const args = [node, join(ROOT, 'tools/ai-batch.ts'), '--scheduled', ...(t !== '22:30' ? ['--start', t] : []), ...(opt.deadline !== '06:00' ? ['--deadline', opt.deadline!] : [])];
+  const args = [node, join(ROOT, 'tools/ai-batch.ts'), '--scheduled', ...(BATCH_REL !== 'lab/ai1/batch.ts' ? ['--batch', BATCH_REL] : []), ...(t !== '22:30' ? ['--start', t] : []), ...(opt.deadline !== '06:00' ? ['--deadline', opt.deadline!] : [])];
   const path = [...new Set([dirname(node), '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin'])].join(':');
   const plist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
   <key>Label</key><string>${LABEL}</string>
-  <!-- AI1 overnight image batch (msp-instagram). One night: the runner writes content/labs/AI1/DONE.json and later
-       firings exit; outside the ${t}–${opt.deadline} window it exits without running. Remove: node tools/ai-batch.ts --unschedule -->
+  <!-- ${LAB_ID} overnight image batch (msp-instagram, ${BATCH_REL}). One night: the runner writes ${REL}/DONE.json and later
+       firings exit; outside the ${t}–${opt.deadline} window it exits without running. Remove: node tools/ai-batch.ts --batch ${BATCH_REL} --unschedule -->
   <key>ProgramArguments</key>
   <array>
 ${args.map(a => `    <string>${esc(a)}</string>`).join('\n')}
@@ -773,7 +818,7 @@ process.on('SIGTERM', () => void shutdown('SIGTERM'));
 process.on('SIGINT', () => void shutdown('SIGINT'));
 
 if (opt.help) {
-  console.log(readFileSync(import.meta.filename, 'utf8').split('\n').filter(l => l.startsWith('//')).slice(0, 18).map(l => l.slice(3)).join('\n'));
+  console.log(readFileSync(import.meta.filename, 'utf8').split('\n').filter(l => l.startsWith('//')).slice(0, 22).map(l => l.slice(3)).join('\n'));
 } else if (opt.status) status();
 else if (opt['dry-run']) await dryRun();
 else if (opt.validate) await validate();

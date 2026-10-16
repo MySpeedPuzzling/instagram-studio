@@ -2,126 +2,29 @@
 // Prompts follow §3 (AI-1 … AI-6): AI paints only the stage (rooms, skies, water, materials, stylised animals);
 // no text, no puzzle art, no people or hands, and a flat empty zone where code sets the type.
 // Z-Image runs at guidance 0 (CFG 1) and klein at guidance 1, so negative prompts do nothing: the prompts
-// describe emptiness positively instead.
+// describe emptiness positively instead. Families, workflows and job building live in lab/ai/core.ts.
 //
 //   node lab/ai1/batch.ts            # print the job list (no ComfyUI needed)
-import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+//   node tools/ai-batch.ts [--batch lab/ai1/batch.ts] --dry-run   # the runner (AI1 is its default batch)
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT } from '../../src/render/server.ts';
+import {
+  FAMILIES, FAMILY_ORDER, WORKFLOWS, buildJobs, familyFiles, fillWorkflow as fillCore, sha256,
+  type BatchHooks, type Experiment, type Job, type PromptDef, type RunnerCtx, type Slot,
+} from '../ai/core.ts';
+
+export { FAMILIES, FAMILY_ORDER, WORKFLOWS, familyFiles, sha256 };
+export type { Experiment, FamilyId, Family, Job, PromptDef, Workflow, Zone } from '../ai/core.ts';
+export { WORKFLOW_DIR, loadWorkflow } from '../ai/core.ts';
 
 /** AI_LAB_ID only for the runner's dry tests against a mock ComfyUI (keeps them out of content/labs/AI1). */
 export const LAB_ID = process.env.AI_LAB_ID ?? 'AI1';
 export const OUT_DIR = join(ROOT, 'content/labs', LAB_ID);
-export const WORKFLOW_DIR = join(ROOT, 'lab/ai1/workflows');
-
-export type FamilyId = 'zimage' | 'klein4b' | 'klein9b' | 'qwen';
-
-export interface Family {
-  id: FamilyId;
-  name: string;
-  /** calmCheck(needGb) must pass before the family starts (calm.ts adds its own 4 GB margin). */
-  needGb: number;
-  /** Files relative to the ComfyUI models folder. */
-  files: { model: string; textEncoder: string; vae: string; lora?: string; extra?: string[] };
-  licence: string;
-  licenceNote?: string;
-  /** Measured on this Mac in the badge lab (research_notes/…/local_pipeline_learnings_and_inventory.md). */
-  measured: string;
-}
-
-export const FAMILIES: Record<FamilyId, Family> = {
-  zimage: {
-    id: 'zimage', name: 'Z-Image Turbo Q8_0 GGUF', needGb: 24,
-    files: { model: 'unet/z_image_turbo-Q8_0.gguf', textEncoder: 'text_encoders/qwen_3_4b.safetensors', vae: 'vae/z_image_ae.safetensors' },
-    licence: 'Apache-2.0', measured: 'Q8 1024² median 80 s (n = 27); peak 23–25 GB',
-  },
-  klein4b: {
-    id: 'klein4b', name: 'FLUX.2 klein 4B Q8_0 GGUF', needGb: 20,
-    files: { model: 'unet/flux-2-klein-4b-Q8_0.gguf', textEncoder: 'text_encoders/qwen_3_4b.safetensors', vae: 'vae/flux2-vae.safetensors' },
-    licence: 'Apache-2.0', measured: 't2i median 60 s (n = 178); 1-ref edit 80–125 s at 768 px; peak 17–21 GB',
-  },
-  klein9b: {
-    id: 'klein9b', name: 'FLUX.2 klein 9B Q8_0 GGUF', needGb: 24,
-    files: { model: 'unet/flux-2-klein-9b-Q8_0.gguf', textEncoder: 'text_encoders/Qwen3-8B-Q8_0.gguf', vae: 'vae/flux2-vae.safetensors' },
-    licence: 'FLUX Non-Commercial License v2.1',
-    licenceNote: 'allowed by the owner for posts (docs/decisions.md, 2026-10-13); record it per asset',
-    measured: 't2i median 179 s (n = 13); peak unmeasured, plan for ≈ 24 GB',
-  },
-  qwen: {
-    id: 'qwen', name: 'Qwen-Image-Edit-2511 Q6_K GGUF + Lightning 4-step', needGb: 28,
-    files: {
-      model: 'unet/qwen-image-edit-2511-Q6_K.gguf', textEncoder: 'text_encoders/Qwen2.5-VL-7B-Instruct-Q8_0.gguf',
-      vae: 'vae/qwen_image_vae.safetensors', lora: 'loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors',
-      extra: ['text_encoders/Qwen2.5-VL-7B-Instruct-mmproj-F16.gguf'],
-    },
-    licence: 'Apache-2.0', measured: '345–380 s (n = 2); ≈ 28 GB with one image, two images went critical',
-  },
-};
-
-/** One model family at a time, in this order. */
-export const FAMILY_ORDER: FamilyId[] = ['zimage', 'klein4b', 'klein9b', 'qwen'];
-
-export interface Workflow {
-  file: string;
-  /** Where each job parameter goes: [node id, input name]. width/height absent = taken from the reference image. */
-  bind: Partial<Record<'prompt' | 'seed' | 'steps' | 'cfg' | 'sampler' | 'scheduler' | 'width' | 'height' | 'reference' | 'megapixels' | 'prefix', [string, string][]>>;
-  template: string;
-}
-
-// Built from ComfyUI's own templates (comfyui_workflow_templates 0.11.9 in the ComfyUI venv), with the loaders
-// swapped for the GGUF files on disk (fp8 does not run on MPS).
-export const WORKFLOWS: Record<string, Workflow> = {
-  'zimage-turbo-gguf-t2i': {
-    file: 'zimage-turbo-gguf-t2i.json', template: 'image_z_image_turbo.json (Text to Image (Z-Image-Turbo))',
-    bind: { prompt: [['5', 'text']], seed: [['8', 'seed']], steps: [['8', 'steps']], cfg: [['8', 'cfg']], sampler: [['8', 'sampler_name']], scheduler: [['8', 'scheduler']], width: [['7', 'width']], height: [['7', 'height']], prefix: [['10', 'filename_prefix']] },
-  },
-  'klein4b-gguf-t2i': {
-    file: 'klein4b-gguf-t2i.json', template: 'image_flux2_klein_text_to_image.json (Flux.2 Klein 4B Distilled)',
-    bind: { prompt: [['4', 'text']], seed: [['9', 'noise_seed']], steps: [['8', 'steps']], cfg: [['6', 'cfg']], sampler: [['7', 'sampler_name']], width: [['8', 'width'], ['10', 'width']], height: [['8', 'height'], ['10', 'height']], prefix: [['13', 'filename_prefix']] },
-  },
-  'klein9b-gguf-t2i': {
-    file: 'klein9b-gguf-t2i.json', template: 'image_flux2_text_to_image_9b.json, distilled settings (cfg 1, 4 steps)',
-    bind: { prompt: [['4', 'text']], seed: [['9', 'noise_seed']], steps: [['8', 'steps']], cfg: [['6', 'cfg']], sampler: [['7', 'sampler_name']], width: [['8', 'width'], ['10', 'width']], height: [['8', 'height'], ['10', 'height']], prefix: [['13', 'filename_prefix']] },
-  },
-  'klein4b-gguf-edit1': {
-    file: 'klein4b-gguf-edit1.json', template: 'image_flux2_klein_image_edit_4b_distilled.json (Image Edit, 1 reference)',
-    bind: { prompt: [['4', 'text']], seed: [['9', 'noise_seed']], steps: [['8', 'steps']], cfg: [['6', 'cfg']], sampler: [['7', 'sampler_name']], reference: [['20', 'image']], megapixels: [['21', 'megapixels']], prefix: [['13', 'filename_prefix']] },
-  },
-  'qwen-edit-2511-gguf-lightning': {
-    file: 'qwen-edit-2511-gguf-lightning.json', template: 'image_qwen_image_edit_2511.json (Lightning branch; FluxKontextImageScale dropped so the 1024×1280 slots stay put)',
-    bind: { prompt: [['8', 'prompt']], seed: [['13', 'seed']], steps: [['13', 'steps']], cfg: [['13', 'cfg']], sampler: [['13', 'sampler_name']], scheduler: [['13', 'scheduler']], reference: [['7', 'image']], prefix: [['15', 'filename_prefix']] },
-  },
-};
-
-/** Fractions of the image: where code will set the type, so it must stay flat. */
-export interface Zone { x0: number; y0: number; x1: number; y1: number }
-
-export interface PromptDef { id: string; title: string; use: string; text: string; zone?: Zone; reference?: string }
-
-export interface Experiment {
-  id: 'E1' | 'E2' | 'E3' | 'E4' | 'E5';
-  /** Several runs of one experiment on different models (E3: klein 9B and the 4B control). */
-  variant?: string;
-  name: string;
-  idea: string;
-  family: FamilyId;
-  workflow: keyof typeof WORKFLOWS;
-  width: number;
-  height: number;
-  steps: number;
-  cfg: number;
-  sampler: string;
-  scheduler: string;
-  seeds: number[];
-  prompts: PromptDef[];
-  /** Core experiments run first; E2 and E5 are the first to drop when time runs short (§5). */
-  core: boolean;
-  /** Seconds per image, the planning estimate until this run measures its own. */
-  estS: number;
-  checks: Array<'zone' | 'palette' | 'seam' | 'spot' | 'slots'>;
-  pass: string;
-}
+export const TITLE = 'AI1 overnight image batch (series plates, materials, spirit animals, scaffold → scene, relight)';
+export const LABEL = 'cz.myspeedpuzzling.instagram.ai1';
+/** Qwen (E5, optional) runs only after everything else and only if it can finish before the deadline. */
+export const LAST_FAMILIES = ['qwen' as const];
 
 const NOTHING = 'nothing written anywhere';
 
@@ -210,7 +113,7 @@ export const EXPERIMENTS: Experiment[] = [
     ],
   },
   {
-    id: 'E3', variant: '4b', name: 'Spirit animals', idea: 'House-style spot animals (H1, A1, C1): klein 4B (Apache-2.0) as the cheap control and klein 9B (non-commercial, allowed) as the candidate. Code adds the stats, the name and a generator piece.',
+    id: 'E3', variant: '4b', variantLabel: 'klein 4B', name: 'Spirit animals', idea: 'House-style spot animals (H1, A1, C1): klein 4B (Apache-2.0) as the cheap control and klein 9B (non-commercial, allowed) as the candidate. Code adds the stats, the name and a generator piece.',
     family: 'klein4b', workflow: 'klein4b-gguf-t2i', width: 1024, height: 1024, steps: 4, cfg: 1, sampler: 'euler', scheduler: 'Flux2Scheduler',
     seeds: [301, 302], core: true, estS: 70, checks: ['spot'],
     pass: 'navy outline on every shape (line weight 2.5–3.3 % of width, measured in code); coral on 30–40 % of the filled area; no speed dashes, pieces, text or props; closed outline (clean flood-fill cutout); ≥ 6 of 8 animals from one model look like one set',
@@ -231,7 +134,7 @@ export const EXPERIMENTS: Experiment[] = [
     ],
   },
   {
-    id: 'E3', variant: '9b', name: 'Spirit animals', idea: '',
+    id: 'E3', variant: '9b', variantLabel: 'klein 9B', name: 'Spirit animals', idea: '',
     family: 'klein9b', workflow: 'klein9b-gguf-t2i', width: 1024, height: 1024, steps: 4, cfg: 1, sampler: 'euler', scheduler: 'Flux2Scheduler',
     seeds: [301, 302, 303], core: true, estS: 190, checks: ['spot'], pass: '', prompts: animals,
   },
@@ -248,89 +151,69 @@ export const EXPERIMENTS: Experiment[] = [
   },
 ];
 
-export interface Job {
-  /** Unique within the experiment, e.g. "museum-wall-s101", "9b-owl-s301". */
-  id: string;
-  exp: Experiment['id'];
-  variant?: string;
-  family: FamilyId;
-  workflow: string;
-  modelFile: string;
-  textEncoder: string;
-  vae: string;
-  lora?: string;
-  licence: string;
-  width: number;
-  height: number;
-  steps: number;
-  cfg: number;
-  sampler: string;
-  scheduler: string;
-  seed: number;
-  promptId: string;
-  promptTitle: string;
-  use: string;
-  prompt: string;
-  promptSha: string;
-  /** Scaffold name ("shelf", "room") or "auto:E4-shelf" (picked after E4 by slot fit). */
-  reference?: string;
-  zone?: Zone;
-  core: boolean;
-  estS: number;
-  checks: Experiment['checks'];
-}
-
-export const sha256 = (s: string | Buffer) => createHash('sha256').update(s).digest('hex');
-const base = (p: string) => p.split('/').pop()!;
-
-export function jobs(): Job[] {
-  const out: Job[] = [];
-  // Within klein 4B, E4 (needed for G1 on 31 Oct) goes before the E3 control.
-  const order = ['E1', 'E2', 'E4', 'E3', 'E5'];
-  for (const fam of FAMILY_ORDER) {
-    for (const e of EXPERIMENTS.filter(x => x.family === fam).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))) {
-      const f = FAMILIES[e.family];
-      for (const p of e.prompts) for (const seed of e.seeds) {
-        out.push({
-          id: `${e.variant ? e.variant + '-' : ''}${p.id}-s${seed}`, exp: e.id, variant: e.variant, family: e.family,
-          workflow: e.workflow, modelFile: base(f.files.model), textEncoder: base(f.files.textEncoder), vae: base(f.files.vae),
-          lora: f.files.lora ? base(f.files.lora) : undefined, licence: f.licence,
-          width: e.width, height: e.height, steps: e.steps, cfg: e.cfg, sampler: e.sampler, scheduler: e.scheduler, seed,
-          promptId: p.id, promptTitle: p.title, use: p.use, prompt: p.text, promptSha: sha256(p.text),
-          reference: p.reference, zone: p.zone, core: e.core, estS: e.estS, checks: e.checks,
-        });
-      }
-    }
-  }
-  return out;
-}
-
-export function loadWorkflow(name: string): { graph: Record<string, { class_type: string; inputs: Record<string, unknown>; _meta?: unknown }>; sha: string } {
-  const raw = readFileSync(join(WORKFLOW_DIR, WORKFLOWS[name].file), 'utf8');
-  return { graph: JSON.parse(raw), sha: sha256(raw) };
-}
+/** Within klein 4B, E4 (needed for G1 on 31 Oct) goes before the E3 control. */
+export const jobs = (): Job[] => buildJobs(EXPERIMENTS, FAMILY_ORDER, ['E1', 'E2', 'E4', 'E3', 'E5']);
 
 /** The workflow with this job's parameters filled in. `referenceName` is the uploaded input file name. */
-export function fillWorkflow(job: Job, referenceName?: string) {
-  const wf = WORKFLOWS[job.workflow];
-  const { graph, sha } = loadWorkflow(job.workflow);
-  const values: Record<string, unknown> = {
-    prompt: job.prompt, seed: job.seed, steps: job.steps, cfg: job.cfg, sampler: job.sampler, width: job.width, height: job.height,
-    scheduler: job.scheduler, reference: referenceName, megapixels: +(job.width * job.height / 1048576).toFixed(4),
-    prefix: `msp-ai1/${job.exp}/${job.id}`,
-  };
-  for (const [key, targets] of Object.entries(wf.bind)) {
-    for (const [node, input] of targets!) {
-      if (!graph[node] || !(input in graph[node].inputs)) throw new Error(`${job.workflow}: binding ${key} → ${node}.${input} not in the graph`);
-      if (values[key] === undefined) throw new Error(`${job.id}: no value for ${key}`);
-      graph[node].inputs[input] = values[key];
-    }
-  }
-  return { graph, workflowSha: sha, graphSha: sha256(JSON.stringify(graph)) };
-}
+export const fillWorkflow = (job: Job, referenceName?: string) => fillCore(job, referenceName, 'msp-ai1');
 
-/** Files each family needs, relative to the models folder. */
-export const familyFiles = (f: Family) => [f.files.model, f.files.textEncoder, f.files.vae, ...(f.files.lora ? [f.files.lora] : []), ...(f.files.extra ?? [])];
+// ------------------------------------------------------------------ hooks: E4 scaffolds and the E5 source pick
+
+/** lab/ai1/scaffolds.ts writes here (imported lazily: it imports OUT_DIR from this file). */
+export const SCAFFOLD_DIR = join(OUT_DIR, 'scaffolds');
+const STATIC_REFS = ['shelf', 'room'];
+const scaffoldPng = (name: string) => join(SCAFFOLD_DIR, `${name}.png`);
+const scaffoldSlots = (name: string): Slot[] | undefined => {
+  try { return JSON.parse(readFileSync(join(SCAFFOLD_DIR, `${name}.json`), 'utf8')).slots; } catch { return undefined; }
+};
+
+export const hooks: BatchHooks = {
+  async prepare() {
+    if (!STATIC_REFS.every(n => existsSync(scaffoldPng(n)))) {
+      const { renderScaffolds } = await import('./scaffolds.ts');
+      await renderScaffolds();
+    }
+  },
+  referenceFile(j, ctx) {
+    if (!j.reference) return undefined;
+    if (j.reference.startsWith('auto:')) return pickE4Shelf(ctx);
+    return existsSync(scaffoldPng(j.reference)) ? scaffoldPng(j.reference) : undefined;
+  },
+  validationReference: j => scaffoldPng(j.reference?.startsWith('auto:') ? 'shelf' : j.reference!),
+  async familyBlocked(f, ctx) {
+    if (f === 'qwen' && !(await pickE4Shelf(ctx))) return 'no E4 shelf to relight';
+    return undefined;
+  },
+  slotsFor: j => (j.reference?.startsWith('auto:') || j.reference === 'shelf' ? scaffoldSlots('shelf') : j.reference === 'room' ? scaffoldSlots('room') : undefined),
+  inputSlide(j, side) {
+    if (j.reference && STATIC_REFS.includes(j.reference)) return { id: 'scaffold', file: scaffoldPng(j.reference), note: 'the code scaffold (input)' };
+    if (j.reference?.startsWith('auto:') && side.reference) return { id: 'source', file: join(ROOT, side.reference), note: `source ${String(side.reference).split('/').slice(-2).join('/')} (best E4 slot fit)` };
+    return undefined;
+  },
+  summaryNotes(ctx) {
+    const src = ctx.pick('e5_source');
+    return src ? [`E5 relit ${src.split('/').slice(-2).join('/')} (the E4 shelf with the best slot fit).`] : [];
+  },
+  dryRunNotes: () => [`scaffolds: ${STATIC_REFS.map(n => `${n} ${existsSync(scaffoldPng(n)) ? 'ok' : 'missing (rendered at start)'}`).join(', ')}`],
+};
+
+/** E5 relights the E4 shelf whose slots stayed closest to the code rectangles (picked by code, not taste). */
+async function pickE4Shelf(ctx: RunnerCtx): Promise<string | undefined> {
+  const kept = ctx.pick('e5_source');
+  if (kept && existsSync(kept)) return kept;
+  const shelf = scaffoldSlots('shelf');
+  let best: { file: string; key: number[] } | undefined;
+  for (const j of jobs().filter(x => x.exp === 'E4' && x.reference === 'shelf' && ctx.isDone(x))) {
+    const c = await ctx.checksFor(j, shelf);
+    const m = c.metrics as { slot_min_iou?: number; slot_max_offset_px?: number; palette_de2000_snapped?: number };
+    // Best = highest min IoU, then smallest offset, then closest to the brand palette.
+    const key = [-(m.slot_min_iou ?? 0), m.slot_max_offset_px ?? 99, m.palette_de2000_snapped ?? 99];
+    const better = (a: number[], b: number[]) => { const i = a.findIndex((v, k) => v !== b[k]); return i >= 0 && a[i] < b[i]; };
+    if (!best || better(key, best.key)) best = { file: ctx.pngOf(j), key };
+  }
+  if (best) ctx.pick('e5_source', best.file);
+  return best?.file;
+}
 
 if (import.meta.main) {
   const all = jobs();

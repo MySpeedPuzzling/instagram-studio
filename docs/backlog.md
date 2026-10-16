@@ -2,19 +2,24 @@
 
 Build and ops work for the pipeline. Content ideas live in `docs/ideas/` (public, aggregates) and
 `content/ideas/backlog.md` (local). Tick items off here when done; add new ones at the right priority.
-Updated 2026-10-14.
+Updated 2026-10-16.
 
 ## Now
 
 - [x] Owner feedback on DL1 styles and DL2 formats (2026-10-14) → `docs/decisions.md`, `docs/design/house-brief.md`.
-- [ ] DL4 house system: `src/design/house.ts` + all approved content re-rendered in it + mock profile grid
-      (3–4 weeks, incl. an owner-photo placeholder); owner picks → record in `docs/decisions.md`.
-- [ ] Restyle the funny-facts cartoons so they don't read as AI art (piece/box compositions, bold flat poster shapes
-      or type-led jokes); keep the jokes.
-- [ ] Reels: re-skin into the house style, fill the full 9:16 frame, add a feature-reveal Reel (HyperFrames).
-- [ ] Outlined logo for dark grounds (SVG + white outline filter; ref `assets/brand/email-logo.png`), logo ≈ 1.5×.
-- [ ] Illustration lab IL1 (`docs/design/house-brief.md` last section): same jokes + a few site-like spots in 4–6
-      illustration directions; may lead to a new illustration style for the MSP website too (then a task in the MSP repo).
+- [x] DL4 house system built (2026-10-16): `src/design/house.ts`, variants H1–H3, all approved content (data, image
+      formats, ideas, funny facts, timely stories, Stories, Reels) in each, profile grids, 0 QA errors.
+- [ ] **Owner verdict on DL4** (variant + per-slide) → `docs/decisions.md`; then fold in the house proposals:
+      per-ground art palette (`--a-*`), `cover()` with art in poster/chapter layouts, family CSS hook in `run.ts`,
+      shared geometry/board/ring helpers (copied across families now), `heroFitUnit`, an "ink on device" token, a
+      lighter second chart colour on sky (hot and cool are both near-black), story layouts in `cover()`.
+- [x] Funny facts restyled (real pieces/box images, flat poster, type-led; J1 compares them); timely stories restyled.
+- [ ] Owner pick for the funny-facts approach (J1: A pieces/boxes recommended as default, C type-led for one-offs).
+- [x] Reels in the house style, full 9:16, plus the XP feature-reveal Reel (`lab/dl4/reels/`, 12 renders).
+- [x] Outlined logo (`assets/brand/speedpuzzling-logo-outline.svg`), ≈ 1.5× in every footer.
+- [ ] IL1 overnight run (prepared and validated 2026-10-16; needs the owner's go-ahead, then morning review → style
+      guide + reference set; may lead to a task in the MSP repo for the website).
+- [ ] Decide the series of `75-years` (milestone = coral in H3, or fun with the timely stories).
 - [ ] Feedback still to collect: DL3 visuals, AI1 images.
 - [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.
 
@@ -52,6 +57,9 @@ Updated 2026-10-14.
 - `lab/ai1` E5 (Qwen relight) can't pass the calm gate on a 36 GB Mac (needs ≥ 32 GB free); drop or run at 768 px.
 - AI1 E2 material textures: no clear win over code textures; one has a rounded-corner artifact.
 - Some DL3 G2 spirit-animal stats use substitute queries (see the G2 file header).
+- DL4: kickers now cut with an ellipsis instead of failing QA when too long (check long kickers by eye); in H3 the
+  museum's beige AI plates sit oddly against sky panels; H2 posters shrink image-led covers by ~150–200 px.
+- DL4 tier-list detail slides credit "box art: Ravensburger unless noted" rather than Puzzle · Brand per row (as DL3).
 
 ## Small open questions for the owner
 

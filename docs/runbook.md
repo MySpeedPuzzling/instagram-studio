@@ -57,6 +57,25 @@ node tools/ai-batch.ts --unschedule
 Measured on the M3 Max 36 GB (AI1, 2026-10-14): Z-Image Turbo Q8 ~140 s/image at 1088×1360, 16 GB; klein 4B Q8
 ~110–180 s, 17 GB; klein 9B Q8 ~80 s at 1024², 20 GB. Batch spec: `lab/ai1/batch.ts`; workflows `lab/ai1/workflows/`.
 
+**Batch files.** The runner takes the spec from a batch file; AI1 is the default. Every command above works with
+`--batch`, e.g. the illustration lab IL1 (`lab/ai2/README.md`):
+
+```sh
+node tools/ai-batch.ts --batch lab/ai2/batch.ts --dry-run      # plan, time budget vs the window, files, calm check
+node tools/ai-batch.ts --batch lab/ai2/batch.ts --validate     # ComfyUI headless, no jobs: every job graph vs /object_info
+node tools/ai-batch.ts --batch lab/ai2/batch.ts --schedule --at 22:30   # launchd label cz.myspeedpuzzling.instagram.il1
+node tools/ai-batch.ts --batch lab/ai2/batch.ts --status | --gallery | --unschedule
+```
+
+A new batch is a file `lab/<lab>/batch.ts` built on `lab/ai/core.ts` (model families, workflows, `buildJobs`,
+`fillWorkflow`): it exports `LAB_ID` (output in `content/labs/<LAB_ID>/`), `OUT_DIR`, `FAMILIES`, `FAMILY_ORDER`,
+`WORKFLOWS`, `EXPERIMENTS` (ids like `E1`, `I3`), `jobs()`, `fillWorkflow`, `familyFiles`, `sha256`, and optionally
+`TITLE`, `LABEL`, `LAST_FAMILIES` and `hooks` (inputs such as scaffolds, reference files, extra gallery slides).
+Add it to the compile-time check `BatchFilesConform` in `tools/ai-batch.ts`. Run one batch per night (they share the
+ComfyUI port). Dry test without ComfyUI: `AI1_TEST_MODE=1 AI_LAB_ID=IL1TEST COMFYUI_PORT=<mock port> node
+tools/ai-batch.ts --batch lab/ai2/batch.ts --now` against a mock API (test lab ids only; delete `content/labs/*TEST`
+afterwards).
+
 ## Drafts, review, publishing
 
 1. Draft with the `ig-draft` skill (fresh queries → `facts.json` → slides → caption + alt text → `in_review`).

@@ -1,6 +1,7 @@
 // DL1 review gallery. Every slide has a short code (e.g. "D4-3") so feedback can be given per slide, per
 // direction, or in chat. Feedback posts to the local review server and lands in
 // content/labs/DL1/feedback.jsonl (latest entry per target wins).
+import { LAB_NAV_CSS, labNav } from '../../src/review/nav.ts';
 import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { escapeHtml as h } from '../../src/design/page.ts';
@@ -114,8 +115,9 @@ section.dir { background: var(--card); border: 1px solid var(--line); border-rad
 .auto li.pass { color: var(--ok); } .auto li.fail { color: var(--bad); }
 .verdict { background: #f7f8fb; border-radius: 12px; margin: 12px 0 16px; }
 .verdict .rate textarea { min-height: 54px; }
+${LAB_NAV_CSS}
 </style></head><body>
-<header><h1>Design lab ${labId.replace('DL', '')}</h1><a href="#how">How it works</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
+<header>${labNav(labId)}<h1>${labId.startsWith('DL') ? `Design lab ${labId.replace('DL', '')}` : labId}</h1><a href="#how">How it works</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
 <main>
 <div class="intro" id="how">
 <h2>What you're looking at</h2>

@@ -1,5 +1,6 @@
 // Local review app: the owner's approve / refine / reject surface for drafts.
 // Feed, grid and Story mocks show each draft the way followers will meet it (Instagram-simulated previews).
+import { labNavLinks } from './nav.ts';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -72,7 +73,7 @@ button.primary { background: var(--accent); color: #fff; } button.secondary { ba
 
 const layout = (title: string, body: string, script = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>${h(title)}</title><style>${CSS}</style></head>
-<body><header><b>MSP review</b><a href="/review">Drafts</a><a href="/content/labs/DL4/">House system (DL4)</a><a href="/content/labs/DL1/">Design lab (styles)</a><a href="/content/labs/DL2/">Creative lab (formats)</a><a href="/content/labs/DL3/">Idea prototypes</a><a href="/content/labs/AI1/">AI images</a><a href="/content/labs/IL1/">Illustration lab (IL1)</a><a href="/content/labs/LM1/">Logo motion (LM1)</a></header><main>${body}</main>
+<body><header><b>MSP review</b><a href="/review">Drafts</a>${labNavLinks().replace('<a href="/review">Review app</a>', '')}</header><main>${body}</main>
 <script>
 async function post(path, data) {
   const r = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data || {}) });

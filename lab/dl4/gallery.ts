@@ -2,6 +2,7 @@
 // per variant (4 weeks of 3 posts, one of them the owner's own photo post), side-by-side compares of key posts, then
 // every slide of every variant with a code (H2-14) and Works / Unsure / No-go + note. Feedback posts to the review
 // server and lands in content/labs/DL4/feedback.jsonl (latest entry per target wins).
+import { LAB_NAV_CSS, labNav } from '../../src/review/nav.ts';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GROUNDS, SERIES_GROUND, SERIES_NAME, SERIES_OF, VARIANTS, type Series } from '../../src/design/house.ts';
@@ -170,8 +171,9 @@ section.dir { background: var(--card); border: 1px solid var(--line); border-rad
 .rate .saved { font-size: 12px; color: var(--ok); }
 .verdict { background: #f7f8fb; border-radius: 12px; margin: 12px 0 16px; }
 details.fam { margin-top: 10px; } details.fam > summary { cursor: pointer; font: 600 16px Rubik, sans-serif; padding: 8px 0; }
+${LAB_NAV_CSS}
 </style></head><body>
-<header><h1>DL4 · house system</h1><a href="/review">Review app</a><a href="#how">How it works</a><a href="#variants">Variants</a><a href="#grids">Profile grids</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
+<header>${labNav(LAB)}<h1>DL4 · house system</h1><a href="#how">How it works</a><a href="#variants">Variants</a><a href="#grids">Profile grids</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
 <main>
 <div class="intro" id="how">
 <h2 style="margin-top:6px">What you're looking at</h2>

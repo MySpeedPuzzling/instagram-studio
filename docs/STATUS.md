@@ -31,7 +31,7 @@ H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran
 
 1. **House style chosen in principle (2026-10-17): H4** = H2 poster as the first (title) slide + H1 navy board for
    the rest, two text colours, one navy, poster colour by post type. Still open, compared in DL4 **K1**: brand vs
-   deep navy and the seam shape (5 options). Funny-facts posters: coral (no green).
+   deep navy. Seam: the original cut (K1-9). Funny-facts posters: coral (no green).
 2. Later (not now): Reels intro/outro and logo motion (LM1), illustration style (IL1, J1 funny-fact approaches).
 3. Small questions at the end of `docs/backlog.md`.
 

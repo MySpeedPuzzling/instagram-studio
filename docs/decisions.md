@@ -171,3 +171,4 @@ Docker and other unneeded apps turned off.
 - **Purple headings back** (owner reverted the same day): kickers, board headers and labels keep H1's purple
   (indigo-300 on navy, indigo-800 on coral/sky posters); the concern was "never too many colours", not the purple.
   Text palette in H4: white titles, grey body, purple kickers/labels, coral highlights, nothing more.
+- **Seam shape: the original cut** (grid4, K1-9; owner same day). H4 keeps `seam: 'grid4'`. Only brand vs deep navy remains open.

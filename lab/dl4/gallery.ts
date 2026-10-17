@@ -40,6 +40,18 @@ const GRID_WEEKS: Array<Array<string | null>> = [
   ['month', null, 'cats-dogs'],
   ['event', 'fun-minute-58', 'sep-mosaic'],
 ];
+/** Open decisions shown at the top as plain A/B pairs: the same slides, option next to option. Remove when decided. */
+const DECISIONS: Array<{ id: string; question: string; why: string; options: Array<{ key: string; post: string; label: string; note: string }> }> = [
+  {
+    id: 'navy', question: 'Which navy should every slide use?',
+    why: 'Only the background colour differs; each row shows the same slide in A and B. Both are well above accessibility contrast for white text (12.5:1 and 14.4:1).',
+    options: [
+      { key: 'A', post: 'k1-navy-brand', label: 'A · Brand navy #2b3445', note: 'The MSP brand navy (website). Small coral text is a touch under the AA limit (4.3:1), which H4 avoids by using coral only large.' },
+      { key: 'B', post: 'k1-navy-deep', label: 'B · Deep navy #222a38', note: 'A shade darker: a bit more contrast and drama; small coral text passes AA (5.0:1). Slightly further from the website colour.' },
+    ],
+  },
+];
+
 /** Posts shown side by side in the three variants. */
 const COMPARE = ['wall', 'weekly', 'record', 'sep-mosaic', 'potw', 'atlas', 'fun-edges', 'clocks-back', 'story-chapters', 'reel-xp'];
 
@@ -173,10 +185,15 @@ section.dir { background: var(--card); border: 1px solid var(--line); border-rad
 .rate textarea { width: 100%; font: inherit; font-size: 13px; border: 1px solid var(--line); border-radius: 8px; padding: 6px; }
 .rate .saved { font-size: 12px; color: var(--ok); }
 .verdict { background: #f7f8fb; border-radius: 12px; margin: 12px 0 16px; }
+.decide { background: #fff; border: 2px solid var(--accent); border-radius: 16px; padding: 14px 18px; margin: 18px 0; }
+.dec-opts, .dec-row { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 18px; }
+.dec-opt { background: #f7f8fb; border-radius: 12px; padding: 4px 12px; } .dec-opt h3 { margin: 10px 0 4px; }
+.dec-row { margin-top: 14px; } .dec-row figure { margin: 0; } .dec-row img { width: 100%; display: block; border-radius: 8px; }
+.dec-row figcaption { font: 600 13px Rubik, sans-serif; color: var(--accent); margin-bottom: 4px; }
 details.fam { margin-top: 10px; } details.fam > summary { cursor: pointer; font: 600 16px Rubik, sans-serif; padding: 8px 0; }
 ${LAB_NAV_CSS}
 </style></head><body>
-<header>${labNav(LAB)}<h1>DL4 · house system</h1><a href="#how">How it works</a><a href="#variants">Variants</a><a href="#grids">Profile grids</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
+<header>${labNav(LAB)}<h1>DL4 · house system</h1><a href="#decide-navy">Decide</a><a href="#how">How it works</a><a href="#variants">Variants</a><a href="#grids">Profile grids</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
 <main>
 <div class="intro" id="how">
 <h2 style="margin-top:6px">What you're looking at</h2>
@@ -193,6 +210,15 @@ chapter idea; Reels fill the whole 9:16 frame.</p>
 Works / Unsure / No-go and a note. It saves as you go. Or write codes in the chat. Images are what followers see after
 Instagram's re-encode; tap a slide for full size. ${totalSlides('H1') + totalSlides('H2') + totalSlides('H3')} slides in the three variants · QA errors: ${qaErrors}.</p>
 </div>
+
+${DECISIONS.filter(d => d.options.every(o => byId.K1?.some(p => p.key === o.post))).map(d => {
+    const opts = d.options.map(o => ({ ...o, slides: byId.K1.find(p => p.key === o.post)!.slides }));
+    const rows = Math.max(...opts.map(o => o.slides.length));
+    return `<section class="decide" id="decide-${d.id}"><h2 style="margin-top:4px">Decide: ${h(d.question)}</h2><p class="idea">${h(d.why)}</p>
+    <div class="dec-opts">${opts.map(o => `<div class="dec-opt"><h3>${h(o.label)}</h3><p class="idea">${h(o.note)}</p>${rate(`decision:${d.id}:${o.key}`, 'data-kind="decision"')}</div>`).join('')}</div>
+    ${Array.from({ length: rows }, (_, i) => `<div class="dec-row">${opts.map(o => o.slides[i] ? `<figure><figcaption>${h(o.label.split(' · ')[0])} · ${o.slides[i].code}</figcaption><a href="${o.slides[i].jpg}" target="_blank"><img loading="lazy" src="${o.slides[i].preview}" alt="${o.slides[i].code}"></a></figure>` : '<figure></figure>').join('')}</div>`).join('')}
+    </section>`;
+  }).join('')}
 
 <h2 id="variants">What each variant does differently</h2>
 <div class="vars">${variants.map(d => {

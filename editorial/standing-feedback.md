@@ -22,6 +22,7 @@ How to maintain it:
   "no blue/purple text", then reverted: "put the purple back, I said never use too many colours")
 - **One navy** on every slide, never two navies side by side (brand #2b3445 vs deep #222a38 being decided in DL4 K1).
   (owner, 2026-10-17)
+- **Poster seam: the original cut** (grid4: 4 generator pieces, knobs as they fall). (owner, 2026-10-17, K1-9)
 - **No green** in the house style. (owner, 2026-10-17)
 - **Poster colour by type of post:** data desk and atlas sky, the week indigo, milestones, events, funny facts and
   timely stories coral, puzzles ocean. (owner, 2026-10-17)

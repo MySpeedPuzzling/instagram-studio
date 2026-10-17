@@ -5,7 +5,7 @@
 //     plot, not bars, so the axis may start near the times);
 //   3 the twist: fastest single solves and the most-solved contender, then the question to the community.
 // Every number comes from the facts snapshot passed in (a fresh query on the day); nothing is typed into copy.
-import { CW, X0, artCover, clock, f1, frame, slide, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
+import { CW, STICKER_STORY_ROWS, X0, artCover, clock, f1, frame, slide, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtDuration, fmtInt } from '../design/page.ts';
 
 export interface Contender {
@@ -197,7 +197,7 @@ export function fasterAlt(s: FasterSpec): string[] {
 
 /**
  * Two 9:16 Story frames that follow the post (posted by hand, the owner adds the sticker in the app):
- *   1 the question, with an empty zone (y ≈ 1010–1430) for Instagram's POLL sticker (a quiz sticker would reveal the
+ *   1 the question, with an empty zone (y ≈ 950–1580) for Instagram's POLL sticker (a quiz sticker would reveal the
  *     answer on tap and spoil the next day's reveal);
  *   2 the answer for the next day, with an empty zone for a link sticker to the post.
  */
@@ -209,18 +209,19 @@ export function fasterStories(v: Variant, s: FasterSpec): string[] {
   const ctx = (i: number): SlideCtx => ({ v, post: `${s.key}-story`, slide: i, of: 2 });
   const groundOf = (i: number) => v.ground({ ...slotOf(ctx(i), 'story'), role: 'story' });
 
-  // The poll sticker (3 options) is ~400 px tall at its default size, so the frame keeps y ≈ 1010–1430 empty for it;
-  // the postcards carry no city labels (the poll's answers name them, the landmarks make each card obvious).
-  const cardW = 260, cardH = cardW * 0.735;
+  // A 3-option poll sticker is ~600 px tall at its default size (measured on the owner's phone, 2026-10-17), so this
+  // frame uses the sticker rows (header high, footer low) and keeps y ≈ 950–1580 empty for it. The postcards carry no
+  // city labels: the poll's answers name them and the landmarks make each card obvious.
+  const cardW = 230, cardH = cardW * 0.735;
   const cards = s.contenders.map((c, i) => {
     const cx = X0 + (CW / s.contenders.length) * (i + 0.5);
     const tilt = -6 + (12 * i) / Math.max(1, s.contenders.length - 1);
-    return `<div class="fq-card" style="left:${f1(cx - cardW / 2)}px; top:${f1(790 + (i % 2) * 14)}px; width:${cardW}px; height:${f1(cardH)}px; transform:rotate(${f1(tilt)}deg); z-index:${i + 1}"><img src="${c.img}" alt=""></div>`;
+    return `<div class="fq-card" style="left:${f1(cx - cardW / 2)}px; top:${f1(720 + (i % 2) * 12)}px; width:${cardW}px; height:${f1(cardH)}px; transform:rotate(${f1(tilt)}deg); z-index:${i + 1}"><img src="${c.img}" alt=""></div>`;
   }).join('');
   const question = frame({
-    ground: groundOf(1), kind: 'story', kicker: s.kicker, device: v.device, src: '',
-    body: CSS + `<h1 class="h-title" style="top:420px; font-size:64px; line-height:1.06">${h(s.question)}</h1>
-      <p class="h-abs h-lead" style="top:650px; color:var(--g-soft)">Vote below. The answer comes in tomorrow's Story.</p>${cards}`,
+    ground: groundOf(1), kind: 'story', kicker: s.kicker, device: v.device, src: '', rows: STICKER_STORY_ROWS,
+    body: CSS + `<h1 class="h-title" style="top:366px; font-size:62px; line-height:1.06">${h(s.question)}</h1>
+      <p class="h-abs h-lead" style="top:580px; color:var(--g-soft)">Vote below. The answer comes in tomorrow's Story.</p>${cards}`,
   });
 
   const answer = frame({

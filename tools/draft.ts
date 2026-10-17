@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { lintCaption } from '../src/captions/lint.ts';
 import { fetchBoxes } from '../src/data/boxes.ts';
 import { query, type QueryResult } from '../src/data/db.ts';
-import { HOUSE, HOUSE_CSS, activateVariant } from '../src/design/house.ts';
+import { HOUSE, HOUSE_CSS, STICKER_STORY_SAFE, activateVariant } from '../src/design/house.ts';
 import { page } from '../src/design/page.ts';
 import { existsSync } from 'node:fs';
 import { DRAFTS, loadDraft, saveDraft, type Draft } from '../src/drafts/model.ts';
@@ -72,7 +72,7 @@ if (frozen) {
   const r = await createRenderer(join(DRAFTS, b.id));
   try {
     for (const [i, body] of (b.stories ?? []).entries()) {
-      const res = await r.render({ id: `stories/story-${i + 1}`, html: page(body, { frame: 'story', css: HOUSE_CSS, title: `${b.id} story ${i + 1}` }), frame: 'story' });
+      const res = await r.render({ id: `stories/story-${i + 1}`, html: page(body, { frame: 'story', css: HOUSE_CSS, title: `${b.id} story ${i + 1}` }), frame: 'story', ...(i === 0 ? { safe: STICKER_STORY_SAFE } : {}) });
       console.log(`story ${i + 1}: ${res.qa.errors.length} QA errors`);
     }
   } finally { await r.close(); }
@@ -94,7 +94,7 @@ const slides = await metered(join(ROOT, 'content/drafts/runs.jsonl'), { draft: b
     }
     // Story frames that follow the post (posted by hand with a sticker): content/drafts/<id>/stories/story-N.jpg
     for (const [i, body] of (b.stories ?? []).entries()) {
-      const res = await renderer.render({ id: `stories/story-${i + 1}`, html: page(body, { frame: 'story', css: HOUSE_CSS, title: `${b.id} story ${i + 1}` }), frame: 'story' });
+      const res = await renderer.render({ id: `stories/story-${i + 1}`, html: page(body, { frame: 'story', css: HOUSE_CSS, title: `${b.id} story ${i + 1}` }), frame: 'story', ...(i === 0 ? { safe: STICKER_STORY_SAFE } : {}) });
       errors.push(...res.qa.errors.map(e => `story ${i + 1}: ${e}`));
     }
   } finally { await renderer.close(); }

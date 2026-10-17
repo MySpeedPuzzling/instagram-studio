@@ -59,6 +59,10 @@ How to maintain it:
 
 ## Formats
 
+- **Story frames that get an Instagram sticker** (poll, quiz, link) leave real room for it: a 3-option poll is ~600 px
+  tall at default size. Use `STICKER_STORY_ROWS` (header high, footer low) and check with a life-size guide image.
+  Use a poll, not a quiz sticker, when the answer comes later (a quiz reveals it on tap). (owner, 2026-10-17)
+
 - **Reels:** no logo intro; by default no outro (it breaks the loop); optionally the 0.6 s loop-back sting.
   Decision on logo motion is open (LM1). (research 2026-10-16, owner to confirm)
 - **Box images:** credit the brand on every slide that shows one; quiz clues say "Mystery puzzle · Brand". No player

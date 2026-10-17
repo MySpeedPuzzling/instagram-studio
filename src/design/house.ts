@@ -301,6 +301,8 @@ export interface FrameOptions {
   noRule?: boolean;
   /** Header text colours over an `under` layer of a different ground. */
   headGround?: GroundKey;
+  /** Override the frame's rows (e.g. a Story that needs the most room for a sticker: header higher, footer lower). */
+  rows?: Partial<{ headTop: number; ruleTop: number; footRule: number; footTop: number }>;
 }
 
 /** Source line with the site name set as the brand mention (bold, ink, slightly larger) so every post promotes MSP. */
@@ -312,7 +314,7 @@ export const siteLine = (src: string) => {
 export function frame(o: FrameOptions): string {
   const g = GROUNDS[o.ground];
   const kind = o.kind ?? 'feed';
-  const r = rowsFor(kind);
+  const r = { ...rowsFor(kind), ...(o.rows ?? {}) };
   const hg = o.headGround ? GROUNDS[o.headGround] : g;
   const [i, n] = o.idx ?? [1, 1];
   const device = o.device === 'strip' ? pieceStrip(n, i) : pieceMark();
@@ -670,3 +672,9 @@ export function artCover(c: SlideCtx, s: ArtCoverSpec): string {
   const g = GROUNDS[v.ground(slot)];
   return frame({ ground: g.key, kicker: s.kicker, idx, device: v.device, body: text() + s.art({ top: Math.round(textBottom + 48), bottom: FEED.contentBottom }, g), src: s.src });
 }
+
+/** Story rows for frames that carry a big Instagram sticker (poll, quiz): header near the top, footer near the
+ *  bottom, keeping clear of Instagram's own overlays (~240 px at the top, ~200 px at the bottom). Render with
+ *  STICKER_STORY_SAFE so QA checks text against these limits. */
+export const STICKER_STORY_ROWS = { headTop: 250, ruleTop: 334, footRule: 1606, footTop: 1622 } as const;
+export const STICKER_STORY_SAFE = { x0: 65, y0: 240, x1: 1015, y1: 1720 } as const;

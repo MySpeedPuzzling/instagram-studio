@@ -27,10 +27,11 @@ export const POST_LABEL: Record<string, string> = {
 };
 
 const FAMILY_OF = (key: string) =>
+  key.startsWith('k1-navy') ? 'Navy: brand vs deep' : key.startsWith('k1-seam') ? 'Poster seam shapes' : key.startsWith('k1-fun') ? 'Funny-facts poster colour' :
   key.startsWith('reel-') ? 'Reels' : key.startsWith('story-') ? 'Stories' : key.startsWith('fun-') || ['clocks-back', 'night-owls', 'missing-piece', '75-years'].includes(key) ? 'Funny facts & timely stories'
     : ['sep-wall', 'sep-mosaic', 'week-wall', 'event-collage', 'potw', 'guess', 'faster'].includes(key) ? 'Image formats (DL2)'
     : ['atlas', 'cats-dogs', 'tier-list', 'museum'].includes(key) ? 'Ideas (DL3)' : key.startsWith('j1-') ? 'Approaches' : 'Data posts (DL1)';
-const FAMILIES = ['Data posts (DL1)', 'Image formats (DL2)', 'Ideas (DL3)', 'Funny facts & timely stories', 'Stories', 'Reels', 'Approaches'];
+const FAMILIES = ['Navy: brand vs deep', 'Poster seam shapes', 'Funny-facts poster colour', 'Data posts (DL1)', 'Image formats (DL2)', 'Ideas (DL3)', 'Funny facts & timely stories', 'Stories', 'Reels', 'Approaches'];
 
 /** Four weeks, three posts a week, oldest first; null = the owner's own photo post. */
 const GRID_WEEKS: Array<Array<string | null>> = [
@@ -59,7 +60,9 @@ const label = (key: string, fallback?: string) => fallback ?? POST_LABEL[key] ??
 
 export function buildGallery() {
   const dirs = readDirs();
-  const variants = dirs.filter(d => d.id in VARIANTS);
+  // The chosen house style (H4, owner 2026-10-17) leads; H1–H3 stay as reference.
+  const ORDER = ['H4', 'H1', 'H2', 'H3'];
+  const variants = dirs.filter(d => d.id in VARIANTS).sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
   const extras = dirs.filter(d => !(d.id in VARIANTS));
   const byId = Object.fromEntries(dirs.map(d => [d.id, coded(d)]));
   const ownPosts = existsSync(join(ROOT, 'var/ig-compression'))
@@ -177,6 +180,10 @@ ${LAB_NAV_CSS}
 <main>
 <div class="intro" id="how">
 <h2 style="margin-top:6px">What you're looking at</h2>
+<p><b>New (17 Oct):</b> <b>H4</b> combines H1 and H2 as you asked (navy boards, puzzle posters only on covers and big
+facts, one navy, white + grey text with coral highlights, poster colour by type of post). <b>K1</b> at the bottom shows
+the open choices side by side: brand navy vs deep navy, five seam shapes, and the funny-facts poster colour. Mark the
+ones you want with Works.</p>
 <p>One shared <b>house module</b> (grounds, type, header with one brand device, the outlined logo ≈ 1.5× bigger, chart colours,
 slashed-zero times) and <b>three variants</b> built on it. All approved content from DL1, DL2 and DL3 is in every variant;
 the layouts are the same, only the design system differs, so you can compare like for like. Funny facts and timely
@@ -190,7 +197,7 @@ Instagram's re-encode; tap a slide for full size. ${totalSlides('H1') + totalSli
 <h2 id="variants">What each variant does differently</h2>
 <div class="vars">${variants.map(d => {
     const v = VARIANTS[d.id as keyof typeof VARIANTS];
-    const grounds = d.id === 'H1' ? [swatch('navy'), swatch('navyDeep')].join('') : d.id === 'H2' ? [swatch('navy'), swatch('navyDeep'), swatch('coral'), swatch('sky'), swatch('indigo'), swatch('ocean')].join('') : '';
+    const grounds = d.id === 'H4' ? [swatch('navy'), swatch('sky'), swatch('indigo'), swatch('coral'), swatch('ocean'), swatch('green')].join('') : d.id === 'H1' ? [swatch('navy'), swatch('navyDeep')].join('') : d.id === 'H2' ? [swatch('navy'), swatch('navyDeep'), swatch('coral'), swatch('sky'), swatch('indigo'), swatch('ocean')].join('') : '';
     return `<div class="var"><h3>${d.id} · ${h(v.name)}</h3><p>${h(v.idea)}</p>${d.id === 'H3' ? `<p>${seriesRow}</p>` : `<p>${grounds}</p>`}<p style="color:var(--muted)">${totalSlides(d.id)} slides</p></div>`;
   }).join('')}</div>
 

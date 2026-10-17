@@ -9,7 +9,8 @@ Updated 2026-10-16.
 - [x] Owner feedback on DL1 styles and DL2 formats (2026-10-14) → `docs/decisions.md`, `docs/design/house-brief.md`.
 - [x] DL4 house system built (2026-10-16): `src/design/house.ts`, variants H1–H3, all approved content (data, image
       formats, ideas, funny facts, timely stories, Stories, Reels) in each, profile grids, 0 QA errors.
-- [ ] **Owner verdict on DL4** (variant + per-slide) → `docs/decisions.md`; then fold in the house proposals:
+- [x] DL4 verdict (2026-10-17): H4 = H2 poster first slide + H1 board; H3 design out (content kept).
+- [ ] K1 choices (navy, seam shape, funny-facts colour) → then make H4 the default and fold in the house proposals:
       per-ground art palette (`--a-*`), `cover()` with art in poster/chapter layouts, family CSS hook in `run.ts`,
       shared geometry/board/ring helpers (copied across families now), `heroFitUnit`, an "ink on device" token, a
       lighter second chart colour on sky (hot and cool are both near-black), story layouts in `cover()`.
@@ -40,6 +41,9 @@ Updated 2026-10-16.
       verification steps, then prototype in LM1. Durations/notes: `research_notes/…/logo_motion_durations.md`.
 
 ## Build: from labs to production
+
+- [x] Standing feedback memory: `editorial/standing-feedback.md`, read by `ig-draft`/`msp-captions` and CLAUDE.md;
+      general review notes and patterns in the owner's caption edits become rules there.
 
 - [ ] `src/posts/<series>.ts` builders: one per chosen series (Weekly Numbers, Puzzle of the week, Atlas, Museum,
       tier list, timely/milestone, event preview/recap, monthly report, quiz). Each: run its queries `--fresh`, write

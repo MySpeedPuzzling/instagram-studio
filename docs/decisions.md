@@ -144,3 +144,25 @@ Docker and other unneeded apps turned off.
 - **Keep everything in the labs** as a reference: never delete lab renders, variants, AI images or feedback, and
   don't remove losing variants from the code; the chosen style becomes the default, the others stay renderable.
   Keeping them on this Mac only is fine (no backup needed): they are a reference and inspiration, not an archive.
+
+## 2026-10-17: house style direction (DL4 round 1)
+
+- **H1 and H2 liked; H3's design rejected** (its content and post ideas stay; its idea of colour by post type moves
+  into the posters).
+- **Combine H1 + H2 → H4** (`VARIANTS.H4`): H1's navy timing board for data and image slides, H2's two-piece puzzle
+  poster only on covers and single big facts ("not every slide, but some of them; the profile grid reads unified").
+- **Text colours:** no third text colour (the lavender-blue kickers/labels in H1 mixed with white and grey). Two text
+  colours: white + one grey on navy (ink + one secondary on colour grounds); coral only for highlights. Purple stays
+  in the poster tops and chart second series, not in text.
+- **One navy, not two** (H1 mixed #2b3445 and #222a38). Owner: "think about brand but contrast is important too";
+  compare in DL4 K1 (navy A brand vs B deep) before deciding.
+- **Poster top colour by type of post** (H3's idea), several colours allowed: data desk and atlas sky, the week
+  indigo, milestones and events coral, puzzles ocean, funny facts green as a trial (K1 compares green / coral / sky).
+- **Poster seam shape** to be improved: five cuts to compare in K1 (grid4 as today, bold3, classic4, drip4, tilt4).
+- **Refined the same day:** "nearly everything in H1 is really great, just fine-tune what I mentioned; H2 as the
+  facing first slide for titles, H1 for the other slides." H4 therefore makes only a post's first slide a poster
+  (`posterSlides: 'first'`); later big-fact slides use H1's navy layout.
+- **Data + visualisation together** is what the owner loves: posts with charts, boards, images, never just text.
+- **Fine-tuning happens in real drafts.** The system remembers feedback and applies it to all future posts:
+  `editorial/standing-feedback.md` (read first by every draft and revision; general review notes are added there).
+  Every draft proposes the caption and alt text; tone: **a friendly speed-puzzling community, heavily data-driven**.

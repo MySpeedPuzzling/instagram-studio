@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
-import { HOUSE_CSS, POST_ORDER, VARIANTS, type Variant } from '../../src/design/house.ts';
+import { HOUSE_CSS, POST_ORDER, VARIANTS, activateVariant, type Variant } from '../../src/design/house.ts';
 import { page } from '../../src/design/page.ts';
 import { metered } from '../../src/render/meter.ts';
 import { createRenderer } from '../../src/render/render.ts';
@@ -113,6 +113,7 @@ if (import.meta.main) {
   let errorCount = 0;
   try {
     for (const v of variants) for (const fam of families) {
+      activateVariant(v); // token overrides + seam style of this variant apply while its slides are built
       const posts = fam.posts(content, v).filter(p => !onlyPosts || onlyPosts.includes(p.key));
       if (!posts.length) continue;
       const unknown = posts.filter(p => !(POST_ORDER as readonly string[]).includes(p.key));
@@ -126,6 +127,7 @@ if (import.meta.main) {
       for (const w of r.warnings.slice(0, 8)) console.log(`  warn  ${w}`);
     }
     for (const d of extras) {
+      activateVariant(undefined);
       const posts = d.posts(content).filter(p => !onlyPosts || onlyPosts.includes(p.key));
       const n = posts.reduce((s, p) => s + p.slides.length, 0);
       const r = await metered(join(LAB_DIR, 'runs.jsonl'), { lab: 'DL4', run_id: `DL4-${d.id}`, direction: d.id, slides: n, engine: 'playwright-1.64/chromium-156' },

@@ -15,7 +15,7 @@
 //
 // Every number comes from a cached query, computed exactly as in lab/dl2/directions/f3-cartoons.ts and
 // lab/dl3/directions/g3-timely-stories.ts (re-query with --fresh before any of this is posted).
-import { CW, FEED, GROUNDS, W, X0, X1, cover, f1, frame, groundVars, hero, linesOf, posterTopPath, slide, slotOf, type Ground, type GroundKey, type Role, type SlideCtx, type Variant } from '../../../src/design/house.ts';
+import { CW, FEED, GROUNDS, W, X0, X1, cover, f1, posterAt, frame, groundVars, hero, linesOf, posterTopPath, seamReach, slide, slotOf, type Ground, type GroundKey, type Role, type SlideCtx, type Variant } from '../../../src/design/house.ts';
 import { barGeometry } from '../../../src/design/svg.ts';
 import { fmtDuration, fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
 import { generateJigsaw, type Jigsaw, type Piece } from '../../../src/pieces/jigsaw.ts';
@@ -195,6 +195,7 @@ const PAL: Record<GroundKey, Pal> = {
   sky: { fig: '#1d2433', hot: '#ec726f', cool: '#ffffff', mute: '#a8d9ff', shade: '#4892da', onHot: '#1d2433', onCool: '#1d2433' },
   indigo: { fig: '#ffffff', hot: '#ec726f', cool: '#69b3fe', mute: '#6f7ce6', shade: '#3d3eb0', onHot: '#1d2433', onCool: '#1d2433' },
   ocean: { fig: '#ffffff', hot: '#ec726f', cool: '#69b3fe', mute: '#2a74b9', shade: '#003b76', onHot: '#1d2433', onCool: '#1d2433' },
+  green: { fig: '#1d2433', hot: '#ffffff', cool: '#211281', mute: '#8de8c1', shade: '#2fb57c', onHot: '#1d2433', onCool: '#ffffff' },
 };
 const artVars = (g: Ground) => {
   const p = PAL[g.key];
@@ -342,9 +343,9 @@ export function panel(x: SlideCtx, role: Role, s: PanelSpec): string {
     const p = `<p class="fj-punch" style="font-size:${textFit(s, room).px}px">${s.punch}</p>`, w = s.wink ? `<p class="fj-wink">${s.wink}</p>` : '';
     return s.winkFirst ? w + p : p + w;
   };
-  if (v.cover === 'poster' && (role === 'cover' || role === 'fact')) {
+  if (posterAt(x) && (role === 'cover' || role === 'fact')) {
     const base = GROUNDS[v.posterBase ?? 'navyDeep'];
-    const top = SEAM + 96;
+    const top = SEAM + Math.max(96, Math.round(seamReach().down) + 20);
     const under = `<svg class="h-poster-top" width="${W}" height="1350" viewBox="0 0 ${W} 1350" aria-hidden="true"><path d="${posterTopPath(SEAM)}" fill="${g.bg}"/></svg>${layer()}`;
     const body = `<div class="fj" style="top:${top}px; height:${FEED.contentBottom - top}px">${textOf(FEED.contentBottom - top)}</div>`;
     return frame({ ground: base.key, kicker: s.kicker, idx, device: v.device, body, src: s.src, under, noRule: true, headGround: g.key });

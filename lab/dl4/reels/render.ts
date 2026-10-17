@@ -24,7 +24,7 @@ import sharp from 'sharp';
 import { lintCaption } from '../../../src/captions/lint.ts';
 import { boxPaths, fetchBoxes } from '../../../src/data/boxes.ts';
 import { query } from '../../../src/data/db.ts';
-import { VARIANTS, type Variant } from '../../../src/design/house.ts';
+import { activateVariant, VARIANTS, type Variant } from '../../../src/design/house.ts';
 import { metered, treeRssGb } from '../../../src/render/meter.ts';
 import { qaInPage } from '../../../src/render/qa.ts';
 import { ROOT, startServer } from '../../../src/render/server.ts';
@@ -261,6 +261,7 @@ if (import.meta.main) {
 
   try {
     for (const v of variants) for (const key of selected) {
+      activateVariant(v); // the variant's token overrides and seam apply while the Reel is built
       const reel = BUILDERS[key]({ c, v, largeBoxes });
       const frames = Math.round(reel.duration * FPS);
       console.log(`\n${v.id} ${key}: ${reel.duration}s, ${frames} frames`);

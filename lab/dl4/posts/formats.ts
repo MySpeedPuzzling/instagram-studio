@@ -19,7 +19,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import {
-  CW, FEED, GROUNDS, STORY, W, X0, X1, f1, frame, groundVars, linesOf, posterTopPath, slide, slotOf,
+  CW, FEED, GROUNDS, STORY, W, X0, X1, f1, posterAt, frame, groundVars, linesOf, posterTopPath, seamReach, slide, slotOf,
   type Ground, type Role, type SlideCtx, type Variant,
 } from '../../../src/design/house.ts';
 import { fmtInt, escapeHtml as h } from '../../../src/design/page.ts';
@@ -227,11 +227,11 @@ function artCover(x: SlideCtx, s: ArtCoverSpec): string {
   const text = (g?: Ground) => `<div class="h-abs" style="top:${FEED.contentTop}px${g ? `; ${groundVars(g)}` : ''}"${g ? ` data-qa-bg="${g.bg}"` : ''}>
       <h1 class="h-title" style="position:static; font-size:${titlePx}px; line-height:1.06">${h(s.title)}</h1>
       ${s.dek ? `<p class="h-dek" style="margin-top:16px">${h(s.dek)}</p>` : ''}</div>`;
-  if (v.cover === 'poster') {
+  if (posterAt(x)) {
     const top = GROUNDS[v.ground(slot)], base = GROUNDS[v.posterBase ?? 'navyDeep'];
     const seam = Math.round(textBottom + 92);
     const under = `<svg class="h-poster-top" width="${W}" height="${FEED.footRule}" viewBox="0 0 ${W} ${FEED.footRule}" aria-hidden="true"><path d="${posterTopPath(seam)}" fill="${top.bg}"/></svg>`;
-    const body = FX_CSS + text(top) + s.art({ top: seam + 96, bottom: FEED.contentBottom }, base);
+    const body = FX_CSS + text(top) + s.art({ top: seam + Math.max(96, Math.round(seamReach().down) + 20), bottom: FEED.contentBottom }, base);
     return frame({ ground: base.key, kicker: s.kicker, idx, device: v.device, body, src: s.src, under, noRule: true, headGround: top.key });
   }
   const g = GROUNDS[v.ground(slot)];

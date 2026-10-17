@@ -33,7 +33,7 @@ export const f1 = (v: number) => v.toFixed(1);
 
 // ------------------------------------------------------------------ grounds
 
-export type GroundKey = 'navy' | 'navyDeep' | 'coral' | 'indigo' | 'sky' | 'ocean' | 'paper';
+export type GroundKey = 'navy' | 'navyDeep' | 'coral' | 'indigo' | 'sky' | 'ocean' | 'paper' | 'green';
 
 export interface Ground {
   key: GroundKey;
@@ -58,7 +58,7 @@ export interface Ground {
 
 // Contrast (WCAG) measured 2026-10-16: white on navy 12.5, on indigo 6.1, on ocean 7.5; #1d2433 on coral 5.3, on sky 7.0;
 // indigo-300 on navy 5.4; sky-200 on indigo 4.8; coral-200 on ocean 5.3; indigo-800 on sky 6.5 and on coral 4.9.
-export const GROUNDS: Record<GroundKey, Ground> = {
+const BASE_GROUNDS: Record<GroundKey, Ground> = {
   navy: {
     key: 'navy', bg: '#2b3445', depth: 'linear-gradient(170deg, #303a4d 0%, #2b3445 45%, #262e3d 100%)', dark: true,
     ink: '#ffffff', soft: '#dfe3ea', accent: '#97a5f9', hot: '#ec726f', hotText: '#ffb0ab',
@@ -95,7 +95,30 @@ export const GROUNDS: Record<GroundKey, Ground> = {
     ink: '#2b3445', soft: '#4b566b', accent: '#4e54c8', hot: '#ca5453', hotText: '#aa383a',
     rule: '#d5dce6', band: '#e3e9ef', chart: { base: '#c3cad8', context: '#dfe3ea', hot: '#ec726f', cool: '#4e54c8' }, device: '#ec726f',
   },
+
+  // Brand green (website accent, assets/design/tokens.css --brand-green): a trial poster colour for funny facts (H4).
+  green: {
+    key: 'green', bg: '#42d697', depth: 'linear-gradient(170deg, #4fdc9f 0%, #42d697 45%, #37c98a 100%)', dark: false,
+    ink: '#1d2433', soft: '#1d2433', accent: '#1d2433', hot: '#1d2433', hotText: '#1d2433',
+    rule: '#2fb57c', band: '#6fe0b0', chart: { base: '#8de8c1', context: '#b4f0d6', hot: '#1d2433', cool: '#211281' }, device: '#1d2433',
+  },
 };
+
+/** Per-variant token overrides (e.g. H4's two-colour text). Set by activateVariant() before a variant's slides are built. */
+export type GroundOverrides = Partial<Record<GroundKey, Partial<Omit<Ground, 'chart'>> & { chart?: Partial<Ground['chart']> }>>;
+let ACTIVE: Variant | undefined;
+/** Makes `v` the variant whose token overrides and seam style apply to GROUNDS and posterTopPath() from now on. */
+export function activateVariant(v: Variant | undefined) { ACTIVE = v; }
+export const activeVariant = () => ACTIVE;
+
+/** The grounds as the active variant sees them (base tokens + its overrides). */
+export const GROUNDS: Record<GroundKey, Ground> = new Proxy(BASE_GROUNDS, {
+  get(t, k: string) {
+    const base = t[k as GroundKey];
+    const o = ACTIVE?.tokens?.[k as GroundKey];
+    return o && base ? { ...base, ...o, chart: { ...base.chart, ...(o.chart ?? {}) } } : base;
+  },
+});
 
 /** CSS custom properties for a ground, set on the frame. */
 export function groundVars(g: Ground): string {
@@ -309,20 +332,66 @@ export function frame(o: FrameOptions): string {
 
 // ------------------------------------------------------------------ the H2 poster seam (D2 lineage)
 
-const SEAM_SEED = 21;
 /**
- * The top piece of a poster: the frame from y = 0 down to one real jigsaw cut line at `seam` (the seam between the
- * two rows of a 4×2 jigsaw of square 270 px pieces, so the knobs have the generator's true proportions).
+ * Seam shapes for the poster top piece (owner 2026-10-17: "the shape could be slightly improved"; options K1-…).
+ *   grid4    the original: 4 generator pieces across (270 px), knobs as the seed falls, a little jitter (H2);
+ *   bold3    3 pieces across (360 px): fewer, bigger knobs, alternating down-up-down;
+ *   classic4 4 pieces across, no jitter, knobs strictly alternating down-up-down-up (a "textbook" cut);
+ *   drip4    4 pieces across, every knob pointing down into the bottom piece (the coloured piece "hangs" over navy);
+ *   tilt4    grid4 cut on a gentle slope (left 30 px lower than right), like a lifted lid.
  */
-export function posterTopPath(seam: number): string {
-  const pw = W / 4;
-  const jig = generateJigsaw({ cols: 4, rows: 2, width: W, height: 2 * pw, y: seam - pw, seed: SEAM_SEED, tabSize: 0.2, jitter: 0.04 });
+export type SeamStyle = 'grid4' | 'bold3' | 'classic4' | 'drip4' | 'tilt4';
+const SEAM_SPEC: Record<SeamStyle, { cols: number; tab: number; jitter: number; pattern?: Array<'d' | 'u'>; seed?: number; tilt?: number }> = {
+  grid4: { cols: 4, tab: 0.2, jitter: 0.04, seed: 21 },
+  bold3: { cols: 3, tab: 0.24, jitter: 0.02, pattern: ['d', 'u', 'd'] },
+  classic4: { cols: 4, tab: 0.22, jitter: 0, pattern: ['d', 'u', 'd', 'u'] },
+  drip4: { cols: 4, tab: 0.21, jitter: 0.02, pattern: ['d', 'd', 'd', 'd'] },
+  tilt4: { cols: 4, tab: 0.2, jitter: 0.04, seed: 21, tilt: 30 },
+};
+const seamJig = (cols: number, seam: number, seed: number, tab: number, jitter: number) => {
+  const pw = W / cols;
+  return generateJigsaw({ cols, rows: 2, width: W, height: 2 * pw, y: seam - pw, seed, tabSize: tab, jitter });
+};
+/** Knob direction of each top-row piece's bottom edge: 'd' = into the bottom piece. */
+const knobs = (jig: ReturnType<typeof generateJigsaw>, seam: number) => jig.pieces.filter(q => q.row === 0).sort((a, b) => a.col - b.col)
+  .map(p => { const e = p.outline.slice(18, 28); const ext = e.reduce((m, [, y]) => (Math.abs(y - seam) > Math.abs(m - seam) ? y : m), seam); return ext > seam ? 'd' : 'u'; });
+const seedCache = new Map<SeamStyle, number>();
+function seamSeed(style: SeamStyle): number {
+  const spec = SEAM_SPEC[style];
+  if (spec.seed !== undefined) return spec.seed;
+  if (!seedCache.has(style)) {
+    let found = 1;
+    for (let sd = 1; sd < 5000; sd++) if (knobs(seamJig(spec.cols, 600, sd, spec.tab, spec.jitter), 600).join('') === spec.pattern!.join('')) { found = sd; break; }
+    seedCache.set(style, found);
+  }
+  return seedCache.get(style)!;
+}
+
+/** How far the cut's knobs reach below / above the seam line (px), for the active (or given) seam style. */
+export function seamReach(style: SeamStyle = ACTIVE?.seam ?? 'grid4'): { down: number; up: number } {
+  const spec = SEAM_SPEC[style];
+  const jig = seamJig(spec.cols, 600, seamSeed(style), spec.tab, spec.jitter);
+  const ys = jig.pieces.filter(q => q.row === 0).flatMap(p => p.outline.slice(18, 28).map(([, y]) => y));
+  return { down: Math.max(0, ...ys.map(y => y - 600)) + (spec.tilt ?? 0), up: Math.max(0, ...ys.map(y => 600 - y)) };
+}
+
+/**
+ * The top piece of a poster: the frame from y = 0 down to one real jigsaw cut line at `seam` (the seam between the two
+ * rows of a generated jigsaw, so the knobs have the generator's true proportions). The style defaults to the active
+ * variant's seam.
+ */
+export function posterTopPath(seam: number, style: SeamStyle = ACTIVE?.seam ?? 'grid4'): string {
+  const spec = SEAM_SPEC[style];
+  const jig = seamJig(spec.cols, seam, seamSeed(style), spec.tab, spec.jitter);
+  // Tilt: shift every point by a slope across the width (left lower), keeping the right edge at the seam.
+  const dy = (x: number) => (spec.tilt ? spec.tilt * (1 - x / W) : 0);
+  const pt = ([x, y]: number[]) => `${f1(x)} ${f1(y + dy(x))}`;
   let d = `M -4 -4 H ${W + 4} V ${seam} H ${W}`;
   for (const p of jig.pieces.filter(q => q.row === 0).sort((a, b) => b.col - a.col)) {
     const e = p.outline.slice(18, 28);
-    for (let k = 1; k + 2 < e.length; k += 3) d += ` C ${f1(e[k][0])} ${f1(e[k][1])} ${f1(e[k + 1][0])} ${f1(e[k + 1][1])} ${f1(e[k + 2][0])} ${f1(e[k + 2][1])}`;
+    for (let k = 1; k + 2 < e.length; k += 3) d += ` C ${pt(e[k])} ${pt(e[k + 1])} ${pt(e[k + 2])}`;
   }
-  return `${d} H -4 Z`;
+  return `${d} V ${f1(seam + dy(0))} H -4 Z`;
 }
 
 // ------------------------------------------------------------------ variants
@@ -334,7 +403,7 @@ export type Series = 'data' | 'weekly' | 'milestone' | 'puzzles' | 'atlas' | 'fu
 export interface Slot { role: Role; series: Series; post: string; slide: number; of: number }
 
 export interface Variant {
-  id: 'H1' | 'H2' | 'H3';
+  id: 'H1' | 'H2' | 'H3' | 'H4';
   name: string;
   idea: string;
   device: 'piece' | 'strip';
@@ -343,6 +412,13 @@ export interface Variant {
   ground(slot: Slot): GroundKey;
   /** H2 posters: the ground of the bottom piece (the top piece takes ground(slot)). */
   posterBase?: GroundKey;
+  /** Token overrides applied while this variant is active (activateVariant). */
+  tokens?: GroundOverrides;
+  /** Poster seam shape (default grid4). */
+  seam?: SeamStyle;
+  /** Which cover/fact slides become posters: every one (H2) or only a post's first slide (H4: "H2 as the facing first
+   *  slide for titles, H1 for the other slides", owner 2026-10-17). */
+  posterSlides?: 'all' | 'first';
 }
 
 /** Canonical feed order of every DL4 post key (stable colour rotation, gallery order, profile grid). */
@@ -388,6 +464,20 @@ const BOLD: GroundKey[] = ['coral', 'sky', 'indigo', 'ocean'];
 /** Stories rotate through the palette per chapter in every variant (D9-1/D9-5 lineage). */
 const STORY_ROTATION: GroundKey[] = ['navy', 'sky', 'coral', 'indigo', 'ocean', 'navyDeep'];
 
+/** H4 poster tops by type of post (owner 2026-10-17: colour by post type, the H3 idea, on H2's posters). */
+export const POSTER_GROUND: Record<Series, GroundKey> = {
+  data: 'sky', weekly: 'indigo', milestone: 'coral', puzzles: 'ocean', atlas: 'sky', fun: 'green',
+};
+/** H4: two text colours on every ground (ink + one secondary), coral only as the highlight. */
+export const H4_TOKENS: GroundOverrides = {
+  navy: { accent: '#dfe3ea' },
+  coral: { accent: '#1d2433' },
+  sky: { accent: '#1d2433', hot: '#1d2433', hotText: '#1d2433' },
+  indigo: { accent: '#dde3ff' },
+  ocean: { accent: '#c7e8ff' },
+  green: { accent: '#1d2433' },
+};
+
 export const VARIANTS: Record<Variant['id'], Variant> = {
   H1: {
     id: 'H1', name: 'Race Clock refined', device: 'piece', cover: 'board',
@@ -408,11 +498,22 @@ export const VARIANTS: Record<Variant['id'], Variant> = {
     idea: 'Each series owns one ground, full bleed on every slide (D9-1/D9-5 lineage): data desk navy, the week indigo, milestones and events coral, puzzles ocean blue, the atlas sky blue, funny facts and stories white with depth. The header device is a strip of interlocking pieces that fills in through a carousel.',
     ground: s => (s.role === 'story' ? SERIES_GROUND[s.series] === 'paper' ? 'navy' : STORY_ROTATION[(s.slide - 1) % STORY_ROTATION.length] : SERIES_GROUND[s.series]),
   },
+  H4: {
+    id: 'H4', name: 'House (H1 + H2)', device: 'piece', cover: 'poster', posterSlides: 'first', posterBase: 'navy', tokens: H4_TOKENS, seam: 'grid4',
+    idea: 'The owner\'s combination (2026-10-17): H1\'s navy timing board for every data and image slide, H2\'s two-piece puzzle poster only as the first (title) slide of a post, so the profile grid reads unified. One navy everywhere, two text colours (white + one grey; ink + one secondary on colour grounds), coral only for highlights. Poster tops take the colour of the type of post: data desk and atlas sky, the week indigo, milestones and events coral, puzzles ocean, funny facts green (trial).',
+    ground: s => {
+      if (s.role === 'story') return (['navy', 'sky', 'coral', 'indigo', 'ocean', 'navy'] as GroundKey[])[(s.slide - 1) % 6];
+      if ((s.role === 'cover' || s.role === 'fact') && s.slide === 1) return POSTER_GROUND[s.series];
+      return 'navy';
+    },
+  },
 };
 
 // ------------------------------------------------------------------ slide builders
 
 export interface SlideCtx { v: Variant; post: string; slide: number; of: number }
+/** Is this slide a two-piece poster in its variant? (H2: every cover/fact; H4: only a post's first slide.) */
+export const posterAt = (c: SlideCtx) => c.v.cover === 'poster' && (c.v.posterSlides !== 'first' || c.slide === 1);
 export const slotOf = (c: SlideCtx, role: Role): Slot => ({ role, series: seriesOf(c.post), post: c.post, slide: c.slide, of: c.of });
 
 /** A content slide (boards, charts, image walls) on the variant's ground for this role. */
@@ -478,17 +579,20 @@ export function cover(c: SlideCtx, role: 'cover' | 'fact', s: CoverSpec): string
     + (stats ? 40 + STATS_H : 0)
     + (s.extra ? 34 + (s.extraHeight ?? 200) : 0);
 
-  if (v.cover === 'poster') {
+  if (posterAt(c)) {
     const top = GROUNDS[v.ground(slot)], base = GROUNDS[v.posterBase ?? 'navyDeep'];
     // The bottom piece needs blockH below the knobs (≈ 90 px under the seam); the seam stays between 430 and 680.
     const need = blockH(!isFact);
-    const SEAM = Math.round(Math.max(430, Math.min(680, FEED.contentBottom - need - 96)));
-    const room = SEAM - 120 - 170; // hero cap height must clear the header
+    // Text starts below the deepest knob of the active cut (≥ 96 px under the seam line).
+    const below = Math.max(96, Math.round(seamReach().down) + 20);
+    const SEAM = Math.round(Math.max(430, Math.min(680, FEED.contentBottom - need - below)));
+    const above = Math.max(112, Math.round(seamReach().up) + 22); // the hero's baseline clears the cut's upward knobs
+    const room = SEAM - above - 8 - 170; // hero cap height must clear the header
     const size = s.hero ? Math.min(heroFit(s.hero.value + (s.hero.unit ? '  ' : ''), s.hero.max ?? 340), Math.floor(room / 0.72)) : 0;
-    const heroHtml = s.hero ? `<div style="${groundVars(top)}" data-qa-bg="${top.bg}">${hero(s.hero.value, { size, baseline: SEAM - 112, unit: s.hero.unit })}</div>` : '';
+    const heroHtml = s.hero ? `<div style="${groundVars(top)}" data-qa-bg="${top.bg}">${hero(s.hero.value, { size, baseline: SEAM - above, unit: s.hero.unit })}</div>` : '';
     const under = `<svg class="h-poster-top" width="${W}" height="${FEED_H}" viewBox="0 0 ${W} ${FEED_H}" aria-hidden="true">
       <path d="${posterTopPath(SEAM)}" fill="${top.bg}"/></svg>${heroHtml}`;
-    const body = `<div class="h-abs" style="top:${SEAM + 96}px">
+    const body = `<div class="h-abs" style="top:${SEAM + below}px">
         ${isFact ? '' : `<p class="h-cap" style="margin-bottom:22px">${h(s.kicker)}</p>`}
         ${titleHtml}${dekHtml}${stats ? `<div style="margin-top:40px">${stats}</div>` : ''}${extraHtml}
       </div>`;

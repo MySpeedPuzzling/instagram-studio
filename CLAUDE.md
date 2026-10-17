@@ -3,6 +3,9 @@
 Pipeline that drafts Instagram posts for @myspeedpuzzling from MySpeedPuzzling data, with a human
 approving every post.
 
+**Before drafting or revising any post, read `editorial/standing-feedback.md`** (the owner's standing rules from
+every review, applied to all future posts; add new general feedback there).
+
 **Start every session with `docs/STATUS.md`** (where we are, what exists, next steps), then
 `docs/decisions.md` (owner decisions; they override everything) and `docs/backlog.md` (todos and open
 questions). How-tos are in `docs/runbook.md`; evidence in `reports/` and `research_notes/`; ideas in

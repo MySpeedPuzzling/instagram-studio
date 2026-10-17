@@ -5,6 +5,11 @@ description: Write or revise Instagram captions and alt text for @myspeedpuzzlin
 
 # MSP captions
 
+**Tone in one line (owner, 2026-10-17): a friendly speed-puzzling community, heavily data-driven.** Read the
+"Captions and voice" section of `editorial/standing-feedback.md` first: it holds the owner's rules from past caption
+edits and overrides the playbook. When the owner edits a caption (`author: human`), compare it with your proposal and
+add any reusable pattern there.
+
 The full rules are the **MSP voice & caption playbook**, §9 of
 `research_notes/MSP Instagram design and growth toolkit/captions_voice_hashtags.md` (voice principles, do/don't,
 hashtag, emoji and tagging policies, CTA library, glossary, ten caption skeletons, checklist). Read §9 before the

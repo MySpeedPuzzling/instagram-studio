@@ -29,15 +29,15 @@ H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran
 
 ## Waiting for the owner
 
-1. **Decide the house style (next session, the main goal).** Review app → "House system (DL4)": verdict per variant
-   (H1/H2/H3) and per slide, then decide what we use. Feedback lands in `content/labs/DL4/feedback.jsonl`.
+1. **House style chosen in principle (2026-10-17): H4** = H2 poster as the first (title) slide + H1 navy board for
+   the rest, two text colours, one navy, poster colour by post type. Still open, compared in DL4 **K1**: brand vs
+   deep navy, the seam shape (5 options), the funny-facts poster colour (green trial vs coral vs sky).
 2. Later (not now): Reels intro/outro and logo motion (LM1), illustration style (IL1, J1 funny-fact approaches).
 3. Small questions at the end of `docs/backlog.md`.
 
 ## Next steps (in order)
 
-1. **Owner decides the house style (DL4)** → record in `docs/decisions.md`; make the chosen variant the default and
-   fold the agents' house proposals (shared art palette per ground, `cover()` with art in every layout, family CSS
+1. **Owner settles the K1 choices** → make H4 the default in `src/design/house.ts` and fold the agents' house proposals (shared art palette per ground, `cover()` with art in every layout, family CSS
    hook, shared geometry/board helpers, `heroFitUnit`) into `src/design/house.ts`. Keep the other variants renderable
    (owner: keep every lab as a reference).
 2. **IL1 review** (done generating), then a written illustration style guide + reference set (Instagram, possibly
@@ -50,6 +50,8 @@ H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran
 
 ## Plan for the next working day
 
+- Settle K1, then build the first real draft in H4 with fresh data and a proposed caption; fine-tune it in the
+  review app (rules that should last go to `editorial/standing-feedback.md`).
 - Review `content/labs/IL1/` with the owner (gallery + `SUMMARY.md`), pick candidates, draft the style guide.
 - Apply the owner's DL4 verdict to the house module; start `src/posts/` builders for the first real posts.
 

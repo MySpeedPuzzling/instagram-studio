@@ -19,7 +19,7 @@ import sharp from 'sharp';
 import { fetchBoxes } from '../../../src/data/boxes.ts';
 import { query } from '../../../src/data/db.ts';
 import {
-  CW, FEED, FEED_H, GROUNDS, TYPE, W, X0, X1, f1, frame, groundVars, linesOf, posterTopPath, slide, slotOf,
+  CW, FEED, FEED_H, GROUNDS, TYPE, W, X0, X1, f1, posterAt, frame, groundVars, linesOf, posterTopPath, seamReach, slide, slotOf,
   type Ground, type SlideCtx, type Variant,
 } from '../../../src/design/house.ts';
 import { escapeHtml as h, fmtInt } from '../../../src/design/page.ts';
@@ -275,7 +275,7 @@ interface ArtSpec { kicker: string; title: string; dek?: string; dekPx?: number;
 function artSlide(x: SlideCtx, role: 'cover' | 'fact', s: ArtSpec): string {
   const v = x.v;
   const idx: [number, number] | undefined = x.of > 1 ? [x.slide, x.of] : undefined;
-  const poster = v.cover === 'poster';
+  const poster = posterAt(x);
   // Posters give the art less room (the seam and its knobs), so their titles run a size smaller.
   const px = Math.min(s.titlePx ?? (role === 'cover' && s.title.length <= 40 ? 76 : TYPE.title), poster ? 68 : 99);
   const tw = s.titleW ?? CW;
@@ -290,7 +290,7 @@ function artSlide(x: SlideCtx, role: 'cover' | 'fact', s: ArtSpec): string {
     const seam = Math.round(T + titleH + dekH + 66);
     const under = `<svg class="h-poster-top" width="${W}" height="${FEED_H}" viewBox="0 0 ${W} ${FEED_H}" aria-hidden="true"><path d="${posterTopPath(seam)}" fill="${topG.bg}"/></svg>
       <div style="${groundVars(topG)}" data-qa-bg="${topG.bg}">${head(T)}</div>`;
-    return frame({ ground: base.key, kicker: s.kicker, idx, device: v.device, body: STYLE + s.art({ top: seam + 82, bottom: FEED.contentBottom, g: base, seam }), src: s.src, under, noRule: true, headGround: topG.key });
+    return frame({ ground: base.key, kicker: s.kicker, idx, device: v.device, body: STYLE + s.art({ top: seam + Math.max(82, Math.round(seamReach().down) + 16), bottom: FEED.contentBottom, g: base, seam }), src: s.src, under, noRule: true, headGround: topG.key });
   }
   const g = GROUNDS[v.ground(slotOf(x, role))];
   const top = Math.round(FEED.contentTop + titleH + dekH + 36);

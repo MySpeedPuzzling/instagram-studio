@@ -66,6 +66,19 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
 const name = process.argv[2];
 if (!BUILDERS[name]) { console.error(`usage: node tools/draft.ts <${Object.keys(BUILDERS).join('|')}>`); process.exit(2); }
 const b = await BUILDERS[name]();
+// A draft that is scheduled, publishing or published is frozen: only its follow-up Story frames may be re-rendered.
+const frozen = existsSync(join(DRAFTS, b.id, 'draft.yaml')) && ['scheduled', 'publishing', 'published'].includes(loadDraft(b.id).status);
+if (frozen) {
+  const r = await createRenderer(join(DRAFTS, b.id));
+  try {
+    for (const [i, body] of (b.stories ?? []).entries()) {
+      const res = await r.render({ id: `stories/story-${i + 1}`, html: page(body, { frame: 'story', css: HOUSE_CSS, title: `${b.id} story ${i + 1}` }), frame: 'story' });
+      console.log(`story ${i + 1}: ${res.qa.errors.length} QA errors`);
+    }
+  } finally { await r.close(); }
+  console.log(`draft ${b.id} is ${loadDraft(b.id).status}: left unchanged, Story frames re-rendered`);
+  process.exit(0);
+}
 const dir = join(DRAFTS, b.id, 'slides');
 mkdirSync(dir, { recursive: true });
 const renderer = await createRenderer(join(DRAFTS, b.id));

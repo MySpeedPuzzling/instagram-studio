@@ -109,13 +109,13 @@ section.sec { background: #fff; border: 1px solid var(--line); border-radius: 16
 .tray { display: flex; gap: 12px; overflow-x: auto; } .tray .day { flex: none; } .tray .frames { display: flex; gap: 4px; } .tray img { width: 120px; border-radius: 8px; display: block; }
 ${LAB_NAV_CSS}
 </style></head><body>
-<header>${labNav(LAB)}<h1>AD1 · Advent of Puzzle</h1><a href="#first">Look at first</a><a href="#compare">Doors compared</a><a href="#feed">Feed + Story tray</a>${SECTIONS.map(s => `<a href="#${s.replace(/\W+/g, '-')}">${h(s)}</a>`).join('')}</header>
+<header>${labNav(LAB)}<h1>AD1 · Advent of Puzzle</h1><a href="#first">Look at first</a><a href="#compare">Doors compared</a><a href="#doors-V5"><b>Festive (V5)</b></a><a href="#feed">Feed + Story tray</a>${SECTIONS.map(s => `<a href="#${s.replace(/\W+/g, '-')}">${h(s)}</a>`).join('')}</header>
 <main>
 <div class="intro" id="first">
 <h2 style="margin-top:6px">What to look at first</h2>
 <ol>
 <li><b>Doors compared</b> (below): the same six quizzes (week 2, days 7–12) in the five door variants. Pick the variant
-(Works / Unsure / No-go on its slides, or write codes like "AD1-14" in the chat). Claude's pick: <b>V2 Calendar board</b>.</li>
+(Works / Unsure / No-go on its slides, or write codes like "AD1-14" in the chat). Claude's pick: <b>V2 Calendar board</b>, for December with the festive layer: <a href="#doors-V5"><b>V5</b></a> (puzzle-piece fairy lights, snow).</li>
 <li><b>The feed and the Story tray</b>: one Advent week mixed with the normal rhythm.</li>
 <li>The announcement, the Sunday draw and the recommended <b>300M guess</b> (a public dry run of the reply route in early Nov).</li>
 <li>The <b>test Story</b> for Close Friends: frames + guides; steps in <code>content/labs/STORY-TEST/instructions.md</code>.</li>
@@ -142,7 +142,7 @@ day (yesterday's answer, then tonight's door; Sunday ends with the winner).</p>
 ${SECTIONS.map(sec => {
     const ps = coded.filter(p => p.section === sec);
     if (!ps.length) return '';
-    return `<section class="sec" id="${sec.replace(/\W+/g, '-')}"><h2>${h(sec)}</h2>${ps.map(p => `<div class="post"><h3>${h(p.label)}</h3>${p.note ? `<p class="idea">${h(p.note)}</p>` : ''}
+    return `<section class="sec" id="${sec.replace(/\W+/g, '-')}"><h2>${h(sec)}</h2>${ps.map(p => `<div class="post" id="${p.key}"><h3>${h(p.label)}</h3>${p.note ? `<p class="idea">${h(p.note)}</p>` : ''}
       <div class="post-row">${p.caption || p.slides.length > 1 ? phone(p.slides, p.caption) : ''}<div class="tiles" style="flex:1; min-width:260px">${p.slides.map(s => tile(p, s)).join('')}</div></div></div>`).join('')}</section>`;
   }).join('')}
 </main>

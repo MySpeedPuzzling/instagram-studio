@@ -69,3 +69,8 @@ listed in the gitignored `.secret-patterns` file, and credential-shaped strings.
 
 Third-party code and assets: Rubik (SIL OFL 1.1, `assets/fonts/rubik/OFL.txt`); jigsaw edge maths ported from
 [Draradech/jigsaw](https://github.com/Draradech/jigsaw) (CC0); circle-flags (MIT).
+
+## License
+
+MIT (see `LICENSE`), except the MySpeedPuzzling name and logos in `assets/brand/` (all rights reserved) and the Rubik
+font in `assets/fonts/rubik/` (SIL Open Font License 1.1).

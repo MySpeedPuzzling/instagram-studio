@@ -48,7 +48,7 @@ Reading, if you want the why (full research tracks in `research_notes/…/advent
 | 6 | Calendar | **Yours: doors 30 Nov–26 Dec, draws 6/13/20/27 Dec; easiest doors on 24–25 Dec** (last year 24 Dec was 30 % quieter, 26–28 Dec busier) | four weeks ending on the Advent Sundays (23 Nov–19 Dec; starts before Advent, on the European championship week); week 4 shortened to 21–23 Dec |
 | 7 | Door time | **19:00 Prague**, every evening, 24 h to answer | 09:00 |
 | 8 | Who posts the doors | **A scheduled job through the API, after you approve the week's six doors on Sunday** (needs Story publishing added to the publisher; the test Story confirms the ids match) | you post each door by hand in the app |
-| 9 | Door design | **V2 Calendar board** (a 24-piece jigsaw calendar, tonight's piece coral; reads as Advent, shows progress, room for every quiz type) | V1 coral door poster (loudest, but the same poster every day); V3 picture reveal (best "come back tomorrow" pull, cramped); V4 box-led (biggest clue, the day is easy to miss) |
+| 9 | Door design | **V2 Calendar board** (a 24-piece jigsaw calendar, tonight's piece coral; reads as Advent, shows progress, room for every quiz type), **with or without the festive layer V5** (your idea, added later on 17 Oct: fairy lights made of puzzle-piece bulbs on the header rule, a little snow, snow on the calendar, a drift at the bottom; I'd take V5 for December) | V1 coral door poster (loudest, but the same poster every day); V3 picture reveal (best "come back tomorrow" pull, cramped); V4 box-led (biggest clue, the day is easy to miss) |
 | 10 | Campaign colour | **Coral** (events and timely posts) | ocean (puzzles) |
 | 11 | How we draw | **Our seed fingerprint → reveal** (free, anyone can recompute it) | RANDOM.ORG third-party draw ($4.95 a draw, a record that can't be edited) |
 | 12 | Launch | **Announcement carousel Thu 26 Nov 19:00** + a countdown Story until Monday | Sun 29 Nov (1st Advent; clashes with the European championship results) |
@@ -93,7 +93,7 @@ Friends: that's what the public 300M guess is for.
   ~900-word rules draft, GDPR, targets.
 - **Ideas** `docs/ideas/giveaways-2026.md`: 11 formats; recommended next: the 300M guess (then the Weekend Challenge
   in 2027, the most verifiable format: entries are logged solves on MSP).
-- **Lab AD1** (`lab/advent/`): 56 slides, 0 QA errors: 4 door designs × 6 quiz types, 6 answer reveals, the
+- **Lab AD1** (`lab/advent/`): 62 slides (incl. V5, the festive V2), 0 QA errors: 4 door designs × 6 quiz types, 6 answer reveals, the
   announcement (5-slide carousel + countdown Story + guide), the Sunday winner Story (+ link-sticker guide) and recap
   carousel, 4 "day N of 24" device sheets, the 300M guess (3), the Close Friends test (6), a profile grid of an Advent
   week and a 7-day Story tray. Sample numbers are labelled; the week-2 sample doors are "burned" (their answers are in

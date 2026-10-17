@@ -10,12 +10,14 @@ import { CW, GROUNDS, HOUSE, X0, f1, frame, groundVars, hero, heroFit, posterTop
 import { escapeHtml as h } from '../../src/design/page.ts';
 import { AD_CSS, adventGrid, answerOf, doorSrc, finePrint, letterPiece, pieceStage, replyCue, stage, type Band } from './parts.ts';
 import { dayDate, type Content, type NumberQuiz, type Quiz } from './content.ts';
+import { garland, snowCap, snowDrift, snowfall } from './festive.ts';
 
-export type VariantId = 'V1' | 'V2' | 'V3' | 'V4';
+export type VariantId = 'V1' | 'V2' | 'V3' | 'V4' | 'V5';
 export const VARIANT_INFO: Record<VariantId, { name: string; idea: string }> = {
   V1: { name: 'Door poster', idea: 'The H4 poster on every door: a coral top piece carries the door number (7 of 24), one real jigsaw cut, and the quiz on the deep-navy bottom. Loud and instantly recognisable in the Story tray; the number is the device.' },
   V2: { name: 'Calendar board', idea: 'The H1 navy board with the Advent puzzle on top: 24 generator pieces, one row per week, one column per day (Mon–Sat). Opened doors fill in grey, tonight\'s piece is coral. Reads as a calendar at a glance and shows progress through the campaign.' },
   V3: { name: 'Picture reveal', idea: 'The same 24-piece jigsaw over a mystery box image: each opened door shows one more piece of the picture, so followers watch it complete. Day 24 asks which puzzle it is. The strongest "come back tomorrow" hook; the quiz itself gets less room.' },
+  V5: { name: 'Calendar board, festive', idea: 'V2 with a quiet Christmas layer (owner\'s idea): the header rule becomes a string of fairy lights whose bulbs are small generator puzzle pieces (coral, white, sky, softly glowing), a little snow falls in the header, snow rests on the calendar, and a soft drift fills the bottom strip. No clip art, no green; the quiz below stays exactly as V2.' },
   V4: { name: 'Box-led', idea: 'The clue leads at full width (box cards, the crop, the chart, the cut), the day sits quietly in the house header index ("7 / 24"). Closest to the published "Which is faster?" post; the most room for data and box images.' },
 };
 
@@ -62,6 +64,15 @@ export function door(v: VariantId, q: Quiz, c: Content): string {
     const qTop = gy + gh + 40, qh = qHeight(q, 52);
     const st = placed(q, { top: qTop + qh + 30, bottom: BAND_BOTTOM }, 'compact');
     return storyFrame('navy', q, grid + question(q, qTop, 52) + st.html + bottomBits(q), { kicker: `Advent of Puzzle · Day ${q.day} of 24` });
+  }
+  if (v === 'V5') {
+    const gy = 432, gh = 352;
+    const grid = adventGrid({ x: X0, y: gy, w: CW, h: gh, day: q.day, mode: 'calendar', weekdays: true });
+    const qTop = gy + gh + 40, qh = qHeight(q, 52);
+    const st = placed(q, { top: qTop + qh + 30, bottom: BAND_BOTTOM }, 'compact');
+    const under = snowfall({ until: 420, count: 60, seed: q.day }) + snowDrift({ seed: q.day }) + garland({ top: 296, sag: 20, seed: q.day });
+    return storyFrame('navy', q, grid + snowCap({ x: X0, y: gy, w: CW, seed: q.day }) + question(q, qTop, 52) + st.html + bottomBits(q),
+      { kicker: `Advent of Puzzle · Day ${q.day} of 24`, noRule: true, under });
   }
   if (v === 'V3') {
     const gw = 600, gh = Math.round(gw / c.mystery.ratio), gy = 322;

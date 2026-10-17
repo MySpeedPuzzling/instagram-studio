@@ -28,8 +28,8 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 | Motion | HyperFrames 0.8.152 (pinned devDependency): Reels in the house style (`lab/dl4/reels/`), logo motion modules and chains (`lab/logo/`, LM1) |
 | AI images | Overnight runner `tools/ai-batch.ts --batch <file>` (calm-gated, watchdog, resource log; shared core `lab/ai/core.ts`); AI1 done 2026-10-14 (94 images); **IL1** (`lab/ai2/`, 6 illustration directions × 7 subjects) ran 2026-10-16 10:58–15:05: 199/199 images, 0 failures, all auto-checks pass, peak 20 GB (klein 9B) |
 | Token | Instagram token valid until **2026-12-12** (`node tools/ig-token.ts status`; refresh with `refresh`) |
-| Campaigns | Advent of Puzzle: design `docs/ideas/advent-of-puzzle.md` (calendar, 24 doors, matching, seeded draw, rules draft, GDPR), evidence `research_notes/…/giveaways_and_advent_2026.md`, ideas `docs/ideas/giveaways-2026.md`; lab **AD1** (`lab/advent/`, 56 slides, 4 door variants); read-only automation `src/campaign/` + `tools/campaign.ts` (collect Story replies by DM, tolerant matching, commit–reveal draw, launchd job written but not installed) |
-| Repo | Local git only — **no GitHub remote yet** (see backlog) |
+| Campaigns | Advent of Puzzle: design `docs/ideas/advent-of-puzzle.md` (calendar, 24 doors, matching, seeded draw, rules draft, GDPR), evidence `research_notes/…/giveaways_and_advent_2026.md`, ideas `docs/ideas/giveaways-2026.md`; lab **AD1** (`lab/advent/`, 62 slides, 5 door variants incl. V5 festive); read-only automation `src/campaign/` + `tools/campaign.ts` (collect Story replies by DM, tolerant matching, commit–reveal draw, launchd job written but not installed) |
+| Repo | Public: https://github.com/MySpeedPuzzling/instagram-studio (MIT; logos and font excepted), pushed 2026-10-17 |
 
 ## Waiting for the owner
 

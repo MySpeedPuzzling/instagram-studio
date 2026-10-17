@@ -1,4 +1,4 @@
-// AD1 gallery: the Advent of Puzzle lab. Sections: what to look at first, the four door variants side by side per quiz
+// AD1 gallery: the Advent of Puzzle lab. Sections: what to look at first, the five door variants side by side per quiz
 // type, a mock profile grid of one Advent week mixed with the normal posts, a 7-day Story tray, then every slide with a
 // code (AD1-12) and Works / Unsure / No-go + note (POST /api/feedback → content/labs/AD1/feedback.jsonl, latest wins).
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -34,8 +34,8 @@ export function buildGallery() {
       <div class="media"><div class="track">${slides.map(s => `<img loading="lazy" src="${s.preview}" alt="${s.code}">`).join('')}</div>${slides.length > 1 ? `<span class="count">${slides.length} slides</span>` : ''}</div>
       <p class="codes">${slides.map(s => s.code).join(' · ')}</p>${caption ? `<pre class="cap">${h(caption)}</pre>` : ''}</div>`;
 
-  // Doors compared: one row per quiz type, the four variants side by side.
-  const variants = ['V1', 'V2', 'V3', 'V4'].map(v => byKey[`doors-${v}`]).filter(Boolean);
+  // Doors compared: one row per quiz type, the five variants side by side.
+  const variants = ['V1', 'V2', 'V5', 'V3', 'V4'].map(v => byKey[`doors-${v}`]).filter(Boolean);
   const types = variants[0]?.slides.map(s => s.id.replace(/^V\d-/, '')) ?? [];
   const compare = types.map(t => `<h3>${h(t.replace(/^d(\d+)-/, 'Day $1 · '))}</h3><div class="row">${variants.map(p => {
     const s = p.slides.find(x => x.id.endsWith(t))!;
@@ -114,7 +114,7 @@ ${LAB_NAV_CSS}
 <div class="intro" id="first">
 <h2 style="margin-top:6px">What to look at first</h2>
 <ol>
-<li><b>Doors compared</b> (below): the same six quizzes (week 2, days 7–12) in the four door variants. Pick the variant
+<li><b>Doors compared</b> (below): the same six quizzes (week 2, days 7–12) in the five door variants. Pick the variant
 (Works / Unsure / No-go on its slides, or write codes like "AD1-14" in the chat). Claude's pick: <b>V2 Calendar board</b>.</li>
 <li><b>The feed and the Story tray</b>: one Advent week mixed with the normal rhythm.</li>
 <li>The announcement, the Sunday draw and the recommended <b>300M guess</b> (a public dry run of the reply route in early Nov).</li>
@@ -127,7 +127,7 @@ production queries; <b>placeholders</b>: the seed fingerprints and hashes (fake 
 prize line. ${n} slides · QA errors: ${qa}.</p>
 </div>
 
-<h2 id="variants">The four door variants</h2>
+<h2 id="variants">The five door variants</h2>
 <div class="vars">${variants.map(p => `<div class="var"><b>${h(p.label)}</b><p>${h(p.note ?? '')}</p>${rate(p.key, 'data-kind="direction"')}</div>`).join('')}</div>
 
 <h2 id="compare">Doors compared, with the next evening's answer</h2>${compare}

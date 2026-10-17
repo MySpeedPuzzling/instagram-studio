@@ -11,7 +11,7 @@ export const SECTIONS = ['Doors', 'Answer reveals', 'Announcement', 'Sunday draw
 
 export function allPosts(c: Content): LabPost[] {
   const out: LabPost[] = [];
-  for (const v of ['V1', 'V2', 'V3', 'V4'] as VariantId[]) {
+  for (const v of ['V1', 'V2', 'V5', 'V3', 'V4'] as VariantId[]) {
     out.push({ key: `doors-${v}`, section: 'Doors', label: `${v} · ${VARIANT_INFO[v].name}`, note: VARIANT_INFO[v].idea,
       slides: c.quizzes.map(q => ({ id: `${v}-d${q.day}-${q.key}`, body: door(v, q, c), frame: 'story' })) });
   }

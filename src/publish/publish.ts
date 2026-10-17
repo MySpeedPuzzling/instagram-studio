@@ -61,6 +61,11 @@ export async function preflight(d: Draft): Promise<PreflightIssue[]> {
     firstRatio ??= ratio;
     if (!s.alt?.trim()) issues.push({ slide: i + 1, problem: 'alt text missing' });
     if ((s.alt ?? '').length > 1000) issues.push({ slide: i + 1, problem: 'alt text over 1,000 characters' });
+    for (const t of s.user_tags ?? []) {
+      if (!/^[a-z0-9._]{1,30}$/.test(t.username)) issues.push({ slide: i + 1, problem: `photo tag: invalid username "${t.username}"` });
+      if (!(t.x >= 0 && t.x <= 1 && t.y >= 0 && t.y <= 1)) issues.push({ slide: i + 1, problem: `photo tag @${t.username}: x/y must be within 0–1` });
+    }
+    if ((s.user_tags?.length ?? 0) > 20) issues.push({ slide: i + 1, problem: 'more than 20 photo tags' });
   }
   const lint = lintCaption(d.caption, d.format === 'carousel' ? 'carousel' : 'single');
   for (const e of lint.errors) issues.push({ problem: `caption: ${e}` });
@@ -139,13 +144,15 @@ export async function publishDraft(id: string, opts: { host?: MediaHost; now?: D
       keys.push(key);
     }
     const collab: Record<string, string> = d.collaborators?.length ? { collaborators: JSON.stringify(d.collaborators) } : {};
+    // Photo tags go on each image container (on carousels: the child, never the CAROUSEL container).
+    const tags = (i: number): Record<string, string> => (d.slides[i].user_tags?.length ? { user_tags: JSON.stringify(d.slides[i].user_tags) } : {});
     let container: string;
     if (d.format === 'single') {
-      container = (await ig.post('me/media', { image_url: urls[0], caption: d.caption, alt_text: d.slides[0].alt, ...collab })).id;
+      container = (await ig.post('me/media', { image_url: urls[0], caption: d.caption, alt_text: d.slides[0].alt, ...tags(0), ...collab })).id;
     } else {
       const children: string[] = [];
       for (const [i, u] of urls.entries()) {
-        children.push((await ig.post('me/media', { image_url: u, is_carousel_item: true, alt_text: d.slides[i].alt })).id);
+        children.push((await ig.post('me/media', { image_url: u, is_carousel_item: true, alt_text: d.slides[i].alt, ...tags(i) })).id);
       }
       for (const c of children) await waitFinished(ig, c);
       container = (await ig.post('me/media', { media_type: 'CAROUSEL', children: children.join(','), caption: d.caption, ...collab })).id;

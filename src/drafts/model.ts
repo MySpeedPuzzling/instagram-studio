@@ -17,7 +17,9 @@ export type Status =
 
 export const REJECT_REASONS = ['off-brand', 'factually wrong', 'weak hook', 'privacy', 'duplicate', 'boring', 'other'] as const;
 
-export interface DraftSlide { file: string; preview?: string; alt: string }
+/** A photo tag on a slide: an Instagram username at a position (0–1 from the image's left and top edges). */
+export interface UserTag { username: string; x: number; y: number }
+export interface DraftSlide { file: string; preview?: string; alt: string; user_tags?: UserTag[] }
 
 export interface Draft {
   id: string;

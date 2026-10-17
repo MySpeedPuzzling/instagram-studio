@@ -20,7 +20,7 @@ import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
 
-interface Built { stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string }
+interface Built { userTags?: Record<number, Array<{ username: string; x: number; y: number }>>; stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string }
 
 const dayOf = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
 
@@ -47,7 +47,7 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
     const caption = [
       'Paris, London or New York: which 500-piece postcard do puzzlers finish fastest? Guess before you swipe.',
       '',
-      `All three are Ravensburger postcards and among the most-solved puzzles on MySpeedPuzzling. We compared the median solo time of each, so half of all solo times on that puzzle are faster. The race is closer than you'd think, pairs change it completely, and the fastest single solve goes to a different city.`,
+      `All three are @ravensburgerglobal postcards and among the most-solved puzzles on MySpeedPuzzling. We compared the median solo time of each, so half of all solo times on that puzzle are faster. The race is closer than you'd think, pairs change it completely, and the fastest single solve goes to a different city.`,
       '',
       'Which postcard have you done, and what was your time? ⏱️',
       '',
@@ -56,6 +56,8 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
     return {
       id: `${new Date().toISOString().slice(0, 10)}-faster-postcards`, title: 'Which is faster? The postcard trio', pillar: 'community', format: 'carousel',
       tags: { series: 'which-is-faster', slot: 'weekend-interactive', mechanic: 'prediction', template: 'faster-quiz', style: 'H4' },
+      // Photo tag on slide 1, on the postcards (owner 2026-10-17: "tag ravensburgerglobal").
+      userTags: { 0: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.55 }] },
       facts: { 'quiz-postcards': q }, slides, stories, alt: fasterAlt(spec), caption, captionPillar: 'carousel',
     };
   },
@@ -75,7 +77,7 @@ const slides = await metered(join(ROOT, 'content/drafts/runs.jsonl'), { draft: b
       const n = String(i + 1).padStart(2, '0');
       const res = await renderer.render({ id: `slides/slide-${n}`, html: page(body, { css: HOUSE_CSS, title: `${b.id} ${n}` }) });
       errors.push(...res.qa.errors.map(e => `slide ${n}: ${e}`));
-      out.push({ file: `content/drafts/${b.id}/slides/slide-${n}.jpg`, preview: `content/drafts/${b.id}/slides/slide-${n}.ig.jpg`, alt: b.alt[i] ?? '' });
+      out.push({ file: `content/drafts/${b.id}/slides/slide-${n}.jpg`, preview: `content/drafts/${b.id}/slides/slide-${n}.ig.jpg`, alt: b.alt[i] ?? '', ...(b.userTags?.[i] ? { user_tags: b.userTags[i] } : {}) });
     }
     // Story frames that follow the post (posted by hand with a sticker): content/drafts/<id>/stories/story-N.jpg
     for (const [i, body] of (b.stories ?? []).entries()) {

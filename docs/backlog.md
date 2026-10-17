@@ -76,6 +76,10 @@ Updated 2026-10-16.
 
 ## Repo, security, ops
 
+- [ ] Verify the Story bands on device: post `content/labs/STORY-TEST/story-test-v1.jpg` to Close Friends, screenshot
+      it in the viewer on an iPhone (and an Android if available), add a default-size 3-option poll and screenshot;
+      adjust `STORY` / `FRAMES.story.safe` if anything differs by more than 20 px.
+
 
 - [ ] Create the public GitHub repo, enable push protection; run a full-history secret scan (gitleaks) before the
       first push; then push. (The local pre-commit hook already blocks `.env` values, hostnames and credential shapes.)

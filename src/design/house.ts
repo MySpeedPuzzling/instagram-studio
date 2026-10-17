@@ -25,8 +25,9 @@ export const STORY_H = 1920;
 export const X0 = 88, X1 = 992, CW = X1 - X0;
 /** Feed layout rows. Header 64–136, rule 148, content 176–1180, rule 1196, footer 1206–1290. */
 export const FEED = { headTop: 64, ruleTop: 148, contentTop: 176, contentBottom: 1180, footRule: 1196, footTop: 1210 } as const;
-/** Story layout rows, inside the Story safe area (y 270–1540). */
-export const STORY = { headTop: 286, ruleTop: 370, contentTop: 400, contentBottom: 1420, footRule: 1436, footTop: 1452 } as const;
+/** Story layout rows, inside the Story safe area (y 190–1720; research_notes/…/story_dimensions_2026.md, 2026-10-17:
+ *  on tall phones the 9:16 card is shown uncropped and the reply bar sits below it; to be verified on device). */
+export const STORY = { headTop: 200, ruleTop: 284, contentTop: 312, contentBottom: 1586, footRule: 1606, footTop: 1622 } as const;
 export const rowsFor = (kind: FrameKind) => (kind === 'feed' ? FEED : STORY);
 
 export const f1 = (v: number) => v.toFixed(1);
@@ -688,7 +689,7 @@ export function artCover(c: SlideCtx, s: ArtCoverSpec): string {
 /** Story rows for frames that carry a big Instagram sticker (poll, quiz): header near the top, footer near the
  *  bottom, keeping clear of Instagram's own overlays (~240 px at the top, ~200 px at the bottom). Render with
  *  STICKER_STORY_SAFE so QA checks text against these limits. */
-export const STICKER_STORY_ROWS = { headTop: 200, ruleTop: 334, footRule: 1606, footTop: 1622 } as const;
+export const STICKER_STORY_ROWS = { headTop: 200, ruleTop: 284, footRule: 1606, footTop: 1622 } as const;
 /** Text limits for sticker Stories: only Instagram's viewer overlays stay clear (progress bar + account row at the
  *  top, the reply bar at the bottom, ~200 px each; to be verified on device). */
 export const STICKER_STORY_SAFE = { x0: 65, y0: 190, x1: 1015, y1: 1720 } as const;

@@ -12,7 +12,7 @@ import { ROOT, startServer } from './server.ts';
 
 export const FRAMES = {
   feed: { width: 1080, height: 1350, safe: { x0: 88, y0: 64, x1: 992, y1: 1286 } },
-  story: { width: 1080, height: 1920, safe: { x0: 65, y0: 270, x1: 1015, y1: 1540 } },
+  story: { width: 1080, height: 1920, safe: { x0: 65, y0: 190, x1: 1015, y1: 1720 } }, // story_dimensions_2026.md
   reel: { width: 1080, height: 1920, safe: { x0: 60, y0: 220, x1: 960, y1: 1250 } },
 } as const;
 export type FrameKind = keyof typeof FRAMES;

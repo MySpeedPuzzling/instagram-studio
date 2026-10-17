@@ -59,8 +59,10 @@ How to maintain it:
 
 ## Formats
 
-- **Story frames that get an Instagram sticker** (poll, quiz, link) leave real room for it: a 3-option poll is ~600 px
-  tall at default size. Use `STICKER_STORY_ROWS` (header high, footer low) and check with a life-size guide image.
+- **Story frames use the full usable height:** key text and stickers in y 200–1720 × x 65–1015 (research
+  `story_dimensions_2026.md`; device check pending). Frames that get an Instagram sticker leave real room for it:
+  a 3-option poll is ~600 px tall at default size and should be shown big (~130 %); use the masthead (no footer) and
+  check with a life-size guide image.
   Use a poll, not a quiz sticker, when the answer comes later (a quiz reveals it on tap). (owner, 2026-10-17)
 
 - **Reels:** no logo intro; by default no outro (it breaks the loop); optionally the 0.6 s loop-back sting.

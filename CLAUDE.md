@@ -69,4 +69,4 @@ is gitignored and loaded automatically. Keep those details out of every committe
 - Publishing is never done by the model on its own initiative: only a human-approved draft is
   published, through the publish script.
 - API constraints that matter: JPEG only, 4:5 (1080×1350) max height ratio, carousels ≤ 10 items,
-  media must be at a public URL, no edit of captions after publishing, ≤ 5 hashtags.
+  media must be at a public URL, no edit of captions after publishing. **No hashtags** (owner rule 2026-10-17).

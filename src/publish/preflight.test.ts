@@ -24,7 +24,7 @@ function writeFacts(queriedAt: string) {
 
 const base = (slides: Draft['slides'], format: Draft['format'] = 'carousel'): Draft => ({
   id: DRAFT, status: 'approved', title: 't', format, caption_author: 'claude', created_at: '', updated_at: '', version: 1, slides,
-  caption: '58 minutes is the most common finish time for a solo 500 on MySpeedPuzzling, based on every result logged up to 13 Oct 2026. What is your PB?\n\n#speedpuzzling #jigsawpuzzle',
+  caption: '58 minutes is the most common finish time for a solo 500 on MySpeedPuzzling, based on every result logged up to 13 Oct 2026. What is your PB?',
 });
 
 test('valid 4:5 carousel passes, wrong shapes fail', async () => {

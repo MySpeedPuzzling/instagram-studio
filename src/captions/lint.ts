@@ -39,7 +39,6 @@ export function lintCaption(text: string, pillar: Pillar = 'carousel'): LintResu
   if (chars < min || chars > max) warnings.push(`length ${chars} outside the ${pillar} target ${min}–${max}`);
 
   if (!/\d/.test(hook)) warnings.push('the first 125 characters carry no number');
-  if (/#\w/.test(hook)) errors.push('hashtag inside the hook (first 125 characters)');
 
   if (/[—–]/.test(caption.replace(/\d–\d/g, ''))) errors.push('em/en dash used as punctuation (house rule: zero dashes)');
   const lower = caption.toLowerCase();
@@ -59,14 +58,9 @@ export function lintCaption(text: string, pillar: Pillar = 'carousel'): LintResu
   if (/\b[A-Z]{4,}\b/.test(caption.replace(/#\w+|@\w+|\b(WJPC|EJPC|USAJPA|WJPF|MSP|PB|PPM|XP)\b/g, ''))) warnings.push('ALL CAPS word');
   if (/[\u{1D400}-\u{1D7FF}]/u.test(caption)) errors.push('Unicode bold/italic letters');
 
+  // Owner rule 2026-10-17: never add hashtags (no measurable reach effect; see research_notes/MSP Instagram design and growth toolkit/hashtags_2026.md).
   const hashtags = caption.match(/#[\p{L}\d_]+/gu) ?? [];
-  if (pillar !== 'story') {
-    if (hashtags.length > 5) errors.push(`${hashtags.length} hashtags; hard max 5`);
-    else if (hashtags.length > 4) warnings.push(`${hashtags.length} hashtags; target 2–4`);
-    else if (hashtags.length < 2) warnings.push(`${hashtags.length} hashtags; target 2–4`);
-    const last = lines[lines.length - 1];
-    if (hashtags.length && hashtags.some(t => !last.includes(t))) warnings.push('hashtags belong on the last line only');
-  } else if (hashtags.length) errors.push('no hashtags in Stories');
+  if (hashtags.length) errors.push(`${hashtags.length} hashtag(s): never add hashtags (owner rule)`);
   for (const t of hashtags) if (BANNED_HASHTAGS.includes(t.toLowerCase())) errors.push(`banned hashtag ${t}`);
 
   const mentions = caption.match(/@[\w.]+/g) ?? [];

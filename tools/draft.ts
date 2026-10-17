@@ -47,8 +47,6 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       `All three are Ravensburger postcards and among the most-solved puzzles on MySpeedPuzzling. We compared the median solo time of each, so half of all solo times on that puzzle are faster. The race is closer than you'd think, and the fastest single solve goes to a different city.`,
       '',
       'Which postcard have you done, and what was your time? ⏱️',
-      '',
-      '#speedpuzzling #jigsawpuzzle #ravensburger #myspeedpuzzling',
     ].join('\n');
     return {
       id: `${new Date().toISOString().slice(0, 10)}-faster-postcards`, title: 'Which is faster? The postcard trio', pillar: 'community', format: 'carousel',

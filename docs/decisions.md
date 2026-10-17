@@ -174,3 +174,9 @@ Docker and other unneeded apps turned off.
 - **Seam shape: the original cut** (grid4, K1-9; owner same day). H4 keeps `seam: 'grid4'`. Only brand vs deep navy remains open.
 - **Navy: B, deep navy #222a38** (owner same day, after the A/B comparison). **H4 is the MSP house style**
   (`HOUSE` in `src/design/house.ts`); all DL4 choices are settled.
+
+## 2026-10-17: no hashtags
+
+- **Never add hashtags** to captions (owner: "they seem obsolete and have no impact"). Enforced in
+  `src/captions/lint.ts` (error) and therefore in the publisher's preflight; `msp-captions` writes searchable words
+  into the caption text instead. Supersedes the 2–4 hashtag policy of the voice playbook (§9).

@@ -51,6 +51,8 @@ How to maintain it:
   (owner, 2026-10-17)
 - **Claude proposes the caption and alt text with every draft; the owner fine-tunes them in the review app.** Owner
   edits are saved as `author: human` and never overwritten; patterns in those edits become rules here. (owner, 2026-10-17)
+- **Never add hashtags.** They're treated as obsolete with no measurable reach effect; put searchable words in the
+  caption text instead. Enforced by the caption lint and the publisher. (owner, 2026-10-17)
 - **0–3 functional emoji per caption.** (owner, 2026-10-13)
 - **No AI disclosure statement.** (owner, 2026-10-13)
 

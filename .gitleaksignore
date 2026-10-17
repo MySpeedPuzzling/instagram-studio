@@ -1,3 +1,5 @@
-# gitleaks false positives (reviewed). lab/dl2 f3-cartoons: key: 'cartoon-minute-58' is a post key, not a secret.
+# gitleaks false positives, reviewed 2026-10-17: a post key in lab/dl2 f3-cartoons (the cartoon "minute 58" post),
+# and an older version of this file that quoted it. No real secrets.
 b565f187ddf9faa34033617ba58a7ddd9e94622b:lab/dl2/directions/f3-cartoons.ts:generic-api-key:302
 lab/dl2/directions/f3-cartoons.ts:generic-api-key:302
+4e7da52714f7f92e88bb08a22325f24ba9d48d23:.gitleaksignore:generic-api-key:1

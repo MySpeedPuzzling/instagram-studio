@@ -1,0 +1,3 @@
+# gitleaks false positives (reviewed). lab/dl2 f3-cartoons: key: 'cartoon-minute-58' is a post key, not a secret.
+b565f187ddf9faa34033617ba58a7ddd9e94622b:lab/dl2/directions/f3-cartoons.ts:generic-api-key:302
+lab/dl2/directions/f3-cartoons.ts:generic-api-key:302

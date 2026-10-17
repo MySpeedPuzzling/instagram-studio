@@ -114,7 +114,9 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 
 - [ ] Create the public GitHub repo, enable push protection; run a full-history secret scan (gitleaks) before the
       first push; then push. (The local pre-commit hook already blocks `.env` values, hostnames and credential shapes.)
-- [ ] Optional: install gitleaks as a second pre-commit scanner.
+- [x] gitleaks installed (8.30.1) and run on the full history (2026-10-17): 98 commits, 0 leaks (one reviewed false
+      positive in `.gitleaksignore`). Re-run `gitleaks git . --redact` right before the first push.
+- [ ] Optional: add gitleaks as a second pre-commit scanner.
 - [ ] Keep `docs/STATUS.md` current at the end of each work session.
 
 ## Known issues

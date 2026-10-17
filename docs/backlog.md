@@ -2,7 +2,7 @@
 
 Build and ops work for the pipeline. Content ideas live in `docs/ideas/` (public, aggregates) and
 `content/ideas/backlog.md` (local). Tick items off here when done; add new ones at the right priority.
-Updated 2026-10-16.
+Updated 2026-10-17.
 
 ## Now
 
@@ -40,6 +40,37 @@ Updated 2026-10-16.
       animated stickers from the logo rig (e.g. stopwatch sweep, piece snap, "New PB!", "Puzzle done", "MSP"), transparent
       GIF/WebP per GIPHY specs; needs a GIPHY brand channel (verified to be searchable in Instagram). Research specs +
       verification steps, then prototype in LM1. Durations/notes: `research_notes/…/logo_motion_durations.md`.
+
+## Advent of Puzzle (launch Thu 26 Nov, door 1 Mon 30 Nov 2026)
+
+Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_and_advent_2026.md`, morning list
+`docs/advent-morning.md`, lab AD1 (`lab/advent/`), automation `src/campaign/` + `tools/campaign.ts`.
+
+- [x] Research (API, Story channel, rules and law, what works), design, 24 doors, AD1 prototypes, read-only automation
+      with tests (2026-10-17).
+- [ ] **Owner decisions** (morning list): route, eligibility rule, prize and value, age, calendar, door visual, colour,
+      publishing doors by API, the 300M dry run, Advent = one of the year's ≤ 3 giveaways.
+- [ ] **Close Friends test Story** (T1 poll, T2 quiz, T3 reply) + `node tools/campaign.ts probe` at +5 min, +1 h, +23 h,
+      +26 h → confirm `reply_to.id` = Story id, edit/unsend/emoji/GIF shapes, no "Seen" side effect; record in the
+      research note §2.3.
+- [ ] **Public dry run**: the "Guess the day: 300 million pieces" Story (early Nov; non-followers, message requests,
+      Hidden Requests, real reply rate) → milestone post on the crossing day (~20 Nov, re-query daily from 13 Nov).
+- [ ] **Rules page** on myspeedpuzzling.com (EN + CZ; MSP web repo task), the matching rules, the Art. 13 notice;
+      legal name/address/IČO; lawyer + accountant checks (research §3.5).
+- [ ] **Prize**: buy or issue 4 voucher codes (or agree with a partner: paid-partnership label + agreement); check that
+      they work abroad and cost nothing to redeem.
+- [ ] **Token refresh before 30 Nov** (it expires 12 Dec, mid-campaign): `node tools/ig-token.ts refresh`; then weekly.
+- [ ] **Story publishing in `src/publish`** (`media_type=STORIES`, R2 URL, record the media id per door) if the owner
+      chooses scheduled doors; otherwise the owner posts doors by hand and runs `tools/campaign.ts stories` after.
+- [ ] **24 answer keys + 4 reserves** in `content/campaign/advent-2026/keys/` (gitignored), contenders queried fresh on
+      each door's day; door builder in `src/posts/advent.ts` from the chosen AD1 variant (QA gate, alt text).
+- [ ] **Install the launchd job** (owner go-ahead; commands in `docs/runbook.md`); a full dry run on a Close Friends test
+      door the week before (collect → week → seed → draw on fake keys, then purge).
+- [ ] Settings on the account: Story replies open to everyone; public Story comments off on door Stories; "Allow access
+      to messages" on (Connected tools); don't delete or decline chats until each week's draw is done.
+- [ ] Advent highlight cover; announcement carousel + countdown Story; Sunday recap carousel builder.
+- [ ] After the campaign: purge non-winner entries by 25 Feb 2027 (`tools/campaign.ts purge`); write the read-out into
+      `editorial/learnings.md`.
 
 ## Build: from labs to production
 
@@ -104,5 +135,5 @@ Updated 2026-10-16.
 - Reels: silent with burned-in text, or add sound (SFX / royalty-free music)?
 - Spirit animals: is the cute pastel style right for MSP?
 - Monthly "active puzzlers" definition to publish (logging-based vs the app's community stats).
-- Giveaways per year (default: 2–3, tied to events).
+- Giveaways per year (default: 2–3, tied to events). Does Advent count as one? (morning list)
 - GA4 access for measuring Instagram → website (service account) and a `/ig` landing page with per-post links?

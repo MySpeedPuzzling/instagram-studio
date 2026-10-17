@@ -202,3 +202,19 @@ Docker and other unneeded apps turned off.
 - **Story bands** from research (key text and stickers in y 200–1720); the owner will verify with the ruler test frame.
 - **Keep everything learnt for future posts, Reels and Stories:** `editorial/standing-feedback.md` is the rulebook every
   draft reads first.
+
+## 2026-10-17: giveaways and the Advent of Puzzle campaign (owner's brief for the overnight session)
+
+- **Advent of Puzzle is the owner's chosen campaign** for December 2026: four Advent weeks, a quiz Monday to Saturday
+  (days 1–6), a Sunday draw of one winner among everyone who answered that week's quizzes correctly, for a voucher;
+  4 × (6 quizzes + 1 draw). It runs alongside the normal posts and must fit the long-term strategy (weekly rhythm, real
+  value, never slop); quizzes in the house style, built from MSP data and box images.
+- **Answers via the day's Story** (preferred; the Story's 24 h life is fine, even better). Answers don't need to be
+  hidden; comments on a feed post are an acceptable fallback.
+- **Claude Code collects every day before the Story expires** and saves the list of correct answerers (local store,
+  audit trail per day), **draws on Sunday** from the week's saved lists, and drives the whole flow with scheduled jobs on
+  this Mac. **The owner only approves what gets published.** Replying, hiding, deleting, messaging and publishing need
+  the owner's explicit approval; the automation is read-only until then.
+- **Eligibility rule, prize, answer route details, quiz types and the visual variant are open** (morning list in
+  `docs/advent-morning.md`; design in `docs/ideas/advent-of-puzzle.md`).
+- **Heavy local jobs were allowed for the night of 17 Oct** (calm check passing, resources logged, one at a time).

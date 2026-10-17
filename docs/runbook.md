@@ -113,3 +113,33 @@ node tools/insights.ts            # pull all posts + 30 days of account metrics 
 node tools/insights.ts --summary  # medians by year and format
 node tools/ig-token.ts status     # token validity and expiry (refresh with: refresh)
 ```
+
+## Campaigns (Advent of Puzzle, reply-to-Story quizzes)
+
+Design: `docs/ideas/advent-of-puzzle.md`. Everything here is **read-only towards Instagram** (GET requests only,
+enforced in `src/campaign/ig.ts`); the owner posts, replies and DMs. Data lands in the gitignored
+`content/campaign/<campaign>/` (answer keys, entries, audits): never commit it.
+
+```sh
+node tools/campaign.ts status                         # days, windows, what's collected, alerts
+node tools/campaign.ts stories                        # snapshot our live Story ids + insights (only works while live)
+node tools/campaign.ts probe --since <ISO time>       # what the API returns for Story replies/mentions (masked handles)
+node tools/campaign.ts collect <day>                  # read replies for door <day>, match against keys/day-NN.json
+node tools/campaign.ts collect <day> --source comments --media <id>   # fallback: comments on a feed post
+node tools/campaign.ts week <n> --rule tickets|all6|any                # the week's pool
+node tools/campaign.ts seed <n>                       # before the week's first door: secret seed → fingerprint to publish
+node tools/campaign.ts draw <n> [--dry-run]           # after door 6 closes: reveal, draw, audit, winner draft
+node tools/campaign.ts tick                           # what the scheduled job runs (snapshot, collect, Sunday draw)
+node tools/campaign.ts schedule --print               # writes the launchd plist, prints install commands (no install)
+node tools/campaign.ts purge --before <date> [--yes]  # GDPR: delete non-winner entries (dry run without --yes)
+```
+
+Install the scheduled job only with the owner's go-ahead (commands printed by `schedule --print`; label
+`cz.myspeedpuzzling.instagram.advent`): `launchctl bootstrap gui/$(id -u) <plist>` to install,
+`launchctl kickstart -k gui/$(id -u)/cz.myspeedpuzzling.instagram.advent` to run now,
+`launchctl bootout gui/$(id -u)/cz.myspeedpuzzling.instagram.advent` to remove. Failures go to
+`content/campaign/<campaign>/alerts.log` and a macOS notification.
+
+Before a campaign: token valid past its end (`node tools/ig-token.ts status`), "Allow access to messages" on in the
+Instagram app, Story replies open to everyone, public Story comments off on contest Stories, don't delete or decline
+chats until the week's draw is done.

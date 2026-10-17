@@ -2,7 +2,7 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-10-17.
+`docs/backlog.md` (what to do next). Updated 2026-10-17 (evening: giveaways + Advent of Puzzle session).
 
 ## Where we are
 
@@ -10,6 +10,8 @@ Phase: **live.** The first pipeline post went out on **Sat 17 Oct 2026**: "Which
 (https://www.instagram.com/p/Del3tI6jfM0/), a 4-slide carousel in the house style with fresh data, a Ravensburger photo
 tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/design/house.ts`). Labs DL1–DL4, LM1
 (logo motion), IL1 (illustrations) stay local as reference. Growth strategy researched, rhythm to be confirmed.
+**Advent of Puzzle** (December campaign) researched, designed and prototyped overnight 17 Oct: decisions waiting in
+`docs/advent-morning.md`.
 
 | Area | State |
 |---|---|
@@ -26,9 +28,13 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 | Motion | HyperFrames 0.8.152 (pinned devDependency): Reels in the house style (`lab/dl4/reels/`), logo motion modules and chains (`lab/logo/`, LM1) |
 | AI images | Overnight runner `tools/ai-batch.ts --batch <file>` (calm-gated, watchdog, resource log; shared core `lab/ai/core.ts`); AI1 done 2026-10-14 (94 images); **IL1** (`lab/ai2/`, 6 illustration directions × 7 subjects) ran 2026-10-16 10:58–15:05: 199/199 images, 0 failures, all auto-checks pass, peak 20 GB (klein 9B) |
 | Token | Instagram token valid until **2026-12-12** (`node tools/ig-token.ts status`; refresh with `refresh`) |
+| Campaigns | Advent of Puzzle: design `docs/ideas/advent-of-puzzle.md` (calendar, 24 doors, matching, seeded draw, rules draft, GDPR), evidence `research_notes/…/giveaways_and_advent_2026.md`, ideas `docs/ideas/giveaways-2026.md`; lab **AD1** (`lab/advent/`, 56 slides, 4 door variants); read-only automation `src/campaign/` + `tools/campaign.ts` (collect Story replies by DM, tolerant matching, commit–reveal draw, launchd job written but not installed) |
 | Repo | Local git only — **no GitHub remote yet** (see backlog) |
 
 ## Waiting for the owner
+
+0. **Advent of Puzzle morning list** (`docs/advent-morning.md`): decisions with recommendations, the AD1 gallery,
+   and the Close Friends API test Story (`content/labs/STORY-TEST/instructions.md`).
 
 1. **Story test (next session):** post `content/labs/STORY-TEST/story-test-v1.jpg` to Close Friends, screenshot it in
    the viewer (iPhone, Android if possible) and with a default-size 3-option poll; Claude reads the ruler and fixes the

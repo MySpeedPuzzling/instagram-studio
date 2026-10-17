@@ -64,6 +64,24 @@ How to maintain it:
   boxes (e.g. @ravensburgerglobal). (owner, 2026-10-17)
 - **No AI disclosure statement.** (owner, 2026-10-13)
 
+## Giveaways and campaigns
+
+- **A campaign runs alongside the normal posts and fits the long-term rhythm**: real value from MSP data, never slop;
+  quizzes are built from MSP data or box images and are answerable and checkable from them. (owner, 2026-10-17)
+- **Claude collects and draws; the owner approves everything that gets published**; replies, hides, deletes, DMs and
+  publishing need explicit approval. (owner, 2026-10-17)
+- **Entry is never conditional on following, liking, sharing or tagging** (Instagram can't verify them; Meta forbids
+  prizes for engagement and inaccurate tagging). Following is "appreciated, not required". (research 2026-10-17, owner
+  to confirm)
+- **Story answers come by reply (DM), never by sticker:** no API can read poll, quiz or question votes; a door carries
+  a big "Reply to this Story" cue instead of a sticker, and public Story comments are turned off on contest Stories.
+  (research 2026-10-17, owner to confirm)
+- **Winners are announced publicly and claim by messaging us; we never DM a winner first**, and every winner post
+  carries the anti-scam line. Draws are reproducible (seed fingerprint published before, revealed after) and the public
+  audit names only the winner. (research 2026-10-17, owner to confirm)
+- **At most one campaign feed post a week**, written as a data story; daily contest content lives in Stories.
+  (research 2026-10-17, growth note; owner to confirm)
+
 ## Formats and slots
 
 - **Interactive quizzes must be a real guess:** pick contenders whose numbers are close ("Which is faster?" with a

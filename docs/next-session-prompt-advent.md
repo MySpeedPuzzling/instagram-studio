@@ -5,8 +5,14 @@ Copy everything below the line into a fresh Claude Code session started in this 
 ---
 
 You drive this whole job yourself and orchestrate it: **use parallel subagents (or a multi-agent workflow) for the
-research and the prototypes**, and come back to me only for real decisions, asked interactively with your
-recommendation first. Explain anything technical in plain words.
+research and the prototypes**. Explain anything technical in plain words.
+
+**This runs during my quiet hours, unattended.** Don't stop to wait for me. Where a decision is open (answer route,
+eligibility, prize, quiz types, visual variant), take your recommended option, and in the prototypes render the main
+alternatives side by side so I can pick in the morning. Collect every open decision in one list with your
+recommendation first; I'll answer interactively when I'm back. My go-ahead: heavy local jobs are allowed tonight
+(e.g. AI quiz art with `tools/ai-batch.ts`, video renders) as long as `node tools/calm.ts` passes and resources are
+logged; one heavy job at a time.
 
 ## 0. Context to load first
 
@@ -73,10 +79,11 @@ Run these as separate research agents at the same time:
      feature in another repo).
    - **For each route:** fairness (multiple accounts, guessing), friction for players, reach effect, what can be
      fully automated, what has to be collected within 24 h, and the build effort.
-   - **Verify on the real account before designing.** Ask me to post a **test Story to Close Friends only**, with a
-     poll sticker, a quiz sticker and the text "reply with a word". Give me exact step-by-step instructions (which
-     sticker, what text, where to place it). After a friend and I answer, read via the API what we can actually get.
-     Read-only: don't reply, don't send messages.
+   - **Verification on the real account is a morning step**, because I have to post it. Prepare a **test Story for
+     Close Friends only**: render the frame, and write exact step-by-step instructions (a poll sticker, a quiz
+     sticker and "reply with a word"; which sticker, what text, where to place it). Also prepare the read-only
+     script that, after a friend and I answer, shows what the API actually returns. Until then, design on the
+     documented capabilities and mark the assumptions.
 3. **Rules and law:**
    - Meta's promotion guidelines: official rules, the release statement that Meta isn't involved, no tagging
      requirements.
@@ -103,7 +110,8 @@ tables, sources).
 
 8–12 giveaway and campaign ideas, Advent of Puzzle included. For each: the mechanic, what we need (prize, partner,
 feature), how verifiable it is, the effort, and the expected effect on reach, participation and followers. Give a
-clear recommendation first and ask me to choose (interactively).
+clear recommendation first. Don't wait for my choice: design and prototype your recommendation (plus Advent of Puzzle,
+which I've already chosen), and put the choice on the morning decision list.
 
 ## 4. Detailed design of Advent of Puzzle
 
@@ -174,5 +182,8 @@ explicit approval. If a permission is missing, document exactly what to request 
   - Update `docs/STATUS.md` and `docs/backlog.md` (with what's needed before 29 Nov: permissions, prize, rules
     page, MSP feature if chosen, the launchd job, and a full dry run on a test Story).
   - Write a short next-session prompt and commit.
-- Give me a short summary with the gallery link (LAN URL with the review token) and the decisions you still need from
-  me.
+- Leave me a morning summary in `docs/advent-morning.md` and in your final message:
+  - the gallery link (LAN URL with the review token) and what to look at first;
+  - the decision list with your recommendations;
+  - the test-Story instructions;
+  - what ran overnight, with resources.

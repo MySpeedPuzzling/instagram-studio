@@ -168,3 +168,6 @@ Docker and other unneeded apps turned off.
   Every draft proposes the caption and alt text; tone: **a friendly speed-puzzling community, heavily data-driven**.
 - **No green** (owner, same day): funny facts and timely stories take coral posters (the brand accent, shared with
   milestones and events). Brand vs deep navy and the seam shape remain open in K1.
+- **Purple headings back** (owner reverted the same day): kickers, board headers and labels keep H1's purple
+  (indigo-300 on navy, indigo-800 on coral/sky posters); the concern was "never too many colours", not the purple.
+  Text palette in H4: white titles, grey body, purple kickers/labels, coral highlights, nothing more.

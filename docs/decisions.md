@@ -183,3 +183,7 @@ Docker and other unneeded apps turned off.
 - **Confirmed by research** (owner asked to decide from it): Mosseri repeatedly says hashtags don't raise reach;
   2026 measurements show about ±2 %; keyword-rich caption text helps search as much or more. Decision: no hashtags,
   searchable words in the caption; no A/B test (best case is noise). Note: `research_notes/…/hashtags_2026.md`.
+- **Revised the same day after a closer look at the research:** hashtags don't drive reach, but they still label the
+  topic for search and categorisation at no cost. Decision: **3–5 specific topic labels on the last line** (never
+  generic, none in the hook or Stories), plus the searchable words in the caption text. The lint errors above 5 and
+  warns below 3.

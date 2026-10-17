@@ -51,8 +51,9 @@ How to maintain it:
   (owner, 2026-10-17)
 - **Claude proposes the caption and alt text with every draft; the owner fine-tunes them in the review app.** Owner
   edits are saved as `author: human` and never overwritten; patterns in those edits become rules here. (owner, 2026-10-17)
-- **Never add hashtags.** They're treated as obsolete with no measurable reach effect; put searchable words in the
-  caption text instead. Enforced by the caption lint and the publisher. (owner, 2026-10-17)
+- **Hashtags = 3–5 specific topic labels on the last line** (e.g. #speedpuzzling #jigsawpuzzle + brand/size/event),
+  never generic, none in the hook or Stories. They help search/categorisation, not reach, so searchable words also go
+  in the caption text. (owner, 2026-10-17, after the hashtag research; replaced a short-lived "no hashtags" rule)
 - **0–3 functional emoji per caption.** (owner, 2026-10-13)
 - **No AI disclosure statement.** (owner, 2026-10-13)
 

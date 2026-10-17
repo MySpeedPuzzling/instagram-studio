@@ -1,6 +1,7 @@
 # Hashtags on Instagram (quick check, 2026-10-17)
 
-Owner rule the same day: **never add hashtags** ("they seem obsolete and have no impact"). This quick check supports it.
+Owner first ruled "never add hashtags"; after this check showed they're neutral for reach but still label the topic for
+search, the decision became **3–5 specific topic labels on the last line** (see "What we do").
 
 ## Findings
 
@@ -15,8 +16,9 @@ Owner rule the same day: **never add hashtags** ("they seem obsolete and have no
   Hootsuite test found keyword-led captions reached ~30 % more than hashtag-led ones. [E, small/secondary]
 - The large "+12 % / +79 % with hashtags" figures that circulate are pre-cap and unsourced. [O: ignore them]
 
-## What we do instead
-- No hashtags (lint error, publisher refuses). Write the words people search into the caption naturally
+## What we do
+- 3–5 specific topic labels on the last line (lint: error above 5, warning below 3); never generic tags, none in the
+  hook or Stories. Also write the words people search into the caption naturally
   ("speed puzzling", "500-piece puzzle", "solo time", brand and city names): Instagram search reads captions,
   usernames, bios and locations.
 - Distribution comes from sends, saves, comments and watch time; that's what the posts are built for.

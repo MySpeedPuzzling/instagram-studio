@@ -58,9 +58,16 @@ export function lintCaption(text: string, pillar: Pillar = 'carousel'): LintResu
   if (/\b[A-Z]{4,}\b/.test(caption.replace(/#\w+|@\w+|\b(WJPC|EJPC|USAJPA|WJPF|MSP|PB|PPM|XP)\b/g, ''))) warnings.push('ALL CAPS word');
   if (/[\u{1D400}-\u{1D7FF}]/u.test(caption)) errors.push('Unicode bold/italic letters');
 
-  // Owner rule 2026-10-17: never add hashtags (no measurable reach effect; see research_notes/MSP Instagram design and growth toolkit/hashtags_2026.md).
+  // Hashtags are topic labels, not a reach lever (owner decision 2026-10-17 after research_notes/MSP Instagram design and
+  // growth toolkit/hashtags_2026.md): 3–5 specific tags on the last line; none in the hook; none in Stories.
   const hashtags = caption.match(/#[\p{L}\d_]+/gu) ?? [];
-  if (hashtags.length) errors.push(`${hashtags.length} hashtag(s): never add hashtags (owner rule)`);
+  if (/#\w/.test(hook)) errors.push('hashtag inside the hook (first 125 characters)');
+  if (pillar !== 'story') {
+    if (hashtags.length > 5) errors.push(`${hashtags.length} hashtags; hard max 5`);
+    else if (hashtags.length < 3) warnings.push(`${hashtags.length} hashtags; target 3–5 specific topic labels`);
+    const last = lines[lines.length - 1];
+    if (hashtags.length && hashtags.some(t => !last.includes(t))) warnings.push('hashtags belong on the last line only');
+  } else if (hashtags.length) errors.push('no hashtags in Stories');
   for (const t of hashtags) if (BANNED_HASHTAGS.includes(t.toLowerCase())) errors.push(`banned hashtag ${t}`);
 
   const mentions = caption.match(/@[\w.]+/g) ?? [];

@@ -173,7 +173,15 @@ document.getElementById('saveAlt').onclick = async () => { const alts = [...docu
 const msg = t => document.getElementById('decideMsg').textContent = t;
 const val = i => (document.getElementById(i) || {}).value;
 const on = (i, f) => { const el = document.getElementById(i); if (el) el.onclick = f; };
-on('approveNow', async () => { if (!confirm('Publish this post to @myspeedpuzzling now?')) return; const r = await post('/api/d/' + id + '/approve', { mode: 'now' }); msg(r.message); setTimeout(() => location.reload(), 1500); });
+on('approveNow', async () => {
+  if (!confirm('Publish this post to @myspeedpuzzling now?')) return;
+  const b = document.getElementById('approveNow'); b.disabled = true; b.textContent = 'Publishing…';
+  msg('Publishing to Instagram: uploading, preparing and posting can take up to a minute. Keep this page open.');
+  const r = await post('/api/d/' + id + '/approve', { mode: 'now' });
+  // Success reloads after a moment; a failure stays on screen so it can be read.
+  if (/^published|already published|recovered/.test(r.message || '')) { msg(r.message); setTimeout(() => location.reload(), 4000); }
+  else { msg('NOT PUBLISHED: ' + (r.message || 'unknown error') + ' (the details are also in the history below)'); b.disabled = false; b.textContent = 'Approve and publish now'; }
+});
 on('approveAt', async () => { if (!val('when')) return alert('Pick a time'); const r = await post('/api/d/' + id + '/approve', { mode: 'schedule', at: new Date(val('when')).toISOString() }); msg(r.message); setTimeout(() => location.reload(), 1200); });
 on('comment', async () => { await post('/api/d/' + id + '/feedback', { kind: 'comment', target: val('fbTarget'), text: val('fbText') }); location.reload(); });
 on('changes', async () => { await post('/api/d/' + id + '/feedback', { kind: 'request_changes', target: val('fbTarget'), text: val('fbText') }); location.reload(); });

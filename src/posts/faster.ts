@@ -5,7 +5,7 @@
 //     plot, not bars, so the axis may start near the times);
 //   3 the twist: fastest single solves and the most-solved contender, then the question to the community.
 // Every number comes from the facts snapshot passed in (a fresh query on the day); nothing is typed into copy.
-import { CW, X0, artCover, clock, f1, slide, type SlideCtx, type Variant } from '../design/house.ts';
+import { CW, X0, artCover, clock, f1, frame, slide, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtDuration, fmtInt } from '../design/page.ts';
 
 export interface Contender {
@@ -20,6 +20,9 @@ export interface Contender {
   soloResults: number;
   medianS: number;
   fastestS: number;
+  /** Pair (duo) results and their median, when the post has a pairs slide. */
+  duoResults?: number;
+  duoMedianS?: number;
 }
 
 export interface FasterSpec {
@@ -62,7 +65,9 @@ export function fasterSlides(v: Variant, s: FasterSpec): string[] {
   const byFastest = [...s.contenders].sort((a, b) => a.fastestS - b.fastestS);
   const win = byMedian[0], second = byMedian[1], last = byMedian[byMedian.length - 1];
   const mostSolved = [...s.contenders].sort((a, b) => b.solvers - a.solvers)[0];
-  const n = 3;
+  // A pairs slide only when every contender has enough pair results to stand behind (≥ 100).
+  const pairs = s.contenders.every(c => (c.duoResults ?? 0) >= 100 && c.duoMedianS);
+  const n = pairs ? 4 : 3;
   const ctx = (i: number): SlideCtx => ({ v, post: s.key, slide: i, of: n });
 
   // 1 · the question: postcards fanned out, tilted, overlapping a little; labels in equal columns under them.
@@ -122,8 +127,34 @@ export function fasterSlides(v: Variant, s: FasterSpec): string[] {
       ${strip}`,
   }).html;
 
-  // 3 · the twist: fastest single solves, the most-solved contender, the question.
-  const t = slide(ctx(3), 'data', {
+  // 3 (optional) · pairs: solo vs pair median per contender, bars from zero, the pair bar inside the solo bar.
+  let p = '';
+  if (pairs) {
+    const byDuo = [...s.contenders].sort((a, b) => a.duoMedianS! - b.duoMedianS!);
+    const max = Math.max(...s.contenders.map(c => c.medianS));
+    const share = (c: Contender) => Math.round((1 - c.duoMedianS! / c.medianS) * 100);
+    const avgShare = Math.round(s.contenders.reduce((t, c) => t + share(c), 0) / s.contenders.length);
+    const BAR = CW - 170, rowY = (i: number) => 540 + i * 190;
+    p = slide(ctx(3), 'data', {
+      kicker: `${s.kicker} · in pairs`, src: s.src,
+      title: `In pairs it's not close: ${byDuo[0].short} by ${gapText(byDuo[1].duoMedianS! - byDuo[0].duoMedianS!)}.`, body: CSS + `
+        <p class="h-abs h-dek" style="top:338px">Median time of two puzzlers on one puzzle, against the solo median. Two are about ${avgShare}% faster than one.</p>
+        <svg width="${CW}" height="620" style="position:absolute; left:${X0}px; top:500px" aria-hidden="true">
+          ${byDuo.map((c, i) => {
+            const y = rowY(i) - 500;
+            return `<rect x="${CW - BAR}" y="${y + 62}" width="${f1((c.medianS / max) * BAR)}" height="46" fill="var(--c-base)"/>
+              <rect x="${CW - BAR}" y="${y + 62}" width="${f1((c.duoMedianS! / max) * BAR)}" height="46" fill="${i === 0 ? 'var(--c-hot)' : 'var(--g-ink)'}"/>
+              <text class="c-lab-b" x="${CW - BAR}" y="${y + 46}">${h(c.short)} · pair ${sec(c.duoMedianS!)}</text>
+              <text class="c-lab" x="${CW}" y="${y + 46}" text-anchor="end">Solo ${sec(c.medianS)}</text>
+              <text class="c-lab" x="${CW - BAR}" y="${y + 148}">${fmtInt(c.duoResults!)} pair times · ${share(c)}% faster</text>`;
+          }).join('')}
+        </svg>
+        ${byDuo.map((c, i) => `<span class="fq-thumb" style="position:absolute; left:${X0}px; top:${rowY(i) + 34}px; width:136px; height:100px"><img src="${c.img}" alt=""></span>`).join('')}`,
+    }).html;
+  }
+
+  // last · the twist: fastest single solves, the most-solved contender, the question.
+  const t = slide(ctx(n), 'data', {
     kicker: `${s.kicker} · fastest solves`, src: s.src,
     title: byFastest[0] === win ? `${win.short} also has the fastest single solve: ${sec(win.fastestS)}.` : `But the fastest single solve is ${byFastest[0].short}'s: ${sec(byFastest[0].fastestS)}.`,
     body: CSS + `
@@ -142,7 +173,7 @@ export function fasterSlides(v: Variant, s: FasterSpec): string[] {
       <p class="h-abs h-ask" style="top:${370 + 60 + 132 * byFastest.length + 34 + 146}px">${h(s.ask)}</p>`,
   }).html;
 
-  return [q, a, t];
+  return pairs ? [q, a, p, t] : [q, a, t];
 }
 
 /** Alt text per slide, from the same facts. */
@@ -152,10 +183,55 @@ export function fasterAlt(s: FasterSpec): string[] {
   const win = byMedian[0];
   const list = (cs: Contender[], key: 'medianS' | 'fastestS') => cs.map(c => `${c.puzzle} ${sec(c[key])}`).join(', ');
   const most = [...s.contenders].sort((a, b) => b.solvers - a.solvers)[0];
+  const pairs = s.contenders.every(c => (c.duoResults ?? 0) >= 100 && c.duoMedianS);
+  const byDuo = [...s.contenders].sort((a, b) => (a.duoMedianS ?? 0) - (b.duoMedianS ?? 0));
+  const pairAlt = pairs ? [`In pairs: median times of two puzzlers on one puzzle, ${byDuo.map(c => `${c.puzzle} ${sec(c.duoMedianS!)} (solo ${sec(c.medianS)})`).join(', ')}. ${byDuo[0].puzzle} wins by ${gapText(byDuo[1].duoMedianS! - byDuo[0].duoMedianS!)}.`] : [];
   return [
     `Quiz: ${s.contenders.map(c => `${c.puzzle} by ${c.brand}`).join(', ')}, shown as tilted postcards. ${s.question}`,
     `Answer: median solo times on MySpeedPuzzling, ${s.what}: ${list(byMedian, 'medianS')}. ${win.puzzle} is fastest, ${byMedian[1].medianS - win.medianS} seconds ahead of ${byMedian[1].puzzle}. A photo-finish strip places the three medians on one time axis.`,
+    ...pairAlt,
     `Fastest single solo solves: ${list(byFastest, 'fastestS')}. Most solved: ${most.puzzle}, by ${fmtInt(most.solvers)} puzzlers. ${s.ask}`,
   ];
 }
 
+
+/**
+ * Two 9:16 Story frames that follow the post (posted by hand, the owner adds the sticker in the app):
+ *   1 the question, with an empty zone (y ≈ 1180–1420) for Instagram's quiz sticker;
+ *   2 the answer for the next day, with an empty zone for a link sticker to the post.
+ */
+export function fasterStories(v: Variant, s: FasterSpec): string[] {
+  const byMedian = [...s.contenders].sort((a, b) => a.medianS - b.medianS);
+  const win = byMedian[0], second = byMedian[1];
+  const pairs = s.contenders.every(c => (c.duoResults ?? 0) >= 100 && c.duoMedianS);
+  const byDuo = [...s.contenders].sort((a, b) => (a.duoMedianS ?? 0) - (b.duoMedianS ?? 0));
+  const ctx = (i: number): SlideCtx => ({ v, post: `${s.key}-story`, slide: i, of: 2 });
+  const groundOf = (i: number) => v.ground({ ...slotOf(ctx(i), 'story'), role: 'story' });
+
+  const cardW = 300, cardH = cardW * 0.735;
+  const cards = s.contenders.map((c, i) => {
+    const cx = X0 + (CW / s.contenders.length) * (i + 0.5);
+    const tilt = -6 + (12 * i) / Math.max(1, s.contenders.length - 1);
+    return `<div class="fq-card" style="left:${f1(cx - cardW / 2)}px; top:${f1(880 + (i % 2) * 16)}px; width:${cardW}px; height:${f1(cardH)}px; transform:rotate(${f1(tilt)}deg); z-index:${i + 1}"><img src="${c.img}" alt=""></div>
+      <p class="h-abs" style="left:${f1(X0 + (CW / s.contenders.length) * i)}px; width:${f1(CW / s.contenders.length)}px; top:${f1(880 + cardH + 54)}px; text-align:center; font-size:44px; font-weight:700; color:var(--g-ink)">${h(c.short)}</p>`;
+  }).join('');
+  const question = frame({
+    ground: groundOf(1), kind: 'story', kicker: s.kicker, device: v.device, src: 'Answer tomorrow',
+    body: CSS + `<h1 class="h-title" style="top:420px; font-size:72px; line-height:1.06">${h(s.question)}</h1>${cards}`,
+  });
+
+  const answer = frame({
+    ground: groundOf(2), kind: 'story', kicker: `${s.kicker} · the answer`, device: v.device, src: 'Full post on our profile',
+    body: CSS + `<h1 class="h-title" style="top:420px; font-size:84px; line-height:1.04">${h(win.short)}, by ${h(gapText(second.medianS - win.medianS))}.</h1>
+      <p class="h-abs h-dek" style="top:620px">Median solo time on MySpeedPuzzling, ${h(s.what)}.</p>
+      <div class="h-board" style="top:730px">
+        ${byMedian.map((c, i) => `<div class="h-br ${i === 0 ? 'hot' : ''}" style="height:116px">
+          <span class="rk">${String(i + 1).padStart(2, '0')}</span>
+          <span class="fq-thumb" style="width:120px; height:88px"><img src="${c.img}" alt=""></span>
+          <div class="fq-who"><p class="city">${h(c.short)}</p></div>
+          <span class="fq-time">${clock(sec(c.medianS))}</span></div>`).join('')}
+      </div>
+      ${pairs ? `<p class="h-abs h-lead" style="top:1110px; font-weight:700">In pairs it's not close: ${h(byDuo[0].short)} by ${h(gapText(byDuo[1].duoMedianS! - byDuo[0].duoMedianS!))}.</p>` : ''}`,
+  });
+  return [question, answer];
+}

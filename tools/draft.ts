@@ -13,13 +13,14 @@ import { fetchBoxes } from '../src/data/boxes.ts';
 import { query, type QueryResult } from '../src/data/db.ts';
 import { HOUSE, HOUSE_CSS, activateVariant } from '../src/design/house.ts';
 import { page } from '../src/design/page.ts';
-import { DRAFTS, saveDraft, type Draft } from '../src/drafts/model.ts';
-import { fasterAlt, fasterSlides, type Contender, type FasterSpec } from '../src/posts/faster.ts';
+import { existsSync } from 'node:fs';
+import { DRAFTS, loadDraft, saveDraft, type Draft } from '../src/drafts/model.ts';
+import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
 import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
 
-interface Built { id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string }
+interface Built { stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string }
 
 const dayOf = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
 
@@ -33,6 +34,7 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
     const contenders: Contender[] = rows.map((r, i) => ({
       puzzle: r!.puzzle, brand: r!.brand, pieces: Number(r!.pieces), img: imgs.get(r!.image)!, short: want[i][1],
       solvers: Number(r!.solvers), soloResults: Number(r!.solo_results), medianS: Number(r!.median_solo_s), fastestS: Number(r!.fastest_solo_s),
+      duoResults: Number(r!.duo_results), duoMedianS: Number(r!.median_duo_s),
     }));
     const spec: FasterSpec = {
       key: 'faster-postcards', kicker: 'Which is faster?', question: 'Three postcards, 500 pieces each. Which one do puzzlers finish fastest?',
@@ -40,18 +42,19 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
     };
     activateVariant(HOUSE);
     const slides = fasterSlides(HOUSE, spec);
+    const stories = fasterStories(HOUSE, spec);
     activateVariant(undefined);
     const caption = [
       'Paris, London or New York: which 500-piece postcard do puzzlers finish fastest? Guess before you swipe.',
       '',
-      `All three are Ravensburger postcards and among the most-solved puzzles on MySpeedPuzzling. We compared the median solo time of each, so half of all solo times on that puzzle are faster. The race is closer than you'd think, and the fastest single solve goes to a different city.`,
+      `All three are Ravensburger postcards and among the most-solved puzzles on MySpeedPuzzling. We compared the median solo time of each, so half of all solo times on that puzzle are faster. The race is closer than you'd think, pairs change it completely, and the fastest single solve goes to a different city.`,
       '',
       'Which postcard have you done, and what was your time? ⏱️',
     ].join('\n');
     return {
       id: `${new Date().toISOString().slice(0, 10)}-faster-postcards`, title: 'Which is faster? The postcard trio', pillar: 'community', format: 'carousel',
       tags: { series: 'which-is-faster', slot: 'weekend-interactive', mechanic: 'prediction', template: 'faster-quiz', style: 'H4' },
-      facts: { 'quiz-postcards': q }, slides, alt: fasterAlt(spec), caption, captionPillar: 'carousel',
+      facts: { 'quiz-postcards': q }, slides, stories, alt: fasterAlt(spec), caption, captionPillar: 'carousel',
     };
   },
 };
@@ -72,6 +75,11 @@ const slides = await metered(join(ROOT, 'content/drafts/runs.jsonl'), { draft: b
       errors.push(...res.qa.errors.map(e => `slide ${n}: ${e}`));
       out.push({ file: `content/drafts/${b.id}/slides/slide-${n}.jpg`, preview: `content/drafts/${b.id}/slides/slide-${n}.ig.jpg`, alt: b.alt[i] ?? '' });
     }
+    // Story frames that follow the post (posted by hand with a sticker): content/drafts/<id>/stories/story-N.jpg
+    for (const [i, body] of (b.stories ?? []).entries()) {
+      const res = await renderer.render({ id: `stories/story-${i + 1}`, html: page(body, { frame: 'story', css: HOUSE_CSS, title: `${b.id} story ${i + 1}` }), frame: 'story' });
+      errors.push(...res.qa.errors.map(e => `story ${i + 1}: ${e}`));
+    }
   } finally { await renderer.close(); }
   return out;
 });
@@ -79,7 +87,16 @@ if (errors.length) { console.error(`QA errors, draft not saved:\n  ${errors.join
 const lint = lintCaption(b.caption, b.captionPillar as Parameters<typeof lintCaption>[1]);
 writeFileSync(join(DRAFTS, b.id, 'facts.json'), JSON.stringify(b.facts, null, 1) + '\n');
 const now = new Date().toISOString();
-saveDraft({ id: b.id, status: 'in_review', title: b.title, pillar: b.pillar, format: b.format, tags: b.tags, caption: b.caption, caption_author: 'claude', slides, created_at: now, updated_at: now, version: 1 });
+// Re-running a builder updates the draft: the version goes up, feedback.jsonl stays, and a caption the owner edited
+// (caption_author: human) is never replaced.
+const prev = existsSync(join(DRAFTS, b.id, 'draft.yaml')) ? loadDraft(b.id) : undefined;
+const keepCaption = prev?.caption_author === 'human';
+saveDraft({
+  id: b.id, status: 'in_review', title: b.title, pillar: b.pillar, format: b.format, tags: b.tags,
+  caption: keepCaption ? prev!.caption : b.caption, caption_author: keepCaption ? 'human' : 'claude', slides,
+  created_at: prev?.created_at ?? now, updated_at: now, version: (prev?.version ?? 0) + 1,
+});
+if (keepCaption) console.log('kept the owner-edited caption');
 console.log(`draft ${b.id}: ${slides.length} slides, 0 QA errors; caption lint: ${lint.errors.length} errors, ${lint.warnings.length} warnings`);
 for (const e of lint.errors) console.log(`  caption ERROR ${e}`);
 for (const w of lint.warnings) console.log(`  caption warn  ${w}`);

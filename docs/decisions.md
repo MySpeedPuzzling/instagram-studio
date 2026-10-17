@@ -180,3 +180,6 @@ Docker and other unneeded apps turned off.
 - **Never add hashtags** to captions (owner: "they seem obsolete and have no impact"). Enforced in
   `src/captions/lint.ts` (error) and therefore in the publisher's preflight; `msp-captions` writes searchable words
   into the caption text instead. Supersedes the 2–4 hashtag policy of the voice playbook (§9).
+- **Confirmed by research** (owner asked to decide from it): Mosseri repeatedly says hashtags don't raise reach;
+  2026 measurements show about ±2 %; keyword-rich caption text helps search as much or more. Decision: no hashtags,
+  searchable words in the caption; no A/B test (best case is noise). Note: `research_notes/…/hashtags_2026.md`.

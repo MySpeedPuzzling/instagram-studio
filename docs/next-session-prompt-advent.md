@@ -174,11 +174,12 @@ explicit approval. If a permission is missing, document exactly what to request 
 - Public repository:
   - Secrets stay in `.env`; never print a token.
   - No usernames, member data, entries or audit logs in committed files: they go to gitignored `content/`.
-- Heavy local jobs (ComfyUI, big video renders) only with my go-ahead. HTML/SVG renders are fine; log resources as
-  usual.
+- Heavy local jobs (ComfyUI, big video renders): allowed tonight per my go-ahead at the top, only when
+  `node tools/calm.ts` passes, one at a time, resources logged. HTML/SVG renders are always fine.
 - `npx tsc --noEmit` clean, `npm test` passing.
 - At the end:
-  - Record my decisions in `docs/decisions.md`, add lasting rules to `editorial/standing-feedback.md`.
+  - Record what's decided in `docs/decisions.md` (open choices go on the morning list, not into decisions), and add
+    lasting rules to `editorial/standing-feedback.md`.
   - Update `docs/STATUS.md` and `docs/backlog.md` (with what's needed before 29 Nov: permissions, prize, rules
     page, MSP feature if chosen, the launchd job, and a full dry run on a test Story).
   - Write a short next-session prompt and commit.

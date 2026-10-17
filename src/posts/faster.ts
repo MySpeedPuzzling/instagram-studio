@@ -197,7 +197,8 @@ export function fasterAlt(s: FasterSpec): string[] {
 
 /**
  * Two 9:16 Story frames that follow the post (posted by hand, the owner adds the sticker in the app):
- *   1 the question, with an empty zone (y ≈ 1180–1420) for Instagram's quiz sticker;
+ *   1 the question, with an empty zone (y ≈ 1220–1420) for Instagram's POLL sticker (a quiz sticker would reveal the
+ *     answer on tap and spoil the next day's reveal);
  *   2 the answer for the next day, with an empty zone for a link sticker to the post.
  */
 export function fasterStories(v: Variant, s: FasterSpec): string[] {
@@ -212,12 +213,13 @@ export function fasterStories(v: Variant, s: FasterSpec): string[] {
   const cards = s.contenders.map((c, i) => {
     const cx = X0 + (CW / s.contenders.length) * (i + 0.5);
     const tilt = -6 + (12 * i) / Math.max(1, s.contenders.length - 1);
-    return `<div class="fq-card" style="left:${f1(cx - cardW / 2)}px; top:${f1(880 + (i % 2) * 16)}px; width:${cardW}px; height:${f1(cardH)}px; transform:rotate(${f1(tilt)}deg); z-index:${i + 1}"><img src="${c.img}" alt=""></div>
-      <p class="h-abs" style="left:${f1(X0 + (CW / s.contenders.length) * i)}px; width:${f1(CW / s.contenders.length)}px; top:${f1(880 + cardH + 54)}px; text-align:center; font-size:44px; font-weight:700; color:var(--g-ink)">${h(c.short)}</p>`;
+    return `<div class="fq-card" style="left:${f1(cx - cardW / 2)}px; top:${f1(905 + (i % 2) * 16)}px; width:${cardW}px; height:${f1(cardH)}px; transform:rotate(${f1(tilt)}deg); z-index:${i + 1}"><img src="${c.img}" alt=""></div>
+      <p class="h-abs" style="left:${f1(X0 + (CW / s.contenders.length) * i)}px; width:${f1(CW / s.contenders.length)}px; top:${f1(905 + cardH + 36)}px; text-align:center; font-size:40px; font-weight:700; color:var(--g-ink)">${h(c.short)}</p>`;
   }).join('');
   const question = frame({
-    ground: groundOf(1), kind: 'story', kicker: s.kicker, device: v.device, src: 'Answer tomorrow',
-    body: CSS + `<h1 class="h-title" style="top:420px; font-size:72px; line-height:1.06">${h(s.question)}</h1>${cards}`,
+    ground: groundOf(1), kind: 'story', kicker: s.kicker, device: v.device, src: '',
+    body: CSS + `<h1 class="h-title" style="top:420px; font-size:72px; line-height:1.06">${h(s.question)}</h1>
+      <p class="h-abs h-lead" style="top:760px; color:var(--g-soft)">Vote below. The answer comes in tomorrow's Story.</p>${cards}`,
   });
 
   const answer = frame({

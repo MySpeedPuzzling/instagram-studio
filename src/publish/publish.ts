@@ -88,6 +88,26 @@ async function waitFinished(ig: ReturnType<typeof igClient>, container: string) 
   throw new Error(`container ${container} not ready after 5 minutes`);
 }
 
+/**
+ * media_publish with retries: Instagram sometimes answers "Media ID is not available" (code 9007) for a few seconds
+ * after a container reports FINISHED (seen on the first pipeline post, 2026-10-17). Before every retry, check that the
+ * post didn't go out anyway (same caption, created after `since`), so a retry can never post twice.
+ */
+async function publishContainer(ig: ReturnType<typeof igClient>, container: string, caption: string, since: string): Promise<string> {
+  const waits = [5, 10, 20, 30, 45];
+  for (let i = 0; ; i++) {
+    try {
+      return (await ig.post('me/media_publish', { creation_id: container })).id as string;
+    } catch (e) {
+      if (i >= waits.length || !/not available|9007/i.test((e as Error).message)) throw e;
+      await sleep(waits[i] * 1000);
+      const recent = await ig.get('me/media', { fields: 'id,caption,timestamp', limit: 5 });
+      const hit = recent.data?.find((m: any) => (m.caption ?? '').trim() === caption.trim() && m.timestamp >= since.slice(0, 19));
+      if (hit) return hit.id as string;
+    }
+  }
+}
+
 export async function publishDraft(id: string, opts: { host?: MediaHost; now?: Date } = {}): Promise<string> {
   const db = openStore();
   const d = loadDraft(id);
@@ -108,6 +128,7 @@ export async function publishDraft(id: string, opts: { host?: MediaHost; now?: D
   if (issues.length) throw new Error(`preflight failed:\n${issues.map(i => `  ${i.slide ? `slide ${i.slide}: ` : ''}${i.problem}`).join('\n')}`);
 
   const ig = igClient();
+  const startedAt = new Date().toISOString();
   const upd = db.prepare(`INSERT INTO publish_log (draft_id, container_id, media_id, permalink, status, scheduled_for, published_at, error, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(draft_id) DO UPDATE SET container_id = coalesce(excluded.container_id, container_id),
     media_id = coalesce(excluded.media_id, media_id), permalink = coalesce(excluded.permalink, permalink), status = excluded.status,
@@ -159,7 +180,7 @@ export async function publishDraft(id: string, opts: { host?: MediaHost; now?: D
     }
     record('created', { container });
     await waitFinished(ig, container);
-    const media = (await ig.post('me/media_publish', { creation_id: container })).id as string;
+    const media = await publishContainer(ig, container, d.caption, startedAt);
     const info = await ig.get(media, { fields: 'permalink,timestamp' });
     record('published', { container, media, permalink: info.permalink });
 

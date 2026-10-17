@@ -13,7 +13,8 @@ Everything from the overnight brief (`docs/next-session-prompt-advent.md`) is do
 2. **The decision list below** (I'll ask them interactively when you're back, recommendation first).
 3. **The test Story** (section 4): about 15 minutes with one or two friends, then tell me "run the probe".
 
-Reading, if you want the why: `docs/ideas/advent-of-puzzle.md` (the design), `docs/ideas/giveaways-2026.md` (11 ideas),
+Reading, if you want the why (full research tracks in `research_notes/…/advent_2026_tracks/`, build spec in
+`docs/ideas/advent-build-spec.md`): `docs/ideas/advent-of-puzzle.md` (the design), `docs/ideas/giveaways-2026.md` (11 ideas),
 `research_notes/MSP Instagram design and growth toolkit/giveaways_and_advent_2026.md` (evidence).
 
 ## 2. What came out of the research (short)

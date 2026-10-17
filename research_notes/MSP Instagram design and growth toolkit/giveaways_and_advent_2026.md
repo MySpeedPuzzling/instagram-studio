@@ -3,7 +3,9 @@
 Researched 2026-10-17 by four parallel research agents plus read-only calls on our own account. Labels: **[E]** evidence
 (official doc, law, dated report, or our own verified call), **[V]** vendor/community claim without a method,
 **[I]** our inference or opinion. Design built on it: `docs/ideas/advent-of-puzzle.md`, ideas:
-`docs/ideas/giveaways-2026.md`. Not legal advice: items for a lawyer or accountant are listed in §3.5.
+`docs/ideas/giveaways-2026.md`. **Full reports of the four research tracks** (more detail, all sources): `advent_2026_tracks/`
+(track1 Instagram API, track2 Story answer channel incl. the 14 test-Story checks, track3 rules/law/prizes incl. the
+original rules draft, track4 what works incl. the Advent of Code curve). Not legal advice: items for a lawyer or accountant are listed in §3.5.
 
 ## Takeaway
 

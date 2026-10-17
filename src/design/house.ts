@@ -630,3 +630,43 @@ export function cover(c: SlideCtx, role: 'cover' | 'fact', s: CoverSpec): string
 
 /** The MSP house style (owner decision 2026-10-17): H4. Production post builders use this; H1–H3 stay as lab reference. */
 export const HOUSE: Variant = VARIANTS.H4;
+
+// ------------------------------------------------------------------ image-led cover (promoted from lab/dl4 formats)
+
+export interface ArtBand { top: number; bottom: number }
+export interface ArtCoverSpec {
+  kicker: string;
+  title: string;
+  dek?: string;
+  src: string;
+  titlePx?: number;
+  /** The art (absolute markup) inside the band the layout leaves for it, drawn on ground `g`. */
+  art: (band: ArtBand, g: Ground) => string;
+}
+
+/**
+ * Image-led cover: the headline, then the art.
+ *   poster slides (H4: a post's first slide) put the headline on the coloured top piece, one real jigsaw seam, and
+ *   the art on the navy bottom piece; every other layout sets headline + dek on the slide's ground, art below.
+ */
+export function artCover(c: SlideCtx, s: ArtCoverSpec): string {
+  const v = c.v;
+  const slot = slotOf(c, 'cover');
+  const idx: [number, number] | undefined = c.of > 1 ? [c.slide, c.of] : undefined;
+  const titlePx = s.titlePx ?? (s.title.length > 40 ? 62 : 76);
+  const titleH = linesOf(s.title, titlePx, CW, true) * titlePx * 1.06;
+  const dekH = s.dek ? 16 + linesOf(s.dek, TYPE.dek) * TYPE.dek * 1.3 : 0;
+  const textBottom = FEED.contentTop + titleH + dekH;
+  const text = (g?: Ground) => `<div class="h-abs" style="top:${FEED.contentTop}px${g ? `; ${groundVars(g)}` : ''}"${g ? ` data-qa-bg="${g.bg}"` : ''}>
+      <h1 class="h-title" style="position:static; font-size:${titlePx}px; line-height:1.06">${h(s.title)}</h1>
+      ${s.dek ? `<p class="h-dek" style="margin-top:16px">${h(s.dek)}</p>` : ''}</div>`;
+  if (posterAt(c)) {
+    const top = GROUNDS[v.ground(slot)], base = GROUNDS[v.posterBase ?? 'navyDeep'];
+    const seam = Math.round(textBottom + 92);
+    const under = `<svg class="h-poster-top" width="${W}" height="${FEED.footRule}" viewBox="0 0 ${W} ${FEED.footRule}" aria-hidden="true"><path d="${posterTopPath(seam)}" fill="${top.bg}"/></svg>`;
+    const body = text(top) + s.art({ top: seam + Math.max(96, Math.round(seamReach().down) + 20), bottom: FEED.contentBottom }, base);
+    return frame({ ground: base.key, kicker: s.kicker, idx, device: v.device, body, src: s.src, under, noRule: true, headGround: top.key });
+  }
+  const g = GROUNDS[v.ground(slot)];
+  return frame({ ground: g.key, kicker: s.kicker, idx, device: v.device, body: text() + s.art({ top: Math.round(textBottom + 48), bottom: FEED.contentBottom }, g), src: s.src });
+}

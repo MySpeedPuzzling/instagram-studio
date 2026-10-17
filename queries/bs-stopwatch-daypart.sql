@@ -1,6 +1,8 @@
 -- Brainstorm 2026-10: early birds vs night owls. Finished stopwatch sessions on 500-piece puzzles by players in
 -- Central European countries; local start daypart vs median active time (sum of laps) and pauses. Aggregate only.
 -- Private profiles excluded (player.is_private; owner decision 2026-10-13).
+-- Suspicious results excluded: a session counts only if its player has no suspicious result on that puzzle (sessions
+-- have no direct link to their result, so player + puzzle is the match; conservative).
 WITH s AS (
   SELECT sw.id, ((sw.laps -> 0 ->> 'start')::timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Prague') AS local_start,
          json_array_length(sw.laps) - 1 AS pauses,
@@ -8,6 +10,7 @@ WITH s AS (
          extract(epoch FROM (sw.laps -> (json_array_length(sw.laps) - 1) ->> 'end')::timestamp - (sw.laps -> 0 ->> 'start')::timestamp) AS wall_s
   FROM stopwatch sw JOIN player pl ON pl.id = sw.player_id JOIN puzzle p ON p.id = sw.puzzle_id
   WHERE sw.status = 'finished' AND json_array_length(sw.laps) > 0 AND p.pieces_count = 500 AND NOT pl.is_private
+    AND NOT EXISTS (SELECT 1 FROM puzzle_solving_time st WHERE st.player_id = sw.player_id AND st.puzzle_id = sw.puzzle_id AND st.suspicious)
     AND upper(pl.country) IN ('DE','CZ','AT','CH','NL','BE','DK','SE','NO','PL','FR','ES','IT','HU','SK','SI','HR','LU'))
 SELECT CASE WHEN extract(hour FROM local_start) BETWEEN 5 AND 10 THEN '1 morning 05-11'
             WHEN extract(hour FROM local_start) BETWEEN 11 AND 16 THEN '2 day 11-17'

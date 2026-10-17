@@ -4,12 +4,15 @@
 -- 'share' row: finished stopwatch sessions (every country and size) against all results, for the scope statement
 -- (results.created_via only exists for recent results, so it can't measure this). Aggregate only.
 -- Private profiles excluded (player.is_private; owner decision 2026-10-13).
+-- Suspicious results excluded: a session counts only if its player has no suspicious result on that puzzle (sessions
+-- have no direct link to their result, so player + puzzle is the match; conservative).
 WITH s AS (
   SELECT ((sw.laps -> 0 ->> 'start')::timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Prague') AS local_start,
          json_array_length(sw.laps) - 1 AS pauses,
          (SELECT sum(extract(epoch FROM (l ->> 'end')::timestamp - (l ->> 'start')::timestamp)) FROM json_array_elements(sw.laps) l WHERE l ->> 'end' IS NOT NULL) AS active_s
   FROM stopwatch sw JOIN player pl ON pl.id = sw.player_id JOIN puzzle p ON p.id = sw.puzzle_id
   WHERE sw.status = 'finished' AND json_array_length(sw.laps) > 0 AND p.pieces_count = 500 AND NOT pl.is_private
+    AND NOT EXISTS (SELECT 1 FROM puzzle_solving_time st WHERE st.player_id = sw.player_id AND st.puzzle_id = sw.puzzle_id AND st.suspicious)
     AND upper(pl.country) IN ('DE','CZ','AT','CH','NL','BE','DK','SE','NO','PL','FR','ES','IT','HU','SK','SI','HR','LU')),
 f AS (
   SELECT extract(hour FROM local_start)::int AS hr, pauses, active_s,
@@ -32,7 +35,8 @@ SELECT 'all', 'all', count(*), round((percentile_cont(0.5) WITHIN GROUP (ORDER B
 FROM f
 UNION ALL
 SELECT 'share', 'finished sessions / results',
-       (SELECT count(*) FROM stopwatch sw JOIN player pl ON pl.id = sw.player_id WHERE sw.status = 'finished' AND NOT pl.is_private),
+       (SELECT count(*) FROM stopwatch sw JOIN player pl ON pl.id = sw.player_id WHERE sw.status = 'finished' AND NOT pl.is_private
+    AND NOT EXISTS (SELECT 1 FROM puzzle_solving_time st WHERE st.player_id = sw.player_id AND st.puzzle_id = sw.puzzle_id AND st.suspicious)),
        NULL, NULL,
        (SELECT count(*) FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id WHERE NOT t.suspicious AND NOT pl.is_private)
 ORDER BY 1, 2;

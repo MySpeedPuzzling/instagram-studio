@@ -96,7 +96,8 @@ const BASE_GROUNDS: Record<GroundKey, Ground> = {
     rule: '#d5dce6', band: '#e3e9ef', chart: { base: '#c3cad8', context: '#dfe3ea', hot: '#ec726f', cool: '#4e54c8' }, device: '#ec726f',
   },
 
-  // Brand green (website accent, assets/design/tokens.css --brand-green): a trial poster colour for funny facts (H4).
+  // Brand green (website accent, --brand-green). Tried for H4's funny-facts posters; rejected by the owner on 2026-10-17
+  // ("no green for H4"). Kept only so the K1 record still renders; don't use it in new designs.
   green: {
     key: 'green', bg: '#42d697', depth: 'linear-gradient(170deg, #4fdc9f 0%, #42d697 45%, #37c98a 100%)', dark: false,
     ink: '#1d2433', soft: '#1d2433', accent: '#1d2433', hot: '#1d2433', hotText: '#1d2433',
@@ -466,7 +467,7 @@ const STORY_ROTATION: GroundKey[] = ['navy', 'sky', 'coral', 'indigo', 'ocean', 
 
 /** H4 poster tops by type of post (owner 2026-10-17: colour by post type, the H3 idea, on H2's posters). */
 export const POSTER_GROUND: Record<Series, GroundKey> = {
-  data: 'sky', weekly: 'indigo', milestone: 'coral', puzzles: 'ocean', atlas: 'sky', fun: 'green',
+  data: 'sky', weekly: 'indigo', milestone: 'coral', puzzles: 'ocean', atlas: 'sky', fun: 'coral',
 };
 /** H4: two text colours on every ground (ink + one secondary), coral only as the highlight. */
 export const H4_TOKENS: GroundOverrides = {
@@ -475,7 +476,6 @@ export const H4_TOKENS: GroundOverrides = {
   sky: { accent: '#1d2433', hot: '#1d2433', hotText: '#1d2433' },
   indigo: { accent: '#dde3ff' },
   ocean: { accent: '#c7e8ff' },
-  green: { accent: '#1d2433' },
 };
 
 export const VARIANTS: Record<Variant['id'], Variant> = {
@@ -500,7 +500,7 @@ export const VARIANTS: Record<Variant['id'], Variant> = {
   },
   H4: {
     id: 'H4', name: 'House (H1 + H2)', device: 'piece', cover: 'poster', posterSlides: 'first', posterBase: 'navy', tokens: H4_TOKENS, seam: 'grid4',
-    idea: 'The owner\'s combination (2026-10-17): H1\'s navy timing board for every data and image slide, H2\'s two-piece puzzle poster only as the first (title) slide of a post, so the profile grid reads unified. One navy everywhere, two text colours (white + one grey; ink + one secondary on colour grounds), coral only for highlights. Poster tops take the colour of the type of post: data desk and atlas sky, the week indigo, milestones and events coral, puzzles ocean, funny facts green (trial).',
+    idea: 'The owner\'s combination (2026-10-17): H1\'s navy timing board for every data and image slide, H2\'s two-piece puzzle poster only as the first (title) slide of a post, so the profile grid reads unified. One navy everywhere, two text colours (white + one grey; ink + one secondary on colour grounds), coral only for highlights. Poster tops take the colour of the type of post: data desk and atlas sky, the week indigo, milestones and events coral, puzzles ocean, funny facts and timely stories coral (owner: no green).',
     ground: s => {
       if (s.role === 'story') return (['navy', 'sky', 'coral', 'indigo', 'ocean', 'navy'] as GroundKey[])[(s.slide - 1) % 6];
       if ((s.role === 'cover' || s.role === 'fact') && s.slide === 1) return POSTER_GROUND[s.series];

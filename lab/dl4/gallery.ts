@@ -197,7 +197,7 @@ Instagram's re-encode; tap a slide for full size. ${totalSlides('H1') + totalSli
 <h2 id="variants">What each variant does differently</h2>
 <div class="vars">${variants.map(d => {
     const v = VARIANTS[d.id as keyof typeof VARIANTS];
-    const grounds = d.id === 'H4' ? [swatch('navy'), swatch('sky'), swatch('indigo'), swatch('coral'), swatch('ocean'), swatch('green')].join('') : d.id === 'H1' ? [swatch('navy'), swatch('navyDeep')].join('') : d.id === 'H2' ? [swatch('navy'), swatch('navyDeep'), swatch('coral'), swatch('sky'), swatch('indigo'), swatch('ocean')].join('') : '';
+    const grounds = d.id === 'H4' ? [swatch('navy'), swatch('sky'), swatch('indigo'), swatch('coral'), swatch('ocean')].join('') : d.id === 'H1' ? [swatch('navy'), swatch('navyDeep')].join('') : d.id === 'H2' ? [swatch('navy'), swatch('navyDeep'), swatch('coral'), swatch('sky'), swatch('indigo'), swatch('ocean')].join('') : '';
     return `<div class="var"><h3>${d.id} · ${h(v.name)}</h3><p>${h(v.idea)}</p>${d.id === 'H3' ? `<p>${seriesRow}</p>` : `<p>${grounds}</p>`}<p style="color:var(--muted)">${totalSlides(d.id)} slides</p></div>`;
   }).join('')}</div>
 

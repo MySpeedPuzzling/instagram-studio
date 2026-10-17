@@ -21,8 +21,9 @@ How to maintain it:
   highlights. No lavender/blue text. (owner, 2026-10-17)
 - **One navy** on every slide, never two navies side by side (brand #2b3445 vs deep #222a38 being decided in DL4 K1).
   (owner, 2026-10-17)
-- **Poster colour by type of post** (data desk and atlas sky, the week indigo, milestones and events coral, puzzles
-  ocean, funny facts green on trial). (owner, 2026-10-17)
+- **No green** in the house style. (owner, 2026-10-17)
+- **Poster colour by type of post:** data desk and atlas sky, the week indigo, milestones, events, funny facts and
+  timely stories coral, puzzles ocean. (owner, 2026-10-17)
 - **Branding notable:** myspeedpuzzling.com in bold in every footer source line; outlined logo 112 px. (owner, 2026-10-16)
 - **No AI-looking illustration** (no cute outlined clip art, pastel washes, blush, glints); build art from real
   generator pieces and box images, flat poster shapes or type. (owner, 2026-10-14)

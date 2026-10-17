@@ -1,12 +1,11 @@
 // K1 · open choices on H4 (owner feedback 2026-10-17), shown side by side so each can be decided from examples:
 //   navy   the same slides on brand navy #2b3445 vs deep navy #222a38 ("think about brand but contrast is important");
 //   seam   the poster's puzzle cut in five shapes (grid4 = H2 today, bold3, classic4, drip4, tilt4);
-//   fun    the funny-facts poster colour: green (trial) vs coral vs sky.
+//   (fun   the funny-facts poster colour was compared here too; decided 2026-10-17: coral, no green.)
 // Every slide is built by the real families with an H4 clone, so it is exactly what H4 would publish.
-import { VARIANTS, activateVariant, type GroundKey, type SeamStyle, type Variant } from '../../../src/design/house.ts';
+import { VARIANTS, activateVariant, type SeamStyle, type Variant } from '../../../src/design/house.ts';
 import data from '../posts/data.ts';
 import formats from '../posts/formats.ts';
-import fun from '../posts/fun.ts';
 import ideas from '../posts/ideas.ts';
 import type { Content } from '../content.ts';
 import type { Direction, Post } from '../../dl1/types.ts';
@@ -56,21 +55,15 @@ function k1(c: Content): Post[] {
     out.push({ key: `k1-seam-${seam}`, label, slides: slides.map((s, i) => ({ ...s, id: `k1-seam-${seam}-${i + 1}` })) });
   }
 
-  // 3 · funny-facts poster colour
-  const FUN: Array<[GroundKey, string]> = [['green', 'Fun A · brand green (trial)'], ['coral', 'Fun B · coral (shared with milestones)'], ['sky', 'Fun C · sky (shared with data desk and atlas)']];
-  for (const [g, label] of FUN) {
-    const v: Variant = { ...H4, ground: s => (s.series === 'fun' && (s.role === 'cover' || s.role === 'fact') ? g : H4.ground(s)) };
-    const slides = pick(c, v, fun, [['fun-edges', 1], ['clocks-back', 1]]);
-    out.push({ key: `k1-fun-${g}`, label, slides: slides.map((s, i) => ({ ...s, id: `k1-fun-${g}-${i + 1}` })) });
-  }
+  // (3 · funny-facts poster colour: decided 2026-10-17, coral; the green/coral/sky comparison was removed.)
   activateVariant(undefined);
   return out;
 }
 
 const direction: Direction = {
   id: 'K1',
-  name: 'Choices for H4: navy, seam shape, funny-facts colour',
-  idea: 'The open questions from the owner\'s H1+H2 decision (2026-10-17), each as the same real slides side by side: brand navy vs deep navy; five shapes of the poster\'s puzzle cut; the funny-facts poster colour. Mark the one you want with Works.',
+  name: 'Choices for H4: navy and seam shape',
+  idea: 'The open questions from the owner\'s H1+H2 decision (2026-10-17), each as the same real slides side by side: brand navy vs deep navy; five shapes of the poster\'s puzzle cut. Mark the one you want with Works.',
   css: '',
   posts: (c: Content) => k1(c),
 };

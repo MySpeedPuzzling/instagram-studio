@@ -166,3 +166,5 @@ Docker and other unneeded apps turned off.
 - **Fine-tuning happens in real drafts.** The system remembers feedback and applies it to all future posts:
   `editorial/standing-feedback.md` (read first by every draft and revision; general review notes are added there).
   Every draft proposes the caption and alt text; tone: **a friendly speed-puzzling community, heavily data-driven**.
+- **No green** (owner, same day): funny facts and timely stories take coral posters (the brand accent, shared with
+  milestones and events). Brand vs deep navy and the seam shape remain open in K1.

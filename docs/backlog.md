@@ -10,7 +10,8 @@ Updated 2026-10-16.
 - [x] DL4 house system built (2026-10-16): `src/design/house.ts`, variants H1–H3, all approved content (data, image
       formats, ideas, funny facts, timely stories, Stories, Reels) in each, profile grids, 0 QA errors.
 - [x] DL4 verdict (2026-10-17): H4 = H2 poster first slide + H1 board; H3 design out (content kept).
-- [ ] K1: brand vs deep navy (seam decided: original cut K1-9; funny-facts colour: coral) → then make H4 the default and fold in the house proposals:
+- [x] K1 settled (2026-10-17): deep navy B, original seam, funny facts coral → H4 is `HOUSE`.
+- [ ] Fold the agents' house proposals into H4:
       per-ground art palette (`--a-*`), `cover()` with art in poster/chapter layouts, family CSS hook in `run.ts`,
       shared geometry/board/ring helpers (copied across families now), `heroFitUnit`, an "ink on device" token, a
       lighter second chart colour on sky (hot and cool are both near-black), story layouts in `cover()`.

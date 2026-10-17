@@ -473,6 +473,8 @@ export const POSTER_GROUND: Record<Series, GroundKey> = {
  *  sky; owner 2026-10-17 reverted the two-colour call: "never too many colours", but the purple stays). On indigo and
  *  ocean posters purple can't be read, so their kicker uses the ground's light secondary; sky's highlight is ink. */
 export const H4_TOKENS: GroundOverrides = {
+  // Deep navy #222a38 on every navy slide (owner 2026-10-17, K1 option B: more contrast; white 14.4:1, coral 5.0:1).
+  navy: { bg: '#222a38', depth: 'linear-gradient(170deg, #273041 0%, #222a38 50%, #1d2431 100%)', rule: '#3d475b', band: '#2e3747', chart: { base: '#5a6479' } },
   sky: { hot: '#1d2433', hotText: '#1d2433' },
   indigo: { accent: '#dde3ff' },
   ocean: { accent: '#c7e8ff' },
@@ -500,7 +502,7 @@ export const VARIANTS: Record<Variant['id'], Variant> = {
   },
   H4: {
     id: 'H4', name: 'House (H1 + H2)', device: 'piece', cover: 'poster', posterSlides: 'first', posterBase: 'navy', tokens: H4_TOKENS, seam: 'grid4',
-    idea: 'The owner\'s combination (2026-10-17): H1\'s navy timing board for every data and image slide, H2\'s two-piece puzzle poster only as the first (title) slide of a post, so the profile grid reads unified. One navy everywhere; white titles, grey text, H1\'s purple for kickers and labels, coral only for highlights; no further colours. Poster tops take the colour of the type of post: data desk and atlas sky, the week indigo, milestones and events coral, puzzles ocean, funny facts and timely stories coral (owner: no green).',
+    idea: 'The owner\'s combination (2026-10-17): H1\'s navy timing board for every data and image slide, H2\'s two-piece puzzle poster only as the first (title) slide of a post, so the profile grid reads unified. One navy everywhere (deep navy #222a38); white titles, grey text, H1\'s purple for kickers and labels, coral only for highlights; no further colours. Poster tops take the colour of the type of post: data desk and atlas sky, the week indigo, milestones and events coral, puzzles ocean, funny facts and timely stories coral (owner: no green).',
     ground: s => {
       if (s.role === 'story') return (['navy', 'sky', 'coral', 'indigo', 'ocean', 'navy'] as GroundKey[])[(s.slide - 1) % 6];
       if ((s.role === 'cover' || s.role === 'fact') && s.slide === 1) return POSTER_GROUND[s.series];
@@ -625,3 +627,6 @@ export function cover(c: SlideCtx, role: 'cover' | 'fact', s: CoverSpec): string
     <div class="h-abs" style="top:${f1(after)}px">${titleHtml}${dekHtml}${stats ? `<div style="margin-top:40px">${stats}</div>` : ''}${extraHtml}</div>`;
   return frame({ ground: g.key, kicker: s.kicker, idx, device: v.device, body, src: s.src });
 }
+
+/** The MSP house style (owner decision 2026-10-17): H4. Production post builders use this; H1–H3 stay as lab reference. */
+export const HOUSE: Variant = VARIANTS.H4;

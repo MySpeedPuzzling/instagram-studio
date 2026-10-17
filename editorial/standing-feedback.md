@@ -13,15 +13,15 @@ How to maintain it:
 
 ## Design
 
-- **House style = H4** (`VARIANTS.H4` in `src/design/house.ts`, DL4): the first (title) slide of a post is an H2
+- **House style = H4** (`HOUSE` = `VARIANTS.H4` in `src/design/house.ts`, DL4): the first (title) slide of a post is an H2
   two-piece puzzle poster; every other slide is the H1 navy board. (owner, 2026-10-17)
 - **Data + visualisation together** is what works best: posts carry charts, boards, box images or illustrations so
   they're never just text; pair every key number with a visual. (owner, 2026-10-17)
 - **Few colours:** white titles, one grey for text, purple (indigo-300 on navy, indigo-800 on coral/sky) for kickers,
   board headers and labels as in H1, coral only for highlights; nothing beyond that. (owner, 2026-10-17; first said
   "no blue/purple text", then reverted: "put the purple back, I said never use too many colours")
-- **One navy** on every slide, never two navies side by side (brand #2b3445 vs deep #222a38 being decided in DL4 K1).
-  (owner, 2026-10-17)
+- **One navy: deep navy #222a38** on every slide (poster bottoms and navy Story chapters too), never two navies side
+  by side. (owner, 2026-10-17, K1 option B)
 - **Poster seam: the original cut** (grid4: 4 generator pieces, knobs as they fall). (owner, 2026-10-17, K1-9)
 - **No green** in the house style. (owner, 2026-10-17)
 - **Poster colour by type of post:** data desk and atlas sky, the week indigo, milestones, events, funny facts and

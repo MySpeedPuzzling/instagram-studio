@@ -42,14 +42,8 @@ const GRID_WEEKS: Array<Array<string | null>> = [
 ];
 /** Open decisions shown at the top as plain A/B pairs: the same slides, option next to option. Remove when decided. */
 const DECISIONS: Array<{ id: string; question: string; why: string; options: Array<{ key: string; post: string; label: string; note: string }> }> = [
-  {
-    id: 'navy', question: 'Which navy should every slide use?',
-    why: 'Only the background colour differs; each row shows the same slide in A and B. Both are well above accessibility contrast for white text (12.5:1 and 14.4:1).',
-    options: [
-      { key: 'A', post: 'k1-navy-brand', label: 'A · Brand navy #2b3445', note: 'The MSP brand navy (website). Small coral text is a touch under the AA limit (4.3:1), which H4 avoids by using coral only large.' },
-      { key: 'B', post: 'k1-navy-deep', label: 'B · Deep navy #222a38', note: 'A shade darker: a bit more contrast and drama; small coral text passes AA (5.0:1). Slightly further from the website colour.' },
-    ],
-  },
+  // All decided (2026-10-17): navy B (deep #222a38), seam = the original cut, funny facts coral. Add new open
+  // questions here as { id, question, why, options: [{ key, post, label, note }] } with the options rendered in K1.
 ];
 
 /** Posts shown side by side in the three variants. */
@@ -193,7 +187,7 @@ section.dir { background: var(--card); border: 1px solid var(--line); border-rad
 details.fam { margin-top: 10px; } details.fam > summary { cursor: pointer; font: 600 16px Rubik, sans-serif; padding: 8px 0; }
 ${LAB_NAV_CSS}
 </style></head><body>
-<header>${labNav(LAB)}<h1>DL4 · house system</h1><a href="#decide-navy">Decide</a><a href="#how">How it works</a><a href="#variants">Variants</a><a href="#grids">Profile grids</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
+<header>${labNav(LAB)}<h1>DL4 · house system</h1><a href="#how">How it works</a><a href="#variants">Variants</a><a href="#grids">Profile grids</a><a href="#compare">Compare</a>${dirs.map(d => `<a href="#${d.id}">${d.id}</a>`).join('')}</header>
 <main>
 <div class="intro" id="how">
 <h2 style="margin-top:6px">What you're looking at</h2>

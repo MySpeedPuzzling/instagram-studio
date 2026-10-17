@@ -172,3 +172,5 @@ Docker and other unneeded apps turned off.
   (indigo-300 on navy, indigo-800 on coral/sky posters); the concern was "never too many colours", not the purple.
   Text palette in H4: white titles, grey body, purple kickers/labels, coral highlights, nothing more.
 - **Seam shape: the original cut** (grid4, K1-9; owner same day). H4 keeps `seam: 'grid4'`. Only brand vs deep navy remains open.
+- **Navy: B, deep navy #222a38** (owner same day, after the A/B comparison). **H4 is the MSP house style**
+  (`HOUSE` in `src/design/house.ts`); all DL4 choices are settled.

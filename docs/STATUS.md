@@ -5,7 +5,7 @@ everything else) and `docs/backlog.md` (what to do next). Updated 2026-10-16.
 
 ## Where we are
 
-Phase: **research and prototypes; house system DL4 built (2026-10-16), waiting for the owner to pick a variant.**
+Phase: **house style decided (H4, 2026-10-17); next: production post builders and the first real drafts.**
 Nothing has been published yet. The infrastructure (data, rendering, QA, review app, publisher, insights, AI batch)
 is built and tested. DL4 renders all approved content in one house module with three variants (H1 Race Clock refined,
 H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran on 2026-10-16
@@ -29,15 +29,16 @@ H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran
 
 ## Waiting for the owner
 
-1. **House style chosen in principle (2026-10-17): H4** = H2 poster as the first (title) slide + H1 navy board for
-   the rest, two text colours, one navy, poster colour by post type. Still open, compared in DL4 **K1**: brand vs
-   deep navy. Seam: the original cut (K1-9). Funny-facts posters: coral (no green).
+1. **House style decided (2026-10-17): H4** (`HOUSE` in `src/design/house.ts`): H2 poster as the first (title)
+   slide, H1 board for the rest, deep navy #222a38, white titles + grey text + purple kickers/labels + coral
+   highlights, poster colour by post type (sky data/atlas, indigo the week, coral milestones/events/fun, ocean
+   puzzles), the original seam cut. Next: the first real draft, fine-tuned in the review app.
 2. Later (not now): Reels intro/outro and logo motion (LM1), illustration style (IL1, J1 funny-fact approaches).
 3. Small questions at the end of `docs/backlog.md`.
 
 ## Next steps (in order)
 
-1. **Owner settles the K1 choices** → make H4 the default in `src/design/house.ts` and fold the agents' house proposals (shared art palette per ground, `cover()` with art in every layout, family CSS
+1. **Fold the agents' house proposals into the H4 house module** (shared art palette per ground, `cover()` with art in every layout, family CSS
    hook, shared geometry/board helpers, `heroFitUnit`) into `src/design/house.ts`. Keep the other variants renderable
    (owner: keep every lab as a reference).
 2. **IL1 review** (done generating), then a written illustration style guide + reference set (Instagram, possibly
@@ -50,7 +51,7 @@ H2 Race Clock + Poster, H3 Series colours); IL1 (illustration lab, local AI) ran
 
 ## Plan for the next working day
 
-- Settle K1, then build the first real draft in H4 with fresh data and a proposed caption; fine-tune it in the
+- Build the first real draft in H4 with fresh data and a proposed caption; fine-tune it in the
   review app (rules that should last go to `editorial/standing-feedback.md`).
 - Review `content/labs/IL1/` with the owner (gallery + `SUMMARY.md`), pick candidates, draft the style guide.
 - Apply the owner's DL4 verdict to the house module; start `src/posts/` builders for the first real posts.

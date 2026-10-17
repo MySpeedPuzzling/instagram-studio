@@ -303,6 +303,9 @@ export interface FrameOptions {
   headGround?: GroundKey;
   /** Override the frame's rows (e.g. a Story that needs the most room for a sticker: header higher, footer lower). */
   rows?: Partial<{ headTop: number; ruleTop: number; footRule: number; footTop: number }>;
+  /** Masthead instead of header + footer (Reels lineage): device, kicker and the logo in one row, the source line
+   *  under it, no footer, so the rest of the frame is free (Stories that carry a big sticker). */
+  masthead?: boolean;
 }
 
 /** Source line with the site name set as the brand mention (bold, ink, slightly larger) so every post promotes MSP. */
@@ -322,6 +325,15 @@ export function frame(o: FrameOptions): string {
   const headAttr = o.headGround ? ` style="top:${r.headTop}px; ${groundVars(hg)}" data-qa-bg="${hg.bg}"` : ` style="top:${r.headTop}px"`;
   // The strip device already shows the position, so it carries no number.
   const idxHtml = o.idx && o.device !== 'strip' ? `<span class="h-idx">${i}<i> / ${n}</i></span>` : '';
+  if (o.masthead) {
+    return `<div class="hf ${kind === 'story' ? 'story' : ''}" style="${groundVars(g)}">
+  <div class="h-depth"></div>
+  ${o.under ?? ''}
+  <header class="h-head"${headAttr}>${device}<span class="h-kick">${h(o.kicker)}</span><span style="margin-left:auto">${outlinedLogo(96)}</span></header>
+  <p class="h-src h-abs" style="top:${r.headTop + 92}px">${siteLine(o.src)}</p>
+  ${o.body}
+</div>`;
+  }
   return `<div class="hf ${kind === 'story' ? 'story' : ''}" style="${groundVars(g)}">
   <div class="h-depth"></div>
   ${o.under ?? ''}
@@ -676,5 +688,7 @@ export function artCover(c: SlideCtx, s: ArtCoverSpec): string {
 /** Story rows for frames that carry a big Instagram sticker (poll, quiz): header near the top, footer near the
  *  bottom, keeping clear of Instagram's own overlays (~240 px at the top, ~200 px at the bottom). Render with
  *  STICKER_STORY_SAFE so QA checks text against these limits. */
-export const STICKER_STORY_ROWS = { headTop: 250, ruleTop: 334, footRule: 1606, footTop: 1622 } as const;
-export const STICKER_STORY_SAFE = { x0: 65, y0: 240, x1: 1015, y1: 1720 } as const;
+export const STICKER_STORY_ROWS = { headTop: 200, ruleTop: 334, footRule: 1606, footTop: 1622 } as const;
+/** Text limits for sticker Stories: only Instagram's viewer overlays stay clear (progress bar + account row at the
+ *  top, the reply bar at the bottom, ~200 px each; to be verified on device). */
+export const STICKER_STORY_SAFE = { x0: 65, y0: 190, x1: 1015, y1: 1720 } as const;

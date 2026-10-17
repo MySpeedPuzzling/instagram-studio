@@ -37,6 +37,8 @@ export interface FasterSpec {
   src: string;
   /** The closing question. */
   ask: string;
+  /** Shorter question for the Story frame (the poll sticker repeats it). */
+  storyQuestion?: string;
   contenders: Contender[];
 }
 
@@ -197,7 +199,7 @@ export function fasterAlt(s: FasterSpec): string[] {
 
 /**
  * Two 9:16 Story frames that follow the post (posted by hand, the owner adds the sticker in the app):
- *   1 the question, with an empty zone (y ≈ 950–1580) for Instagram's POLL sticker (a quiz sticker would reveal the
+ *   1 the question (masthead, no footer), with y ≈ 860–1720 free for a big Instagram POLL sticker (a quiz sticker would reveal the
  *     answer on tap and spoil the next day's reveal);
  *   2 the answer for the next day, with an empty zone for a link sticker to the post.
  */
@@ -209,19 +211,19 @@ export function fasterStories(v: Variant, s: FasterSpec): string[] {
   const ctx = (i: number): SlideCtx => ({ v, post: `${s.key}-story`, slide: i, of: 2 });
   const groundOf = (i: number) => v.ground({ ...slotOf(ctx(i), 'story'), role: 'story' });
 
-  // A 3-option poll sticker is ~600 px tall at its default size (measured on the owner's phone, 2026-10-17), so this
-  // frame uses the sticker rows (header high, footer low) and keeps y ≈ 950–1580 empty for it. The postcards carry no
-  // city labels: the poll's answers name them and the landmarks make each card obvious.
-  const cardW = 230, cardH = cardW * 0.735;
+  // The poll sticker should be big (easier to vote): this frame uses the masthead (kicker + logo + domain in one block,
+  // no footer) and a short title, so y ≈ 860–1720 stays free for a poll at ~130 % of its default ~600 px. The postcards
+  // carry no city labels: the poll's answers name them and the landmarks make each card obvious.
+  const cardW = 260, cardH = cardW * 0.735;
   const cards = s.contenders.map((c, i) => {
     const cx = X0 + (CW / s.contenders.length) * (i + 0.5);
     const tilt = -6 + (12 * i) / Math.max(1, s.contenders.length - 1);
-    return `<div class="fq-card" style="left:${f1(cx - cardW / 2)}px; top:${f1(720 + (i % 2) * 12)}px; width:${cardW}px; height:${f1(cardH)}px; transform:rotate(${f1(tilt)}deg); z-index:${i + 1}"><img src="${c.img}" alt=""></div>`;
+    return `<div class="fq-card" style="left:${f1(cx - cardW / 2)}px; top:${f1(612 + (i % 2) * 12)}px; width:${cardW}px; height:${f1(cardH)}px; transform:rotate(${f1(tilt)}deg); z-index:${i + 1}"><img src="${c.img}" alt=""></div>`;
   }).join('');
   const question = frame({
-    ground: groundOf(1), kind: 'story', kicker: s.kicker, device: v.device, src: '', rows: STICKER_STORY_ROWS,
-    body: CSS + `<h1 class="h-title" style="top:366px; font-size:62px; line-height:1.06">${h(s.question)}</h1>
-      <p class="h-abs h-lead" style="top:580px; color:var(--g-soft)">Vote below. The answer comes in tomorrow's Story.</p>${cards}`,
+    ground: groundOf(1), kind: 'story', kicker: s.kicker, device: v.device, src: '', rows: STICKER_STORY_ROWS, masthead: true,
+    body: CSS + `<h1 class="h-title" style="top:360px; font-size:62px; line-height:1.06">${h(s.storyQuestion ?? s.question)}</h1>
+      <p class="h-abs h-lead" style="top:512px; color:var(--g-soft)">Vote below. The answer comes tomorrow.</p>${cards}`,
   });
 
   const answer = frame({

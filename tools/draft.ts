@@ -38,7 +38,7 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
     }));
     const spec: FasterSpec = {
       key: 'faster-postcards', kicker: 'Which is faster?', question: 'Three postcards, 500 pieces each. Which one do puzzlers finish fastest?',
-      what: '500 pieces each', src: `Data: myspeedpuzzling.com · ${dayOf(q.queried_at)}`, ask: 'Which postcard have you done, and what was your time?', contenders,
+      storyQuestion: 'Three postcards. Which one is fastest?', what: '500 pieces each', src: `Data: myspeedpuzzling.com · ${dayOf(q.queried_at)}`, ask: 'Which postcard have you done, and what was your time?', contenders,
     };
     activateVariant(HOUSE);
     const slides = fasterSlides(HOUSE, spec);

@@ -43,6 +43,16 @@ Updated 2026-10-16.
 
 ## Build: from labs to production
 
+- [x] First production builder + draft tool (2026-10-17): `src/posts/faster.ts`, `node tools/draft.ts faster-postcards`
+      (fresh facts → HOUSE render with QA gate → caption + alt text → draft in review). Next builders: Weekly Numbers.
+- [ ] Puzzle subjects from the box images (owner 2026-10-17: title matching misses cats/dogs that are only in the
+      picture; MSP tags are events only). Classify box images with a local vision model (CLIP-style, light) into
+      subjects, store per puzzle in a local cache, then redo cats vs dogs, the tier list and the atlas themes.
+- [ ] "Weekend puzzle challenge" format (Saturday post names a widely owned puzzle; Monday's recap shows the
+      community's times). Needs a collection-ownership query.
+- [ ] Growth strategy (frequency incl. multiple per day, mix, quality bar, measurement): research running
+      2026-10-17 → `research_notes/MSP Instagram design and growth toolkit/growth_strategy_2026.md`; then decide.
+
 - [x] Standing feedback memory: `editorial/standing-feedback.md`, read by `ig-draft`/`msp-captions` and CLAUDE.md;
       general review notes and patterns in the owner's caption edits become rules there.
 

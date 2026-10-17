@@ -42,6 +42,11 @@ How to maintain it:
 - **Fresh data for every post:** query `--fresh` on the day it's finalised; nothing older than 24 h is published.
   (owner, 2026-10-13)
 - **No traffic numbers** (signed-in counts, website traffic); solve-based numbers only. (owner, 2026-10-13)
+- **Only claim what the data really measures.** Title matching can't tell what's in a picture (cats vs dogs is on hold
+  until box images are classified); MSP tags are events, not subjects. (owner, 2026-10-17)
+- **Thin data stays out:** show a breakdown only when every group has enough results (e.g. pairs ≥ 100 per puzzle);
+  teams with ~20 results were left out. Near-ties are called a photo finish, never a winner by "X seconds" alone.
+  (2026-10-17, first post)
 
 ## Captions and voice
 
@@ -55,9 +60,23 @@ How to maintain it:
   never generic, none in the hook or Stories. They help search/categorisation, not reach, so searchable words also go
   in the caption text. (owner, 2026-10-17, after the hashtag research; replaced a short-lived "no hashtags" rule)
 - **0–3 functional emoji per caption.** (owner, 2026-10-13)
+- **Credit and tag the brand** whose boxes a post shows: @mention in the caption and a photo tag on the slide with the
+  boxes (e.g. @ravensburgerglobal). (owner, 2026-10-17)
 - **No AI disclosure statement.** (owner, 2026-10-13)
 
-## Formats
+## Formats and slots
+
+- **Interactive quizzes must be a real guess:** pick contenders whose numbers are close ("Which is faster?" with a
+  23-minute gap was "way too easy"; the postcard trio's 4 seconds worked). Add a twist slide (fastest single solve,
+  pairs) so the post gives more than the answer. (owner, 2026-10-17)
+- **Weekend = interactive:** the community solves most on Sat/Sun (~37 % of all results); Saturday posts invite
+  participation (quiz, debate, challenge) and Monday's recap can close the loop. Rhythm proposal in
+  `growth_strategy_2026.md`, to be confirmed. (owner + data, 2026-10-17)
+- **A quiz post gets a Story follow-up:** the question with a **poll** sticker the same day (a quiz sticker would reveal
+  the answer), the answer Story the next day with a link sticker to the post. Post the feed post first.
+  (owner, 2026-10-17)
+- **Instructions to the owner for anything manual are step by step:** which sticker exactly, the exact text to type,
+  where to place it (with a guide image), and when. (owner, 2026-10-17)
 
 - **Story frames use the full usable height:** key text and stickers in y 200–1720 × x 65–1015 (research
   `story_dimensions_2026.md`; device check pending). Frames that get an Instagram sticker leave real room for it:

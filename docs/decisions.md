@@ -187,3 +187,18 @@ Docker and other unneeded apps turned off.
   topic for search and categorisation at no cost. Decision: **3–5 specific topic labels on the last line** (never
   generic, none in the hook or Stories), plus the searchable words in the caption text. The lint errors above 5 and
   warns below 3.
+
+## 2026-10-17: first post, rhythm proposal, Stories
+
+- **First pipeline post published** (Sat 17 Oct, approved by the owner): "Which is faster? The postcard trio",
+  https://www.instagram.com/p/Del3tI6jfM0/ (4 slides H4, @ravensburgerglobal photo tag + mention, 4 topic hashtags).
+  Follow-up Stories: poll today, answer tomorrow.
+- **Strategy direction (owner):** Monday weekly recap, weekends interactive (strongest community activity), the rest
+  flexible; start at 3–5 posts a week, more when the data supports it; long-term building with added value, never
+  slop. The research proposal (`research_notes/…/growth_strategy_2026.md`: 4/week incl. the owner's posts, Mon 19:00
+  Weekly Numbers, Wed/Thu data story, rotating 4th slot, Sat ~10:00 community post, decision rules for more) is to be
+  confirmed next session.
+- **Cats vs dogs on hold** until puzzle subjects come from the box images (title matching misses pictures).
+- **Story bands** from research (key text and stickers in y 200–1720); the owner will verify with the ruler test frame.
+- **Keep everything learnt for future posts, Reels and Stories:** `editorial/standing-feedback.md` is the rulebook every
+  draft reads first.

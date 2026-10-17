@@ -78,13 +78,28 @@ afterwards).
 
 ## Drafts, review, publishing
 
-1. Draft with the `ig-draft` skill (fresh queries → `facts.json` → slides → caption + alt text → `in_review`).
-   Until the series builders exist, `node tools/draft-from-lab.ts <LAB> <direction> <post>` promotes a lab post.
-2. Owner reviews at http://127.0.0.1:4173/review (approve now / schedule / notes per slide / request changes / reject).
-3. Publishing happens only through `src/publish/publish.ts` (approve-now button or `node src/publish/publish.ts <id>`
-   at the owner's request). Preflight refuses: non-JPEG, aspect outside 4:5–1.91:1, > 10 slides, missing alt text,
-   caption lint errors, **data older than 24 h**.
-4. `node tools/r2-check.ts` tests the media host end to end.
+Read `editorial/standing-feedback.md` first: the owner's standing rules apply to every draft.
+
+1. **Draft:** `node tools/draft.ts <builder>` (e.g. `faster-postcards`): re-runs the post's queries `--fresh`, writes
+   `facts.json`, renders the slides in `HOUSE` and refuses to save on any QA error, writes the proposed caption
+   (`msp-captions` rules, linted) and alt text, renders Story follow-up frames into `stories/`, saves the draft
+   `in_review`. Re-running updates the draft (version +1, feedback kept, an owner-edited caption kept); a scheduled or
+   published draft is never rewritten (only its Story frames). New post types: a builder in `src/posts/` + an entry
+   in `tools/draft.ts`. Older route: `node tools/draft-from-lab.ts <LAB> <direction> <post>`.
+2. **Review:** http://127.0.0.1:4173/review (on the phone: `node tools/review.ts --lan`, URL with `?t=<token>`).
+   Approve now / schedule / notes per slide / request changes / reject. "Approve and publish now" shows progress and
+   keeps any error on screen.
+3. **Publish:** only through `src/publish/publish.ts` (the approve button, or `node src/publish/publish.ts <id>` at the
+   owner's request). Preflight refuses: non-JPEG, aspect outside 4:5–1.91:1, > 10 slides, missing alt text, invalid
+   photo tags, caption lint errors, **data older than 24 h**. `media_publish` is retried on Instagram's transient
+   "Media ID is not available", after checking the post didn't go out. Verify afterwards: one new post on the account,
+   carousel slide count, caption; photo tags can only be checked in the app.
+4. **Photo tags:** `slides[i].user_tags = [{ username, x, y }]` (0–1 from the left/top), e.g. the brand on slide 1.
+5. **Stories** are posted by hand (stickers can't be added via the API). The draft tool renders the frames; give the
+   owner the image links (LAN URL + token), a guide image with a life-size sticker, and step-by-step instructions
+   (which sticker, exact text, where to place it). Use a **poll** (not a quiz) when the answer comes later. Post the
+   feed post first, then the Story. Bands: key text and stickers in y 200–1720.
+6. `node tools/r2-check.ts` tests the media host end to end.
 
 ## Captions
 

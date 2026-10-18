@@ -47,6 +47,10 @@ Updated 2026-10-17.
 - [ ] "Start here" explainer (`node tools/draft.ts about`, draft 2026-10-18-about, evergreen): owner review, then publish and pin.
 - [ ] Render QA misses text that runs into the next block (about slide 4: a 3-line dek over the board header passed
       with 0 errors): check the dek bottom against the next element's top in `src/render/qa.ts`.
+- [ ] **Medians differ from the site's:** our quiz medians were 30–50 s lower than the puzzle page shows
+      (`puzzle_statistics.median_time_solo`, e.g. London 52:47 vs 53:31; ranking the same). Find how the site computes
+      it (`~/www/speedpuzzling.cz`, the stats recalculation) and match it, or read `puzzle_statistics` directly, so
+      every per-puzzle number in a post is what puzzlers see on the site.
 - [ ] Refresh the pinned "Start here" post about yearly (or when a floor is far behind, e.g. 15,000+ puzzlers): re-run,
       re-post, re-pin, archive the old one.
 - [ ] "Start here" Story highlight with this month's numbers, updated monthly (Story builder needed).

@@ -57,7 +57,8 @@ Updated 2026-10-17.
 - [ ] **Highlights, once there are more posts/Stories to fill them** (owner 2026-10-18; profile check: highlights 3/8):
       "Start here" (this month's numbers, refreshed monthly; Story builder needed), "Events", later "New features".
       Covers with `node tools/highlight-covers.ts '<name>:<glyph>'` so the row reads as one set.
-- [ ] Reply to comments within the first hours of every post (Claude drafts, owner sends); start with the 3 on the postcard quiz.
+- [x] Replied to the 3 postcard-quiz comments (18 Oct; numbers checked against the site first). Ongoing habit: reply in the
+      first hours of every post; Claude drafts and posts only after the owner's go-ahead.
 
 - [ ] **GIPHY sticker pack** (owner: "awesome idea", 2026-10-16) so players can put MSP in their own Stories:
       animated stickers from the logo rig (e.g. stopwatch sweep, piece snap, "New PB!", "Puzzle done", "MSP"), transparent
@@ -113,7 +114,8 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] `src/posts/<series>.ts` builders: one per chosen series (Weekly Numbers, Puzzle of the week, Atlas, Museum,
       tier list, timely/milestone, event preview/recap, monthly report, quiz). Each: run its queries `--fresh`, write
       `facts.json`, render slides with the chosen look, propose caption + alt text, save a draft (`in_review`).
-- [ ] `tools/draft.ts <series> [--date]` CLI wrapping the builders (used by the `ig-draft` skill).
+- [x] `node tools/draft.ts <builder> [--id <draft-id>]` CLI wrapping the builders (used by the `ig-draft` skill); builders
+      so far: `faster-postcards`, `about`.
 - [ ] Move shared lab helpers into `src/design/` (piece placement with rotation, cut-line helper, round-puzzle ring,
       Rubik metrics for hero numbers, month formatting, flag guard for empty country codes, box crops).
 - [ ] Reels publishing in `src/publish` (`media_type=REELS`, `video_url` on R2, `cover_url`, `share_to_feed`,
@@ -123,7 +125,8 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
       (approve-now already works); max 6 h lateness → `needs_reschedule`.
 - [ ] Insights schedule: launchd job for `tools/insights.ts` (+48 h, +7 d, +30 d per post; account metrics weekly);
       six weekly panels in the review app; `editorial/learnings.md` updated by the `ig-insights` skill.
-- [ ] Read-only comment digest for the owner (new comments since last check, suggested replies; Claude never posts).
+- [ ] Comment digest for the owner (new comments since last check, suggested replies checked against fresh data; Claude
+      posts a reply only after the owner's go-ahead).
 - [ ] AI in production (only where the owner approves): plate library with picks + model/licence per asset,
       composite-back in the post builders, an "AI1 in context" gallery (candidates placed in their real layouts).
 - [ ] Token: weekly `node tools/ig-token.ts status` check with a reminder 7 days before expiry (2026-12-12).

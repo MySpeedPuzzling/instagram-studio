@@ -25,7 +25,7 @@ How to maintain it:
 - **Poster seam: the original cut** (grid4: 4 generator pieces, knobs as they fall). (owner, 2026-10-17, K1-9)
 - **No green** in the house style. (owner, 2026-10-17)
 - **Poster colour by type of post:** data desk and atlas sky, the week indigo, milestones, events, funny facts and
-  timely stories coral, puzzles ocean. (owner, 2026-10-17)
+  timely stories coral, puzzles ocean; intro / Start here posts coral. (owner, 2026-10-17; intro coral 2026-10-18)
 - **Branding notable:** myspeedpuzzling.com in bold in every footer source line; outlined logo 112 px. (owner, 2026-10-16)
 - **No AI-looking illustration** (no cute outlined clip art, pastel washes, blush, glints); build art from real
   generator pieces and box images, flat poster shapes or type. (owner, 2026-10-14)
@@ -49,6 +49,13 @@ How to maintain it:
   (2026-10-17, first post)
 
 ## Captions and voice
+
+- **Home of the world's fastest, welcoming to every pace.** Both are who we are: MSP is where the world's fastest
+  speed puzzlers log and compete (celebrate them, records and competitions proudly), and a community that encourages
+  everyone else, slow times included. Speed is something to admire and aim for, never a yardstick that makes a
+  normal time look bad: no "fastest 10%" ladders aimed at the reader; pair a record with the typical time; frame
+  progress as your own ("watch your times drop"). Don't swing to the other side either: a post that hides speed
+  misses what MSP is. (owner, 2026-10-18, two notes on the Start here post)
 
 - **Tone: a friendly speed-puzzling community, heavily data-driven.** A fellow puzzler who loves the numbers: the
   number first, then what it means for a normal puzzler, then one honest question. Warm, a little nerdy, gently funny,

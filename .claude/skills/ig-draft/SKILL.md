@@ -9,7 +9,8 @@ A draft is a folder `content/drafts/<id>/` (see `src/drafts/model.ts`): `draft.y
 `feedback.jsonl`. Drafts are local only (member data).
 
 ## Always first
-Read `editorial/standing-feedback.md` (the owner's standing rules from every past review) and apply all of it to the
+Read `editorial/audience.md` (who uses MSP and why: the fastest puzzlers analyse and compare, everyone else
+watches their own progress) and `editorial/standing-feedback.md` (the owner's standing rules from every past review) and apply all of it to the
 draft: design, data, captions. It overrides your defaults; `docs/decisions.md` has the detail behind each rule.
 
 ## New draft

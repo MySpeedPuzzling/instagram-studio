@@ -44,7 +44,12 @@ Updated 2026-10-17.
 - [x] One-off profile check (2026-10-18): 47/100; bio B1 decided, name stays (`docs/decisions.md`); owner steps in
       `research_notes/MSP Instagram content pipeline/profile_audit_2026-10-18.md`.
 - [ ] Owner: new bio, pin the postcard quiz + WJPC post, first highlight "Quizzes" (steps in the profile audit).
-- [ ] Explainer post "what MSP is / how to log a time" for the third pin.
+- [ ] "Start here" explainer (`node tools/draft.ts about`, draft 2026-10-18-about, evergreen): owner review, then publish and pin.
+- [ ] Render QA misses text that runs into the next block (about slide 4: a 3-line dek over the board header passed
+      with 0 errors): check the dek bottom against the next element's top in `src/render/qa.ts`.
+- [ ] Refresh the pinned "Start here" post about yearly (or when a floor is far behind, e.g. 15,000+ puzzlers): re-run,
+      re-post, re-pin, archive the old one.
+- [ ] "Start here" Story highlight with this month's numbers, updated monthly (Story builder needed).
 - [ ] Reply to comments within the first hours of every post (Claude drafts, owner sends); start with the 3 on the postcard quiz.
 
 - [ ] **GIPHY sticker pack** (owner: "awesome idea", 2026-10-16) so players can put MSP in their own Stories:

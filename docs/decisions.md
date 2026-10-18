@@ -228,3 +228,9 @@ Docker and other unneeded apps turned off.
   puzzlers. Numbers are registered players without a private profile (11,780 on 2026-10-18) and their countries (86),
   rounded down; re-count before any later bio change. No "biggest" claims unless they can be shown.
 - Nothing pinned and no highlights yet: proposals in `research_notes/MSP Instagram content pipeline/profile_audit_2026-10-18.md`.
+- **Pinned posts are evergreen** (owner, "my big concern is the rapidly growing and outdated numbers"): Instagram can't
+  replace a published post's images, so a pinned post uses rounded-down floors that stay true as numbers grow
+  ("11,000+", "80+ countries"), no time windows in headlines, a footer "Oct 2026, growing daily", and a caption line
+  "Numbers as of October 2026 and growing every day; we'll refresh this post now and then." Refresh by re-posting
+  (about yearly, or when a floor is far behind), re-pin the new one, archive the old. Current numbers go in a
+  "Start here" Story highlight that is updated monthly.

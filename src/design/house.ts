@@ -457,6 +457,8 @@ export const ordinal = (post: string) => Math.max(0, (POST_ORDER as readonly str
 export const SERIES_OF: Record<string, Series> = {
   wall: 'data', countries: 'data', share: 'data', month: 'data',
   weekly: 'weekly', 'week-wall': 'weekly', potw: 'weekly',
+  // The Start here intro reads as a community moment: coral poster (owner 2026-10-18: "coral for the intro slide").
+  about: 'milestone',
   record: 'milestone', xp: 'milestone', feature: 'milestone', event: 'milestone', 'event-collage': 'milestone', '75-years': 'milestone',
   'sep-wall': 'puzzles', 'sep-mosaic': 'puzzles', guess: 'puzzles', faster: 'puzzles',
   atlas: 'atlas', 'cats-dogs': 'atlas', 'tier-list': 'atlas', museum: 'atlas',

@@ -6,6 +6,7 @@
 // Before drafting, read editorial/standing-feedback.md (the owner's standing rules) and apply it in the builder.
 //
 //   node tools/draft.ts faster-postcards          # "Which is faster?" with Ravensburger's three postcards
+//   node tools/draft.ts about                     # "Start here" explainer (third pinned post)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { lintCaption } from '../src/captions/lint.ts';
@@ -15,6 +16,8 @@ import { HOUSE, HOUSE_CSS, STICKER_STORY_SAFE, activateVariant } from '../src/de
 import { page } from '../src/design/page.ts';
 import { existsSync } from 'node:fs';
 import { DRAFTS, loadDraft, saveDraft, type Draft } from '../src/drafts/model.ts';
+import { aboutAlt, aboutSlides, plus, tens } from '../src/posts/about.ts';
+import { buildAboutSpec } from '../src/posts/about-data.ts';
 import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
 import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
@@ -25,6 +28,32 @@ interface Built { userTags?: Record<number, Array<{ username: string; x: number;
 const dayOf = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
 
 const BUILDERS: Record<string, () => Promise<Built>> = {
+  about: async () => {
+    const { spec, facts } = await buildAboutSpec({ fresh: true });
+    activateVariant(HOUSE);
+    const slides = aboutSlides(HOUSE, spec);
+    activateVariant(undefined);
+    const caption = [
+      `New here? MySpeedPuzzling is the speed puzzling home of the world's fastest and ${plus(spec.players)} puzzlers of every pace in ${tens(spec.countries)} countries.`,
+      '',
+      `Time a jigsaw puzzle with our stopwatch or type the time in, solo, in a pair or as a team, and keep all your puzzle times in one place.`,
+      '',
+      `The world's fastest use it to analyse every solve, compare and find where they can still gain. And if your first 500 takes an hour and a half, you're in good company: puzzlers who kept logging were typically ${spec.improve.medianGainPct}% faster by their 20th new puzzle. Every solve counts ⏱️`,
+      '',
+      'Joining is free, the link is in our bio. What was the last puzzle you finished? 🧩',
+      '',
+      `Numbers as of ${spec.asOf} and growing every day; we'll refresh this post now and then.`,
+      '',
+      '#speedpuzzling #jigsawpuzzle #myspeedpuzzling #puzzlecompetition',
+    ].join('\n');
+    return {
+      id: `${new Date().toISOString().slice(0, 10)}-about`, title: 'Start here: what MySpeedPuzzling is', pillar: 'community', format: 'carousel',
+      tags: { series: 'about', slot: 'pinned', mechanic: 'explainer', template: 'about', style: 'H4' },
+      facts,
+      slides, alt: aboutAlt(spec), caption, captionPillar: 'carousel',
+      searchPhrases: ['speed puzzling', 'puzzle times', 'jigsaw puzzle'],
+    };
+  },
   'faster-postcards': async () => {
     const q = query('quiz-postcards', { fresh: true });
     const want: Array<[string, string]> = [['Postcard from Paris', 'Paris'], ['London Postcard', 'London'], ['New York Postcard', 'New York']];
@@ -39,6 +68,8 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
     const spec: FasterSpec = {
       key: 'faster-postcards', kicker: 'Which is faster?', question: 'Three postcards, 500 pieces each. Which one do puzzlers finish fastest?',
       storyQuestion: 'Three postcards. Which one is fastest?', what: '500 pieces each', src: `Data: myspeedpuzzling.com · ${dayOf(q.queried_at)}`, ask: 'Which postcard have you done, and what was your time?', contenders,
+      // Poll on the question Story (17 Oct), read off the app by the owner on 18 Oct.
+      poll: { Paris: 48, London: 30, 'New York': 22 },
     };
     activateVariant(HOUSE);
     const slides = fasterSlides(HOUSE, spec);
@@ -67,6 +98,9 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
 const name = process.argv[2];
 if (!BUILDERS[name]) { console.error(`usage: node tools/draft.ts <${Object.keys(BUILDERS).join('|')}>`); process.exit(2); }
 const b = await BUILDERS[name]();
+// --id <draft id> targets an existing draft (e.g. yesterday's published post, to re-render its follow-up Stories).
+const idArg = process.argv.indexOf('--id');
+if (idArg > 0) b.id = process.argv[idArg + 1];
 // A draft that is scheduled, publishing or published is frozen: only its follow-up Story frames may be re-rendered.
 const frozen = existsSync(join(DRAFTS, b.id, 'draft.yaml')) && ['scheduled', 'publishing', 'published'].includes(loadDraft(b.id).status);
 if (frozen) {

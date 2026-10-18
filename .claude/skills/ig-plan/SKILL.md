@@ -11,7 +11,8 @@ never get repetitive.
 1. **Read the context** (skip what you already know this session):
    - `docs/decisions.md` (owner decisions win), `content/ideas/backlog.md` (local), the last rows of
      `content/state.sqlite` (`node tools/insights.ts --summary`), recent drafts (`content/drafts/*/draft.yaml`
-     status and pillar), and `editorial/` notes if they exist.
+     status and pillar), `editorial/audience.md` (who uses MSP and why: pick angles that serve the competitive
+     fastest and the every-pace majority), and the other `editorial/` notes.
    - What was published in the last 3 weeks: no two consecutive posts with the same template or chart type; same
      template at most twice in 7 days; same featured player at most every 6 weeks unless it's a record.
 2. **Refresh the facts** you'll pitch: `node src/data/db.ts <query> --fresh` (one query at a time; add a new

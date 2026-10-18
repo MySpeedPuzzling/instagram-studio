@@ -63,3 +63,10 @@ Sources: Instagram API (read-only: `me`, `me/media`, comments, `me/stories`, 28-
 4. **Link with UTM (optional):** Edit profile → Links → change it to
    `https://myspeedpuzzling.com/?utm_source=instagram&utm_medium=bio`, so sign-ups from the bio can be counted
    (needs analytics on the site that reads UTM tags).
+
+## Outcome (2026-10-18, owner)
+
+Bio B1 live; category "community", contact e-mail added; Quizzes highlight being set up. The UTM link was tried with a
+Title, but the profile still showed the tracking string, so it was reverted to the plain https://myspeedpuzzling.com.
+Instagram visits still arrive in GA4 as referral traffic from l.instagram.com; an exact bio count would need a short
+redirect on the site (e.g. /ig → /?utm_source=instagram&utm_medium=bio), an owner decision for the website repo.

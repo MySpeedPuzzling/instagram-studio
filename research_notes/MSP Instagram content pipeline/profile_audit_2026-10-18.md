@@ -70,3 +70,26 @@ Bio B1 live; category "community", contact e-mail added; Quizzes highlight being
 Title, but the profile still showed the tracking string, so it was reverted to the plain https://myspeedpuzzling.com.
 Instagram visits still arrive in GA4 as referral traffic from l.instagram.com; an exact bio count would need a short
 redirect on the site (e.g. /ig → /?utm_source=instagram&utm_medium=bio), an owner decision for the website repo.
+
+## Re-check the same evening: 75/100 (from 47)
+
+Fresh API pull ~18:00 + the visitor grid (pins: Start here, postcard quiz, WJPC).
+
+| Item | Morning | Evening | Why |
+|---|---|---|---|
+| Name field | 4/12 | 4/12 | Unchanged by choice (owner: keep MySpeedPuzzling) |
+| Bio line one | 4/12 | 10/12 | Says what it is and for whom; the slogan still takes the opening words |
+| Bio body | 2/8 | 7/8 | Proof (11,000+ puzzlers, 86 countries) and "free" |
+| Pinned three | 0/10 | 10/10 | Three jobs: intro (Start here), best data post (quiz), community/event (WJPC) |
+| Link | 6/8 | 6/8 | One clear door; still no way to count bio clicks (UTM reverted) |
+| Highlights | 0/8 | 3/8 | One highlight (Quizzes) with a house-style cover; a newcomer's questions need 3–5 |
+| Grid legibility | 2/8 | 5/8 | Top row reads as MSP in the house style; rows 2–3 are still old screenshots |
+| Photo | 5/6 | 5/6 | Logo |
+| Handle | 6/6 | 6/6 | |
+| Category / contact | ?/6 | 6/6 | Community category, contact e-mail |
+| Recent activity | 4/10 | 8/10 | Posts on 17 and 18 Oct, every quiz comment answered; older posts' comments mostly unanswered |
+| Story presence | 4/6 | 5/6 | Answer Story live today |
+
+Biggest remaining gaps: highlights (+5: "Start here" with monthly numbers, then Events), the grid's rows 2–3 (+3: fills
+naturally after about two weeks at four posts a week), the name field (+8, declined), a countable link (+2: optional
+/ig redirect on the site).

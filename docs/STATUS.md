@@ -2,7 +2,7 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-10-17 (evening: giveaways + Advent of Puzzle session).
+`docs/backlog.md` (what to do next). Updated 2026-10-18 (profile check 47 → 75, Start here post published and pinned, caption lint upgrades, audience notes).
 
 ## Where we are
 
@@ -22,14 +22,17 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 | House system | `src/design/house.ts`: 7 contrast-checked grounds (navy, deep navy, coral, indigo, sky, ocean, white-with-depth), type scale, quiet header with one device, outlined logo (`assets/brand/speedpuzzling-logo-outline.svg`, built by `src/design/build-logo.ts`), chart tokens, hero numbers, `frame()`/`slide()`/`cover()`, variants H1–H3 |
 | Labs (local galleries) | DL1 styles (9 looks × 9 post types, 184 slides), DL2 creative formats, DL3 idea prototypes, AI1 overnight images (94), **DL4 house system**: 36 posts × 3 variants (87 stills + 4 Reels each) + J1 funny-fact drawing approaches (12), all 0 QA errors (`lab/dl4/README.md`) |
 | Review app | `node tools/review.ts` → http://127.0.0.1:4173/review — drafts with feed/grid mock, caption lint, data freshness, approve/schedule/request changes/reject; lab galleries with Works/Unsure/No-go per slide |
-| Drafting | `node tools/draft.ts <builder>`: fresh queries → `facts.json` → slides in HOUSE (QA gate) → caption + alt text → draft `in_review`; Story follow-up frames in `stories/`. Builders in `src/posts/` (first: `faster.ts`, "Which is faster?") |
-| Publishing | `src/publish/publish.ts`: single images and carousels via Instagram Login API + Cloudflare R2, photo tags (`user_tags`), retry on Instagram's transient "Media ID is not available"; **first real post 2026-10-17**. Stories are posted by hand (stickers); Reels publishing not implemented |
+| Drafting | `node tools/draft.ts <builder>`: fresh queries → `facts.json` → slides in HOUSE (QA gate) → caption + alt text → draft `in_review`; Story follow-up frames in `stories/`. Builders in `src/posts/` (first: `faster.ts`, "Which is faster?"); builders: `faster-postcards`, `about` (each declares `searchPhrases`) |
+| Publishing | `src/publish/publish.ts`: single images and carousels via Instagram Login API + Cloudflare R2, photo tags (`user_tags`), retry on Instagram's transient "Media ID is not available"; **first real post 2026-10-17**. Stories are posted by hand (stickers); Reels publishing not implemented; posts published by hand are linked with `node tools/link-post.ts <draft-id>` |
 | Insights | `node tools/insights.ts` → `content/state.sqlite` (71 historical posts backfilled) |
 | Motion | HyperFrames 0.8.152 (pinned devDependency): Reels in the house style (`lab/dl4/reels/`), logo motion modules and chains (`lab/logo/`, LM1) |
 | AI images | Overnight runner `tools/ai-batch.ts --batch <file>` (calm-gated, watchdog, resource log; shared core `lab/ai/core.ts`); AI1 done 2026-10-14 (94 images); **IL1** (`lab/ai2/`, 6 illustration directions × 7 subjects) ran 2026-10-16 10:58–15:05: 199/199 images, 0 failures, all auto-checks pass, peak 20 GB (klein 9B) |
 | Token | Instagram token valid until **2026-12-12** (`node tools/ig-token.ts status`; refresh with `refresh`) |
 | Campaigns | Advent of Puzzle: design `docs/ideas/advent-of-puzzle.md` (calendar, 24 doors, matching, seeded draw, rules draft, GDPR), evidence `research_notes/…/giveaways_and_advent_2026.md`, ideas `docs/ideas/giveaways-2026.md`; lab **AD1** (`lab/advent/`, 62 slides, 5 door variants incl. V5 festive); read-only automation `src/campaign/` + `tools/campaign.ts` (collect Story replies by DM, tolerant matching, commit–reveal draw, launchd job written but not installed) |
 | Repo | Public: https://github.com/MySpeedPuzzling/instagram-studio (MIT; logos and font excepted), pushed 2026-10-17 |
+| Profile (18 Oct) | Profile check 47/100 → fixed: bio B1 (community tone, 11,000+ puzzlers, 86 countries), category community + contact e-mail, "Quizzes" highlight with a house-style cover (`tools/highlight-covers.ts`), quiz comments answered (data checked against the site). Name stays MySpeedPuzzling; UTM bio link reverted (it showed). Notes: `research_notes/…/profile_audit_2026-10-18.md` |
+| Start here (18 Oct) | Pinned evergreen explainer `node tools/draft.ts about` (draft 2026-10-18-about, C1 "missing piece" cover from lab **AB1**, coral intro poster): published by hand 18 Oct 17:29 (https://www.instagram.com/p/DepAfaWDaud/), pinned with the WJPC post and the quiz; insights at +48 h (Tue 20 Oct ~17:30). Refresh ~yearly. Audience notes in `editorial/audience.md` (read before every post) |
+| Lint (18 Oct) | From the instagram-agent-skill review (not installed, ideas borrowed): search phrases per builder, invisible characters, stock phrases; review in `research_notes/…/external_instagram_agent_skill_review.md` |
 
 ## Waiting for the owner
 
@@ -42,19 +45,21 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 2. **Confirm the weekly rhythm** (research `growth_strategy_2026.md`): Mon 19:00 Weekly Numbers, Wed/Thu 19:00 data
    story, a rotating 4th slot, Sat ~10:00 community post (+ weekend Stories); 4 posts/week incl. the owner's, 5 after
    a clean 4-week block.
-3. Sunday 18 Oct: post the answer Story for the postcard quiz (`content/drafts/2026-10-17-faster-postcards/stories/story-2.jpg`
-   + link sticker to the post).
+3. ~~Sunday 18 Oct: answer Story~~ posted 18 Oct (new layout: poll vote beside the medians, navy, link sticker zone;
+   poll 48/30/22 % in `editorial/learnings.md`). Read its reach/replies within 24 h.
 4. Later: Reels intro/outro (LM1), illustration style (IL1, J1). Small questions at the end of `docs/backlog.md`.
 
 ## Next steps (in order)
 
 1. **Story device test** → final Story bands.
-2. **Weekly Numbers builder** (`src/posts/weekly.ts`) for Monday 19 Oct, then the Wisconsin preview (event Fri 23 Oct)
+2. **Insights on Start here** at +48 h (Tue 20 Oct ~17:30): follows and profile visits per reach matter most for a
+   pinned intro. **Align per-puzzle medians with the site** (`puzzle_statistics`) before the next quiz.
+3. **Weekly Numbers builder** (`src/posts/weekly.ts`) for Monday 19 Oct, then the Wisconsin preview (event Fri 23 Oct)
    and clocks go back (Sat 24 Oct). Each new post type becomes a builder in `src/posts/` + an entry in `tools/draft.ts`.
-3. **Insights on the first post** after 48 h (`node tools/insights.ts`), first entry in `editorial/learnings.md`.
-4. **Fold the agents' house proposals into H4** (shared art palette per ground, family CSS hook, shared geometry/board
+4. **Insights on the first post** after 48 h (`node tools/insights.ts`), first entry in `editorial/learnings.md`.
+5. **Fold the agents' house proposals into H4** (shared art palette per ground, family CSS hook, shared geometry/board
    helpers, `heroFitUnit`); keep H1–H3 renderable (owner: keep every lab as reference).
-5. Puzzle subjects from box images (cats vs dogs), weekend challenge format, IL1 style guide, Reels publishing.
+6. Highlights (Start here, Events) once there are more Stories; puzzle subjects from box images (cats vs dogs), weekend challenge format, IL1 style guide, Reels publishing.
 
 ## Plan for the next working day
 

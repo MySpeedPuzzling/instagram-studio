@@ -37,8 +37,11 @@ Claude Code: brainstorm → draft (facts, caption, alt text) ──► HTML/CSS/
 | Review app (drafts, design labs) | `node tools/review.ts` → http://127.0.0.1:4173/review (`--lan` for your phone) |
 | Run a production query (cached) | `node src/data/db.ts <query-name> [--fresh]` |
 | Design lab 1 renders + gallery | `node lab/dl1/run.ts [D1 D2 …]` |
-| Lint a caption | `node src/captions/lint.ts caption.txt --pillar carousel` |
+| Draft a post (fresh data, slides, caption) | `node tools/draft.ts <builder>` (`faster-postcards`, `about`) |
+| Lint a caption | `node src/captions/lint.ts caption.txt --pillar carousel [--search "speed puzzling"]` |
 | Publish an approved draft | `node src/publish/publish.ts <draft-id>` (or "Approve and publish now" in the app) |
+| Link a post published by hand | `node tools/link-post.ts <draft-id> [<permalink-code>]` |
+| Highlight covers | `node tools/highlight-covers.ts 'quizzes:?'` |
 | Pull insights | `node tools/insights.ts` (`--summary` for medians by format) |
 | Instagram token | `node tools/ig-token.ts status` / `refresh` |
 | Calm-machine check | `node tools/calm.ts --need-gb 24` |

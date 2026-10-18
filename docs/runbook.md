@@ -78,14 +78,16 @@ afterwards).
 
 ## Drafts, review, publishing
 
-Read `editorial/standing-feedback.md` first: the owner's standing rules apply to every draft.
+Read `editorial/standing-feedback.md` (the owner's standing rules) and `editorial/audience.md` (who uses MSP and why)
+first: both apply to every draft.
 
-1. **Draft:** `node tools/draft.ts <builder>` (e.g. `faster-postcards`): re-runs the post's queries `--fresh`, writes
+1. **Draft:** `node tools/draft.ts <builder>` (builders: `faster-postcards`, `about`): re-runs the post's queries `--fresh`, writes
    `facts.json`, renders the slides in `HOUSE` and refuses to save on any QA error, writes the proposed caption
    (`msp-captions` rules, linted) and alt text, renders Story follow-up frames into `stories/`, saves the draft
    `in_review`. Re-running updates the draft (version +1, feedback kept, an owner-edited caption kept); a scheduled or
    published draft is never rewritten (only its Story frames). New post types: a builder in `src/posts/` + an entry
-   in `tools/draft.ts`. Older route: `node tools/draft-from-lab.ts <LAB> <direction> <post>`.
+   in `tools/draft.ts`, declaring `searchPhrases` (1–3 phrases a puzzler types into Instagram search). Older route:
+   `node tools/draft-from-lab.ts <LAB> <direction> <post>`.
 2. **Review:** http://127.0.0.1:4173/review (on the phone: `node tools/review.ts --lan`, URL with `?t=<token>`).
    Approve now / schedule / notes per slide / request changes / reject. "Approve and publish now" shows progress and
    keeps any error on screen.
@@ -100,10 +102,38 @@ Read `editorial/standing-feedback.md` first: the owner's standing rules apply to
    (which sticker, exact text, where to place it). Use a **poll** (not a quiz) when the answer comes later. Post the
    feed post first, then the Story. Bands: key text and stickers in y 200–1720.
 6. `node tools/r2-check.ts` tests the media host end to end.
+7. **Posted by hand?** The owner may post an approved draft in the app (slides from `content/drafts/<id>/slides/`,
+   caption from the review app, alt text under Advanced settings → Accessibility). Then link it, so insights count it:
+   `node tools/link-post.ts <draft-id> [<permalink-code>]` (checks the caption, sets status, media id and permalink).
+8. **Replies to comments:** read them with the API, draft replies, and re-check every number first against fresh
+   data *and* what the site shows (`puzzle_statistics`: the puzzle page's fastest/median; say solves vs puzzlers).
+   Post a reply (`POST {comment-id}/replies`) only after the owner's go-ahead. Leave out numbers that could clash
+   with the site.
+
+## Pinned and evergreen posts
+
+A pinned post can't be edited after publishing (no image swaps, no caption edits through the API), so it is built to
+stay true: rounded-down floors that only grow ("11,000+", "80+ countries"), no time windows in headlines, a footer with
+the month ("Oct 2026, growing daily") and a caption line promising a refresh. Refresh about yearly or when a floor
+is far behind: re-run the builder (`node tools/draft.ts about`), post, pin the new one, archive the old one.
+Current numbers belong in a Story highlight (updated monthly).
+
+## Highlights
+
+Covers in the house style (navy, a coral generator piece, a white glyph), 1080×1920 inside Instagram's round crop:
+`node tools/highlight-covers.ts 'quizzes:?' 'start-here:i'` → `content/highlights/` (AirDrop to the phone, then in
+the app: highlight → edit cover → gallery icon). Czech app: highlights are "Výběry".
+
+## Small labs
+
+`node lab/about/run.ts` renders the Start here cover variants (lab AB1, from the about draft's cached facts) into
+`content/labs/AB1/` with a Works / Unsure / No-go gallery. Add any new lab to `src/review/nav.ts`.
 
 ## Captions
 
-`node src/captions/lint.ts caption.txt --pillar carousel|single|reel|report|story` — playbook in
+`node src/captions/lint.ts caption.txt --pillar carousel|single|reel|report|story [--search "speed puzzling,500 piece"]`
+(search phrases must be in the text as plain words, one in the first 125 characters; invisible characters are an
+error; stock phrases and generated sentence shapes are flagged) — playbook in
 `research_notes/MSP Instagram design and growth toolkit/captions_voice_hashtags.md` §9; skill `msp-captions`.
 
 ## Insights and token

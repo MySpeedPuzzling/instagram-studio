@@ -26,8 +26,8 @@ Run on the first post's caption (2026-10-17 postcards): their caption lint REVIE
 
 ## Ideas worth taking (each small, in our own code and rules)
 
-Done 2026-10-18: 1–3 in `src/captions/lint.ts` (+ tests), 4 in the `ig-insights` skill. Open: 5 (with Reels
-publishing), 6 (one-off profile audit), 7 (reference only).
+Done 2026-10-18: 1–3 in `src/captions/lint.ts` (+ tests), 4 in the `ig-insights` skill, 6 the profile check
+(`profile_audit_2026-10-18.md`: 47 → 75/100). Open: 5 (with Reels publishing), 7 (reference only).
 
 1. **Search-phrase check in `lint.ts`:** a post declares 1–3 phrases a puzzler would type ("speed puzzling",
    "500 piece puzzle"); the lint warns if they aren't in the caption text as words (hashtags and "MySpeedPuzzling"

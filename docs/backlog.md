@@ -40,7 +40,12 @@ Updated 2026-10-17.
       `search_phrases` in draft.yaml), invisible characters (error), stock phrases and generated sentence shapes;
       `ig-insights` diagnosis rules (reach vs profile problem, sample size, time last).
 - [ ] Rest of the instagram-agent-skill review (`research_notes/MSP Instagram content pipeline/external_instagram_agent_skill_review.md`;
-      verdict: don't install, borrow): beat-timing check and safe zone when Reels publishing is built; one-off profile audit.
+      verdict: don't install, borrow): beat-timing check and safe zone when Reels publishing is built.
+- [x] One-off profile check (2026-10-18): 47/100; bio B1 decided, name stays (`docs/decisions.md`); owner steps in
+      `research_notes/MSP Instagram content pipeline/profile_audit_2026-10-18.md`.
+- [ ] Owner: new bio, pin the postcard quiz + WJPC post, first highlight "Quizzes" (steps in the profile audit).
+- [ ] Explainer post "what MSP is / how to log a time" for the third pin.
+- [ ] Reply to comments within the first hours of every post (Claude drafts, owner sends); start with the 3 on the postcard quiz.
 
 - [ ] **GIPHY sticker pack** (owner: "awesome idea", 2026-10-16) so players can put MSP in their own Stories:
       animated stickers from the logo rig (e.g. stopwatch sweep, piece snap, "New PB!", "Puzzle done", "MSP"), transparent

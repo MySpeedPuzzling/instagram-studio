@@ -218,3 +218,13 @@ Docker and other unneeded apps turned off.
 - **Eligibility rule, prize, answer route details, quiz types and the visual variant are open** (morning list in
   `docs/advent-morning.md`; design in `docs/ideas/advent-of-puzzle.md`).
 - **Heavy local jobs were allowed for the night of 17 Oct** (calm check passing, resources logged, one at a time).
+
+## 2026-10-18: profile (after the one-off profile check)
+
+- **Name field stays "MySpeedPuzzling".** We're more than puzzle times: a puzzle community with times, stats and
+  competitions. Search words go into the bio instead.
+- **Bio (B1):** "Every solve counts ⏱️ The speed puzzling community: times, stats and competitions from 11,000+
+  puzzlers in 86 countries. Join us, it's free 🧩". Tone: friendly community, not selling; the goal is reaching more
+  puzzlers. Numbers are registered players without a private profile (11,780 on 2026-10-18) and their countries (86),
+  rounded down; re-count before any later bio change. No "biggest" claims unless they can be shown.
+- Nothing pinned and no highlights yet: proposals in `research_notes/MSP Instagram content pipeline/profile_audit_2026-10-18.md`.

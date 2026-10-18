@@ -35,6 +35,11 @@ How to maintain it:
 
 ## Data
 
+- **Always double-check numbers against fresh data, replies to comments included**, and say exactly what is counted:
+  "most solved" (results) and "most puzzlers" (distinct players) can disagree (London 5,802 solves vs New York 1,923
+  puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the
+  site shows publicly where the reader can check it. (owner, 2026-10-18, after wrong numbers in comment replies)
+
 - **Exclude suspicious results everywhere**, including stopwatch sessions whose result is suspicious; enforced by
   `src/data/queries.test.ts`. (owner, 2026-10-17)
 - **Exclude private profiles from everything, aggregates included.** Ranking opt-outs out of anything that names or

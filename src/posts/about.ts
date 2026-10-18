@@ -112,7 +112,7 @@ export function aboutSlides(v: Variant, s: AboutSpec): string[] {
       </div>`,
   }).html;
 
-  // 3 · the puzzle database: the most-solved box of eight brands, each credited under its box.
+  // 3 · the puzzle database: a popular box from each of eight brands (Ravensburger's is the owner's pick), credited.
   const cols = 4, gap = 28, bw = (CW - gap * (cols - 1)) / cols, bh = bw * 0.75 + 16;
   const boxes = s.boxes.slice(0, 8);
   const c3 = slide(ctx(3), 'image', {
@@ -134,16 +134,16 @@ export function aboutSlides(v: Variant, s: AboutSpec): string[] {
   const AX = 120;
   const c4 = slide(ctx(4), 'data', {
     kicker: `${K} · your progress`, src: s.src, title: `Every time counts, and you'll see yourself get faster.`, body: CSS + `
-      <p class="h-abs h-dek" style="top:330px">A first 500 often takes an hour and a half. Keep logging and watch your own times drop.</p>
-      <div class="h-board" style="top:470px">
+      <p class="h-abs h-dek" style="top:330px">The world's fastest 500 took ${mmss(s.fastest500s)}. A first one often takes an hour and a half. Keep logging and watch your own times drop.</p>
+      <div class="h-board" style="top:510px">
         <div class="h-bh"><span style="flex:1">500 pieces, solo, new puzzles</span><span style="width:320px; text-align:right">Typical time</span></div>
       </div>
-      ${im.points.map(([n, m], i, all) => `<div class="ab-row ${i === all.length - 1 ? 'hot' : ''}" style="top:${560 + i * 96}px">
+      ${im.points.map(([n, m], i, all) => `<div class="ab-row ${i === all.length - 1 ? 'hot' : ''}" style="top:${600 + i * 92}px">
         <span class="nm" style="width:300px; font-weight:${i === all.length - 1 ? 700 : 500}">${ordinal(n)} puzzle</span><span class="track"><i style="width:${f1((m / AX) * 100)}%"></i></span><span class="ct" style="width:220px">${clock(fmtMin(m))}</span></div>`).join('')}
       <div class="h-abs h-strip" style="top:1000px">
-        <div><p class="k">Fastest 500</p><p class="v">${clock(mmss(s.fastest500s))}</p></div>
         <div><p class="k">Got faster</p><p class="v">${im.shareFaster >= 66 && im.shareFaster < 70 ? '2 in 3' : `${im.shareFaster}%`}</p></div>
         <div><p class="k">Typical gain</p><p class="v">${im.medianGainPct}%</p></div>
+        <div><p class="k">Puzzlers</p><p class="v">${plus(im.puzzlers)}</p></div>
       </div>`,
   }).html;
 
@@ -309,8 +309,8 @@ export function aboutAlt(s: AboutSpec): string[] {
   return [
     `Start here. Are you new to speed puzzling? ${plus(s.players)} puzzlers, every pace, ${tens(s.countries)} countries. You're the missing piece: a real puzzle, ${s.boxes[0].puzzle} by ${s.boxes[0].brand}, cut into pieces, with one coral piece labelled you lifted out of its place.`,
     `Time it, log it: solo, in a pair or as a team. Stopwatch or typed in, every solve counts; analyse your times, compare with others and see where you can still gain. ${plus(total(s))} times logged on MySpeedPuzzling: ${plus(s.kinds.solo)} solo, ${plus(s.kinds.duo)} in pairs, ${plus(s.kinds.team)} in teams, shown as bars. ${plus(s.kinds.hours)} hours puzzled and ${millions(s.pieces)} pieces placed.`,
-    `${plus(s.puzzles)} puzzles from ${plus(s.brands)} brands, with box images. A wall of eight boxes, the most-solved puzzle of each of these brands: ${s.boxes.slice(0, 8).map(b => `${b.puzzle} by ${b.brand}`).join(', ')}. Every puzzle has its own page with everyone's times.`,
-    `Every time counts, and you'll see yourself get faster. A first 500-piece puzzle often takes an hour and a half. The same ${fmtInt(s.improve.puzzlers)} puzzlers, solo on 500-piece puzzles new to them, took a typical ${s.improve.points.map(([n, m]) => `${fmtMin(m)} on their ${ordinal(n)}`).join(', ')}, shown as bars. ${s.improve.shareFaster}% were faster on their 20th than their 1st; the typical gain was ${s.improve.medianGainPct}%. The fastest solo 500-piece time on MySpeedPuzzling is ${mmss(s.fastest500s)}.`,
+    `${plus(s.puzzles)} puzzles from ${plus(s.brands)} brands, with box images. A wall of eight boxes, a popular puzzle from each of these brands: ${s.boxes.slice(0, 8).map(b => `${b.puzzle} by ${b.brand}`).join(', ')}. Every puzzle has its own page with everyone's times.`,
+    `Every time counts, and you'll see yourself get faster. A first 500-piece puzzle often takes an hour and a half. The same ${fmtInt(s.improve.puzzlers)} puzzlers, solo on 500-piece puzzles new to them, took a typical ${s.improve.points.map(([n, m]) => `${fmtMin(m)} on their ${ordinal(n)}`).join(', ')}, shown as bars. ${s.improve.shareFaster}% were faster on their 20th than their 1st; the typical gain was ${s.improve.medianGainPct}%. The world's fastest solo 500-piece time, ${mmss(s.fastest500s)}, is logged on MySpeedPuzzling.`,
     `${plus(s.eventsTotal)} competitions listed on MySpeedPuzzling, online and in person. A typical ${s.weeks} weeks on the calendar: ${ev.length} competitions in ${countriesOf(ev)} countries, one puzzle piece per event, stacked by week, ${ev.length - online} in person and ${online} online. The world's fastest puzzlers compete here, and so does everyone else; organisers run events on MySpeedPuzzling for free.`,
     'Free for everyone: the stopwatch and your time log, the puzzle database with box images, your personal bests and progress, competitions and live results, XP and levels, a wish list and puzzle library. An optional membership adds charts and detailed stats, achievements, the barcode scanner, and selling, swapping or lending puzzles, with a 10-day free trial.',
     'Start in three steps, numbered on three interlocking puzzle pieces: 1 open myspeedpuzzling.com, the link is in our bio; 2 sign up for free with Google, Apple, Facebook, Microsoft or an e-mail code; 3 log your first time: find your puzzle, in the browser on any phone or computer. What was the last puzzle you finished?',

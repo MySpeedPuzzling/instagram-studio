@@ -16,6 +16,8 @@ or its users (date + source per entry). No member names here.
 
 ## Motivations worth using in posts
 
+- The world's fastest solo 500-piece time (16:30 as of Oct 2026) is logged on MSP: the fastest of the fastest are
+  here. Check the current value with `queries/about-fastest-500.sql` before using it. (owner, 2026-10-18)
 - Track every time in one place (stopwatch or typed in; solo, pair, team). (owner, 2026-10-18)
 - Analyse: where you lose time, how you improve over puzzles. Data angle: the same puzzlers' 1st → 20th new 500-piece
   solo got typically 12% faster (`queries/about-improvement.sql`, 2026-10-18). (owner + data, 2026-10-18)

@@ -36,9 +36,9 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
     const caption = [
       `New here? MySpeedPuzzling is the speed puzzling home of the world's fastest and ${plus(spec.players)} puzzlers of every pace in ${tens(spec.countries)} countries.`,
       '',
-      `Time a jigsaw puzzle with our stopwatch or type the time in, solo, in a pair or as a team, and keep all your puzzle times in one place.`,
+      `Time a jigsaw puzzle with our stopwatch or type the time in, and keep all your puzzle times in one place.`,
       '',
-      `The world's fastest use it to analyse every solve, compare and find where they can still gain. And if your first 500 takes an hour and a half, you're in good company: puzzlers who kept logging were typically ${spec.improve.medianGainPct}% faster by their 20th new puzzle. Every solve counts ⏱️`,
+      `The world's fastest 500-piece time, ${Math.floor(spec.fastest500s / 60)}:${String(spec.fastest500s % 60).padStart(2, '0')}, is logged here, and the fastest use MySpeedPuzzling to analyse every solve and compare. And if your first 500 takes an hour and a half, you're in good company: puzzlers who kept logging were typically ${spec.improve.medianGainPct}% faster by their 20th new puzzle. Every solve counts ⏱️`,
       '',
       'Joining is free, the link is in our bio. What was the last puzzle you finished? 🧩',
       '',

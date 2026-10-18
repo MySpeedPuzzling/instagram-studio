@@ -39,6 +39,8 @@ export interface FasterSpec {
   ask: string;
   /** Shorter question for the Story frame (the poll sticker repeats it). */
   storyQuestion?: string;
+  /** Result of the question Story's poll, % per contender `short` (read off the app: no API returns poll votes). */
+  poll?: Record<string, number>;
   contenders: Contender[];
 }
 
@@ -226,18 +228,36 @@ export function fasterStories(v: Variant, s: FasterSpec): string[] {
       <p class="h-abs h-lead" style="top:512px; color:var(--g-soft)">Vote below. The answer comes tomorrow.</p>${cards}`,
   });
 
+  // The answer (owner 2026-10-18: new layout): same navy as the question, the poll's vote next to the real median
+  // per city, and y ≈ 1400–1700 left empty for the owner's link sticker to the post (masthead, no footer).
+  const poll = s.poll;
+  const winPct = poll?.[win.short];
+  const plurality = poll && winPct !== undefined && Object.values(poll).every(p => p <= winPct);
+  const verdict = !poll || winPct === undefined ? `Median solo time, ${h(s.what)}.`
+    : plurality ? `You called it: <b class="fq-hot">${winPct} %</b> of you picked ${h(win.short)}.`
+    : `Only <b class="fq-hot">${winPct} %</b> of you picked ${h(win.short)}.`;
   const answer = frame({
-    ground: groundOf(2), kind: 'story', kicker: `${s.kicker} · the answer`, device: v.device, src: 'Full post on our profile',
-    body: CSS + `<h1 class="h-title" style="top:420px; font-size:84px; line-height:1.04">${h(win.short)}, by ${h(gapText(second.medianS - win.medianS))}.</h1>
-      <p class="h-abs h-dek" style="top:620px">Median solo time on MySpeedPuzzling, ${h(s.what)}.</p>
-      <div class="h-board" style="top:730px">
-        ${byMedian.map((c, i) => `<div class="h-br ${i === 0 ? 'hot' : ''}" style="height:116px">
+    ground: groundOf(1), kind: 'story', kicker: `${s.kicker} · the answer`, device: v.device, src: s.src, rows: STICKER_STORY_ROWS, masthead: true,
+    body: CSS + `<style>
+.fq-hot { color: var(--g-hot); font-weight: 700; }
+.fq-vote { display: flex; align-items: center; gap: 18px; margin-top: 12px; }
+.fq-bar { height: 16px; border-radius: 8px; background: var(--c-base); }
+.h-br.hot .fq-bar { background: var(--g-hot); }
+.fq-pct { font-size: 30px; font-weight: 600; color: var(--g-soft); }
+.h-br.hot .fq-pct { color: var(--g-ink); }
+</style>
+      <h1 class="h-title" style="top:372px; font-size:84px; line-height:1.04">${h(win.short)}, by ${h(gapText(second.medianS - win.medianS))}.</h1>
+      <p class="h-abs h-lead" style="top:486px">${verdict}</p>
+      <div class="h-board" style="top:600px">
+        <div class="h-bh"><span style="flex:1">${poll ? 'Your vote' : ''}</span><span>Median solo</span></div>
+        ${byMedian.map((c, i) => `<div class="h-br ${i === 0 ? 'hot' : ''}" style="height:150px">
           <span class="rk">${String(i + 1).padStart(2, '0')}</span>
-          <span class="fq-thumb" style="width:120px; height:88px"><img src="${c.img}" alt=""></span>
-          <div class="fq-who"><p class="city">${h(c.short)}</p></div>
+          <span class="fq-thumb" style="width:132px; height:96px"><img src="${c.img}" alt=""></span>
+          <div class="fq-who"><p class="city">${h(c.short)}</p>${poll?.[c.short] !== undefined ? `<div class="fq-vote"><span class="fq-bar" style="width:${f1(2.8 * poll[c.short])}px"></span><span class="fq-pct">${poll[c.short]} %</span></div>` : ''}</div>
           <span class="fq-time">${clock(sec(c.medianS))}</span></div>`).join('')}
       </div>
-      ${pairs ? `<p class="h-abs h-lead" style="top:1110px; font-weight:700">In pairs it's not close: ${h(byDuo[0].short)} by ${h(gapText(byDuo[1].duoMedianS! - byDuo[0].duoMedianS!))}.</p>` : ''}`,
+      ${pairs ? `<p class="h-abs h-lead" style="top:1150px; font-weight:700">In pairs it's not close: ${h(byDuo[0].short)} by ${h(gapText(byDuo[1].duoMedianS! - byDuo[0].duoMedianS!))}.</p>` : ''}
+      <p class="h-abs h-body" style="top:1236px">Half of all solo times on each puzzle are faster than its median. The fastest single solves are in the full post ↓</p>`,
   });
   return [question, answer];
 }

@@ -13,3 +13,8 @@ Aggregate evidence only; no member names. Newest first. Each belief states the e
   Engagement (interactions / reach) ~8–10%. Shares ~1–7 and saves ~1–7 per post: too sparse to judge single posts.
 - Giveaways reached ~4.4k (the account's best, 4.8× median); weekly recaps were the most-shared regular posts.
 - Followers are most online 19:00–22:00 Prague time.
+
+## Quizzes and Story polls
+- First "Which is faster?" poll Story (17 Oct 2026, postcard trio): the crowd picked the right answer
+  (48 / 30 / 22 % for the actual 1st / 2nd / 3rd), even though only seconds separate 1st and 2nd. One poll: a hunch,
+  not a finding. Poll votes can't be read by the API: read them off the Stories archive in the app within days.

@@ -36,7 +36,12 @@ first caption of a session. Owner decisions in `docs/decisions.md` override it.
 
 ```sh
 node src/captions/lint.ts caption.txt --pillar carousel   # or single | reel | report | story
+node src/captions/lint.ts caption.txt --search "speed puzzling,500 piece"   # the post's search phrases
 ```
+
+Every builder declares `searchPhrases` (1–3 phrases a puzzler would type into Instagram search); they're saved as
+`search_phrases` in draft.yaml and checked in the draft tool, review app and publisher. Write them as plain words in
+the caption, one of them in the hook: `#speedpuzzling` and "MySpeedPuzzling" don't count as "speed puzzling".
 
 Fix every error. Treat warnings as questions: fix them unless there's a reason, and say the reason.
 The lint doesn't check facts, tag eligibility or the human touch: verify numbers against the post's facts

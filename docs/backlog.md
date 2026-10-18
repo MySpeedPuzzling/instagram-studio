@@ -36,6 +36,12 @@ Updated 2026-10-17.
 - [ ] Feedback still to collect: DL3 visuals, AI1 images.
 - [ ] Port the XP share card concept (generator pieces) back to the MSP site once the owner picks a version.
 
+- [x] Caption lint from the instagram-agent-skill review (2026-10-18): search phrases (`searchPhrases` per builder →
+      `search_phrases` in draft.yaml), invisible characters (error), stock phrases and generated sentence shapes;
+      `ig-insights` diagnosis rules (reach vs profile problem, sample size, time last).
+- [ ] Rest of the instagram-agent-skill review (`research_notes/MSP Instagram content pipeline/external_instagram_agent_skill_review.md`;
+      verdict: don't install, borrow): beat-timing check and safe zone when Reels publishing is built; one-off profile audit.
+
 - [ ] **GIPHY sticker pack** (owner: "awesome idea", 2026-10-16) so players can put MSP in their own Stories:
       animated stickers from the logo rig (e.g. stopwatch sweep, piece snap, "New PB!", "Puzzle done", "MSP"), transparent
       GIF/WebP per GIPHY specs; needs a GIPHY brand channel (verified to be searchable in Instagram). Research specs +

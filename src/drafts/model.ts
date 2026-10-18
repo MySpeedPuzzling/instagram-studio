@@ -31,6 +31,8 @@ export interface Draft {
   tags?: Record<string, string | number>;
   caption: string;
   caption_author: 'claude' | 'human';
+  /** Phrases a puzzler would search for; the caption lint checks they're in the text (and one in the hook). */
+  search_phrases?: string[];
   slides: DraftSlide[];
   collaborators?: string[];
   scheduled_for?: string;

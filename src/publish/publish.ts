@@ -67,7 +67,7 @@ export async function preflight(d: Draft): Promise<PreflightIssue[]> {
     }
     if ((s.user_tags?.length ?? 0) > 20) issues.push({ slide: i + 1, problem: 'more than 20 photo tags' });
   }
-  const lint = lintCaption(d.caption, d.format === 'carousel' ? 'carousel' : 'single');
+  const lint = lintCaption(d.caption, d.format === 'carousel' ? 'carousel' : 'single', { searchPhrases: d.search_phrases });
   for (const e of lint.errors) issues.push({ problem: `caption: ${e}` });
   if (!d.caption.trim()) issues.push({ problem: 'caption is empty' });
   if ((d.collaborators?.length ?? 0) > 3) issues.push({ problem: 'more than 3 collaborators' });

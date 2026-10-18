@@ -37,3 +37,47 @@ test('hashtags: 3–5 topic labels on the last line, never in the hook (owner de
   const few = lintCaption('58 minutes is the most common finish for a solo 500 on MySpeedPuzzling, based on every result logged so far. Which side of the hour is yours?\n\n#speedpuzzling', 'single');
   assert.ok(few.warnings.some(w => w.includes('target 3–5')));
 });
+
+// Ideas taken from the instagram-agent-skill review (research_notes/MSP Instagram content pipeline/
+// external_instagram_agent_skill_review.md, 2026-10-18).
+const POSTCARDS = [
+  'Paris, London or New York: which 500-piece postcard do puzzlers finish fastest? Guess before you swipe.',
+  '',
+  'All three are @ravensburgerglobal postcards and among the most-solved puzzles on MySpeedPuzzling.',
+  '',
+  'Which postcard have you done, and what was your time? ⏱️',
+  '',
+  '#speedpuzzling #jigsawpuzzle #ravensburger #500pieces',
+].join('\n');
+
+test('search phrases must be in the caption text, not only in hashtags or the brand name', () => {
+  const r = lintCaption(POSTCARDS, 'carousel', { searchPhrases: ['speed puzzling', '500 piece'] });
+  assert.ok(r.warnings.some(w => w.includes('"speed puzzling"')), r.warnings.join('\n'));
+  assert.ok(!r.warnings.some(w => w.includes('"500 piece"')), '"500-piece" counts as "500 piece"');
+  assert.ok(!r.warnings.some(w => w.includes('in the hook')));
+  const fixed = lintCaption(POSTCARDS.replace('on MySpeedPuzzling', 'in speed puzzling'), 'carousel', { searchPhrases: ['speed puzzling', '500 piece'] });
+  assert.ok(!fixed.warnings.some(w => w.includes('search phrase')), fixed.warnings.join('\n'));
+  const notInHook = lintCaption(POSTCARDS, 'carousel', { searchPhrases: ['most-solved puzzles'] });
+  assert.ok(notInHook.warnings.some(w => w.includes('in the hook')));
+  assert.ok(!lintCaption(POSTCARDS).warnings.some(w => w.includes('search')), 'no phrases declared, no check');
+});
+
+test('invisible characters are an error, emoji joiners are not', () => {
+  for (const ch of ['\u200B', '\u00AD', '\uFEFF', '\u2060', '\u{E0041}', '\u200D']) {
+    const r = lintCaption(POSTCARDS.replace('fastest', `fast${ch}est`));
+    assert.ok(r.errors.some(e => e.includes('invisible')), `U+${ch.codePointAt(0)!.toString(16)}`);
+  }
+  const zwjEmoji = lintCaption(POSTCARDS.replace('⏱️', '👩\u200D💻'));
+  assert.ok(!zwjEmoji.errors.some(e => e.includes('invisible')), zwjEmoji.errors.join('\n'));
+  assert.ok(!lintCaption(POSTCARDS).errors.some(e => e.includes('invisible')), '⏱️ with its variation selector is fine');
+});
+
+test('stock phrases are errors and generated sentence shapes are warnings', () => {
+  const r = lintCaption("Here's the thing. It's not just speed, it's patience. The result? A new record. Thoughts?", 'single');
+  assert.ok(r.errors.some(e => e.includes("here's the thing")), r.errors.join('\n'));
+  for (const needle of ["it's not just", 'staged reveal', 'generic question']) {
+    assert.ok(r.warnings.some(w => w.toLowerCase().includes(needle)), `expected a warning about ${needle}:\n${r.warnings.join('\n')}`);
+  }
+  // A list of three cities is how puzzlers talk, not a tell: no triad rule.
+  assert.deepEqual(lintCaption(POSTCARDS).errors, []);
+});

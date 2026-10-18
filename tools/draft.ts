@@ -20,7 +20,7 @@ import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
 
-interface Built { userTags?: Record<number, Array<{ username: string; x: number; y: number }>>; stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string }
+interface Built { userTags?: Record<number, Array<{ username: string; x: number; y: number }>>; stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string; searchPhrases?: string[] }
 
 const dayOf = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
 
@@ -59,6 +59,7 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       // Photo tag on slide 1, on the postcards (owner 2026-10-17: "tag ravensburgerglobal").
       userTags: { 0: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.55 }] },
       facts: { 'quiz-postcards': q }, slides, stories, alt: fasterAlt(spec), caption, captionPillar: 'carousel',
+      searchPhrases: ['speed puzzling', '500 piece'],
     };
   },
 };
@@ -101,7 +102,8 @@ const slides = await metered(join(ROOT, 'content/drafts/runs.jsonl'), { draft: b
   return out;
 });
 if (errors.length) { console.error(`QA errors, draft not saved:\n  ${errors.join('\n  ')}`); process.exit(1); }
-const lint = lintCaption(b.caption, b.captionPillar as Parameters<typeof lintCaption>[1]);
+if (!b.searchPhrases?.length) console.log('  note: the builder declares no searchPhrases, so the search-phrase check is skipped');
+const lint = lintCaption(b.caption, b.captionPillar as Parameters<typeof lintCaption>[1], { searchPhrases: b.searchPhrases });
 writeFileSync(join(DRAFTS, b.id, 'facts.json'), JSON.stringify(b.facts, null, 1) + '\n');
 const now = new Date().toISOString();
 // Re-running a builder updates the draft: the version goes up, feedback.jsonl stays, and a caption the owner edited
@@ -110,7 +112,7 @@ const prev = existsSync(join(DRAFTS, b.id, 'draft.yaml')) ? loadDraft(b.id) : un
 const keepCaption = prev?.caption_author === 'human';
 saveDraft({
   id: b.id, status: 'in_review', title: b.title, pillar: b.pillar, format: b.format, tags: b.tags,
-  caption: keepCaption ? prev!.caption : b.caption, caption_author: keepCaption ? 'human' : 'claude', slides,
+  caption: keepCaption ? prev!.caption : b.caption, caption_author: keepCaption ? 'human' : 'claude', search_phrases: b.searchPhrases, slides,
   created_at: prev?.created_at ?? now, updated_at: now, version: (prev?.version ?? 0) + 1,
 });
 if (keepCaption) console.log('kept the owner-edited caption');

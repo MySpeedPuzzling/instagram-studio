@@ -43,7 +43,7 @@ Updated 2026-10-17.
       verdict: don't install, borrow): beat-timing check and safe zone when Reels publishing is built.
 - [x] One-off profile check (2026-10-18): 47/100; bio B1 decided, name stays (`docs/decisions.md`); owner steps in
       `research_notes/MSP Instagram content pipeline/profile_audit_2026-10-18.md`.
-- [ ] Owner: new bio, pin the postcard quiz + WJPC post, first highlight "Quizzes" (steps in the profile audit).
+- [x] Owner (18 Oct): new bio, pins (Start here, quiz, WJPC), category + e-mail, "Quizzes" highlight. Profile 47 → 75/100.
 - [ ] "Start here" explainer (`node tools/draft.ts about`, draft 2026-10-18-about, evergreen): owner review, then publish and pin.
 - [ ] Render QA misses text that runs into the next block (about slide 4: a 3-line dek over the board header passed
       with 0 errors): check the dek bottom against the next element's top in `src/render/qa.ts`.
@@ -53,7 +53,9 @@ Updated 2026-10-17.
       every per-puzzle number in a post is what puzzlers see on the site.
 - [ ] Refresh the pinned "Start here" post about yearly (or when a floor is far behind, e.g. 15,000+ puzzlers): re-run,
       re-post, re-pin, archive the old one.
-- [ ] "Start here" Story highlight with this month's numbers, updated monthly (Story builder needed).
+- [ ] **Highlights, once there are more posts/Stories to fill them** (owner 2026-10-18; profile check: highlights 3/8):
+      "Start here" (this month's numbers, refreshed monthly; Story builder needed), "Events", later "New features".
+      Covers with `node tools/highlight-covers.ts '<name>:<glyph>'` so the row reads as one set.
 - [ ] Reply to comments within the first hours of every post (Claude drafts, owner sends); start with the 3 on the postcard quiz.
 
 - [ ] **GIPHY sticker pack** (owner: "awesome idea", 2026-10-16) so players can put MSP in their own Stories:

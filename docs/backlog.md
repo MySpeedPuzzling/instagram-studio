@@ -44,7 +44,8 @@ Updated 2026-10-17.
 - [x] One-off profile check (2026-10-18): 47/100; bio B1 decided, name stays (`docs/decisions.md`); owner steps in
       `research_notes/MSP Instagram content pipeline/profile_audit_2026-10-18.md`.
 - [x] Owner (18 Oct): new bio, pins (Start here, quiz, WJPC), category + e-mail, "Quizzes" highlight. Profile 47 → 75/100.
-- [ ] "Start here" explainer (`node tools/draft.ts about`, draft 2026-10-18-about, evergreen): owner review, then publish and pin.
+- [x] "Start here" explainer (`node tools/draft.ts about`, evergreen): published and pinned 18 Oct 17:29,
+      https://www.instagram.com/p/DepAfaWDaud/
 - [ ] Render QA misses text that runs into the next block (about slide 4: a 3-line dek over the board header passed
       with 0 errors): check the dek bottom against the next element's top in `src/render/qa.ts`.
 - [ ] **Medians differ from the site's:** our quiz medians were 30–50 s lower than the puzzle page shows

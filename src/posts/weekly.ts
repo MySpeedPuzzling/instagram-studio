@@ -11,7 +11,7 @@
 //             when there is no `close` segment;
 //   close     personal bests, new puzzlers, pieces, and the question.
 // Every number comes from the facts snapshot (fresh queries on Monday); nothing is typed into copy.
-import { CW, FEED, X0, clock, cover, f1, linesOf, slide, type SlideCtx, type Variant } from '../design/house.ts';
+import { CW, FEED, GROUNDS, STICKER_STORY_ROWS, W, X0, clock, cover, f1, frame, groundVars, hero, heroFit, linesOf, posterTopPath, slide, type SlideCtx, type Variant } from '../design/house.ts';
 import { flagUrl } from '../design/svg.ts';
 import { escapeHtml as h, fmtDuration, fmtInt, fmtSignedPct } from '../design/page.ts';
 
@@ -247,6 +247,42 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
   }
 
   return s.segments.map(seg => make[seg]());
+}
+
+/**
+ * The Story that follows the post (posted by hand; it also feeds the "Recaps" highlight): the cover's poster at Story
+ * size (indigo top with the week, navy bottom), the three headline numbers, the most-solved box and the fastest solo
+ * 500, and y ≈ 1400–1700 left empty for the owner's link sticker to the post. Masthead, no footer.
+ */
+export function weeklyStories(v: Variant, s: WeeklySpec): string[] {
+  const top = GROUNDS.indigo, SEAM = 860;
+  const week = `Week ${isoWeek(s.weekStart)}`, size = heroFit(week, 250);
+  const solo = s.fast.find(r => r.kind === 'solo' && r.pieces === 500);
+  const p = s.top[0];
+  const under = `<svg class="h-poster-top" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true"><path d="${posterTopPath(SEAM)}" fill="${top.bg}"/></svg>
+    <div style="${groundVars(top)}" data-qa-bg="${top.bg}">
+      <p class="h-abs h-cap" style="top:420px">Weekly report</p>
+      ${hero(week, { size, baseline: 470 + size * 0.75 })}
+      <p class="h-abs h-dek" style="top:${470 + size * 0.75 + 40}px; color:var(--g-ink)">${h(s.range)}</p>
+    </div>`;
+  const body = CSS + `
+    <div class="h-abs h-strip" style="top:${SEAM + 120}px">
+      <div><p class="k">Solves</p><p class="v">${fmtInt(s.results)}</p></div>
+      <div><p class="k">Puzzlers</p><p class="v">${fmtInt(s.puzzlers)}</p></div>
+      <div><p class="k">PBs</p><p class="v">${fmtInt(s.personalBests)}</p></div>
+    </div>
+    <div class="h-abs" style="top:${SEAM + 300}px; display:flex; align-items:center">
+      <span class="wk-thumb" style="width:200px; height:150px"><img src="${p.img}" alt=""></span>
+      <div style="flex:1; min-width:0">
+        <p class="h-cap">Most solved</p>
+        <p style="font-size:42px; font-weight:700; line-height:1.15; color:var(--g-ink); margin-top:6px">${h(cut(p.puzzle, 28))}</p>
+        <p class="wk-note">${h(cut(p.brand, 20))} · ${fmtInt(p.solvers)} puzzlers</p>
+      </div>
+    </div>
+    ${solo ? `<div class="h-abs" style="top:${SEAM + 500}px; display:flex; align-items:baseline; justify-content:space-between">
+      <p class="h-cap">Fastest solo 500</p><p class="h-big hot" style="font-size:72px">${clock(sec(solo.seconds))}</p></div>` : ''}
+    <p class="h-abs h-lead" style="top:${SEAM + 640}px; color:var(--g-soft)">Fastest pairs, most solves and a shoutout draw in the full report ↓</p>`;
+  return [frame({ ground: 'navy', kind: 'story', kicker: `The Weekly Numbers · Ep. ${s.episode}`, device: v.device, src: s.src, rows: STICKER_STORY_ROWS, masthead: true, under, headGround: 'indigo', body })];
 }
 
 /** Alt text per slide, from the same facts. */

@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import { DRAFTS, loadDraft, saveDraft, type Draft } from '../src/drafts/model.ts';
 import { aboutAlt, aboutSlides, plus, tens } from '../src/posts/about.ts';
 import { buildAboutSpec } from '../src/posts/about-data.ts';
-import { weeklyAlt, weeklyCaption, weeklyNames, weeklySlides, weeklyTags, type Segment } from '../src/posts/weekly.ts';
+import { weeklyAlt, weeklyCaption, weeklyNames, weeklySlides, weeklyStories, weeklyTags, type Segment } from '../src/posts/weekly.ts';
 import { buildWeeklySpec } from '../src/posts/weekly-data.ts';
 import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
 import { metered } from '../src/render/meter.ts';
@@ -40,11 +40,13 @@ const nextMonday = () => {
 const weekly = (rc: string, segments: Segment[]) => async (): Promise<Built> => {
   const monday = nextMonday();
   const episode = 1 + Math.round((Date.parse(monday) - Date.parse('2026-10-19')) / (7 * 86_400_000));
-  const { spec, facts } = await buildWeeklySpec({ fresh: true, season: 1, episode, segments, question: 'What did you finish last week, and was it a personal best?' });
+  // --cached re-renders from the last fresh run (e.g. the Story of an episode already published, numbers as posted).
+  const { spec, facts } = await buildWeeklySpec({ fresh: !process.argv.includes('--cached'), season: 1, episode, segments, question: 'What did you finish last week, and was it a personal best?' });
   activateVariant(HOUSE);
-  const slides = weeklySlides(HOUSE, spec);
+  const slides = weeklySlides(HOUSE, spec), stories = weeklyStories(HOUSE, spec);
   activateVariant(undefined);
   return {
+    stories,
     id: `${monday}-weekly-${rc}`, title: `The Weekly Numbers, ep. ${episode} (${rc})`, pillar: 'data', format: 'carousel',
     tags: { series: 'weekly-numbers', season: 1, episode, slot: 'monday-recap', mechanic: 'recap', template: `weekly-${rc}`, style: 'H4', week: spec.weekStart },
     userTags: weeklyTags(spec), facts, slides, alt: weeklyAlt(spec), caption: weeklyCaption(spec), captionPillar: 'carousel',

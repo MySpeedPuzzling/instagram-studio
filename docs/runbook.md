@@ -173,3 +173,17 @@ Install the scheduled job only with the owner's go-ahead (commands printed by `s
 Before a campaign: token valid past its end (`node tools/ig-token.ts status`), "Allow access to messages" on in the
 Instagram app, Story replies open to everyone, public Story comments off on contest Stories, don't delete or decline
 chats until the week's draw is done.
+
+## Weekly Numbers (every Monday)
+
+1. `node tools/draft.ts weekly-rc1`: fresh data for the last full week (Mon–Sun, solves with a finish date in the week),
+   8 slides + the still Story (`stories/story-1.jpg`) in `content/drafts/<monday>-weekly-rc1/`. Review, approve, publish.
+2. `node tools/motion.ts weekly <draft-id>`: the 12 s animated Story (`stories/story-1-video.mp4`) from the same numbers
+   (the last fresh run). Light: ~18 s render, ~1.5 GB peak, logged in `content/motion-runs.jsonl`. `--qa-only` for a
+   2 s check, `--snap=<dir>` to save frames at the QA times.
+3. Owner: post the video (or the still) as a Story, add a Link sticker to the post ("Full report") in the empty zone at
+   the bottom (y ≈ 1630–1720; nothing animates there), add it to the "Recaps" highlight.
+
+Motion kit: `src/motion/kit.ts` (count-up in the house number format, stopwatch, rise/pop/fly-in, drop-out, transform
+FLIP, slot-machine reveal), `src/motion/render.ts` (lint → QA at sample times → HyperFrames → Instagram encode → probe).
+New animations: a builder in `src/motion/` that returns a `Motion` from a house `frame()`, ending on its still's layout.

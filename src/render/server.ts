@@ -5,7 +5,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize, resolve } from 'node:path';
 
 export const ROOT = resolve(import.meta.dirname, '../..');
-const ALLOWED = ['/assets/', '/content/', '/var/render/', '/var/ig-compression/', '/node_modules/d3/dist/', '/node_modules/circle-flags/flags/'];
+const ALLOWED = ['/assets/', '/content/', '/var/render/', '/var/ig-compression/', '/node_modules/d3/dist/', '/node_modules/gsap/dist/', '/node_modules/circle-flags/flags/'];
 
 const TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',

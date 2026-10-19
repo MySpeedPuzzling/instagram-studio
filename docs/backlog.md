@@ -176,3 +176,6 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Publisher: check photo tags before creating the real containers (one unpublished test container per new handle, cache the
       result in `content/ig-invalid-handles.json`) and drop rejected ones with a note, so a stale handle on an MSP profile
       never blocks a publish (ep. 1 failed once on 2 of 13 handles, 2026-10-19).
+- [x] Animated weekly Story (2026-10-19): `src/motion/` kit + `tools/motion.ts weekly <id>`; Recaps highlight cover
+      `content/highlights/highlight-recaps-loop.jpg` (↻). Next: reuse the kit for Reels (box rain, slot reveal) and
+      fold `lab/dl4/reels/render.ts` onto `src/motion/render.ts`.

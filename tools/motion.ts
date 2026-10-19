@@ -1,5 +1,6 @@
 // Renders the animated Story of a post (HyperFrames, src/motion/) next to its still Story frames:
-// content/drafts/<id>/stories/story-1-video.mp4 (+ story-1-video.jpg, its last frame). Light job (~15–30 s, ~1.5 GB peak, logged in
+// content/drafts/<id>/stories/story-1-video.mp4 (+ story-1-video.jpg, its last frame, and story-1-video-preview.jpg,
+// frame 0 = Instagram's preview). Light job (~15–30 s, ~1.5 GB peak, logged in
 // content/motion-runs.jsonl); still, video renders run with the owner's go-ahead (CLAUDE.md, heavy local jobs).
 //
 //   node tools/motion.ts weekly 2026-10-19-weekly-rc1            # numbers from the last fresh run (= as published)

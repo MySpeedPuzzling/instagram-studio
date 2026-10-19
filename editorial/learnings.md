@@ -2,6 +2,11 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Animated Stories (2026-10-19)
+- Week 42's animated Weekly Numbers Story (15 s, HyperFrames): the owner and followers liked the animation; keep
+  animated Stories for recurring Stories (one Story: owner's read, insights still to come before it expires).
+- Its preview was the first frame, an almost empty navy ground: frame 0 must be a finished title card (now built in).
+
 ## First pipeline post (2026-10-17)
 - "Which is faster? The postcard trio" (Sat 17 Oct ~12:15 Prague, carousel, weekend interactive slot, brand tagged,
   poll Story follow-up). Pull insights after 48 h and 7 days; judge it on comments and sends per reach against the

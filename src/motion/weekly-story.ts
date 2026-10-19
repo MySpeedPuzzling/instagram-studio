@@ -1,5 +1,9 @@
-// The Weekly Numbers Story as a 15 s animation (HyperFrames). It ends on exactly the still Story's layout
+// The Weekly Numbers Story as a 16 s animation (HyperFrames). It ends on exactly the still Story's layout
 // (src/posts/weekly.ts weeklyStories), so the owner's link sticker sits in the same empty zone (y ≈ 1620–1720).
+// Frame 0 is a finished title card, because Instagram uses the first frame as the Story's preview (owner 2026-10-19:
+// ep. 1's preview was an almost empty navy frame). Beats below are after the intro (+INTRO s):
+//   intro    title card: the indigo poster (Weekly report, Week 42, dates) over a fan of the week's most-solved
+//            boxes; it holds, then slides up out of the frame, seam first, and the week starts assembling
 //   0.0–1.8  the week assembles: 7 generator pieces (Mon–Sun) fly in and snap into a strip, tinted by the day's
 //            solves, the busiest day coral; day initials and counts under them
 //   1.8–2.1  a short pause: the week registers
@@ -22,12 +26,14 @@ import { composition } from './kit.ts';
 import { LOGO_CSS, logoTick } from './logo.ts';
 import type { Motion } from './render.ts';
 
-const SEAM = 860, DURATION = 15;
+/** Title card length (s): it holds, then slides away while the week starts assembling. */
+const INTRO = 1.1;
+const SEAM = 860, DURATION = 15 + INTRO;
 /** Beat starts (s). */
 /** Pause after the last day piece lands (owner 2026-10-19: let the week register before the poster drops). */
 const HOLD = 0.3;
 // The rain starts as the count-up lands (owner: 0.3 s earlier than after the pause), so later beats keep their times.
-const T = { rain: 4.6, lift: 6.75, watch: 7.6, shout: 9.95, cue: 12.25 } as const;
+const T = { rain: 4.6 + INTRO, lift: 6.75 + INTRO, watch: 7.6 + INTRO, shout: 9.95 + INTRO, cue: 12.25 + INTRO } as const;
 const cut = (s: string, max: number) => (s.length <= max ? s : `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`);
 const sec = (s: number) => fmtDuration(s / 60);
 
@@ -58,7 +64,14 @@ export function weeklyStoryMotion(v: Variant, s: WeeklySpec): Motion {
 
   // 2 · poster top (under the frame body) with the week.
   const heroBase = 470 + size * 0.75;
-  const under = `<svg id="poster" class="h-poster-top" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true"><path d="${posterTopPath(SEAM)}" fill="${top.bg}"/></svg>
+  // 0 · the title card (frame 0 = the preview): the same poster with its text, already in place.
+  const coverUnder = `<svg id="cposter" class="h-poster-top" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true"><path d="${posterTopPath(SEAM)}" fill="${top.bg}"/></svg>
+    <div id="ctext" style="${groundVars(top)}" data-qa-bg="${top.bg}">
+      <p class="h-abs h-cap" style="top:420px">Weekly report</p>
+      ${hero(week, { size, baseline: heroBase })}
+      <p class="h-abs h-dek" style="top:${f1(heroBase + 40)}px; color:var(--g-ink)">${h(s.range)}</p>
+    </div>`;
+  const under = coverUnder + `<svg id="poster" class="h-poster-top" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true"><path d="${posterTopPath(SEAM)}" fill="${top.bg}"/></svg>
     <div id="ptext" style="${groundVars(top)}" data-qa-bg="${top.bg}">
       <p class="h-abs h-cap" id="pcap" style="top:420px">Weekly report</p>
       <div id="phero">${hero(week, { size, baseline: heroBase })}</div>
@@ -70,8 +83,14 @@ export function weeklyStoryMotion(v: Variant, s: WeeklySpec): Motion {
   const watch = logoTick({ at: T.watch, cx: W / 2, cy: 1505, width: 240 });
   const cards = s.top.slice(0, 5).map((b, i) => ({ id: `c${i}`, img: b.img, x: 390 + (i - 2) * 70, y: 1330 + (i % 2) * 40, rot: (i - 2) * 9 }));
   const shout = s.shout.slice(0, 3);
+  const fan = s.top.slice(0, 5).map((b, i) => ({ img: b.img, x: W / 2 - 130 + (i - 2) * 125, y: SEAM + 320 + Math.abs(i - 2) * 22, rot: (i - 2) * 7, z: 5 - Math.abs(i - 2) }));
   const body = `
     ${daysSvg}
+    <div id="cfan">
+      <p class="h-abs h-cap" style="top:${SEAM + 200}px">Most solved this week</p>
+      ${fan.map(c => `<span class="mo-card" style="left:${f1(c.x)}px; top:${f1(c.y)}px; width:260px; height:190px; z-index:${c.z}; transform:rotate(${c.rot}deg)"><img src="${c.img}" alt=""></span>`).join('')}
+      <p class="h-abs h-lead" style="top:${SEAM + 640}px; color:var(--g-soft)">Solves, fastest times and a shoutout draw</p>
+    </div>
     <div class="h-abs h-strip" id="stats" style="top:${SEAM + 120}px">
       <div><p class="k">Solves</p><p class="v" id="n1">${fmtInt(s.results)}</p></div>
       <div><p class="k">Puzzlers</p><p class="v" id="n2">${fmtInt(s.puzzlers)}</p></div>
@@ -95,6 +114,7 @@ export function weeklyStoryMotion(v: Variant, s: WeeklySpec): Motion {
 
   const css = LOGO_CSS + `
 /* hidden until their beat (CSS, so frame 0 is right; the timeline reveals them with autoAlpha) */
+#ghost { opacity: 0; }
 #poster, #ptext, #stats, #most-thumb, #most-txt, #fast, #ring, #shout, #cue, .mo-pile { visibility: hidden; opacity: 0; }
 .mo-day { position: absolute; width: 140px; text-align: center; font-size: 30px; line-height: 1.25; color: var(--g-soft); }
 .mo-day b { display: block; font-size: 38px; color: var(--g-ink); }
@@ -113,31 +133,36 @@ export function weeklyStoryMotion(v: Variant, s: WeeklySpec): Motion {
   const frameHtml = frame({ ground: 'navy', kind: 'story', kicker: `The Weekly Numbers · Ep. ${s.episode}`, device: v.device, src: s.src, rows: STICKER_STORY_ROWS, masthead: true, under, headGround: 'indigo', body });
 
   const script = `
-const D = DATA;
+const D = DATA, O = D.O;
+
+// intro: the title card holds (it is the preview), then slides up out of the frame, seam first
+tl.to(['#cposter', '#ctext', '#cfan'], { y: -1920, duration: 0.55, ease: 'power3.in' }, 0.75);
+tl.set(['#cposter', '#ctext', '#cfan'], { autoAlpha: 0 }, 1.31);
+tl.to('#ghost', { opacity: 1, duration: 0.3 }, O - 0.1);
 
 // 0.0–1.8 the week assembles
-flyIn(D.pieces.map(p => ({ sel: '#' + p.id, dx: p.dx, dy: p.dy, rot: p.rot, ease: p.busiest ? 'back.out(1.6)' : 'expo.out' })), 0, { dur: 0.6, stagger: 0.13 });
-riseIn('.mo-day', 0.5, { stagger: 0.12, dur: 0.35 });
-tl.fromTo('#' + D.busiest, { scale: 1 }, { scale: 1.12, duration: 0.12, transformOrigin: '50% 50%', immediateRender: false }, 1.25);
-tl.to('#' + D.busiest, { scale: 1, duration: 0.4, ease: 'back.out(3)' }, 1.37);
+flyIn(D.pieces.map(p => ({ sel: '#' + p.id, dx: p.dx, dy: p.dy, rot: p.rot, ease: p.busiest ? 'back.out(1.6)' : 'expo.out' })), O, { dur: 0.6, stagger: 0.13 });
+riseIn('.mo-day', O + 0.5, { stagger: 0.12, dur: 0.35 });
+tl.fromTo('#' + D.busiest, { scale: 1 }, { scale: 1.12, duration: 0.12, transformOrigin: '50% 50%', immediateRender: false }, O + 1.25);
+tl.to('#' + D.busiest, { scale: 1, duration: 0.4, ease: 'back.out(3)' }, O + 1.37);
 
 // 2.1–3.1 the pieces rise into the poster (after the 0.3 s pause)
-tl.to('#days path', { y: -520, opacity: 0, duration: 0.5, ease: 'power3.in', stagger: 0.03 }, ${1.8 + HOLD});
-tl.to('.mo-day', { opacity: 0, duration: 0.25 }, ${1.8 + HOLD});
-tl.to('#ghost', { opacity: 0, duration: 0.3 }, ${1.8 + HOLD});
-tl.set('#poster', { autoAlpha: 1 }, ${1.95 + HOLD});
-tl.fromTo('#poster', { y: -${SEAM + 140} }, { y: 0, duration: 0.55, ease: 'power3.out', immediateRender: false }, ${1.95 + HOLD});
-tl.set('#ptext', { autoAlpha: 1 }, ${2.35 + HOLD});
-riseIn('#pcap', ${2.35 + HOLD}, { dur: 0.3 });
-popIn('#phero', ${2.45 + HOLD}, { from: '0% 80%', scale: 0.7 });
-riseIn('#pdek', ${2.65 + HOLD}, { dur: 0.3 });
+tl.to('#days path', { y: -520, opacity: 0, duration: 0.5, ease: 'power3.in', stagger: 0.03 }, O + ${1.8 + HOLD});
+tl.to('.mo-day', { opacity: 0, duration: 0.25 }, O + ${1.8 + HOLD});
+tl.to('#ghost', { opacity: 0, duration: 0.3 }, O + ${1.8 + HOLD});
+tl.set('#poster', { autoAlpha: 1 }, O + ${1.95 + HOLD});
+tl.fromTo('#poster', { y: -${SEAM + 140} }, { y: 0, duration: 0.55, ease: 'power3.out', immediateRender: false }, O + ${1.95 + HOLD});
+tl.set('#ptext', { autoAlpha: 1 }, O + ${2.35 + HOLD});
+riseIn('#pcap', O + ${2.35 + HOLD}, { dur: 0.3 });
+popIn('#phero', O + ${2.45 + HOLD}, { from: '0% 80%', scale: 0.7 });
+riseIn('#pdek', O + ${2.65 + HOLD}, { dur: 0.3 });
 
 // 3.1–4.6 count-up
-tl.set('#stats', { autoAlpha: 1 }, ${2.8 + HOLD});
-riseIn('#stats > div', ${2.8 + HOLD}, { stagger: 0.12, dur: 0.35 });
-countUp('#n1', D.results, ${2.85 + HOLD}, 1.5);
-countUp('#n2', D.puzzlers, ${2.97 + HOLD}, 1.4);
-countUp('#n3', D.pbs, ${3.09 + HOLD}, 1.3);
+tl.set('#stats', { autoAlpha: 1 }, O + ${2.8 + HOLD});
+riseIn('#stats > div', O + ${2.8 + HOLD}, { stagger: 0.12, dur: 0.35 });
+countUp('#n1', D.results, O + ${2.85 + HOLD}, 1.5);
+countUp('#n2', D.puzzlers, O + ${2.97 + HOLD}, 1.4);
+countUp('#n3', D.pbs, O + ${3.09 + HOLD}, 1.3);
 
 // 4.6–7.0 box rain → #1 into its slot
 // cards start fully above the frame (their bottom edge at y < 0) and are opaque the whole way: they rain in
@@ -176,11 +201,11 @@ tl.set({}, {}, ${DURATION});
   const data = {
     pieces: pieces.map(({ id, dx, dy, rot, busiest }) => ({ id, dx, dy, rot, busiest })), busiest: pieces.find(pc => pc.busiest)!.id,
     results: s.results, puzzlers: s.puzzlers, pbs: s.personalBests, solo: solo?.seconds ?? 0,
-    cards: cards.map(c => ({ id: c.id, rot: c.rot, y: c.y })), thumb, T, c0: { x: cards[0].x, y: cards[0].y, w: 300, h: 220 },
+    cards: cards.map(c => ({ id: c.id, rot: c.rot, y: c.y })), thumb, T, O: INTRO, c0: { x: cards[0].x, y: cards[0].y, w: 300, h: 220 },
   };
   return {
     key, duration: DURATION, coverAt: DURATION - 0.1,
-    qaAt: [0.05, 1.5, 2.0, 3.0, 4.8, 5.4, 6.3, 7.5, 8.7, 9.9, 11.5, 13.1, DURATION - 0.1],
+    qaAt: [0.05, 0.6, ...[1.5, 2.0, 3.0, 4.8, 5.4, 6.3, 7.5, 8.7, 9.9, 11.5, 13.1].map(t => t + INTRO), DURATION - 0.1],
     html: composition({ key, title: `Weekly Numbers ep. ${s.episode} Story`, duration: DURATION, frameHtml, css, data, script }),
   };
 }

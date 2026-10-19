@@ -134,6 +134,12 @@ How to maintain it:
 - **Instructions to the owner for anything manual are step by step:** which sticker exactly, the exact text to type,
   where to place it (with a guide image), and when. (owner, 2026-10-17)
 
+- **Animated Stories open on a finished title card:** Instagram shows a video Story's first frame as its preview
+  (archive, highlights, shares), so frame 0 says what it is with a visual (for Weekly Numbers: the poster with the
+  week and dates over the most-solved boxes), holds ~0.75 s, then slides or moves away into the animation. Never
+  start on an empty ground that fills in later. Check `story-1-video-preview.jpg` before posting. Animated Stories
+  stay the default for recurring Stories. (owner, 2026-10-19, after Week 42's preview was an almost blank frame)
+
 - **Story frames use the full usable height:** key text and stickers in y 200–1720 × x 65–1015 (research
   `story_dimensions_2026.md`; device check pending). Frames that get an Instagram sticker leave real room for it:
   a 3-option poll is ~600 px tall at default size and should be shown big (~130 %); use the masthead (no footer) and

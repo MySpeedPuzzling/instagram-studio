@@ -178,8 +178,9 @@ chats until the week's draw is done.
 
 1. `node tools/draft.ts weekly-rc1`: fresh data for the last full week (Mon–Sun, solves with a finish date in the week),
    8 slides + the still Story (`stories/story-1.jpg`) in `content/drafts/<monday>-weekly-rc1/`. Review, approve, publish.
-2. `node tools/motion.ts weekly <draft-id>`: the 15 s animated Story (`stories/story-1-video.mp4`) from the same numbers
-   (the last fresh run). Light: ~21 s render, ~1.5 GB peak, logged in `content/motion-runs.jsonl`. `--qa-only` for a
+2. `node tools/motion.ts weekly <draft-id>`: the 16 s animated Story (`stories/story-1-video.mp4`) from the same numbers
+   (the last fresh run). It opens on a title card, which Instagram shows as the preview: check
+   `stories/story-1-video-preview.jpg`. Light: ~21 s render, ~1.5 GB peak, logged in `content/motion-runs.jsonl`. `--qa-only` for a
    2 s check, `--snap=<dir>` to save frames at the QA times.
 3. Owner: post the video (or the still) as a Story, add a Link sticker to the post ("Full report") at the **bottom right**,
    just under the cue line (the bottom centre is Instagram's delete zone: dropping a sticker there trashes it; nothing

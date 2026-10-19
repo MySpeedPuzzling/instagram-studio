@@ -147,6 +147,9 @@ async function qaAndCover(m: Motion, outBase: string, snapDir?: string) {
         await page.screenshot({ path: join(snapDir, `${m.key}-${t.toFixed(2)}s.jpg`), type: 'jpeg', quality: 80 });
       }
     }
+    // Frame 0 is what Instagram shows as the Story's preview (owner 2026-10-19): saved next to the video to check it.
+    await seek(0);
+    await page.screenshot({ path: `${outBase}-preview.jpg`, type: 'jpeg', quality: 85 });
     await seek(m.coverAt);
     const png = join(WORK, m.key, 'cover.png');
     await page.screenshot({ path: png, type: 'png' });

@@ -16,6 +16,7 @@
 //                                 other people: the rolling rows are blank bars)
 //   flash(sel, at)                a quick coral highlight pulse on text
 // The final frame of every builder equals its still (so stickers placed on the still fit the video too).
+// The first frame is a finished title card (it is the Story's preview in Instagram); it then slides or moves away.
 import { page } from '../design/page.ts';
 import { HOUSE_CSS } from '../design/house.ts';
 import { FPS } from './render.ts';

@@ -2,7 +2,7 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-10-18 (profile check 47 → 75, Start here post published and pinned, caption lint upgrades, audience notes).
+`docs/backlog.md` (what to do next). Updated 2026-10-19 (Story title card; profile check 47 → 75, Start here post published and pinned, caption lint upgrades, audience notes).
 
 ## Where we are
 
@@ -59,7 +59,7 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
    `2026-10-19-weekly-rc1`, 8 slides, 11 photo tags; first attempt failed on 2 handles that don't exist on Instagram).
    Insights at +48 h. **Animated Story** (`node tools/motion.ts weekly <id>`, 15 s, L1-3 logo stopwatch) posted ~16:10
    with music and a link sticker (bottom right); **read its Story insights before it expires (Tue 20 Oct ~16:00)**.
-   Recaps highlight: pick a cover (owner didn't like ↻; options @bars/@days/@line/@calendar in content/highlights/).
+   **Lesson (19 Oct):** the video's first frame is its preview and ep. 1's was almost blank; the animation now opens on a title card (poster + most-solved boxes) that slides away (16 s, `story-1-video-preview.jpg`). Recaps highlight: pick a cover (owner didn't like ↻; options @bars/@days/@line/@calendar in content/highlights/).
    Ep. 2 on Mon 26 Oct: `node tools/draft.ts weekly-rc1`, then `node tools/motion.ts weekly <id>`. Then the Wisconsin preview (event Fri 23 Oct)
    and clocks go back (Sat 24 Oct). Each new post type becomes a builder in `src/posts/` + an entry in `tools/draft.ts`.
 4. **Insights on the first post** after 48 h (`node tools/insights.ts`), first entry in `editorial/learnings.md`.

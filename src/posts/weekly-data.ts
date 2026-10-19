@@ -7,7 +7,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fetchBoxes } from '../data/boxes.ts';
 import { query, type QueryResult } from '../data/db.ts';
-import { doNotFeature } from '../data/featuring.ts';
+import { doNotFeature, invalidHandles } from '../data/featuring.ts';
 import { ROOT } from '../render/server.ts';
 import type { ActiveRow, FastRow, Kind, Person, Segment, WeeklySpec } from './weekly.ts';
 
@@ -23,9 +23,14 @@ function rng(seed: number) {
   };
 }
 
+/** Display names without emoji (slides use the house font only; the QA rejects emoji in graphics). */
+const plainName = (n: string) => n.replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\uFE0F\u200D]/gu, '').replace(/\s+/g, ' ').trim();
+/** A handle we can photo-tag: lowercase (Instagram ignores case), never one Instagram rejected before. */
+const badHandles = invalidHandles();
+const tagHandle = (raw: string | null | undefined) => { const v = raw?.toLowerCase(); return v && !badHandles.has(v) ? v : undefined; };
 const flagOk = (cc: string | undefined) => !!cc && /^[A-Z]{2}$/.test(cc) && existsSync(join(ROOT, 'node_modules/circle-flags/flags', `${cc.toLowerCase()}.svg`));
 const person = (r: { [k: string]: string | null | undefined }): Person => ({
-  id: r.player_id!, name: (r.player ?? r.name ?? '').trim(), country: flagOk(r.country ?? undefined) ? r.country! : undefined, handle: r.ig_handle || undefined,
+  id: r.player_id!, name: plainName(r.player ?? r.name ?? ''), country: flagOk(r.country ?? undefined) ? r.country! : undefined, handle: tagHandle(r.ig_handle),
 });
 
 export interface WeeklyOptions { fresh: boolean; season: number; episode: number; segments: Segment[]; question: string; shoutouts?: number }
@@ -44,29 +49,33 @@ export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklyS
   // Fastest: solo from weekly-fastest (one row per puzzler), pairs and teams from weekly-groups (every member featurable).
   const fast: FastRow[] = [
     ...q['weekly-fastest'].rows.filter(r => !blocked.has(r.player_id)).map(r => ({
-      kind: 'solo' as Kind, pieces: num(r.pieces), seconds: num(r.seconds), firstAttempt: r.first_attempt === 't', puzzle: r.puzzle, brand: r.brand, people: [person(r)],
+      kind: 'solo' as Kind, pieces: num(r.pieces), seconds: num(r.seconds), firstAttempt: r.first_attempt === 't', puzzle: r.puzzle, brand: r.brand, people: [person(r)], image: r.image || undefined,
     })),
     ...q['weekly-groups'].rows.map(r => ({ r, people: (JSON.parse(r.members) as Array<{ player_id: string; name: string; country: string | null; ig_handle: string | null }>).map(person) }))
       .filter(({ people }) => people.every(p => !blocked.has(p.id)))
       .map(({ r, people }) => ({
-        kind: r.type as Kind, pieces: num(r.pieces), seconds: num(r.seconds), firstAttempt: r.first_attempt === 't', puzzle: r.puzzle, brand: r.brand, people, teamName: r.team_name || undefined,
+        kind: r.type as Kind, pieces: num(r.pieces), seconds: num(r.seconds), firstAttempt: r.first_attempt === 't', puzzle: r.puzzle, brand: r.brand, people, teamName: r.team_name || undefined, image: r.image || undefined,
       })),
   ];
 
   const active: ActiveRow[] = q['weekly-active'].rows.filter(r => !blocked.has(r.player_id))
-    .map(r => ({ kind: r.type as Kind, person: person(r), results: num(r.results), pieces: num(r.pieces) }));
+    .map(r => ({ kind: r.type as Kind, person: person(r), results: num(r.results), pieces: num(r.pieces), image: r.last_image || undefined }));
 
   const top = q['boxes-week-top'].rows.slice(0, 5);
 
   // Shoutout draw: everyone who solved something, minus anyone already named on another slide, drawn with a seed made
   // from the week (same week → same three, however often the draft is re-rendered).
   const shown = new Set([...fast.flatMap(r => r.people.map(p => p.id)), ...active.map(a => a.person.id)]);
-  const pool = q['weekly-pool'].rows.filter(r => !blocked.has(r.player_id) && !shown.has(r.player_id) && r.player.trim());
+  const pool = q['weekly-pool'].rows.filter(r => !blocked.has(r.player_id) && r.player.trim());
   const seed = parseInt(createHash('sha256').update(`msp-weekly-shoutout:${t.week_start}`).digest('hex').slice(0, 8), 16);
-  const rand = rng(seed), picks: typeof pool = [], left = [...pool];
-  for (let i = 0; i < Math.min(o.shoutouts ?? 3, left.length); i++) picks.push(left.splice(Math.floor(rand() * left.length), 1)[0]);
+  // Shuffle the whole pool (sorted by id in SQL) once, then take the first ones not named elsewhere: a late-logged time
+  // that changes another slide can only swap out a puzzler who just landed on that slide, never reshuffle the draw.
+  const rand = rng(seed), order = [...pool];
+  for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  const picks = order.filter(r => !shown.has(r.player_id)).slice(0, o.shoutouts ?? 3);
 
-  const imgs = await fetchBoxes([...top.map(r => r.image), ...picks.map(r => r.last_image).filter(Boolean)]);
+  const imgs = await fetchBoxes([...new Set([...top.map(r => r.image), ...picks.map(r => r.last_image), ...fast.map(r => r.image), ...active.map(r => r.image)].filter((x): x is string => !!x))]);
+  for (const r of [...fast, ...active]) if (r.image) r.img = imgs.get(r.image);
   const spec: WeeklySpec = {
     key: 'weekly', season: o.season, episode: o.episode, segments: o.segments, question: o.question,
     weekStart: t.week_start, range, src: `Data: myspeedpuzzling.com · ${range}`,
@@ -76,7 +85,7 @@ export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklyS
     median500s: num(days[0].week_median_solo500_s), solo500Results: num(days[0].week_solo500_results),
     top: top.map(r => ({ puzzle: r.puzzle, brand: r.brand, pieces: num(r.pieces), solvers: num(r.solvers_week), img: imgs.get(r.image)! })),
     fast, active,
-    shout: picks.map(r => ({ person: person(r), results: num(r.results), puzzle: r.last_puzzle, brand: r.last_brand, pieces: num(r.last_pieces), img: r.last_image ? imgs.get(r.last_image) : undefined })),
+    shout: picks.map(r => ({ person: person(r), results: num(r.results), seconds: r.shown_seconds ? num(r.shown_seconds) : undefined, kind: r.shown_type as Kind, puzzle: r.last_puzzle, brand: r.last_brand, pieces: num(r.last_pieces), img: r.last_image ? imgs.get(r.last_image) : undefined })),
     poolSize: q['weekly-pool'].rows.length,
     week: { hours: num(f.hours), countries: num(f.countries), puzzles: num(f.puzzles), firstEver: num(f.first_ever_puzzles), added: num(f.puzzles_added),
       biggest: { puzzle: f.biggest_puzzle, brand: f.biggest_brand, pieces: num(f.biggest_pieces) }, firstAttemptPct: num(f.solo_first_attempt_pct) },

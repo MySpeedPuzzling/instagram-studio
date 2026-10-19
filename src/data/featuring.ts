@@ -16,3 +16,11 @@ export function featurable<T extends { player_id: string }>(rows: T[]): T[] {
   const blocked = doNotFeature();
   return rows.filter(r => !blocked.has(r.player_id));
 }
+
+const INVALID_HANDLES = join(ROOT, 'content/ig-invalid-handles.json');
+
+/** Instagram handles (from MSP profiles) that Instagram rejected as photo tags; never tag them again. Local file. */
+export function invalidHandles(): Set<string> {
+  if (!existsSync(INVALID_HANDLES)) return new Set();
+  return new Set(((JSON.parse(readFileSync(INVALID_HANDLES, 'utf8')).handles ?? []) as string[]).map(h => h.toLowerCase()));
+}

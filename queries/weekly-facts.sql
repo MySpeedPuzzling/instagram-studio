@@ -8,7 +8,7 @@ t AS (
   SELECT t.puzzle_id, t.seconds_to_solve, t.first_attempt, t.puzzling_type, t.tracked_at, pl.country, pl.timezone, pz.pieces_count, pz.name, m.name AS brand
   FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id JOIN puzzle pz ON pz.id = t.puzzle_id
   JOIN manufacturer m ON m.id = pz.manufacturer_id, w
-  WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start AND coalesce(t.finished_at, t.tracked_at) >= w.start AND coalesce(t.finished_at, t.tracked_at) < w.stop
+  WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start AND t.finished_at >= w.start AND t.finished_at < w.stop
     AND (pz.hide_until IS NULL OR pz.hide_until <= now())),
 big AS (SELECT name, brand, pieces_count, count(*) AS results FROM t GROUP BY 1, 2, 3 ORDER BY pieces_count DESC, results DESC LIMIT 1)
 SELECT

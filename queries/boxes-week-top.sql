@@ -4,7 +4,7 @@ WITH w AS (SELECT date_trunc('week', now()) - interval '7 days' AS start, date_t
 wk AS (
   SELECT t.puzzle_id, count(DISTINCT t.player_id) AS solvers_week, count(*) AS results_week
   FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id, w
-  WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start AND coalesce(t.finished_at, t.tracked_at) >= w.start AND coalesce(t.finished_at, t.tracked_at) < w.stop
+  WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start AND t.finished_at >= w.start AND t.finished_at < w.stop
   GROUP BY 1 ORDER BY 2 DESC LIMIT 12)
 SELECT pz.id AS puzzle_id, pz.name AS puzzle, m.name AS brand, pz.pieces_count AS pieces, pz.image, wk.solvers_week, wk.results_week,
   (SELECT count(DISTINCT t.player_id) FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id

@@ -13,6 +13,14 @@ How to maintain it:
 
 ## Design
 
+- **Boards: no accent bar at the leader's row** (H4 house style hides it; the coral number marks the leader). (owner,
+  2026-10-19, "it is disturbing me")
+- **No Instagram handles written on slides:** tag each puzzler with a photo tag on their own row (handle from their MSP
+  profile); without a handle, no tag. Captions credit by MSP name, no @mentions of players. (owner, 2026-10-19)
+- **People boards show the puzzle, not ranks or avatars:** each row carries the box image of the puzzle behind the time
+  (or the puzzler's latest puzzle); no avatars, even when a profile has one (only ~9 % do). A shoutout shows the solve the
+  puzzler is featured with: puzzle, brand, kind and time. (owner, 2026-10-19)
+
 - **Numbers without US commas, on slides and in captions:** plain digits up to 9999 ("8103 hours", "1000 pieces"), a
   narrow space between groups of three from 10 000 up ("12 450", "3 654 448"; SI style). Always format with `fmtInt`
   (`src/design/page.ts`); the caption lint rejects "8,103". (owner, 2026-10-18)
@@ -49,9 +57,11 @@ How to maintain it:
   puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the
   site shows publicly where the reader can check it. (owner, 2026-10-18, after wrong numbers in comment replies)
 
-- **Weekly numbers count solves finished in the week** (`coalesce(finished_at, tracked_at)`), never just logged: ~17 % of a
-  week's logged results are older solves typed in later, which faked "most active" and "biggest puzzle". Pairs and teams
-  are named only when every member is a featurable registered player (guests typed in by name never). (data, 2026-10-18)
+- **Weekly numbers count solves whose finish date is in the week** (`finished_at`), never the day they were logged:
+  ~17 % of a week's logged results are older solves typed in later, and results without a finish date (always without a
+  time too) are puzzles marked solved in batches (one puzzler "solved" 310 in week 42). Both faked "most solves" and
+  "biggest puzzle". Pairs and teams are named only when every member is a featurable registered player (guests typed in
+  by name never). (data, 2026-10-18/19)
 
 - **Exclude suspicious results everywhere**, including stopwatch sessions whose result is suspicious; enforced by
   `src/data/queries.test.ts`. (owner, 2026-10-17)
@@ -109,6 +119,9 @@ How to maintain it:
 
 ## Formats and slots
 
+- **After every publish, suggest the pins:** keep or swap each of the three pinned posts, with the reason and step-by-step
+  app instructions (pinning is manual: the API can't pin). Pinned posts stay evergreen (see decisions 2026-10-18).
+  (owner, 2026-10-19)
 - **Interactive quizzes must be a real guess:** pick contenders whose numbers are close ("Which is faster?" with a
   23-minute gap was "way too easy"; the postcard trio's 4 seconds worked). Add a twist slide (fastest single solve,
   pairs) so the post gives more than the answer. (owner, 2026-10-17)

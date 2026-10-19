@@ -259,6 +259,8 @@ body { font-variant-numeric: tabular-nums lining-nums slashed-zero; background: 
 .h-bh { display: flex; align-items: flex-end; height: 48px; font-size: 30px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--g-accent); border-bottom: 2px solid var(--g-rule); padding-bottom: 10px; }
 .h-br { position: relative; display: flex; align-items: center; border-bottom: 2px solid var(--g-band); }
 .h-br.hot::before { content: ''; position: absolute; left: -${X0}px; top: 0; bottom: 0; width: 14px; background: var(--g-device); }
+/* H4 (owner 2026-10-19): no accent bar at the leader's row; the coral number marks it. H1–H3 keep it (lab reference). */
+.hf.v-H4 .h-br.hot::before { display: none; }
 .h-br .rk { width: 76px; font-size: 34px; font-weight: 700; color: var(--g-accent); }
 .h-br.hot .rk { color: var(--g-ink); }
 .h-br .nm { flex: 1; font-size: 38px; font-weight: 500; color: var(--g-ink); }
@@ -327,7 +329,7 @@ export function frame(o: FrameOptions): string {
   // The strip device already shows the position, so it carries no number.
   const idxHtml = o.idx && o.device !== 'strip' ? `<span class="h-idx">${i}<i> / ${n}</i></span>` : '';
   if (o.masthead) {
-    return `<div class="hf ${kind === 'story' ? 'story' : ''}" style="${groundVars(g)}">
+    return `<div class="hf ${kind === 'story' ? 'story' : ''} v-${ACTIVE?.id ?? 'none'}" style="${groundVars(g)}">
   <div class="h-depth"></div>
   ${o.under ?? ''}
   <header class="h-head"${headAttr}>${device}<span class="h-kick">${h(o.kicker)}</span><span style="margin-left:auto">${outlinedLogo(96)}</span></header>
@@ -335,7 +337,7 @@ export function frame(o: FrameOptions): string {
   ${o.body}
 </div>`;
   }
-  return `<div class="hf ${kind === 'story' ? 'story' : ''}" style="${groundVars(g)}">
+  return `<div class="hf ${kind === 'story' ? 'story' : ''} v-${ACTIVE?.id ?? 'none'}" style="${groundVars(g)}">
   <div class="h-depth"></div>
   ${o.under ?? ''}
   <header class="h-head"${headAttr}>${device}<span class="h-kick">${h(o.kicker)}</span>${idxHtml}</header>

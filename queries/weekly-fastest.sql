@@ -13,7 +13,7 @@ best AS (
   CROSS JOIN LATERAL (SELECT regexp_replace(regexp_replace(regexp_replace(TRIM(BOTH '@ ' FROM TRIM(coalesce(p.instagram, ''))),
       '^(https?://)?(www\.)?instagram\.com/', '', 'i'), '\?.*$', ''), '/+$', '') AS handle) norm, w
   WHERE NOT t.suspicious AND t.seconds_to_solve > 0 AND t.puzzling_type = 'solo' AND pz.pieces_count IN (500, 1000)
-    AND t.tracked_at >= w.start AND t.tracked_at < w.stop AND NOT p.is_private AND NOT p.ranking_opted_out
+    AND t.tracked_at >= w.start AND coalesce(t.finished_at, t.tracked_at) >= w.start AND coalesce(t.finished_at, t.tracked_at) < w.stop AND NOT p.is_private AND NOT p.ranking_opted_out
     AND (pz.hide_until IS NULL OR pz.hide_until <= now())
   ORDER BY t.player_id, pz.pieces_count, t.seconds_to_solve),
 r AS (SELECT *, row_number() OVER (PARTITION BY pieces ORDER BY seconds) AS rk FROM best)

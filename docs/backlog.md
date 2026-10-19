@@ -99,7 +99,7 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 ## Build: from labs to production
 
 - [x] First production builder + draft tool (2026-10-17): `src/posts/faster.ts`, `node tools/draft.ts faster-postcards`
-      (fresh facts → HOUSE render with QA gate → caption + alt text → draft in review). Next builders: Weekly Numbers.
+      (fresh facts → HOUSE render with QA gate → caption + alt text → draft in review). Weekly Numbers builder done 2026-10-18 (`weekly-rc1`, `weekly-rc2`); next: Wisconsin preview.
 - [ ] Puzzle subjects from the box images (owner 2026-10-17: title matching misses cats/dogs that are only in the
       picture; MSP tags are events only). Classify box images with a local vision model (CLIP-style, light) into
       subjects, store per puzzle in a local cache, then redo cats vs dogs, the tier list and the atlas themes.
@@ -165,3 +165,11 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - Monthly "active puzzlers" definition to publish (logging-based vs the app's community stats).
 - Giveaways per year (default: 2–3, tied to events). Does Advent count as one? (morning list)
 - GA4 access for measuring Instagram → website (service account) and a `/ig` landing page with per-post links?
+
+## Weekly Numbers (added 2026-10-18)
+
+- [ ] Mon 19 Oct: owner picks RC1 or RC2 (per-slide feedback welcome), `node tools/draft.ts weekly-rc<N>` with fresh data, approve for 19:00, reject the other.
+- [ ] Owner question: should the shoutout draw only pick puzzlers with an Instagram handle (taggable, more reshares) or everyone (fairer, current default)?
+- [ ] Brand photo tags on the most-solved slide (standing rule: tag brands whose boxes are shown) need brand → Instagram handle mapping.
+- [ ] Rotating segments for later episodes (research: 3 fixed + 2 rotating): puzzle of the week spotlight, country spotlight, "this week in 2025", guess the number.
+- [ ] Story follow-up for the episode (e.g. the shoutout slide as a Story with the three tagged).

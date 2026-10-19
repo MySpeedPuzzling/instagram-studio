@@ -32,6 +32,7 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 | Repo | Public: https://github.com/MySpeedPuzzling/instagram-studio (MIT; logos and font excepted), pushed 2026-10-17 |
 | Profile (18 Oct) | Profile check 47/100 → fixed: bio B1 (community tone, 11,000+ puzzlers, 86 countries), category community + contact e-mail, "Quizzes" highlight with a house-style cover (`tools/highlight-covers.ts`), quiz comments answered (data checked against the site). Name stays MySpeedPuzzling; UTM bio link reverted (it showed). Notes: `research_notes/…/profile_audit_2026-10-18.md` |
 | Start here (18 Oct) | Pinned evergreen explainer `node tools/draft.ts about` (draft 2026-10-18-about, C1 "missing piece" cover from lab **AB1**, coral intro poster): published by hand 18 Oct 17:29 (https://www.instagram.com/p/DepAfaWDaud/), pinned with the WJPC post and the quiz; insights at +48 h (Tue 20 Oct ~17:30). Refresh ~yearly. Audience notes in `editorial/audience.md` (read before every post) |
+| Weekly Numbers (18 Oct) | Builder from the owner's list: cover, most-solved (boxes), fastest solo/pairs/teams 500 & 1000 with the typical time, most solves, seeded shoutout draw (3 of everyone who solved; not already named), the week in hours (day chart), personal bests. Counts solves **finished** in the week: ~1 in 6 logged results are older solves typed in later (they topped "most active" with 189). Pairs/teams named only when every member is a featurable registered player. Lint skips declared proper nouns (`proper_nouns`, e.g. "Vibrant Vases") |
 | Lint (18 Oct) | From the instagram-agent-skill review (not installed, ideas borrowed): search phrases per builder, invisible characters, stock phrases; review in `research_notes/…/external_instagram_agent_skill_review.md` |
 
 ## Waiting for the owner
@@ -54,7 +55,10 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 1. **Story device test** → final Story bands.
 2. **Insights on Start here** at +48 h (Tue 20 Oct ~17:30): follows and profile visits per reach matter most for a
    pinned intro. **Align per-puzzle medians with the site** (`puzzle_statistics`) before the next quiz.
-3. **Weekly Numbers builder** (`src/posts/weekly.ts`) for Monday 19 Oct, then the Wisconsin preview (event Fri 23 Oct)
+3. **Weekly Numbers ep. 1, Mon 19 Oct 19:00:** builder done (`src/posts/weekly.ts` + `weekly-data.ts`), two release
+   candidates in review with placeholder data (5–11 Oct): `2026-10-19-weekly-rc1` (8 slides, everything) and `-rc2`
+   (5 slides, compact). On Monday: owner picks one, run `node tools/draft.ts weekly-rc<N>` (fresh 12–18 Oct, same id),
+   re-check, approve; reject the other. Then the Wisconsin preview (event Fri 23 Oct)
    and clocks go back (Sat 24 Oct). Each new post type becomes a builder in `src/posts/` + an entry in `tools/draft.ts`.
 4. **Insights on the first post** after 48 h (`node tools/insights.ts`), first entry in `editorial/learnings.md`.
 5. **Fold the agents' house proposals into H4** (shared art palette per ground, family CSS hook, shared geometry/board
@@ -64,7 +68,7 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 ## Plan for the next working day
 
 - Story test with the owner; apply the measured bands.
-- Confirm the rhythm; draft Weekly Numbers ep. 1 with fresh data for Monday 19:00.
+- Weekly Numbers ep. 1: pick RC1/RC2, refresh with Monday's data, approve for 19:00.
 
 ## How the pieces fit
 

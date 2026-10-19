@@ -7,6 +7,7 @@
 //
 //   node tools/draft.ts faster-postcards          # "Which is faster?" with Ravensburger's three postcards
 //   node tools/draft.ts about                     # "Start here" explainer (third pinned post)
+//   node tools/draft.ts weekly-rc1 | weekly-rc2   # The Weekly Numbers, two release candidates (full / compact)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { lintCaption } from '../src/captions/lint.ts';
@@ -18,16 +19,43 @@ import { existsSync } from 'node:fs';
 import { DRAFTS, loadDraft, saveDraft, type Draft } from '../src/drafts/model.ts';
 import { aboutAlt, aboutSlides, plus, tens } from '../src/posts/about.ts';
 import { buildAboutSpec } from '../src/posts/about-data.ts';
+import { weeklyAlt, weeklyCaption, weeklyNames, weeklySlides, weeklyTags, type Segment } from '../src/posts/weekly.ts';
+import { buildWeeklySpec } from '../src/posts/weekly-data.ts';
 import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
 import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
 
-interface Built { userTags?: Record<number, Array<{ username: string; x: number; y: number }>>; stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string; searchPhrases?: string[] }
+interface Built { userTags?: Record<number, Array<{ username: string; x: number; y: number }>>; stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string; searchPhrases?: string[]; properNouns?: string[] }
 
 const dayOf = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
 
+/** The Monday a Weekly Numbers episode goes out: today when it's Monday, else the next Monday (Prague time). */
+const nextMonday = () => {
+  const today = new Date(new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' }) + 'T12:00:00Z');
+  return new Date(today.getTime() + ((8 - today.getUTCDay()) % 7) * 86_400_000).toISOString().slice(0, 10);
+};
+
+/** The Weekly Numbers: a release candidate is a list of segments (src/posts/weekly.ts). Episode 1 = 19 Oct 2026. */
+const weekly = (rc: string, segments: Segment[]) => async (): Promise<Built> => {
+  const monday = nextMonday();
+  const episode = 1 + Math.round((Date.parse(monday) - Date.parse('2026-10-19')) / (7 * 86_400_000));
+  const { spec, facts } = await buildWeeklySpec({ fresh: true, season: 1, episode, segments, question: 'What did you finish last week, and was it a personal best?' });
+  activateVariant(HOUSE);
+  const slides = weeklySlides(HOUSE, spec);
+  activateVariant(undefined);
+  return {
+    id: `${monday}-weekly-${rc}`, title: `The Weekly Numbers, ep. ${episode} (${rc})`, pillar: 'data', format: 'carousel',
+    tags: { series: 'weekly-numbers', season: 1, episode, slot: 'monday-recap', mechanic: 'recap', template: `weekly-${rc}`, style: 'H4', week: spec.weekStart },
+    userTags: weeklyTags(spec), facts, slides, alt: weeklyAlt(spec), caption: weeklyCaption(spec), captionPillar: 'carousel',
+    searchPhrases: ['puzzling', 'puzzle'], properNouns: weeklyNames(spec),
+  };
+};
+
 const BUILDERS: Record<string, () => Promise<Built>> = {
+  // RC1 full: every segment of the owner's list (8 slides). RC2 compact: cover, top, fastest 500s, shoutout, the week (5).
+  'weekly-rc1': weekly('rc1', ['cover', 'top', 'fast500', 'fast1000', 'active', 'shout', 'days', 'close']),
+  'weekly-rc2': weekly('rc2', ['cover', 'top', 'fast500', 'shout', 'days']),
   about: async () => {
     const { spec, facts } = await buildAboutSpec({ fresh: true });
     activateVariant(HOUSE);
@@ -137,7 +165,7 @@ const slides = await metered(join(ROOT, 'content/drafts/runs.jsonl'), { draft: b
 });
 if (errors.length) { console.error(`QA errors, draft not saved:\n  ${errors.join('\n  ')}`); process.exit(1); }
 if (!b.searchPhrases?.length) console.log('  note: the builder declares no searchPhrases, so the search-phrase check is skipped');
-const lint = lintCaption(b.caption, b.captionPillar as Parameters<typeof lintCaption>[1], { searchPhrases: b.searchPhrases });
+const lint = lintCaption(b.caption, b.captionPillar as Parameters<typeof lintCaption>[1], { searchPhrases: b.searchPhrases, properNouns: b.properNouns });
 writeFileSync(join(DRAFTS, b.id, 'facts.json'), JSON.stringify(b.facts, null, 1) + '\n');
 const now = new Date().toISOString();
 // Re-running a builder updates the draft: the version goes up, feedback.jsonl stays, and a caption the owner edited
@@ -146,7 +174,7 @@ const prev = existsSync(join(DRAFTS, b.id, 'draft.yaml')) ? loadDraft(b.id) : un
 const keepCaption = prev?.caption_author === 'human';
 saveDraft({
   id: b.id, status: 'in_review', title: b.title, pillar: b.pillar, format: b.format, tags: b.tags,
-  caption: keepCaption ? prev!.caption : b.caption, caption_author: keepCaption ? 'human' : 'claude', search_phrases: b.searchPhrases, slides,
+  caption: keepCaption ? prev!.caption : b.caption, caption_author: keepCaption ? 'human' : 'claude', search_phrases: b.searchPhrases, ...(b.properNouns?.length ? { proper_nouns: b.properNouns } : {}), slides,
   created_at: prev?.created_at ?? now, updated_at: now, version: (prev?.version ?? 0) + 1,
 });
 if (keepCaption) console.log('kept the owner-edited caption');

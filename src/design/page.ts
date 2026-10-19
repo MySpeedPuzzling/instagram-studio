@@ -49,8 +49,13 @@ export function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 }
 
-/** Format integers with comma thousands separators (Rubik has no thin space). */
-export const fmtInt = (n: number) => Math.round(n).toLocaleString('en-US');
+/** Whole numbers, owner style (2026-10-18): no comma groups; plain digits up to 9999 ("8103"), a narrow no-break
+ *  space between groups of three from 10 000 up ("12 450", "3 654 448"), the international SI style. */
+export const THIN = '\u202F';
+export const fmtInt = (n: number) => {
+  const v = Math.round(n), digits = String(Math.abs(v));
+  return (v < 0 ? '\u2212' : '') + (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, THIN));
+};
 
 /** Minutes (float) → "m:ss" or "h:mm:ss". */
 export function fmtDuration(minutes: number): string {

@@ -114,7 +114,7 @@ function indexPage() {
 
 function draftPage(d: Draft) {
   const fb = feedback(d.id);
-  const lint = lintCaption(d.caption, pillarOf(d), { searchPhrases: d.search_phrases });
+  const lint = lintCaption(d.caption, pillarOf(d), { searchPhrases: d.search_phrases, properNouns: d.proper_nouns });
   const grid = [url(d.slides[0]?.preview ?? d.slides[0]?.file ?? ''), ...realGrid()];
   const canAct = ['in_review', 'changes_requested', 'drafted', 'failed', 'needs_reschedule', 'approved'].includes(d.status);
   const body = `
@@ -154,7 +154,7 @@ function draftPage(d: Draft) {
     </div>
   </div>`;
   const script = `
-const id = ${JSON.stringify(d.id)}, pillar = ${JSON.stringify(pillarOf(d))}, searchPhrases = ${JSON.stringify(d.search_phrases ?? [])};
+const id = ${JSON.stringify(d.id)}, pillar = ${JSON.stringify(pillarOf(d))}, searchPhrases = ${JSON.stringify(d.search_phrases ?? [])}, properNouns = ${JSON.stringify(d.proper_nouns ?? [])};
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== b.dataset.view);
@@ -164,7 +164,7 @@ async function relint() {
   const t = cap.value; document.getElementById('chars').textContent = [...t].length + ' / 2,200 characters';
   document.getElementById('tags').textContent = (t.match(/#[\\p{L}\\d_]+/gu) || []).length + ' hashtags (3–5)';
   document.getElementById('mentions').textContent = (t.match(/@[\\w.]+/g) || []).length + ' mentions';
-  const r = await post('/api/lint', { caption: t, pillar, searchPhrases }); document.getElementById('lint').innerHTML = r.html;
+  const r = await post('/api/lint', { caption: t, pillar, searchPhrases, properNouns }); document.getElementById('lint').innerHTML = r.html;
   const s = [...t].length > 125 ? [...t].slice(0, 125).join('') : t; const cs = document.getElementById('capShort'); if (cs) cs.textContent = s;
 }
 let timer; cap.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(relint, 250); }); relint();
@@ -212,7 +212,7 @@ export function reviewHandler(hooks: ReviewHooks = {}): Handler {
       let m = p.match(/^\/review\/d\/([\w-]+)$/);
       if (req.method === 'GET' && m) return html(res, draftPage(loadDraft(m[1])));
       if (req.method !== 'POST') return false;
-      if (p === '/api/lint') { const b = await body(req); return json(res, 200, { html: lintHtml(lintCaption(String(b.caption ?? ''), b.pillar, { searchPhrases: Array.isArray(b.searchPhrases) ? b.searchPhrases.map(String) : undefined })) }); }
+      if (p === '/api/lint') { const b = await body(req); return json(res, 200, { html: lintHtml(lintCaption(String(b.caption ?? ''), b.pillar, { searchPhrases: Array.isArray(b.searchPhrases) ? b.searchPhrases.map(String) : undefined, properNouns: Array.isArray(b.properNouns) ? b.properNouns.map(String) : undefined })) }); }
       m = p.match(/^\/api\/d\/([\w-]+)\/(caption|alt|feedback|approve)$/);
       if (!m) return false;
       const d = loadDraft(m[1]);

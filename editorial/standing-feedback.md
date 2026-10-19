@@ -13,6 +13,15 @@ How to maintain it:
 
 ## Design
 
+- **Numbers without US commas, on slides and in captions:** plain digits up to 9999 ("8103 hours", "1000 pieces"), a
+  narrow space between groups of three from 10 000 up ("12 450", "3 654 448"; SI style). Always format with `fmtInt`
+  (`src/design/page.ts`); the caption lint rejects "8,103". (owner, 2026-10-18)
+
+- **A recurring report's cover says what it is at first sight:** the period as the big text ("Week 42", "October")
+  with the word "report" in the title and the dates under it; the headline numbers go in the stat strip, never as the
+  cover's big number. The caption opens the same way ("Weekly report, week 42 (12–18 Oct): …"). (owner, 2026-10-18,
+  Weekly Numbers ep. 1, "very important")
+
 - **House style = H4** (`HOUSE` = `VARIANTS.H4` in `src/design/house.ts`, DL4): the first (title) slide of a post is an H2
   two-piece puzzle poster; every other slide is the H1 navy board. (owner, 2026-10-17)
 - **Data + visualisation together** is what works best: posts carry charts, boards, box images or illustrations so
@@ -39,6 +48,10 @@ How to maintain it:
   "most solved" (results) and "most puzzlers" (distinct players) can disagree (London 5,802 solves vs New York 1,923
   puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the
   site shows publicly where the reader can check it. (owner, 2026-10-18, after wrong numbers in comment replies)
+
+- **Weekly numbers count solves finished in the week** (`coalesce(finished_at, tracked_at)`), never just logged: ~17 % of a
+  week's logged results are older solves typed in later, which faked "most active" and "biggest puzzle". Pairs and teams
+  are named only when every member is a featurable registered player (guests typed in by name never). (data, 2026-10-18)
 
 - **Exclude suspicious results everywhere**, including stopwatch sessions whose result is suspicious; enforced by
   `src/data/queries.test.ts`. (owner, 2026-10-17)

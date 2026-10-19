@@ -33,6 +33,8 @@ export interface Draft {
   caption_author: 'claude' | 'human';
   /** Phrases a puzzler would search for; the caption lint checks they're in the text (and one in the hook). */
   search_phrases?: string[];
+  /** Names quoted in the caption (puzzles, brands, players), exempt from the banned-word lint. */
+  proper_nouns?: string[];
   slides: DraftSlide[];
   collaborators?: string[];
   scheduled_for?: string;

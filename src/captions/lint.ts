@@ -49,6 +49,8 @@ export interface LintOptions {
   /** Phrases a puzzler would type into Instagram search ("speed puzzling", "500 piece puzzle"). Search reads the
    *  caption text, so each must appear as plain words; hashtags and "MySpeedPuzzling" don't count. */
   searchPhrases?: string[];
+  /** Names the caption quotes verbatim (puzzles, brands, players): skipped by the banned-word check ("Vibrant Vases"). */
+  properNouns?: string[];
 }
 
 export function lintCaption(text: string, pillar: Pillar = 'carousel', opts: LintOptions = {}): LintResult {
@@ -68,10 +70,13 @@ export function lintCaption(text: string, pillar: Pillar = 'carousel', opts: Lin
 
   if (/[—–]/.test(caption.replace(/\d–\d/g, ''))) errors.push('em/en dash used as punctuation (house rule: zero dashes)');
   const lower = caption.toLowerCase();
-  for (const w of BANNED_WORDS) if (new RegExp(`(^|[^\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^\\p{L}]|$)`, 'iu').test(lower)) errors.push(`banned phrase: "${w}"`);
+  const unnamed = (opts.properNouns ?? []).filter(Boolean).reduce((t, n) => t.split(n.toLowerCase()).join(' '), lower);
+  for (const w of BANNED_WORDS) if (new RegExp(`(^|[^\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^\\p{L}]|$)`, 'iu').test(unnamed)) errors.push(`banned phrase: "${w}"`);
   if (/\bnot (just |only |merely )?[\p{L}' -]{1,40}, but\b/iu.test(caption) || /\brather than\b/i.test(caption)) warnings.push('"not X but Y" / "rather than" construction');
   for (const r of BANNED_CTA) if (r.test(caption)) errors.push(`engagement-bait CTA: ${r}`);
   for (const [r, name] of STRUCTURES) if (r.test(caption)) warnings.push(name);
+  // Owner 2026-10-18: no US comma groups ("8,103"); write 8103, and 12 450 with a narrow space from 10 000 (fmtInt).
+  if (/\d,\d{3}(?!\d)/.test(caption)) errors.push('comma as thousands separator ("8,103"): write 8103, or 12 450 from 10 000 up (fmtInt)');
   if (INVISIBLE.test(caption)) errors.push('invisible character (zero-width, soft hyphen or similar); retype the text');
 
   // Plain words only: drop hashtags and mentions, treat hyphens as spaces ("500-piece" = "500 piece").

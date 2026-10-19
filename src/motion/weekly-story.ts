@@ -2,8 +2,9 @@
 // (src/posts/weekly.ts weeklyStories), so the owner's link sticker sits in the same empty zone (y ≈ 1620–1720).
 //   0.0–1.8  the week assembles: 7 generator pieces (Mon–Sun) fly in and snap into a strip, tinted by the day's
 //            solves, the busiest day coral; day initials and counts under them
-//   1.8–2.8  the pieces rise into the indigo poster that drops with the real seam; "Week 42" pops in
-//   2.8–4.6  solves, puzzlers and personal bests count up (house number format)
+//   1.8–2.1  a short pause: the week registers
+//   2.1–3.1  the pieces rise into the indigo poster that drops with the real seam; "Week 42" pops in
+//   3.1–4.6  solves, puzzlers and personal bests count up (house number format)
 //   4.6–7.6  box rain: the week's five most-solved boxes fall in from above the frame (no fade) into a pile, #1 lifts
 //            into its slot, the rest fall away
 //   7.6–9.9  stopwatch: the MSP logo plays L1-3 "Tick" (owner pick) while the fastest solo 500 runs 0:00 → its time
@@ -23,6 +24,9 @@ import type { Motion } from './render.ts';
 
 const SEAM = 860, DURATION = 15;
 /** Beat starts (s). */
+/** Pause after the last day piece lands (owner 2026-10-19: let the week register before the poster drops). */
+const HOLD = 0.3;
+// The rain starts as the count-up lands (owner: 0.3 s earlier than after the pause), so later beats keep their times.
 const T = { rain: 4.6, lift: 6.75, watch: 7.6, shout: 9.95, cue: 12.25 } as const;
 const cut = (s: string, max: number) => (s.length <= max ? s : `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`);
 const sec = (s: number) => fmtDuration(s / 60);
@@ -117,23 +121,23 @@ riseIn('.mo-day', 0.5, { stagger: 0.12, dur: 0.35 });
 tl.fromTo('#' + D.busiest, { scale: 1 }, { scale: 1.12, duration: 0.12, transformOrigin: '50% 50%', immediateRender: false }, 1.25);
 tl.to('#' + D.busiest, { scale: 1, duration: 0.4, ease: 'back.out(3)' }, 1.37);
 
-// 1.8–2.8 the pieces rise into the poster
-tl.to('#days path', { y: -520, opacity: 0, duration: 0.5, ease: 'power3.in', stagger: 0.03 }, 1.8);
-tl.to('.mo-day', { opacity: 0, duration: 0.25 }, 1.8);
-tl.to('#ghost', { opacity: 0, duration: 0.3 }, 1.8);
-tl.set('#poster', { autoAlpha: 1 }, 1.95);
-tl.fromTo('#poster', { y: -${SEAM + 140} }, { y: 0, duration: 0.55, ease: 'power3.out', immediateRender: false }, 1.95);
-tl.set('#ptext', { autoAlpha: 1 }, 2.35);
-riseIn('#pcap', 2.35, { dur: 0.3 });
-popIn('#phero', 2.45, { from: '0% 80%', scale: 0.7 });
-riseIn('#pdek', 2.65, { dur: 0.3 });
+// 2.1–3.1 the pieces rise into the poster (after the 0.3 s pause)
+tl.to('#days path', { y: -520, opacity: 0, duration: 0.5, ease: 'power3.in', stagger: 0.03 }, ${1.8 + HOLD});
+tl.to('.mo-day', { opacity: 0, duration: 0.25 }, ${1.8 + HOLD});
+tl.to('#ghost', { opacity: 0, duration: 0.3 }, ${1.8 + HOLD});
+tl.set('#poster', { autoAlpha: 1 }, ${1.95 + HOLD});
+tl.fromTo('#poster', { y: -${SEAM + 140} }, { y: 0, duration: 0.55, ease: 'power3.out', immediateRender: false }, ${1.95 + HOLD});
+tl.set('#ptext', { autoAlpha: 1 }, ${2.35 + HOLD});
+riseIn('#pcap', ${2.35 + HOLD}, { dur: 0.3 });
+popIn('#phero', ${2.45 + HOLD}, { from: '0% 80%', scale: 0.7 });
+riseIn('#pdek', ${2.65 + HOLD}, { dur: 0.3 });
 
-// 2.8–4.6 count-up
-tl.set('#stats', { autoAlpha: 1 }, 2.8);
-riseIn('#stats > div', 2.8, { stagger: 0.12, dur: 0.35 });
-countUp('#n1', D.results, 2.85, 1.5);
-countUp('#n2', D.puzzlers, 2.97, 1.4);
-countUp('#n3', D.pbs, 3.09, 1.3);
+// 3.1–4.6 count-up
+tl.set('#stats', { autoAlpha: 1 }, ${2.8 + HOLD});
+riseIn('#stats > div', ${2.8 + HOLD}, { stagger: 0.12, dur: 0.35 });
+countUp('#n1', D.results, ${2.85 + HOLD}, 1.5);
+countUp('#n2', D.puzzlers, ${2.97 + HOLD}, 1.4);
+countUp('#n3', D.pbs, ${3.09 + HOLD}, 1.3);
 
 // 4.6–7.0 box rain → #1 into its slot
 // cards start fully above the frame (their bottom edge at y < 0) and are opaque the whole way: they rain in
@@ -176,7 +180,7 @@ tl.set({}, {}, ${DURATION});
   };
   return {
     key, duration: DURATION, coverAt: DURATION - 0.1,
-    qaAt: [0.05, 1.5, 2.7, 4.5, 5.1, 6.0, 7.2, 8.4, 9.6, 11.2, 12.8, DURATION - 0.1],
+    qaAt: [0.05, 1.5, 2.0, 3.0, 4.8, 5.4, 6.3, 7.5, 8.7, 9.9, 11.5, 13.1, DURATION - 0.1],
     html: composition({ key, title: `Weekly Numbers ep. ${s.episode} Story`, duration: DURATION, frameHtml, css, data, script }),
   };
 }

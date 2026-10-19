@@ -179,3 +179,8 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [x] Animated weekly Story (2026-10-19): `src/motion/` kit + `tools/motion.ts weekly <id>`; Recaps highlight cover
       `content/highlights/highlight-recaps-loop.jpg` (↻); 15 s with off-canvas box rain and the L1-3 logo stopwatch (`src/motion/logo.ts`, still imports `lab/logo/shared.ts`: promote it). Next: reuse the kit for Reels and
       fold `lab/dl4/reels/render.ts` onto `src/motion/render.ts`.
+- [ ] Story insights for the Week 42 Story before it expires (Tue 20 Oct ~16:00): views, taps forward/back, exits, link taps.
+- [ ] Recaps highlight cover: owner disliked ↻; pick from `tools/highlight-covers.ts recaps:@bars|@days|@line|@calendar` (Claude: @bars).
+- [ ] Sound effects baked into the weekly Story (CC0: clicks on piece snaps, whoosh on poster, ticks on count-up, box thuds,
+      stopwatch tick + ding, slot whirr), mastered to ~−14 LUFS; owner may still add a Music sticker on top.
+- [ ] Weekly Story template: consider moving the cue/sticker zone up ~150 px (bottom centre is Instagram's delete zone).

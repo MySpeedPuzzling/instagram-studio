@@ -181,8 +181,9 @@ chats until the week's draw is done.
 2. `node tools/motion.ts weekly <draft-id>`: the 15 s animated Story (`stories/story-1-video.mp4`) from the same numbers
    (the last fresh run). Light: ~21 s render, ~1.5 GB peak, logged in `content/motion-runs.jsonl`. `--qa-only` for a
    2 s check, `--snap=<dir>` to save frames at the QA times.
-3. Owner: post the video (or the still) as a Story, add a Link sticker to the post ("Full report") in the empty zone at
-   the bottom (y ≈ 1630–1720; nothing animates there), add it to the "Recaps" highlight.
+3. Owner: post the video (or the still) as a Story, add a Link sticker to the post ("Full report") at the **bottom right**,
+   just under the cue line (the bottom centre is Instagram's delete zone: dropping a sticker there trashes it; nothing
+   animates in the lower area), then add it to the "Recaps" highlight.
 
 Motion kit: `src/motion/kit.ts` (count-up in the house number format, stopwatch, rise/pop/fly-in, drop-out, transform
 FLIP, slot-machine reveal), `src/motion/render.ts` (lint → QA at sample times → HyperFrames → Instagram encode → probe).

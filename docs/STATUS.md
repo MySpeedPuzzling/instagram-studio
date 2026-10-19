@@ -57,7 +57,10 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
    pinned intro. **Align per-puzzle medians with the site** (`puzzle_statistics`) before the next quiz.
 3. **Weekly Numbers ep. 1 published** Mon 19 Oct ~14:55 (https://www.instagram.com/p/DerS1FsiJCH/, draft
    `2026-10-19-weekly-rc1`, 8 slides, 11 photo tags; first attempt failed on 2 handles that don't exist on Instagram).
-   Insights at +48 h. Ep. 2 on Mon 26 Oct: `node tools/draft.ts weekly-rc1`. Then the Wisconsin preview (event Fri 23 Oct)
+   Insights at +48 h. **Animated Story** (`node tools/motion.ts weekly <id>`, 15 s, L1-3 logo stopwatch) posted ~16:10
+   with music and a link sticker (bottom right); **read its Story insights before it expires (Tue 20 Oct ~16:00)**.
+   Recaps highlight: pick a cover (owner didn't like ↻; options @bars/@days/@line/@calendar in content/highlights/).
+   Ep. 2 on Mon 26 Oct: `node tools/draft.ts weekly-rc1`, then `node tools/motion.ts weekly <id>`. Then the Wisconsin preview (event Fri 23 Oct)
    and clocks go back (Sat 24 Oct). Each new post type becomes a builder in `src/posts/` + an entry in `tools/draft.ts`.
 4. **Insights on the first post** after 48 h (`node tools/insights.ts`), first entry in `editorial/learnings.md`.
 5. **Fold the agents' house proposals into H4** (shared art palette per ground, family CSS hook, shared geometry/board
@@ -67,6 +70,7 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 ## Plan for the next working day
 
 - Story test with the owner; apply the measured bands.
+- Tue 20 Oct: Week 42 Story insights before ~16:00 (it expires), Start here insights ~17:30; Recaps cover pick.
 - Weekly Numbers ep. 1 is live (19 Oct); read its insights Wed 21 Oct, then plan ep. 2 (26 Oct).
 
 ## How the pieces fit

@@ -2,11 +2,35 @@
 // with the art inside Instagram's round crop. Output is local (content/highlights/, gitignored); AirDrop to the phone.
 //
 //   node tools/highlight-covers.ts quizzes:? start-here:i
+//   node tools/highlight-covers.ts recaps:@days         # drawn icons: @bars @days @line @calendar
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { generateJigsaw } from '../src/pieces/jigsaw.ts';
 import { ROOT } from '../src/render/server.ts';
+
+/**
+ * Drawn icons (glyph "@name"), white on the coral piece, inside a ~300 px box centred on the piece; navy (#222a38)
+ * marks the one element that is "this week".
+ */
+function icon(name: string): string {
+  const W = '#ffffff', N = '#222a38', cx = 540, cy = 960;
+  const bar = (x: number, w: number, h: number, fill = W) => `<rect x="${x}" y="${cy + 150 - h}" width="${w}" height="${h}" rx="${Math.min(14, w / 2)}" fill="${fill}"/>`;
+  switch (name) {
+    case 'bars': return [70, 140, 210, 290].map((h, i) => bar(cx - 150 + i * 80, 58, h, i === 3 ? N : W)).join('');
+    case 'days': return [150, 120, 130, 125, 140, 300, 220].map((h, i) => bar(cx - 168 + i * 48, 36, h, i === 5 ? N : W)).join('');
+    case 'line': return `<polyline points="${cx - 150},${cy + 110} ${cx - 60},${cy + 40} ${cx + 10},${cy + 80} ${cx + 140},${cy - 110}" fill="none" stroke="${W}" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${cx + 140}" cy="${cy - 110}" r="40" fill="${N}" stroke="${W}" stroke-width="16"/>`;
+    case 'calendar': {
+      const x0 = cx - 150, y0 = cy - 130;
+      const cells = Array.from({ length: 7 }, (_, i) => `<rect x="${x0 + 26 + (i % 4) * 66}" y="${y0 + 110 + Math.floor(i / 4) * 66}" width="50" height="50" rx="8" fill="${i === 6 ? N : W}"/>`).join('');
+      return `<rect x="${x0}" y="${y0}" width="300" height="280" rx="28" fill="none" stroke="${W}" stroke-width="22"/>
+        <rect x="${x0}" y="${y0}" width="300" height="76" rx="22" fill="${W}"/>
+        <rect x="${x0 + 70}" y="${y0 - 34}" width="22" height="64" rx="11" fill="${W}"/><rect x="${x0 + 208}" y="${y0 - 34}" width="22" height="64" rx="11" fill="${W}"/>${cells}`;
+    }
+    default: throw new Error(`unknown icon "${name}" (bars, days, line, calendar)`);
+  }
+}
 
 const covers = process.argv.slice(2).map(a => a.split(':') as [string, string]);
 if (!covers.length) { console.error('usage: node tools/highlight-covers.ts <name>:<glyph> …'); process.exit(2); }
@@ -22,7 +46,7 @@ for (const [name, glyph] of covers) {
   const svg = `<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
     <rect width="1080" height="1920" fill="#222a38"/>
     <g transform="translate(${540 - cx * 0.9} ${960 - cy * 0.9}) scale(0.9)"><path d="${q.d}" fill="#ec726f"/></g>
-    <text x="540" y="1080" text-anchor="middle" font-family="Rubik, Inter, system-ui, sans-serif" font-weight="800" font-size="340" fill="#ffffff">${glyph}</text></svg>`;
+    ${glyph.startsWith('@') ? `<g transform="translate(540 960) scale(0.78) translate(-540 -960)">${icon(glyph.slice(1))}</g>` : `<text x="540" y="1080" text-anchor="middle" font-family="Rubik, Inter, system-ui, sans-serif" font-weight="800" font-size="340" fill="#ffffff">${glyph}</text>`}</svg>`;
   await page.setContent(`<html><body style="margin:0">${svg}</body></html>`);
   const file = join(out, `highlight-${name}.jpg`);
   await page.screenshot({ path: file, type: 'jpeg', quality: 92 });

@@ -8,7 +8,8 @@
 //   countUp(sel, to, at, dur, fmt?)   a number ticking up to its final value (text of every element matching sel)
 //   riseIn(sel, at, o?)           text/blocks rising 40 px into place while fading in (o.stagger for lists)
 //   popIn(sel, at, o?)            scale from 0.6 with a small overshoot (o.from = transform origin)
-//   flyIn(items, at, o?)          items [{sel, dx, dy, rot}] converge from their offsets and snap (seeded scatters)
+//   flyIn(items, at, o?)          items [{sel, dx, dy, rot}] converge from their offsets and snap; o.fade=false keeps
+//                                 them opaque (start them off canvas so they visibly arrive, e.g. box rain)
 //   dropOut(sel, at, o?)          falls out of the frame with a spin, then hidden
 //   moveTo(sel, from, to, at, dur)  moves an absolutely placed box onto another box with transforms only (FLIP)
 //   slotLand(sel, at, o?)         a slot-machine column rolls and lands on its last row (names without blur frames of
@@ -38,8 +39,10 @@ function popIn(sel, at, o) {
 }
 function flyIn(items, at, o) {
   o = o || {};
-  items.forEach((it, i) => tl.fromTo(it.sel, { x: it.dx, y: it.dy, rotation: it.rot || 0, opacity: 0, transformOrigin: '50% 50%' },
-    { x: 0, y: 0, rotation: 0, opacity: 1, duration: o.dur ?? 0.55, ease: it.ease || o.ease || 'expo.out' }, at + i * (o.stagger ?? 0.1)));
+  // o.fade = false: no fade-in, the items are fully opaque from their (off-canvas) start, so they visibly travel in.
+  const op = o.fade === false ? 1 : 0;
+  items.forEach((it, i) => tl.fromTo(it.sel, { x: it.dx, y: it.dy, rotation: it.rot || 0, opacity: op, transformOrigin: '50% 50%' },
+    { x: 0, y: 0, rotation: 0, opacity: 1, duration: it.dur ?? o.dur ?? 0.55, ease: it.ease || o.ease || 'expo.out' }, at + i * (o.stagger ?? 0.1)));
 }
 function dropOut(sel, at, o) {
   o = o || {};

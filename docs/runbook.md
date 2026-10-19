@@ -178,8 +178,8 @@ chats until the week's draw is done.
 
 1. `node tools/draft.ts weekly-rc1`: fresh data for the last full week (Mon–Sun, solves with a finish date in the week),
    8 slides + the still Story (`stories/story-1.jpg`) in `content/drafts/<monday>-weekly-rc1/`. Review, approve, publish.
-2. `node tools/motion.ts weekly <draft-id>`: the 12 s animated Story (`stories/story-1-video.mp4`) from the same numbers
-   (the last fresh run). Light: ~18 s render, ~1.5 GB peak, logged in `content/motion-runs.jsonl`. `--qa-only` for a
+2. `node tools/motion.ts weekly <draft-id>`: the 15 s animated Story (`stories/story-1-video.mp4`) from the same numbers
+   (the last fresh run). Light: ~21 s render, ~1.5 GB peak, logged in `content/motion-runs.jsonl`. `--qa-only` for a
    2 s check, `--snap=<dir>` to save frames at the QA times.
 3. Owner: post the video (or the still) as a Story, add a Link sticker to the post ("Full report") in the empty zone at
    the bottom (y ≈ 1630–1720; nothing animates there), add it to the "Recaps" highlight.

@@ -1,13 +1,14 @@
-// The Weekly Numbers Story as a 12 s animation (HyperFrames). It ends on exactly the still Story's layout
+// The Weekly Numbers Story as a 15 s animation (HyperFrames). It ends on exactly the still Story's layout
 // (src/posts/weekly.ts weeklyStories), so the owner's link sticker sits in the same empty zone (y ≈ 1620–1720).
 //   0.0–1.8  the week assembles: 7 generator pieces (Mon–Sun) fly in and snap into a strip, tinted by the day's
 //            solves, the busiest day coral; day initials and counts under them
 //   1.8–2.8  the pieces rise into the indigo poster that drops with the real seam; "Week 42" pops in
 //   2.8–4.6  solves, puzzlers and personal bests count up (house number format)
-//   4.6–7.0  box rain: the week's five most-solved boxes tumble into a pile, #1 lifts into its slot, the rest fall away
-//   7.0–8.8  stopwatch: the fastest solo 500 runs 0:00 → its time inside a sweeping ring, then flashes
-//   8.8–10.6 shoutout draw: three slot windows roll blank bars and land on the drawn puzzlers (no other names shown)
-//   10.6–12  the cue to the full report; hold
+//   4.6–7.6  box rain: the week's five most-solved boxes fall in from above the frame (no fade) into a pile, #1 lifts
+//            into its slot, the rest fall away
+//   7.6–9.9  stopwatch: the MSP logo plays L1-3 "Tick" (owner pick) while the fastest solo 500 runs 0:00 → its time
+//   9.9–12.2 shoutout draw: three slot windows roll blank bars and land on the drawn puzzlers (no other names shown)
+//   12.2–15  the cue to the full report; hold
 // Nothing animates below y ≈ 1620: the owner's link sticker sits there for the whole video.
 // Every number comes from the episode's spec (the published snapshot when rendered with --cached).
 import { formatHex, interpolate } from 'culori';
@@ -17,9 +18,12 @@ import { flagUrl } from '../design/svg.ts';
 import { generateJigsaw } from '../pieces/jigsaw.ts';
 import { isoWeek, type WeeklySpec } from '../posts/weekly.ts';
 import { composition } from './kit.ts';
+import { LOGO_CSS, logoTick } from './logo.ts';
 import type { Motion } from './render.ts';
 
-const SEAM = 860;
+const SEAM = 860, DURATION = 15;
+/** Beat starts (s). */
+const T = { rain: 4.6, lift: 6.75, watch: 7.6, shout: 9.95, cue: 12.25 } as const;
 const cut = (s: string, max: number) => (s.length <= max ? s : `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`);
 const sec = (s: number) => fmtDuration(s / 60);
 
@@ -59,6 +63,7 @@ export function weeklyStoryMotion(v: Variant, s: WeeklySpec): Motion {
 
   // 3–7 · the navy part, laid out like the still.
   const thumb = { x: X0, y: SEAM + 300, w: 200, h: 150 };
+  const watch = logoTick({ at: T.watch, cx: W / 2, cy: 1505, width: 240 });
   const cards = s.top.slice(0, 5).map((b, i) => ({ id: `c${i}`, img: b.img, x: 390 + (i - 2) * 70, y: 1330 + (i % 2) * 40, rot: (i - 2) * 9 }));
   const shout = s.shout.slice(0, 3);
   const body = `
@@ -77,17 +82,14 @@ export function weeklyStoryMotion(v: Variant, s: WeeklySpec): Motion {
     ${cards.map(c => `<span class="mo-card mo-pile" id="${c.id}" style="left:${c.x}px; top:${c.y}px; width:300px; height:220px; transform:rotate(${c.rot}deg)"><img src="${c.img}" alt=""></span>`).join('')}
     ${solo ? `<div class="h-abs" id="fast" style="top:${SEAM + 500}px; display:flex; align-items:baseline; justify-content:space-between">
       <p class="h-cap">Fastest solo 500</p><p class="h-big hot" id="fast-t" style="font-size:72px; transform-origin:100% 50%">${clock(sec(solo.seconds))}</p></div>
-    <svg id="ring" width="200" height="200" style="position:absolute; left:${W / 2 - 100}px; top:1415px" aria-hidden="true">
-      <circle cx="100" cy="100" r="84" fill="none" stroke="${navy.band}" stroke-width="16"/>
-      <circle id="ring-arc" cx="100" cy="100" r="84" fill="none" stroke="${navy.chart.hot}" stroke-width="16" stroke-linecap="round" stroke-dasharray="528" stroke-dashoffset="528" transform="rotate(-90 100 100)"/>
-    </svg>` : ''}
+    <div id="ring">${watch.html}</div>` : ''}
     <div id="shout">
       <p class="h-abs h-cap" style="top:1455px">Shoutout draw</p>
       ${shout.map((x, i) => `<div class="mo-slot" style="top:${1494 + i * 44}px"><div class="mo-col">${'<p class="mo-bar"><i></i></p>'.repeat(5)}<p class="mo-who">${x.person.country ? `<img class="mo-flag" src="${flagUrl(x.person.country)}" alt="">` : ''}${h(cut(x.person.name, 26))}</p></div></div>`).join('')}
     </div>
     <p class="h-abs h-lead" id="cue" style="top:${SEAM + 640}px; color:var(--g-soft)">Fastest pairs, most solves and a shoutout draw in the full report ↓</p>`;
 
-  const css = `
+  const css = LOGO_CSS + `
 /* hidden until their beat (CSS, so frame 0 is right; the timeline reveals them with autoAlpha) */
 #poster, #ptext, #stats, #most-thumb, #most-txt, #fast, #ring, #shout, #cue, .mo-pile { visibility: hidden; opacity: 0; }
 .mo-day { position: absolute; width: 140px; text-align: center; font-size: 30px; line-height: 1.25; color: var(--g-soft); }
@@ -134,46 +136,48 @@ countUp('#n2', D.puzzlers, 2.97, 1.4);
 countUp('#n3', D.pbs, 3.09, 1.3);
 
 // 4.6–7.0 box rain → #1 into its slot
-tl.set('.mo-pile', { autoAlpha: 1 }, 4.6);
-flyIn(D.cards.map((c, i) => ({ sel: '#' + c.id, dx: (i - 2) * 120, dy: -1400 - i * 120, rot: c.rot * 4, ease: 'bounce.out' })).reverse(), 4.6, { dur: 0.75, stagger: 0.12 });
-moveTo('#c0', D.c0, D.thumb, 5.95, 0.6);
-dropOut(D.cards.slice(1).map(c => '#' + c.id), 6.0, { stagger: 0.05, dur: 0.5 });
-tl.set('#most-thumb', { autoAlpha: 1 }, 6.55);
-tl.set('#c0', { autoAlpha: 0 }, 6.56);
-tl.set('#most-txt', { autoAlpha: 1 }, 6.45);
-riseIn('#most-txt > *', 6.45, { stagger: 0.08, dur: 0.35 });
+// cards start fully above the frame (their bottom edge at y < 0) and are opaque the whole way: they rain in
+tl.set('.mo-pile', { autoAlpha: 1 }, D.T.rain);
+flyIn(D.cards.map((c, i) => ({ sel: '#' + c.id, dx: (i - 2) * 90, dy: -(c.y + 420 + i * 60), rot: c.rot * 3, ease: 'bounce.out', dur: 1.05 })).reverse(), D.T.rain, { fade: false, stagger: 0.16 });
+moveTo('#c0', D.c0, D.thumb, D.T.lift, 0.6);
+dropOut(D.cards.slice(1).map(c => '#' + c.id), D.T.lift + 0.05, { stagger: 0.05, dur: 0.5 });
+tl.set('#most-thumb', { autoAlpha: 1 }, D.T.lift + 0.6);
+tl.set('#c0', { autoAlpha: 0 }, D.T.lift + 0.61);
+tl.set('#most-txt', { autoAlpha: 1 }, D.T.lift + 0.5);
+riseIn('#most-txt > *', D.T.lift + 0.5, { stagger: 0.08, dur: 0.35 });
 
 // 7.0–8.8 stopwatch
 if (D.solo) {
-  tl.set(['#fast', '#ring'], { autoAlpha: 1 }, 7.0);
-  riseIn('#fast .h-cap', 7.0, { dur: 0.3 });
-  popIn('#ring', 7.0, { dur: 0.35 });
-  countUp('#fast-t', D.solo, 7.1, 1.3, fmtT);
-  tl.fromTo('#ring-arc', { attr: { 'stroke-dashoffset': 528 } }, { attr: { 'stroke-dashoffset': 0 }, duration: 1.3, ease: 'power3.out' }, 7.1);
-  flash('#fast-t', 8.4);
-  tl.to('#ring', { autoAlpha: 0, scale: 0.6, duration: 0.3, transformOrigin: '50% 50%' }, 8.55);
+  tl.set(['#fast', '#ring'], { autoAlpha: 1 }, D.T.watch);
+  riseIn('#fast .h-cap', D.T.watch, { dur: 0.3 });
+  countUp('#fast-t', D.solo, D.T.watch + 0.1, 1.75, fmtT);
+  flash('#fast-t', D.T.watch + 1.9);
+  // the settled logo leaves as one piece (the wrapper), after the time has landed
+  tl.to('#ring', { scale: 0, duration: 0.3, ease: 'back.in(2)', transformOrigin: '50% 50%' }, D.T.watch + 2.2);
+  tl.set('#ring', { autoAlpha: 0 }, D.T.watch + 2.5);
 }
 
 // 8.8–10.6 shoutout draw
-tl.set('#shout', { autoAlpha: 1 }, 8.85);
-riseIn('#shout .h-cap', 8.85, { dur: 0.3 });
-slotLand('.mo-col', 8.95, { dur: 0.9, stagger: 0.25 });
-tl.to('#shout', { autoAlpha: 0, duration: 0.3 }, 10.45);
+tl.set('#shout', { autoAlpha: 1 }, D.T.shout);
+riseIn('#shout .h-cap', D.T.shout, { dur: 0.3 });
+slotLand('.mo-col', D.T.shout + 0.1, { dur: 1.0, stagger: 0.3 });
+tl.to('#shout', { autoAlpha: 0, duration: 0.3 }, D.T.cue - 0.25);
 
 // 10.6–12 the cue
-tl.set('#cue', { autoAlpha: 1 }, 10.75);
-riseIn('#cue', 10.75, { dur: 0.45 });
-tl.set({}, {}, ${12});
+tl.set('#cue', { autoAlpha: 1 }, D.T.cue);
+riseIn('#cue', D.T.cue, { dur: 0.45 });
+${watch.script}
+tl.set({}, {}, ${DURATION});
 `;
   const data = {
     pieces: pieces.map(({ id, dx, dy, rot, busiest }) => ({ id, dx, dy, rot, busiest })), busiest: pieces.find(pc => pc.busiest)!.id,
     results: s.results, puzzlers: s.puzzlers, pbs: s.personalBests, solo: solo?.seconds ?? 0,
-    cards: cards.map(c => ({ id: c.id, rot: c.rot })), thumb, c0: { x: cards[0].x, y: cards[0].y, w: 300, h: 220 },
+    cards: cards.map(c => ({ id: c.id, rot: c.rot, y: c.y })), thumb, T, c0: { x: cards[0].x, y: cards[0].y, w: 300, h: 220 },
   };
   return {
-    key, duration: 12, coverAt: 11.9,
-    qaAt: [0.05, 1.5, 2.7, 4.5, 5.5, 6.9, 8.6, 10.2, 11.9],
-    html: composition({ key, title: `Weekly Numbers ep. ${s.episode} Story`, duration: 12, frameHtml, css, data, script }),
+    key, duration: DURATION, coverAt: DURATION - 0.1,
+    qaAt: [0.05, 1.5, 2.7, 4.5, 5.1, 6.0, 7.2, 8.4, 9.6, 11.2, 12.8, DURATION - 0.1],
+    html: composition({ key, title: `Weekly Numbers ep. ${s.episode} Story`, duration: DURATION, frameHtml, css, data, script }),
   };
 }
 

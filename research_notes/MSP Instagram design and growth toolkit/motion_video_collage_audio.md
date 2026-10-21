@@ -319,3 +319,22 @@ Most MSP motion formats are **fully templatable**: build once, then each new pos
 - Whether HyperFrames can output alpha video or image sequences (needed to composite Blender or HTML layers in both directions) is unverified. A fallback is Blender PNG sequences imported as image sequences.
 - The per-format performance assumptions (quiz and race sendability, loop benefit) are untested for MSP's audience and need Trial Reel data.
 - The map-data licence and the country-level data sufficiency for format 4, and real lead changes for format 5, must be checked against the database.
+
+## Re-check 2026-10-21: Remotion vs our HyperFrames pipeline
+
+Verdict: **stay on HyperFrames; Remotion is the fallback, not a switch.**
+- Status: Remotion 4.0.537 (19 Oct 2026). 5.0, which brings the licence change that counts contractors, is still unreleased.
+  Free licence: individuals and organisations of at most 3 people. Otherwise $25/seat/month (Creators) or $0.01/render
+  with a $100/month minimum (Automators; a scripted `draft.ts → motion.ts` pipeline counts as an automation).
+- Our measured cost: a 30 s 1080×1920 Reel takes about 32 s of HyperFrames render and about 66 s wall time including
+  QA and the ffmpeg normalise, at 3.5 GB peak with 1 worker (`content/motion-runs.jsonl`, reel-1000-v2). Render speed
+  is not a bottleneck, so Remotion's concurrency and VideoToolbox encoding would gain us nothing that matters.
+- Switching cost: house frames are HTML strings (`src/design/house.ts`). Remotion needs a React + webpack bundle, so
+  every builder and `src/motion/kit.ts` would move to JSX (or inject our HTML through `dangerouslySetInnerHTML`).
+- What Remotion has that we don't use yet: `<Player>` (a scrubbable, props-driven preview in the review app),
+  whisper.cpp captions (only matters with voice-over), `@remotion/transitions`, mature `<OffthreadVideo>` for real
+  footage, and Lambda (not needed, and limited to the selected Region for us anyway).
+- Escape hatch if HyperFrames breaks or stalls: `@remotion/gsap` seeks a paused GSAP timeline per frame, the same
+  model as our kit, so our timelines would port with little change. Watch HyperFrames churn instead: it went from
+  0.8.152 (our pin) to 0.8.183 within about a week. Keep it pinned and upgrade on purpose.
+- Re-check Remotion if: Reels need voice-over captions, we edit real event footage, or HyperFrames stops being maintained.

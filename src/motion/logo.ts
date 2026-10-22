@@ -62,3 +62,34 @@ export function logoTick(o: { at: number; cx: number; cy: number; width: number 
   s.push(`tl.set('#logo g, #logo path', { clearProps: 'transform' }, ${settleAt});`);
   return { html, script: shift(s.join('\n'), o.at), settleAt: f2(o.at + settleAt) };
 }
+
+/**
+ * The settled logo (frame 0 shows it complete) with an exit, "Tick out" (owner 2026-10-21: open on the finished splash
+ * with the logo already there, then animate it out). 0.75 s: both hands whip round twice, the outline drops, the speed
+ * lines pull back into the piece, then piece, watch case and dial collapse into the dial centre (back.in), the face
+ * last. `back(at)` plays it in reverse for a loop's end (0.6 s, ends exactly settled). No t = 0 sets: frame 0 stays the
+ * settled mark, so it chains after anything.
+ *
+ *   const x = logoExit({ cx: 540, cy: 420, width: 220 });
+ *   body += x.html;  script += x.out(3.0) + x.back(34.4);
+ */
+export function logoExit(o: { cx: number; cy: number; width: number }): { html: string; out: (at: number) => string; back: (at: number) => string; dur: number } {
+  const html = logoSvg({ cx: o.cx, cy: o.cy, width: o.width });
+  const origin = j(DIAL_ORIGIN);
+  const lines = RIG.speedLines.map(l => ({ id: l.id, origin: `${l.box.x1.toFixed(1)} ${((l.box.y0 + l.box.y1) / 2).toFixed(1)}` }));
+  const collapse = [['#piece, #piece-tint, #piece-shine', 0.2, 0.25], ['#watch-back', 0.3, 0.25], ['#watch-face', 0.38, 0.28]] as const;
+  const out = (at: number) => [
+    `tl.fromTo('#hand-minute', { rotation: 0 }, { rotation: 720, svgOrigin: ${origin}, duration: 0.45, ease: 'power2.in', immediateRender: false }, ${f2(at)});`,
+    `tl.fromTo('#hand-hour', { rotation: 0 }, { rotation: 360, svgOrigin: ${origin}, duration: 0.45, ease: 'power2.in', immediateRender: false }, ${f2(at)});`,
+    `tl.to('#outline', { autoAlpha: 0, duration: 0.12 }, ${f2(at)});`,
+    ...lines.map((l, n) => `tl.fromTo('#${l.id}', { scaleX: 1 }, { scaleX: 0, svgOrigin: '${l.origin}', duration: 0.18, ease: 'power2.in', immediateRender: false }, ${f2(at + 0.05 + n * 0.03)});`),
+    ...collapse.map(([sel, d, dur]) => `tl.fromTo('${sel}', { scale: 1 }, { scale: 0, svgOrigin: ${origin}, duration: ${dur}, ease: 'back.in(1.7)', immediateRender: false }, ${f2(at + d)});`),
+  ].join('\n');
+  const back = (at: number) => [
+    `tl.set('#hand-minute, #hand-hour', { rotation: 0, svgOrigin: ${origin} }, ${f2(at)});`,
+    ...[...collapse].reverse().map(([sel], n) => `tl.fromTo('${sel}', { scale: 0 }, { scale: 1, svgOrigin: ${origin}, duration: 0.26, ease: 'back.out(1.7)', immediateRender: false }, ${f2(at + n * 0.08)});`),
+    ...lines.map((l, n) => `tl.fromTo('#${l.id}', { scaleX: 0 }, { scaleX: 1, svgOrigin: '${l.origin}', duration: 0.18, ease: 'power3.out', immediateRender: false }, ${f2(at + 0.3 + n * 0.03)});`),
+    `tl.to('#outline', { autoAlpha: 1, duration: 0.1 }, ${f2(at + 0.48)});`,
+  ].join('\n');
+  return { html, out, back, dur: 0.75 };
+}

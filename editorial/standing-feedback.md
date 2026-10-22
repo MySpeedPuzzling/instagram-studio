@@ -146,6 +146,22 @@ How to maintain it:
   check with a life-size guide image.
   Use a poll, not a quiz sticker, when the answer comes later (a quiz reveals it on tap). (owner, 2026-10-17)
 
+- **Reel / video layout: important content in the middle band, Instagram's zones left free.** Keep a gap at the top
+  (Reels header ≈ y 0–230 of 1920; our masthead starts at 296) and keep text, numbers and key visuals in y ≈ 290–1250
+  and x ≤ 960 (right-hand buttons). The bottom (handle, caption, audio, buttons from ≈ y 1560) and the 4:5 feed crop
+  may cover or cut decoration such as box pictures and finished puzzles: that's fine, they're not the message. The
+  first Reel (2026-10-21, reel-1000-v2) is the reference layout. (owner, 2026-10-21, "it worked really well")
+
+- **Reels open on the complete splash:** frame 0 already shows the logo, myspeedpuzzling.com and all the intro
+  text over a puzzle visual (the word "puzzle" on screen), then it animates **out** (logo exit `logoExit` in
+  `src/motion/logo.ts`), never a build-in first. Pure transitions (tear-aparts, drops, entrances) stay quick
+  (~0.2–0.5 s); the time goes to reading holds. (owner, 2026-10-21, first Reel)
+
+- **Data Reels and animated Stories may be data-dense and longer** (~15–25 s): puzzlers pause and replay them to read
+  the numbers (seen on the Week 42 animated Story), so depth beats brevity. Still cut to a seamless loop and land the
+  first payoff early; show both the typical pace and the fastest (MSP holds both, it's the de facto standard for
+  times). (owner, 2026-10-21, first Reel)
+
 - **Reels:** no logo intro; by default no outro (it breaks the loop); optionally the 0.6 s loop-back sting.
   Decision on logo motion is open (LM1). (research 2026-10-16, owner to confirm)
 - **Box images:** credit the brand on every slide that shows one; quiz clues say "Mystery puzzle · Brand". No player

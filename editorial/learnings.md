@@ -2,7 +2,22 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## First Reel (2026-10-21)
+- "Twice the pieces, so twice the time?" (30.4 s, published by hand 15:55 Prague, music added in the app):
+  https://www.instagram.com/reel/DewjphkIOPy/ . Insights at +24 h and +48 h (retention curve, skip rate, sends).
+- **Instagram serves it far below our upload:** the API's media_url copy is 720×1280 at 0.6 Mbit/s (we upload
+  1080×1920 at 6.9 Mbit/s); the owner saw it as slightly blurry in the app too. Re-check the served copy after a few
+  hours (HD can arrive later) and test the app's "Upload at highest quality" setting. Design for it: text in Reels
+  ≥ 34 px and bold where possible, few hairlines, less full-frame motion noise at reading moments.
+- Layout: the middle band for content, Instagram's top and bottom zones left free, worked well (rule in
+  standing-feedback.md).
+- **Sharing a Reel to Story leaves no room for a sticker:** the share plays full screen (current app; tapping only
+  resizes), and the free bottom strip is where the trash can sits. Shared as is (with no poll). For a poll or link,
+  make a separate Story frame with a reserved sticker zone.
+
 ## Animated Stories (2026-10-19)
+- Owner (21 Oct): viewers paused and replayed the Week 42 animated Story to read the data; dense, data-rich motion is
+  consumed by re-watching, not skimmed.
 - Week 42's animated Weekly Numbers Story (15 s, HyperFrames): the owner and followers liked the animation; keep
   animated Stories for recurring Stories (one Story: owner's read, insights still to come before it expires).
 - Its preview was the first frame, an almost empty navy ground: frame 0 must be a finished title card (now built in).

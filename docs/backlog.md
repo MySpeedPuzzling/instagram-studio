@@ -65,6 +65,12 @@ Updated 2026-10-17.
       GIF/WebP per GIPHY specs; needs a GIPHY brand channel (verified to be searchable in Instagram). Research specs +
       verification steps, then prototype in LM1. Durations/notes: `research_notes/…/logo_motion_durations.md`.
 
+- [ ] **Reel quality:** Instagram served the first Reel at 720×1280 / 0.6 Mbit/s. Re-download the served copy after
+      ~6 h and 24 h (does a 1080 copy appear?); owner tests "Upload at highest quality" in the app; then decide on a
+      Reel type floor (≥ 34 px) and an encode tuned for recompression (e.g. slightly sharper, less grain, CRF test).
+- [ ] **Reels publishing by API** (first Reel went out by hand, 2026-10-21): container with `media_type=REELS`,
+      cover_url, share_to_feed; music still added by hand, so keep the manual path as default.
+
 ## Advent of Puzzle (launch Thu 26 Nov, door 1 Mon 30 Nov 2026)
 
 Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_and_advent_2026.md`, morning list

@@ -13,6 +13,16 @@ How to maintain it:
 
 ## Design
 
+- **Pairs and teams always show every member, never "+2":** names separated by their flags only (no commas or
+  "&"); a member without a flag gets a comma in front. Long groups wrap onto a second line. Captions name everyone too.
+  (owner, 2026-10-26, Weekly Numbers ep. 2)
+- **Board section labels always sit on the left** (Solo, Pairs, Teams); only the column header ("Time", "Solves")
+  is on the right. (owner, 2026-10-26)
+- **A shown time always comes with its piece count** when the board mixes sizes (shoutout: "19:33 / 200 pieces").
+  (owner, 2026-10-26)
+- **Exception to "no avatars": the biggest-puzzle shoutout** (week slide) shows the finisher's MSP avatar on the box
+  image when they have one, and gets a caption line and a photo tag. (owner, 2026-10-26)
+
 - **Puzzle-piece art uses brand colours only, never a white piece** (coral, light coral #ffb0ab, sky, indigo on navy).
   (owner, 2026-10-22, partner finder Reel: "I don't like the white piece")
 - **A hook never narrows what it promotes:** name every case the feature covers ("a pair or a team?", not "pair
@@ -24,7 +34,7 @@ How to maintain it:
 - **No Instagram handles written on slides:** tag each puzzler with a photo tag on their own row (handle from their MSP
   profile); without a handle, no tag. Captions credit by MSP name, no @mentions of players. (owner, 2026-10-19)
 - **People boards show the puzzle, not ranks or avatars:** each row carries the box image of the puzzle behind the time
-  (or the puzzler's latest puzzle); no avatars, even when a profile has one (only ~9 % do). A shoutout shows the solve the
+  (or the puzzler's latest puzzle); no avatars, even when a profile has one (only ~9 % do; the one exception is the biggest-puzzle shoutout, 2026-10-26). A shoutout shows the solve the
   puzzler is featured with: puzzle, brand, kind and time. (owner, 2026-10-19)
 
 - **Numbers without US commas, on slides and in captions:** plain digits up to 9999 ("8103 hours", "1000 pieces"), a

@@ -29,6 +29,9 @@ questions). How-tos are in `docs/runbook.md`; evidence in `reports/` and `resear
   `content/`, `var/` and sqlite files are gitignored for that reason.
 - Never put server hostnames, IPs, emails, user IDs or names of individual members in committed files.
 - Keep `.githooks/pre-commit` enabled (`git config core.hooksPath .githooks`); never bypass it with `--no-verify`.
+- **Always commit when a piece of work is done** (owner, 2026-10-26): code, queries, docs, research notes and rules, in
+  small commits with clear messages, without being asked; never end a session with uncommitted work. Push only when
+  the owner asks. Gitignored material (drafts, renders, caches) stays out as above.
 
 ## Database
 

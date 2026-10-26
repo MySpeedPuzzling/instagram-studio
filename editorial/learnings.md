@@ -2,6 +2,14 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Clocks-go-back Reel (2026-10-24)
+- "Your extra hour" (27.7 s, concept C: the 2–3 o'clock slice becomes a piece that completes Evening in Pisa), posted by
+  hand Sat 15:32 Prague with music: https://www.instagram.com/reel/De4Px5uN9cO/ . At +43 h: reach 2204 (the most of
+  any post since 17 Oct at any age), views 3202, likes 76, comments 4, **shares 0**, saves 1, average watch 10.5 s
+  (~38 % of the Reel). Read: the timely hook travelled (reach), but it gave nobody a reason to send it; the 1000-vs-500
+  Reel (a myth with a number) got 16 shares. One Reel each: a hunch, not a rule. Recheck at +7 d.
+- Caption was edited when posting (the API copy differs from the draft); compare at the next insights pull.
+
 ## Partner finder launch Reel (2026-10-22)
 - "Find your missing piece" (26 s, real UI from a demo server with invented people, "Tap" pointers), published by hand
   21:59 Prague with music (Mr. Sun · Happy Humming on the Story): https://www.instagram.com/reel/DezyT4gt_qx/ . Link

@@ -35,7 +35,7 @@ if [ -s "$literals" ] && [ -n "$added" ] && printf '%s\n' "$added" | grep -q -F 
   fail=1
 fi
 
-patterns='postgres(ql)?://[^:/@ ]+:[^@ ]+@|IGAA[A-Za-z0-9_-]{20,}|EAA[A-Za-z0-9]{30,}|access_token=[A-Za-z0-9_-]{20,}|sk-(ant-|proj-)?[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+patterns='postgres(ql)?://[^:/@ ]+:[^@ ]+@|IGAA[A-Za-z0-9_-]{20,}|EAA[A-Za-z0-9]{30,}|access_token=[A-Za-z0-9_-]{20,}|(^|[^A-Za-z0-9])sk-(ant-|proj-)?[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 if [ -n "$added" ] && printf '%s\n' "$added" | grep -q -E "$patterns"; then
   echo "pre-commit: a staged line looks like a credential:" >&2
   printf '%s\n' "$added" | grep -o -E "$patterns" | cut -c1-12 | sed 's/$/…/; s/^/  /' >&2

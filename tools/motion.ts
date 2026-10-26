@@ -7,6 +7,8 @@
 //   node tools/motion.ts weekly 2026-10-19-weekly-rc1 --qa-only  # lint + QA + cover only (~2 s)
 //   node tools/motion.ts weekly <id> --snap=/tmp/frames          # also save a JPEG at every QA time
 //   node tools/motion.ts reel1000 <draft-id> --look A|B|C|v2 [--qa-only]  # Reel "A 1000 isn't twice a 500" (last fresh run)
+//   node tools/motion.ts partners <draft-id> [--qa-only] [--fresh]           # Reel "Find your missing piece" (partner finder)
+//   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { HOUSE, activateVariant } from '../src/design/house.ts';
@@ -14,11 +16,49 @@ import { DRAFTS, loadDraft } from '../src/drafts/model.ts';
 import { renderMotion } from '../src/motion/render.ts';
 import { reel1000Motion, type Look } from '../src/motion/reel-1000.ts';
 import { reel1000V2Motion } from '../src/motion/reel-1000-v2.ts';
+import { reelPartnersMotion } from '../src/motion/reel-partners.ts';
+import { partnersStory, reelPartnersSpec } from '../src/posts/reel-partners.ts';
+import { createRenderer } from '../src/render/render.ts';
+import { page } from '../src/design/page.ts';
+import { HOUSE_CSS, STICKER_STORY_SAFE } from '../src/design/house.ts';
 import { REEL_PUZZLES, reel1000Spec } from '../src/posts/reel-1000.ts';
 import { weeklyStoryMotion } from '../src/motion/weekly-story.ts';
 import { buildWeeklySpec } from '../src/posts/weekly-data.ts';
 
-const { values: o, positionals: [kind, id] } = parseArgs({ allowPositionals: true, options: { 'qa-only': { type: 'boolean' }, snap: { type: 'string' }, look: { type: 'string', default: 'A' } } });
+const { values: o, positionals: [kind, id] } = parseArgs({ allowPositionals: true, options: { 'qa-only': { type: 'boolean' }, snap: { type: 'string' }, look: { type: 'string', default: 'A' }, fresh: { type: 'boolean' } } });
+if (kind === 'partners' && id) {
+  const spec = await reelPartnersSpec({ id, fresh: !!o.fresh });
+  if (spec.placeholder) console.log('  note: UI screens are placeholders (ui-placeholder/), not the real UI');
+  activateVariant(HOUSE);
+  const motion = reelPartnersMotion(HOUSE, spec);
+  const story = partnersStory(HOUSE);
+  activateVariant(undefined);
+  // the follow-up Story still (link sticker to the events page, placed by hand)
+  const r = await createRenderer(join(DRAFTS, id));
+  try {
+    const sr = await r.render({ id: 'stories/story-1', html: page(story, { frame: 'story', css: HOUSE_CSS, title: `${id} story 1` }), frame: 'story', safe: STICKER_STORY_SAFE });
+    if (sr.qa.errors.length) throw new Error(`story QA:\n  ${sr.qa.errors.join('\n  ')}`);
+  } finally { await r.close(); }
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-partners'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel partners` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 'clock' && id) {
+  // Reel "Your extra hour" (clocks go back, 24–25 Oct 2026): --look A (double-take) | B (slot machine) | C (hour piece)
+  const look = (o.look ?? 'A').toUpperCase();
+  if (!['A', 'B', 'C'].includes(look)) { console.error('--look A|B|C'); process.exit(2); }
+  const mod = await import(`../src/motion/reel-clock-${look.toLowerCase()}.ts`);
+  const { reelClockSpec } = await import('../src/posts/reel-clock.ts');
+  const spec = await reelClockSpec({ fresh: !!o.fresh, draft: id });
+  activateVariant(HOUSE);
+  const motion = mod[`reelClock${look}Motion`](HOUSE, spec);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', `reel-clock-${look.toLowerCase()}`), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel clock ${look}` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
 if (kind === 'reel1000' && id) {
   const spec = await reel1000Spec({ fresh: false, pick: o.look === 'v2' ? REEL_PUZZLES : undefined });
   activateVariant(HOUSE);

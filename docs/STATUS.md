@@ -2,7 +2,7 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-10-21 (first Reel published; Reel builder + logo exit in the motion kit; Reel layout and splash rules).
+`docs/backlog.md` (what to do next). Updated 2026-10-22 (partner finder launch Reel drafted: src/motion/reel-partners.ts; standing rules: event-neutral feature promos, no white piece, hooks never narrow the feature).
 
 ## Where we are
 
@@ -69,6 +69,21 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 6. Highlights (Start here, Events) once there are more Stories; puzzle subjects from box images (cats vs dogs), weekend challenge format, IL1 style guide, Reels publishing.
 
 ## Plan for the next working day
+
+- **Sat 24 Oct ~18:00: Reel "Your extra hour"** (clocks go back in Europe that night; draft `2026-10-24-reel-clock`,
+  in review). Owner picked **C** (the hour becomes a piece) over A double-take and B slot machine; round 3 (23 Oct): slower ticks, a one-hour
+  rewind (no overshoot), bars that fill from empty, longer holds, Evening in Pisa (example boxes now rotate via `editorial/used-puzzles.json`)
+  (`src/motion/reel-clock-{a,b,c}.ts` on the shared `reel-clock-kit.ts`; data
+  `src/posts/reel-clock.ts`). Saturday morning: `node tools/motion.ts clock 2026-10-24-reel-clock --look C --fresh`,
+  re-check caption numbers, owner approves, post by hand with music. Fri: Wisconsin Story only. Sun: Story "It's
+  02:00 again". **Cadence:** research `research_notes/…/reach_cadence_2026-10.md` recommends 5 feed posts/week (incl.
+  the owner's), Reels 25–40 %, 2–3 Trial Reels/week, ≥ 20 h apart; decisions.md still says 3: owner to confirm.
+
+- **Partner finder launch Reel PUBLISHED 22 Oct 21:59 (https://www.instagram.com/reel/DezyT4gt_qx/, draft `2026-10-22-reel-partners`) + link Story:** insights at +24 h / +48 h; not pinned (its 44 grows stale). "Find your missing piece",
+  ~26 s, event-neutral (no World Series), real UI from a demo server with invented people, "Tap" pointers, link Story
+  to /en/partner-finder (its count, 44 events on 22 Oct, is what `partner-finder-events` mirrors). `node tools/motion.ts partners 2026-10-22-reel-partners --fresh` re-queries
+  (`partner-finder-events`), renders the MP4 (needs the owner's go-ahead) and the Story still. Post by hand with music;
+  make sure some real events have listings first.
 
 - **Thu 22 Oct:** first-Reel insights at +24 h (retention, skip rate, avg watch time, sends; `node tools/insights.ts`),
   re-download its served copy (HD yet?); build the **poll Story** in the house style with a reserved sticker zone

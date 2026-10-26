@@ -13,6 +13,12 @@ How to maintain it:
 
 ## Design
 
+- **Puzzle-piece art uses brand colours only, never a white piece** (coral, light coral #ffb0ab, sky, indigo on navy).
+  (owner, 2026-10-22, partner finder Reel: "I don't like the white piece")
+- **A hook never narrows what it promotes:** name every case the feature covers ("a pair or a team?", not "pair
+  partner?", which read as pairs only), and give every case the same emphasis (all in the highlight colour, never
+  just one of them). (owner, 2026-10-22, partner finder Reel splash and Story)
+
 - **Boards: no accent bar at the leader's row** (H4 house style hides it; the coral number marks the leader). (owner,
   2026-10-19, "it is disturbing me")
 - **No Instagram handles written on slides:** tag each puzzler with a photo tag on their own row (handle from their MSP
@@ -118,6 +124,29 @@ How to maintain it:
   (research 2026-10-17, growth note; owner to confirm)
 
 ## Formats and slots
+
+- **Reel pacing: the joke gets time, text gets time.** A reveal the whole Reel hangs on (a snap-back, a twist) builds
+  up over ≥ 1.5 s and lands with a hold, never a 0.5 s blink ("way too fast, I did not even notice"); count-ups that
+  matter tick visibly (one step every ~0.6 s). Text-heavy beats (2+ lines or a chart) hold ≥ 4 s, short title beats
+  ~3 s. Longer is fine (~25–30 s). (owner, 2026-10-23, clock Reel)
+- **Nothing flashes its end state before it animates:** bars, counters and pieces that fill or fly in are set to their
+  start state (empty, 0, off-canvas) before their beat shows, never shown full and then refilled. (owner, 2026-10-23,
+  clock Reel: "the bars come already filled and then fill again")
+- **No jokes that need explaining:** a gag must read in a second without text ("Whoa, too far!" on an overshooting
+  clock wasn't clear, so it went). When unsure, keep the motion and drop the punchline. (owner, 2026-10-23)
+- **Rotate example puzzles:** boxes used as examples, placeholders or decoration come from `pickUnused()`
+  (`src/data/used-puzzles.ts`) and get recorded in `editorial/used-puzzles.json` when the draft is made; vary the
+  Ravensburger boxes too, and prefer one whose picture fits the topic (a night scene for a 02:00 Reel). Data-driven
+  boxes (most solved, quiz contenders) are exempt. (owner, 2026-10-23)
+
+- **Reels in a row are fine; repetition means the same template, look or topic, never the format.** We aim for
+  maximum reach and Reels are our non-follower lever (≈ 2.4× a feed post's impressions per account, research
+  `reach_cadence_2026-10.md`); vary the concept and visuals between consecutive Reels. (owner, 2026-10-22)
+
+- **Feature promos stay event-neutral:** don't hang a feature launch on a specific organiser's event or on the problem
+  their community is having right now (it can read as mocking their trouble); show the feature for every event and
+  link to its overview page (partner finder: myspeedpuzzling.com/en/partner-finder), never to one event. (owner,
+  2026-10-22, partner finder Reel)
 
 - **After every publish, suggest the pins:** keep or swap each of the three pinned posts, with the reason and step-by-step
   app instructions (pinning is manual: the API can't pin). Pinned posts stay evergreen (see decisions 2026-10-18).

@@ -1,0 +1,26 @@
+{
+  "_about": "Puzzles we've shown as examples, placeholders or decoration (owner 2026-10-23: don't repeat the same ones; pick different Ravensburger boxes). Builders choose example boxes with pickUnused() from src/data/used-puzzles.ts, which skips everything here except entries of the draft being built. Data-driven boxes (Weekly Numbers' most solved, quiz contenders chosen by the data) don't go here. Puzzle names are public product names; no member data.",
+  "used": [
+    { "puzzle": "New York Postcard", "brand": "Ravensburger", "draft": "2026-10-17-faster-postcards", "role": "quiz contender" },
+    { "puzzle": "London Postcard", "brand": "Ravensburger", "draft": "2026-10-17-faster-postcards", "role": "quiz contender" },
+    { "puzzle": "Postcard from Paris", "brand": "Ravensburger", "draft": "2026-10-17-faster-postcards", "role": "quiz contender" },
+    { "puzzle": "Postcard Globe", "brand": "Gibsons", "draft": "2026-10-17-faster-postcards", "role": "twist slide" },
+    { "puzzle": "Boathouses in Smogen, Sweden", "brand": "Ravensburger", "draft": "2026-10-18-about", "role": "cover" },
+    { "puzzle": "New York Postcard", "brand": "Ravensburger", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Favorite Sweets", "brand": "Trefl", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "ColorBoom Stairs", "brand": "Clementoni", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Frosty Treats", "brand": "Buffalo Games", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Cat Zodiac", "brand": "Galison", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Rainbow Cats", "brand": "Cobble Hill", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Coffee Art Kittens", "brand": "Schmidt", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Hidden Harbour", "brand": "Educa", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Route 66: Main Street of America", "brand": "Masterpieces", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Just Chill", "brand": "Cherry Pazzi", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Jan van Haasteren: Find The Mouse!", "brand": "Jumbo", "draft": "2026-10-18-about", "role": "brand wall" },
+    { "puzzle": "Air Balloon Valley", "brand": "Ravensburger", "draft": "2026-10-21-reel-1000", "role": "500 board" },
+    { "puzzle": "Cute Kawaii Chaos", "brand": "Ravensburger", "draft": "2026-10-21-reel-1000", "role": "500 board" },
+    { "puzzle": "Boathouses in Smogen, Sweden", "brand": "Ravensburger", "draft": "2026-10-21-reel-1000", "role": "500 board" },
+    { "puzzle": "Garden Allotment", "brand": "Ravensburger", "draft": "2026-10-21-reel-1000", "role": "1000 board" },
+    { "puzzle": "Evening in Pisa", "brand": "Ravensburger", "draft": "2026-10-24-reel-clock", "role": "500 board (night scene for 02:00)" }
+  ]
+}

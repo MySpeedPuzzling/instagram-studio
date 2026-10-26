@@ -6,6 +6,17 @@ Updated 2026-10-17.
 
 ## Now
 
+- [ ] Reel "Your extra hour" (`2026-10-24-reel-clock`): owner picked C → `--look C --fresh` re-render Sat morning → approve →
+      post by hand ~18:00 with music; Sun Story "It's 02:00 again"; insights at +24/48 h.
+- [ ] Owner decision on cadence from `reach_cadence_2026-10.md` (5/week incl. owner's posts, Trial Reels 2–3/week);
+      then add the three tracking fields it proposes (follower vs non-follower reach weekly, 72 h reach snapshot,
+      hours since previous post) to `tools/insights.ts`.
+
+- [x] Partner finder Reel published 22 Oct 21:59 (https://www.instagram.com/reel/DezyT4gt_qx/) + link Story.
+- [ ] Partner finder Reel insights at +24 h (Fri 23 Oct ~22:00) and +48 h; add its Story to a "New features" highlight.
+- [ ] Reels builder: a generic "UI screenshot beat" (card fit + Tap pointer + tap ring) lives in `src/motion/reel-partners.ts`;
+      move it into the motion kit when a second feature Reel needs it.
+
 - [x] Owner feedback on DL1 styles and DL2 formats (2026-10-14) → `docs/decisions.md`, `docs/design/house-brief.md`.
 - [x] DL4 house system built (2026-10-16): `src/design/house.ts`, variants H1–H3, all approved content (data, image
       formats, ideas, funny facts, timely stories, Stories, Reels) in each, profile grids, 0 QA errors.

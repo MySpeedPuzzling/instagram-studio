@@ -188,7 +188,9 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Mon 19 Oct: owner picks RC1 or RC2 (per-slide feedback welcome), `node tools/draft.ts weekly-rc<N>` with fresh data, approve for 19:00, reject the other.
 - [ ] Owner question: should the shoutout draw only pick puzzlers with an Instagram handle (taggable, more reshares) or everyone (fairer, current default)?
 - [ ] Brand photo tags on the most-solved slide (standing rule: tag brands whose boxes are shown) need brand → Instagram handle mapping.
-- [ ] Rotating segments for later episodes (research: 3 fixed + 2 rotating): puzzle of the week spotlight, country spotlight, "this week in 2025", guess the number.
+- [ ] Rotating segments for later episodes (research: 3 fixed + 2 rotating): puzzle of the week spotlight, country spotlight, "this week in 2025", guess the number,
+      **events of the week** (week 43 had ~10 competitions on MSP: state championships, marathons, online events; needs a query with the public-event rules).
+- [ ] Ep. 2 (26 Oct): owner reviews `2026-10-26-weekly-rc1`; if the publish fails on a new handle, drop that tag and add it to `content/ig-invalid-handles.json`.
 - [ ] Story follow-up for the episode (e.g. the shoutout slide as a Story with the three tagged).
 - [ ] Publisher: check photo tags before creating the real containers (one unpublished test container per new handle, cache the
       result in `content/ig-invalid-handles.json`) and drop rejected ones with a note, so a stale handle on an MSP profile

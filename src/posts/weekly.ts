@@ -75,7 +75,7 @@ const underTitle = (title: string) => Math.round(FEED.contentTop + linesOf(title
 const box = (img?: string) => (img ? `<span class="wk-thumb wk-box"><img src="${img}" alt=""></span>` : '<span class="wk-box"></span>');
 /** Who, in one line: a team's own name, else up to two names with flags, then "+N" for the rest. */
 const whoLine = (people: Person[], teamName?: string) => teamName ? h(cut(teamName, 32))
-  : people.slice(0, 2).map(p => `${flag(p)}${h(cut(p.name, people.length > 1 ? 14 : 28))}`).join(people.length > 2 ? ', ' : ' &amp; ') + (people.length > 2 ? ` +${people.length - 2}` : '');
+  : people.slice(0, 2).map(p => `${flag(p)}${h(cut(p.name, people.length > 1 ? 18 : 28))}`).join(people.length > 2 ? ', ' : ' &amp; ') + (people.length > 2 ? ` +${people.length - 2}` : '');
 const flag = (p: Person) => (p.country ? `<img class="wk-flag" src="${flagUrl(p.country)}" alt="">` : '');
 /** Display name of a group: the team's own name, else its members. */
 const groupName = (r: { people: Person[]; teamName?: string }) => r.teamName ?? andJoin(r.people.map(p => p.name));
@@ -84,7 +84,7 @@ const weekday = (d: string) => ({ Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday
 // Board geometry, shared by the slides and the photo tags so each tag sits on its puzzler's row.
 const FAST_TOP = 262, SEC_H = 52, SEC_GAP = 8, FAST_ROW = 104, ACT_ROW = 98, SHOUT_ROW = 236;
 const ACTIVE_TITLE = 'Most solves this week', ACTIVE_DEK = 'Puzzles finished last week; every member of a pair or team counts.';
-const shoutDek = (s: WeeklySpec) => `${s.shout.length === 1 ? 'One puzzler' : `${s.shout.length === 2 ? 'Two' : 'Three'} puzzlers`}, drawn at random from all ${fmtInt(s.poolSize)} who finished a puzzle last week. Every solve counts.`;
+const shoutDek = (s: WeeklySpec) => `${s.shout.length === 1 ? 'One puzzler' : `${s.shout.length === 2 ? 'Two' : 'Three'} puzzlers`}, drawn at random from all ${fmtInt(s.poolSize)} who finished a puzzle last week, pairs and teams included. Every solve counts.`;
 /** Top of each board row (y), given the sections' row counts. */
 function rowTops(top: number, counts: number[], rowH: number): number[][] {
   let y = top;
@@ -171,7 +171,7 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
             ${rows.map((g, i) => `<div class="h-br ${i === 0 ? 'hot' : ''}" style="height:${ACT_ROW - 2}px">
               ${box(g.img)}
               <div class="who"><p class="nm">${whoLine(g.people)}</p></div>
-              <span class="wk-time">${fmtInt(g.results)}</span></div>`).join('')}`).join('')}
+              <span class="wk-time" style="width:100px">${fmtInt(g.results)}</span></div>`).join('')}`).join('')}
         </div>` }).html;
     },
 

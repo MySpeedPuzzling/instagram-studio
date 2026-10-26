@@ -63,6 +63,10 @@ How to maintain it:
   puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the
   site shows publicly where the reader can check it. (owner, 2026-10-18, after wrong numbers in comment replies)
 
+- **Week-on-week changes compare like for like:** the earlier week counts only results logged by the same point in
+  time (`tracked_at < now() - 7 days`), or it has an extra week of late-logged solves and a flat week reads as a drop
+  (week 43 showed −3.3 % instead of +1.0 %). Same for any period-on-period comparison. (data, 2026-10-26)
+
 - **Weekly numbers count solves whose finish date is in the week** (`finished_at`), never the day they were logged:
   ~17 % of a week's logged results are older solves typed in later, and results without a finish date (always without a
   time too) are puzzles marked solved in batches (one puzzler "solved" 310 in week 42). Both faked "most solves" and

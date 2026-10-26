@@ -2,7 +2,7 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-10-22 (partner finder launch Reel drafted: src/motion/reel-partners.ts; standing rules: event-neutral feature promos, no white piece, hooks never narrow the feature).
+`docs/backlog.md` (what to do next). Updated 2026-10-26 (Weekly Numbers ep. 2 drafted, week-on-week fixed; earlier: partner finder launch Reel drafted: src/motion/reel-partners.ts; standing rules: event-neutral feature promos, no white piece, hooks never narrow the feature).
 
 ## Where we are
 
@@ -61,8 +61,8 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
    Insights at +48 h. **Animated Story** (`node tools/motion.ts weekly <id>`, 15 s, L1-3 logo stopwatch) posted ~16:10
    with music and a link sticker (bottom right); **read its Story insights before it expires (Tue 20 Oct ~16:00)**.
    **Lesson (19 Oct):** the video's first frame is its preview and ep. 1's was almost blank; the animation now opens on a title card (poster + most-solved boxes) that slides away (16 s, `story-1-video-preview.jpg`). Recaps highlight: pick a cover (owner didn't like ↻; options @bars/@days/@line/@calendar in content/highlights/).
-   Ep. 2 on Mon 26 Oct: `node tools/draft.ts weekly-rc1`, then `node tools/motion.ts weekly <id>`. Then the Wisconsin preview (event Fri 23 Oct)
-   and clocks go back (Sat 24 Oct). Each new post type becomes a builder in `src/posts/` + an entry in `tools/draft.ts`.
+   **Ep. 2 drafted Mon 26 Oct** (`2026-10-26-weekly-rc1`, week 43, in review + animated Story): fixed week-on-week (now like
+   for like: +1.0 %, was −3.3 %), handles stripped from display names, nameless players skipped on Most solves, wider names. Each new post type becomes a builder in `src/posts/` + an entry in `tools/draft.ts`.
 4. **Insights on the first post** after 48 h (`node tools/insights.ts`), first entry in `editorial/learnings.md`.
 5. **Fold the agents' house proposals into H4** (shared art palette per ground, family CSS hook, shared geometry/board
    helpers, `heroFitUnit`); keep H1–H3 renderable (owner: keep every lab as reference).

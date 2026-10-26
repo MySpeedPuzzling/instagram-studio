@@ -24,7 +24,9 @@ function rng(seed: number) {
 }
 
 /** Display names without emoji (slides use the house font only; the QA rejects emoji in graphics). */
-const plainName = (n: string) => n.replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\uFE0F\u200D]/gu, '').replace(/\s+/g, ' ').trim();
+const plainName = (n: string) => n.replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\uFE0F\u200D]/gu, '')
+  // no handles on slides (standing rule): "Feifei (@feifeipuzzle)" → "Feifei"
+  .replace(/\(?\s*@[A-Za-z0-9._]+\s*\)?/g, ' ').replace(/\(\s*\)/g, ' ').replace(/\s+/g, ' ').trim();
 /** A handle we can photo-tag: lowercase (Instagram ignores case), never one Instagram rejected before. */
 const badHandles = invalidHandles();
 const tagHandle = (raw: string | null | undefined) => { const v = raw?.toLowerCase(); return v && !badHandles.has(v) ? v : undefined; };
@@ -58,7 +60,7 @@ export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklyS
       })),
   ];
 
-  const active: ActiveRow[] = q['weekly-active'].rows.filter(r => !blocked.has(r.player_id))
+  const active: ActiveRow[] = q['weekly-active'].rows.filter(r => !blocked.has(r.player_id) && plainName(r.player ?? ''))
     .map(r => ({ kind: r.type as Kind, person: person(r), results: num(r.results), pieces: num(r.pieces), image: r.last_image || undefined }));
 
   const top = q['boxes-week-top'].rows.slice(0, 5);

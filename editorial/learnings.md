@@ -2,6 +2,13 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Weekly Numbers ep. 2 (2026-10-26)
+- Published 26 Oct ~11:00: https://www.instagram.com/p/De8_0AzCuDa/ (week 43, 13 photo tags incl. two brands).
+- **"Invalid user id" on a photo tag doesn't mean the handle is wrong:** the owner confirmed two rejected handles are
+  real accounts; the publishing API refuses private or tag-restricted accounts. Fallback: the owner tags them in the app
+  after publishing, or the caption @mentions them (done once, by hand, as a one-off). Happened in ep. 1 and ep. 2.
+- Captions can't be edited through the API; post-publish caption fixes are manual in the app.
+
 ## Clocks-go-back Reel (2026-10-24)
 - "Your extra hour" (27.7 s, concept C: the 2–3 o'clock slice becomes a piece that completes Evening in Pisa), posted by
   hand Sat 15:32 Prague with music: https://www.instagram.com/reel/De4Px5uN9cO/ . At +43 h: reach 2204 (the most of

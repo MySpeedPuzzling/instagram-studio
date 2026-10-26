@@ -185,6 +185,10 @@ chats until the week's draw is done.
 3. Owner: post the video (or the still) as a Story, add a Link sticker to the post ("Full report") at the **bottom right**,
    just under the cue line (the bottom centre is Instagram's delete zone: dropping a sticker there trashes it; nothing
    animates in the lower area), then add it to the "Recaps" highlight.
+4. Owner: keep the "Recaps" highlight short. A highlight always plays oldest first (no reorder, API can't edit
+   highlights), so it holds only the **last 4 weekly recaps + the latest monthly report**. When a 5th week is added,
+   remove the oldest week (highlight → that Story → ⋯ → Remove from highlight; it stays in the archive); when a new
+   monthly report is added, remove the previous month's. Until there are 4 weeks, remove nothing.
 
 Motion kit: `src/motion/kit.ts` (count-up in the house number format, stopwatch, rise/pop/fly-in, drop-out, transform
 FLIP, slot-machine reveal), `src/motion/render.ts` (lint → QA at sample times → HyperFrames → Instagram encode → probe).

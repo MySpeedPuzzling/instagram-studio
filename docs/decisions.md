@@ -234,3 +234,11 @@ Docker and other unneeded apps turned off.
   "Numbers as of October 2026 and growing every day; we'll refresh this post now and then." Refresh by re-posting
   (about yearly, or when a floor is far behind), re-pin the new one, archive the old. Current numbers go in a
   "Start here" Story highlight that is updated monthly.
+
+## 2026-10-26: Recaps highlight
+
+- Name **Recaps** (fits under the circle; covers weekly and monthly reports).
+- Holds the **last 4 weekly recaps + the latest monthly report**; the owner removes older ones on Mondays (highlights
+  play oldest first and can't be reordered). Steps in `docs/runbook.md` (Weekly Numbers, step 4).
+- Cover proposal (owner still choosing): navy #222a38 background, generator piece with all tabs outward
+  (`tools/highlight-covers.ts --out`), white icon; piece colour by post type (Recaps indigo, Quizzes coral).

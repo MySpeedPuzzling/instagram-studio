@@ -3,6 +3,8 @@
 //
 //   node tools/highlight-covers.ts quizzes:? start-here:i
 //   node tools/highlight-covers.ts recaps:@days         # drawn icons: @bars @days @line @calendar
+//   node tools/highlight-covers.ts recaps-in:@bars:indigo  # third part: ground:piece colours (indigo = the post header's
+//   indigo #4e54c8 ground with a coral piece; navy-indigo = navy ground, indigo piece; default navy ground, coral piece)
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
@@ -32,7 +34,10 @@ function icon(name: string): string {
   }
 }
 
-const covers = process.argv.slice(2).map(a => a.split(':') as [string, string]);
+const covers = process.argv.slice(2).map(a => a.split(':') as [string, string, string?]);
+const LOOKS: Record<string, { ground: string; piece: string }> = {
+  navy: { ground: '#222a38', piece: '#ec726f' }, indigo: { ground: '#4e54c8', piece: '#ec726f' }, 'navy-indigo': { ground: '#222a38', piece: '#4e54c8' },
+};
 if (!covers.length) { console.error('usage: node tools/highlight-covers.ts <name>:<glyph> …'); process.exit(2); }
 const P = 520;
 const jig = generateJigsaw({ cols: 3, rows: 3, width: 3 * P, height: 3 * P, seed: 5, tabSize: 0.24, jitter: 0.02 });
@@ -42,10 +47,12 @@ const out = join(ROOT, 'content/highlights');
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
-for (const [name, glyph] of covers) {
+for (const [name, glyph, lookKey = 'navy'] of covers) {
+  const look = LOOKS[lookKey];
+  if (!look) throw new Error(`unknown look "${lookKey}" (${Object.keys(LOOKS).join(', ')})`);
   const svg = `<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1080" height="1920" fill="#222a38"/>
-    <g transform="translate(${540 - cx * 0.9} ${960 - cy * 0.9}) scale(0.9)"><path d="${q.d}" fill="#ec726f"/></g>
+    <rect width="1080" height="1920" fill="${look.ground}"/>
+    <g transform="translate(${540 - cx * 0.9} ${960 - cy * 0.9}) scale(0.9)"><path d="${q.d}" fill="${look.piece}"/></g>
     ${glyph.startsWith('@') ? `<g transform="translate(540 960) scale(0.78) translate(-540 -960)">${icon(glyph.slice(1))}</g>` : `<text x="540" y="1080" text-anchor="middle" font-family="Rubik, Inter, system-ui, sans-serif" font-weight="800" font-size="340" fill="#ffffff">${glyph}</text>`}</svg>`;
   await page.setContent(`<html><body style="margin:0">${svg}</body></html>`);
   const file = join(out, `highlight-${name}.jpg`);

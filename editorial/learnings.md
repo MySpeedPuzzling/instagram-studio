@@ -2,6 +2,15 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Partner finder launch Reel (2026-10-22)
+- "Find your missing piece" (26 s, real UI from a demo server with invented people, "Tap" pointers), published by hand
+  21:59 Prague with music (Mr. Sun · Happy Humming on the Story): https://www.instagram.com/reel/DezyT4gt_qx/ . Link
+  Story to /en/partner-finder. Insights at +24 h / +48 h: non-follower reach, sends, average watch time, Story link taps.
+- Owner caption edit: dropped the secondary number ("at events in 13 countries") before the URL, so the CTA line ends on
+  the link. One edit: a hunch, not a rule yet.
+- Context: at launch only 4 open listings on 2 events in production; watch whether listings grow after the Reel.
+- A still Story with music is served as video: slightly softer text than the JPEG, still readable.
+
 ## First Reel (2026-10-21)
 - "Twice the pieces, so twice the time?" (30.4 s, published by hand 15:55 Prague, music added in the app):
   https://www.instagram.com/reel/DewjphkIOPy/ . Insights at +24 h and +48 h (retention curve, skip rate, sends).

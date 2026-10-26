@@ -61,7 +61,10 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
    Insights at +48 h. **Animated Story** (`node tools/motion.ts weekly <id>`, 15 s, L1-3 logo stopwatch) posted ~16:10
    with music and a link sticker (bottom right); **read its Story insights before it expires (Tue 20 Oct ~16:00)**.
    **Lesson (19 Oct):** the video's first frame is its preview and ep. 1's was almost blank; the animation now opens on a title card (poster + most-solved boxes) that slides away (16 s, `story-1-video-preview.jpg`). Recaps highlight: pick a cover (owner didn't like ↻; options @bars/@days/@line/@calendar in content/highlights/).
-   **Ep. 2 drafted Mon 26 Oct** (`2026-10-26-weekly-rc1`, week 43, in review + animated Story): fixed week-on-week (now like
+   **Ep. 2 PUBLISHED Mon 26 Oct ~11:00** (https://www.instagram.com/p/De8_0AzCuDa/, `2026-10-26-weekly-rc1`, week 43, 13 photo tags incl.
+   brands; first attempt failed on 2 handles not on Instagram, like ep. 1). Animated Story rendered, owner posts it. Owner review added: all
+   pair/team members (no +2), labels left, section gaps, pieces in shoutout, biggest-puzzle shoutout with avatar, line-up counting.
+   Earlier the same morning: fixed week-on-week (now like
    for like: +1.0 %, was −3.3 %), handles stripped from display names, nameless players skipped on Most solves, wider names. Each new post type becomes a builder in `src/posts/` + an entry in `tools/draft.ts`.
 4. **Insights on the first post** after 48 h (`node tools/insights.ts`), first entry in `editorial/learnings.md`.
 5. **Fold the agents' house proposals into H4** (shared art palette per ground, family CSS hook, shared geometry/board

@@ -190,9 +190,10 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Brand photo tags on the most-solved slide (standing rule: tag brands whose boxes are shown) need brand → Instagram handle mapping.
 - [ ] Rotating segments for later episodes (research: 3 fixed + 2 rotating): puzzle of the week spotlight, country spotlight, "this week in 2025", guess the number,
       **events of the week** (week 43 had ~10 competitions on MSP: state championships, marathons, online events; needs a query with the public-event rules).
-- [ ] Ep. 2 (26 Oct): owner reviews `2026-10-26-weekly-rc1`; if the publish fails on a new handle, drop that tag and add it to `content/ig-invalid-handles.json`.
+- [ ] Ep. 2 published 26 Oct: insights at +48 h (Wed 28 Oct); Story posted by the owner.
+- [ ] Brand handles map (`speedpuzzle.eu` verified, `ravensburgerglobal`; Speedmaster unknown) so the builder tags slide 2 itself (added by hand in ep. 2).
 - [ ] Story follow-up for the episode (e.g. the shoutout slide as a Story with the three tagged).
-- [ ] Publisher: check photo tags before creating the real containers (one unpublished test container per new handle, cache the
+- [ ] **(failed twice now, ep. 1 and ep. 2)** Publisher: check photo tags before creating the real containers (one unpublished test container per new handle, cache the
       result in `content/ig-invalid-handles.json`) and drop rejected ones with a note, so a stale handle on an MSP profile
       never blocks a publish (ep. 1 failed once on 2 of 13 handles, 2026-10-19).
 - [x] Animated weekly Story (2026-10-19): `src/motion/` kit + `tools/motion.ts weekly <id>`; Recaps highlight cover

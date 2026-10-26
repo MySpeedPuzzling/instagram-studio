@@ -73,6 +73,12 @@ How to maintain it:
   puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the
   site shows publicly where the reader can check it. (owner, 2026-10-18, after wrong numbers in comment replies)
 
+- **Pairs and teams are counted by line-up** (the exact same members together), never by merging members whose
+  per-person counts happen to match: two puzzlers who each joined 12 team solves with rotating teammates showed as
+  one "team" (week 43). Per-person counts are fine only when labelled as per puzzler. (owner question, 2026-10-26)
+- **Board section gaps:** a clear gap above each new category (28 px), shrunk only when a board would not fit.
+  (owner, 2026-10-26)
+
 - **Week-on-week changes compare like for like:** the earlier week counts only results logged by the same point in
   time (`tracked_at < now() - 7 days`), or it has an extra week of late-logged solves and a flat week reads as a drop
   (week 43 showed −3.3 % instead of +1.0 %). Same for any period-on-period comparison. (data, 2026-10-26)

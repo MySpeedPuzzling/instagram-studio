@@ -38,7 +38,7 @@ const person = (r: { [k: string]: string | null | undefined }): Person => ({
 export interface WeeklyOptions { fresh: boolean; season: number; episode: number; segments: Segment[]; question: string; shoutouts?: number }
 
 export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklySpec; facts: Record<string, QueryResult> }> {
-  const names = ['weekly-totals', 'weekly-days', 'weekly-fastest', 'weekly-groups', 'weekly-active', 'weekly-pool', 'weekly-facts', 'weekly-biggest', 'boxes-week-top'] as const;
+  const names = ['weekly-totals', 'weekly-days', 'weekly-fastest', 'weekly-groups', 'weekly-active', 'weekly-active-groups', 'weekly-pool', 'weekly-facts', 'weekly-biggest', 'boxes-week-top'] as const;
   const q = Object.fromEntries(names.map(n => [n, query(n, { fresh: o.fresh })])) as Record<typeof names[number], QueryResult>;
   const t = q['weekly-totals'].rows[0], f = q['weekly-facts'].rows[0], days = q['weekly-days'].rows;
   if (!t || !f || days.length !== 7 || q['boxes-week-top'].rows.length < 5) throw new Error('weekly: a query came back incomplete');
@@ -60,14 +60,21 @@ export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklyS
       })),
   ];
 
-  const active: ActiveRow[] = q['weekly-active'].rows.filter(r => !blocked.has(r.player_id) && plainName(r.player ?? ''))
-    .map(r => ({ kind: r.type as Kind, person: person(r), results: num(r.results), pieces: num(r.pieces), image: r.last_image || undefined }));
+  // Most solves: solo per puzzler; pairs and teams per line-up (the same members together), never members merged by
+  // equal counts (owner 2026-10-26: two puzzlers rotating through teams read as one team).
+  const active: ActiveRow[] = [
+    ...q['weekly-active'].rows.filter(r => r.type === 'solo' && !blocked.has(r.player_id) && plainName(r.player ?? ''))
+      .map(r => ({ kind: 'solo' as Kind, people: [person(r)], results: num(r.results), pieces: num(r.pieces), image: r.last_image || undefined })),
+    ...q['weekly-active-groups'].rows.map(r => ({ r, people: (JSON.parse(r.members ?? '[]') as Array<{ [k: string]: string | null }>).map(person) }))
+      .filter(({ people }) => people.length >= 2 && people.every(p => p.name && !blocked.has(p.id)))
+      .map(({ r, people }) => ({ kind: r.type as Kind, people, results: num(r.results), pieces: num(r.pieces), teamName: r.team_name || undefined, image: r.last_image || undefined })),
+  ];
 
   const top = q['boxes-week-top'].rows.slice(0, 5);
 
   // Shoutout draw: everyone who solved something, minus anyone already named on another slide, drawn with a seed made
   // from the week (same week → same three, however often the draft is re-rendered).
-  const shown = new Set([...fast.flatMap(r => r.people.map(p => p.id)), ...active.map(a => a.person.id)]);
+  const shown = new Set([...fast.flatMap(r => r.people.map(p => p.id)), ...active.flatMap(a => a.people.map(p => p.id))]);
   const pool = q['weekly-pool'].rows.filter(r => !blocked.has(r.player_id) && r.player.trim());
   const seed = parseInt(createHash('sha256').update(`msp-weekly-shoutout:${t.week_start}`).digest('hex').slice(0, 8), 16);
   // Shuffle the whole pool (sorted by id in SQL) once, then take the first ones not named elsewhere: a late-logged time

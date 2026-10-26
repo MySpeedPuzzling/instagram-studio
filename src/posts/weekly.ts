@@ -19,7 +19,7 @@ export type Kind = 'solo' | 'duo' | 'team';
 export type Segment = 'cover' | 'top' | 'fast500' | 'fast1000' | 'active' | 'shout' | 'days' | 'close';
 export interface Person { id: string; name: string; country?: string; handle?: string }
 export interface FastRow { kind: Kind; pieces: number; seconds: number; firstAttempt: boolean; puzzle: string; brand: string; people: Person[]; teamName?: string; /** Box image path (DB) and its local URL. */ image?: string; img?: string }
-export interface ActiveRow { kind: Kind; person: Person; results: number; pieces: number; /** Box of the puzzler's latest puzzle of the week. */ image?: string; img?: string }
+export interface ActiveRow { kind: Kind; people: Person[]; results: number; pieces: number; teamName?: string; /** Box of the puzzler's latest puzzle of the week. */ image?: string; img?: string }
 export interface Shout { person: Person; results: number; /** The solve they're shown with: its time (if timed) and kind. */ seconds?: number; kind: Kind; puzzle: string; brand: string; pieces: number; img?: string }
 
 export interface WeeklySpec {
@@ -101,17 +101,29 @@ const groupName = (r: { people: Person[]; teamName?: string }) => andJoin(r.peop
 const weekday = (d: string) => ({ Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' } as Record<string, string>)[d] ?? d;
 
 // Board geometry, shared by the slides and the photo tags so each tag sits on its puzzler's row.
-const FAST_TOP = 262, SEC_H = 52, SEC_GAP = 8, FAST_ROW = 104, ACT_ROW = 98, SHOUT_ROW = 236;
-const ACTIVE_TITLE = 'Most solves this week', ACTIVE_DEK = 'Puzzles finished last week; every member of a pair or team counts.';
+const FAST_TOP = 262, SEC_H = 52, SEC_GAP = 28, FAST_ROW = 104, ACT_ROW = 98, SHOUT_ROW = 236;
+const ACTIVE_TITLE = 'Most solves this week', ACTIVE_DEK = 'Puzzles finished last week; a pair or team counts only the same members playing together.';
 const shoutDek = (s: WeeklySpec) => `${s.shout.length === 1 ? 'One puzzler' : `${s.shout.length === 2 ? 'Two' : 'Three'} puzzlers`}, drawn at random from all ${fmtInt(s.poolSize)} who finished a puzzle last week, pairs and teams included. Every solve counts.`;
 /** Top of each board row (y), given each section's row heights. */
-function rowTops(top: number, heights: number[][]): number[][] {
+function rowTops(top: number, heights: number[][], gap = SEC_GAP): number[][] {
   let y = top;
   return heights.map((hs, si) => {
-    y += (si ? SEC_GAP : 0) + SEC_H;
+    y += (si ? gap : 0) + SEC_H;
     return hs.map(rh => (y += rh) - rh);
   });
 }
+/** Gap above each later section: SEC_GAP (owner 2026-10-26: room before a new category), shrunk only as far as needed
+ *  (down to 8 px) so a board with wrapped names plus `below` px under it still ends above the footer. */
+function secGap(top: number, heights: number[][], below = 0): number {
+  if (heights.length < 2) return SEC_GAP;
+  const used = heights.reduce((a, hs) => a + SEC_H + hs.reduce((b, x) => b + x, 0), 0);
+  return Math.max(8, Math.min(SEC_GAP, Math.floor((FEED.contentBottom - top - below - used) / (heights.length - 1))));
+}
+const NOTE_H = 18 + 2 * 39;
+const fastHeights = (s: WeeklySpec, pieces: number) => fastSections(s, pieces).map(x => x.rows.map(r => fastRowH(r.people)));
+const fastNote = (s: WeeklySpec, pieces: number) => pieces === 500 && s.solo500Results >= 100;
+const fastGap = (s: WeeklySpec, pieces: number) => secGap(FAST_TOP, fastHeights(s, pieces), fastNote(s, pieces) ? NOTE_H : 0);
+const actHeights = (s: WeeklySpec) => activeSections(s).map(x => x.rows.map(g => actRowH(g.people)));
 /** Row heights: one extra name line per wrapped line of members. */
 const fastRowH = (people: Person[]) => FAST_ROW + (nameLayout(people, FAST_WHO_W).lines - 1) * NAME_LH;
 const actRowH = (people: Person[]) => ACT_ROW + (nameLayout(people, ACT_WHO_W).lines - 1) * NAME_LH;
@@ -122,15 +134,9 @@ const activeSections = (s: WeeklySpec) => (['solo', 'duo', 'team'] as Kind[])
 const activeTop = () => underTitle(ACTIVE_TITLE) + linesOf(ACTIVE_DEK, 38) * 50 + 30;
 const shoutTop = (s: WeeklySpec, i: number) => underTitle('Shoutout draw') + linesOf(shoutDek(s), 38) * 50 + 44 + i * SHOUT_ROW;
 
-/** Players with the same count and pieces next to each other in a kind's top list solved together: one row. */
+/** A kind's top rows: puzzlers for solo, line-ups for pairs and teams (already one row each from SQL). */
 function activeGroups(rows: ActiveRow[], kind: Kind, take: number): Array<{ people: Person[]; results: number; img?: string }> {
-  const rs = rows.filter(r => r.kind === kind);
-  const out: Array<{ people: Person[]; results: number; pieces: number; img?: string }> = [];
-  for (const r of rs) {
-    const g = kind !== 'solo' ? out.find(o => o.results === r.results && o.pieces === r.pieces) : undefined;
-    if (g) g.people.push(r.person); else out.push({ people: [r.person], results: r.results, pieces: r.pieces, img: r.img });
-  }
-  return out.slice(0, take);
+  return rows.filter(r => r.kind === kind).slice(0, take).map(r => ({ people: r.people, results: r.results, img: r.img }));
 }
 
 const CSS = `<style>
@@ -191,7 +197,7 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
       return slide(ctx('active'), 'data', { kicker: kick, src: s.src, title, body: CSS + `
         <p class="h-abs h-dek" style="top:${underTitle(title)}px">${dek}</p>
         <div class="h-board" style="top:${activeTop()}px">
-          ${sections.map(({ k, rows }, si) => `<div class="wk-sec"${si ? ` style="margin-top:${SEC_GAP}px"` : ''}><span>${KIND[k]}</span>${si === 0 ? '<span>Solves</span>' : ''}</div>
+          ${sections.map(({ k, rows }, si) => `<div class="wk-sec"${si ? ` style="margin-top:${secGap(activeTop(), actHeights(s))}px"` : ''}><span>${KIND[k]}</span>${si === 0 ? '<span>Solves</span>' : ''}</div>
             ${rows.map((g, i) => `<div class="h-br ${i === 0 ? 'hot' : ''}" style="height:${actRowH(g.people) - 2}px">
               ${box(g.img)}
               <div class="who"><p class="nm${g.people.length > 1 ? ' group' : ''}">${whoLine(g.people)}</p></div>
@@ -274,11 +280,11 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
       const pre = team + (r.firstAttempt ? 'First attempt · ' : ''), brand = cut(r.brand, 14);
       return `${pre}${h(cut(r.puzzle, 37 - pre.length - brand.length - 3))} · ${h(brand)}`;
     };
-    const note = pieces === 500 && s.solo500Results >= 100
+    const note = fastNote(s, pieces)
       ? `<p class="wk-note" style="margin-top:18px">The week's typical solo 500: <b>${sec(s.median500s)}</b>, the middle of ${fmtInt(s.solo500Results)} solo times.</p>` : '';
     return slide(ctx(seg), 'data', { kicker: kick, src: s.src, title: `The week's fastest ${sizeOf(pieces)}s`, body: CSS + `
       <div class="h-abs" style="top:${FAST_TOP}px"><div class="h-board" style="position:static">
-        ${sections.map(({ k, rows: rs }, si) => `<div class="wk-sec"${si ? ` style="margin-top:${SEC_GAP}px"` : ''}><span>${KIND[k]} · ${sizeOf(pieces)} pieces</span>${si === 0 ? '<span>Time</span>' : ''}</div>
+        ${sections.map(({ k, rows: rs }, si) => `<div class="wk-sec"${si ? ` style="margin-top:${fastGap(s, pieces)}px"` : ''}><span>${KIND[k]} · ${sizeOf(pieces)} pieces</span>${si === 0 ? '<span>Time</span>' : ''}</div>
           ${rs.map((r, i) => `<div class="h-br ${i === 0 ? 'hot' : ''}" style="height:${fastRowH(r.people) - 2}px">
             ${box(r.img)}
             <div class="who"><p class="nm${r.people.length > 1 ? ' group' : ''}">${whoLine(r.people)}</p>
@@ -362,13 +368,13 @@ export function weeklyTags(s: WeeklySpec): Record<number, Array<{ username: stri
   };
   for (const pieces of [500, 1000]) {
     const seg: Segment = pieces === 500 ? 'fast500' : 'fast1000', secs = fastSections(s, pieces);
-    rowTops(FAST_TOP, secs.map(x => x.rows.map(r => fastRowH(r.people)))).forEach((ys, si) => ys.forEach((y, ri) => {
+    rowTops(FAST_TOP, fastHeights(s, pieces), fastGap(s, pieces)).forEach((ys, si) => ys.forEach((y, ri) => {
       const ps = secs[si].rows[ri].people;
       put(seg, ps, y, fastRowH(ps), FAST_WHO_W, 43);
     }));
   }
   const act = activeSections(s);
-  rowTops(activeTop(), act.map(x => x.rows.map(g => actRowH(g.people)))).forEach((ys, si) => ys.forEach((y, ri) => {
+  rowTops(activeTop(), actHeights(s), secGap(activeTop(), actHeights(s))).forEach((ys, si) => ys.forEach((y, ri) => {
     const ps = act[si].rows[ri].people;
     put('active', ps, y, actRowH(ps), ACT_WHO_W, 0);
   }));

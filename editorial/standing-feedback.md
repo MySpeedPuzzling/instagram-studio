@@ -180,6 +180,9 @@ How to maintain it:
 - **A quiz post gets a Story follow-up:** the question with a **poll** sticker the same day (a quiz sticker would reveal
   the answer), the answer Story the next day with a link sticker to the post. Post the feed post first.
   (owner, 2026-10-17)
+- **Text handed to the owner to paste (caption fixes in the app) is copied from the published draft file**, never
+  rebuilt from an earlier copy in the conversation: a re-render can change numbers by a late-logged solve (ep. 2: a
+  pasted caption said 7732 while the live slides said 7733). (2026-10-26)
 - **Instructions to the owner for anything manual are step by step:** which sticker exactly, the exact text to type,
   where to place it (with a guide image), and when. (owner, 2026-10-17)
 

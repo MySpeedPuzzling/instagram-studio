@@ -242,3 +242,12 @@ Docker and other unneeded apps turned off.
   play oldest first and can't be reordered). Steps in `docs/runbook.md` (Weekly Numbers, step 4).
 - Cover proposal (owner still choosing): navy #222a38 background, generator piece with all tabs outward
   (`tools/highlight-covers.ts --out`), white icon; piece colour by post type (Recaps indigo, Quizzes coral).
+
+## 2026-10-27: "The grind" Reel (MSP facts)
+
+- Concept **A, "Same puzzle. N times."**: the record grinder's curve (steep first tries → zoom out to the long tail,
+  personal bests as coral generator pieces), then the community curve (2nd / 5th / 10th solve) and "any size, same
+  curve"; ends on a question to the viewer. Idea and data in `docs/ideas/reel-grind.md`.
+- Real names allowed (featurable players only). **Unboxed solves are excluded** from the grind and the curves.
+- The curve **starts at the first logged solve as it is**, even when its time looks round (owner: keep it).
+- The unboxed repeat (a Christmas puzzle solved again and again without the box picture) gets **its own December Reel**.

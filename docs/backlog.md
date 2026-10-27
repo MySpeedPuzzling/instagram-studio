@@ -6,6 +6,10 @@ Updated 2026-10-17.
 
 ## Now
 
+- **"The grind" Reel** (decided 2026-10-27, `docs/ideas/reel-grind.md`): build key-frame stills of concept A in a lab
+  (HTML, 2–3 looks, per-slide feedback), then the HyperFrames builder `src/motion/reel-grind.ts` on `reel-grind-top` +
+  `reel-grind-curve`; MP4 render needs the owner's go-ahead. Later: December Reel on the unboxed Christmas repeat.
+
 - [ ] Reel "Your extra hour" (`2026-10-24-reel-clock`): owner picked C → `--look C --fresh` re-render Sat morning → approve →
       post by hand ~18:00 with music; Sun Story "It's 02:00 again"; insights at +24/48 h.
 - [ ] Owner decision on cadence from `reach_cadence_2026-10.md` (5/week incl. owner's posts, Trial Reels 2–3/week);

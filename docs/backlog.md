@@ -6,9 +6,10 @@ Updated 2026-10-17.
 
 ## Now
 
-- **"The grind" Reel** (decided 2026-10-27, `docs/ideas/reel-grind.md`): build key-frame stills of concept A in a lab
-  (HTML, 2–3 looks, per-slide feedback), then the HyperFrames builder `src/motion/reel-grind.ts` on `reel-grind-top` +
-  `reel-grind-curve`; MP4 render needs the owner's go-ahead. Later: December Reel on the unboxed Christmas repeat.
+- **"The grind" Reel** (concept A, look L1; `docs/ideas/reel-grind.md`): builder `src/motion/reel-grind.ts` + data
+  `src/posts/reel-grind.ts`, draft `2026-10-27-reel-grind` (status drafted, caption + alt linted, QA snapshots ok).
+  Next: owner's go-ahead for the MP4 render (`node tools/motion.ts grind 2026-10-27-reel-grind --fresh`), re-check caption
+  numbers, owner review, post by hand with music. Later: December Reel on the unboxed Christmas repeat.
 
 - [ ] Reel "Your extra hour" (`2026-10-24-reel-clock`): owner picked C → `--look C --fresh` re-render Sat morning → approve →
       post by hand ~18:00 with music; Sun Story "It's 02:00 again"; insights at +24/48 h.

@@ -2,7 +2,7 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-10-26 (Weekly Numbers ep. 2 drafted, week-on-week fixed; earlier: partner finder launch Reel drafted: src/motion/reel-partners.ts; standing rules: event-neutral feature promos, no white piece, hooks never narrow the feature).
+`docs/backlog.md` (what to do next). Updated 2026-10-27 (grind Reel: lab GR1, L1 builder, draft; Weekly Numbers ep. 2 drafted, week-on-week fixed; earlier: partner finder launch Reel drafted: src/motion/reel-partners.ts; standing rules: event-neutral feature promos, no white piece, hooks never narrow the feature).
 
 ## Where we are
 
@@ -34,6 +34,7 @@ tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/d
 | Start here (18 Oct) | Pinned evergreen explainer `node tools/draft.ts about` (draft 2026-10-18-about, C1 "missing piece" cover from lab **AB1**, coral intro poster): published by hand 18 Oct 17:29 (https://www.instagram.com/p/DepAfaWDaud/), pinned with the WJPC post and the quiz; insights at +48 h (Tue 20 Oct ~17:30). Refresh ~yearly. Audience notes in `editorial/audience.md` (read before every post) |
 | Weekly Numbers (18 Oct) | Builder from the owner's list: cover, most-solved (boxes), fastest solo/pairs/teams 500 & 1000 with the typical time, most solves, seeded shoutout draw (3 of everyone who solved; not already named), the week in hours (day chart), personal bests. Counts solves **finished** in the week: ~1 in 6 logged results are older solves typed in later (they topped "most active" with 189). Pairs/teams named only when every member is a featurable registered player. Lint skips declared proper nouns (`proper_nouns`, e.g. "Vibrant Vases") |
 | First Reel (21 Oct) | "Twice the pieces, so twice the time?" (1000 vs 500 solo: 3×), 30.4 s, published by hand 15:55 (https://www.instagram.com/reel/DewjphkIOPy/, draft `2026-10-21-reel-1000`, music added in the app, @ravensburgerglobal tagged). Builder `src/motion/reel-1000-v2.ts` (`node tools/motion.ts reel1000 <id> --look v2`; v1 looks A/B/C kept), data `queries/reel-1000-vs-500.sql`, new `logoExit()` in `src/motion/logo.ts`. Shared to Story as is (22:30, no sticker: a full-screen Reel share leaves no sticker room). Served copy only 720×1280 / 0.6 Mbit/s (blur); owner turned on "Upload at highest quality". Highlight "Did you know" cover in `content/highlights/` |
+| Grind Reel (27 Oct) | "Same puzzle. 211 times.": the most-repeated puzzle (211 solo solves of one 500) as a learning curve + the community curve by try and size. Lab **GR1** (3 looks × 6 key frames) → owner picked L1 Staircase; builder `src/motion/reel-grind.ts`, `node tools/motion.ts grind <id> [--fresh]`, draft `2026-10-27-reel-grind` waits for the MP4 go-ahead. Unboxed solves excluded; unboxed repeat saved for December |
 | Lint (18 Oct) | From the instagram-agent-skill review (not installed, ideas borrowed): search phrases per builder, invisible characters, stock phrases; review in `research_notes/…/external_instagram_agent_skill_review.md` |
 
 ## Waiting for the owner

@@ -251,3 +251,5 @@ Docker and other unneeded apps turned off.
 - Real names allowed (featurable players only). **Unboxed solves are excluded** from the grind and the curves.
 - The curve **starts at the first logged solve as it is**, even when its time looks round (owner: keep it).
 - The unboxed repeat (a Christmas puzzle solved again and again without the box picture) gets **its own December Reel**.
+- **Look L1 "Staircase"** for the whole Reel (lab GR1): every solve a dot, personal bests as coral generator pieces on a
+  coral step line; splash = the box mounted under the hook. Builder `src/motion/reel-grind.ts`.

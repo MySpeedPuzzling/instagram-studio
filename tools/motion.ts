@@ -8,7 +8,9 @@
 //   node tools/motion.ts weekly <id> --snap=/tmp/frames          # also save a JPEG at every QA time
 //   node tools/motion.ts reel1000 <draft-id> --look A|B|C|v2 [--qa-only]  # Reel "A 1000 isn't twice a 500" (last fresh run)
 //   node tools/motion.ts partners <draft-id> [--qa-only] [--fresh]           # Reel "Find your missing piece" (partner finder)
+//   node tools/motion.ts grind <draft-id> [--qa-only] [--fresh] [--snap=<dir>]   # Reel "Same puzzle. N times." (the grind)
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { HOUSE, activateVariant } from '../src/design/house.ts';
@@ -40,6 +42,22 @@ if (kind === 'partners' && id) {
     if (sr.qa.errors.length) throw new Error(`story QA:\n  ${sr.qa.errors.join('\n  ')}`);
   } finally { await r.close(); }
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-partners'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel partners` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 'grind' && id) {
+  // Reel "Same puzzle. N times." (owner 2026-10-27: concept A, look L1 from lab GR1); facts.json = the queries used
+  const { reelGrindSpec } = await import('../src/posts/reel-grind.ts');
+  const { reelGrindMotion } = await import('../src/motion/reel-grind.ts');
+  const spec = await reelGrindSpec({ fresh: !!o.fresh });
+  mkdirSync(join(DRAFTS, id), { recursive: true });
+  writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(spec.facts, null, 1) + '\n');
+  console.log(`grind: ${spec.s.length} solves of ${spec.puzzle}, ${spec.pbs.length} PBs, data ${spec.queriedAt}`);
+  activateVariant(HOUSE);
+  const motion = reelGrindMotion(HOUSE, spec);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-grind'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel grind` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);

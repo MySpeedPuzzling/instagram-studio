@@ -6,10 +6,10 @@ Updated 2026-10-17.
 
 ## Now
 
-- **"The grind" Reel** (concept A, look L1; `docs/ideas/reel-grind.md`): builder `src/motion/reel-grind.ts` + data
-  `src/posts/reel-grind.ts`, draft `2026-10-27-reel-grind` in review: MP4 rendered 27 Oct 20:10 with fresh data (30.6 s, 41.8 s render, 1.76 GB
-  peak). Next: owner review; if posted later than 28 Oct ~20:00, re-run with `--fresh` and re-check caption numbers; post by
-  hand with music; verify @cobblehillpuzzles in the app. Later: December Reel on the unboxed Christmas repeat.
+- **"The grind" Reel PUBLISHED Tue 27 Oct 21:22 Prague** (https://www.instagram.com/reel/DfAs85vN3QT/, draft
+  `2026-10-27-reel-grind`, linked; caption as drafted). Insights at +24 h (Wed 28 Oct ~21:20) and +48 h (Thu 29 Oct ~21:20):
+  retention, avg watch time, sends, non-follower reach vs the first three Reels. Not pinned (the count goes stale). Answer the
+  "which puzzle have you solved the most times?" comments. Later: December Reel on the unboxed Christmas repeat. Later: December Reel on the unboxed Christmas repeat.
 
 - [ ] Reel "Your extra hour" (`2026-10-24-reel-clock`): owner picked C → `--look C --fresh` re-render Sat morning → approve →
       post by hand ~18:00 with music; Sun Story "It's 02:00 again"; insights at +24/48 h.

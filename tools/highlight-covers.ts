@@ -17,8 +17,8 @@ import { ROOT } from '../src/render/server.ts';
  * Drawn icons (glyph "@name"), white on the coral piece, inside a ~300 px box centred on the piece; navy (#222a38)
  * marks the one element that is "this week".
  */
-function icon(name: string): string {
-  const W = '#ffffff', N = '#222a38', cx = 540, cy = 960;
+function icon(name: string, N = '#222a38'): string {
+  const W = '#ffffff', cx = 540, cy = 960;
   const bar = (x: number, w: number, h: number, fill = W) => `<rect x="${x}" y="${cy + 150 - h}" width="${w}" height="${h}" rx="${Math.min(14, w / 2)}" fill="${fill}"/>`;
   switch (name) {
     case 'bars': return [70, 140, 210, 290].map((h, i) => bar(cx - 150 + i * 80, 58, h, i === 3 ? N : W)).join('');
@@ -38,8 +38,10 @@ function icon(name: string): string {
 
 const OUT = process.argv.includes('--out');
 const covers = process.argv.slice(2).filter(a => a !== '--out').map(a => a.split(':') as [string, string, string?]);
-const LOOKS: Record<string, { ground: string; piece: string }> = {
-  navy: { ground: '#222a38', piece: '#ec726f' }, indigo: { ground: '#4e54c8', piece: '#ec726f' }, 'navy-indigo': { ground: '#222a38', piece: '#4e54c8' },
+// accent = the icon's "this week" element (navy disappears on an indigo piece, so coral there).
+const LOOKS: Record<string, { ground: string; piece: string; accent: string }> = {
+  navy: { ground: '#222a38', piece: '#ec726f', accent: '#222a38' }, indigo: { ground: '#4e54c8', piece: '#ec726f', accent: '#222a38' },
+  'navy-indigo': { ground: '#222a38', piece: '#4e54c8', accent: '#ec726f' }, 'slate-indigo': { ground: '#2b3445', piece: '#4e54c8', accent: '#ec726f' },
 };
 if (!covers.length) { console.error('usage: node tools/highlight-covers.ts <name>:<glyph> …'); process.exit(2); }
 const P = 520;
@@ -58,7 +60,7 @@ for (const [name, glyph, lookKey = 'navy'] of covers) {
   const svg = `<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
     <rect width="1080" height="1920" fill="${look.ground}"/>
     <g transform="translate(${540 - cx * S} ${960 - cy * S}) scale(${S})"><path d="${q.d}" fill="${look.piece}"/></g>
-    ${glyph.startsWith('@') ? `<g transform="translate(540 960) scale(0.78) translate(-540 -960)">${icon(glyph.slice(1))}</g>` : `<text x="540" y="1080" text-anchor="middle" font-family="Rubik, Inter, system-ui, sans-serif" font-weight="800" font-size="340" fill="#ffffff">${glyph}</text>`}</svg>`;
+    ${glyph.startsWith('@') ? `<g transform="translate(540 960) scale(0.78) translate(-540 -960)">${icon(glyph.slice(1), look.accent)}</g>` : `<text x="540" y="1080" text-anchor="middle" font-family="Rubik, Inter, system-ui, sans-serif" font-weight="800" font-size="340" fill="#ffffff">${glyph}</text>`}</svg>`;
   await page.setContent(`<html><body style="margin:0">${svg}</body></html>`);
   const file = join(out, `highlight-${name}.jpg`);
   await page.screenshot({ path: file, type: 'jpeg', quality: 92 });

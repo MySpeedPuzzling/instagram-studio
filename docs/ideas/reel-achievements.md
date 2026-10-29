@@ -35,6 +35,23 @@ User-facing texts: app `translations/messages.en.yml`, keys `badges.badge.<key>`
 - **No release date:** ships after the art is approved. The Reel goes out on release day (or the day after, once badges
   have been recalculated).
 
+## Shipped animations to reuse (app session, 2026-10-29)
+
+Paths in the app repo (speedpuzzling.cz). Show only what shipped as "what users see".
+- **Last-piece reveal (lab P2), shipped:** what a player sees on opening a newly earned badge (`/en/badge-reveals`).
+  The art arrives as a 3×3 jigsaw, the icon piece clicks in last, then piece confetti and a sound. Port
+  `assets/last_piece_reveal/reveal.js` + `looks.js` (per-tier timing), `confetti.js`, `geometry.json`,
+  `assets/styles/_last-piece-reveal.scss`. Input: `public/img/badges/webp/480/<key>-tN.webp`.
+- **Holo medal (lab P3), shipped** in the achievement detail sheet: tap flips it to the back (engraving, serial,
+  rarity); Platinum tilts 8°, Diamond 12°, one light sweep. `assets/holo_medal/{engine.js,textures.js}`,
+  `assets/styles/_achievement-medal.scss`; masks `public/img/badges/holo/<key>-t4|t5-{foil,rim}.png`, back-*.png,
+  colours from `manifest.json`.
+- Lists: earned seals get one CSS shine sweep. **Lab P4 (spinning medal) and P5 (self-animating SVG) did not
+  ship:** don't show them.
+- No code changes are needed for the new art; the lab demos won't be updated (stale): feed the port the shipped files.
+- Fallback for real footage: local dev stack, fixture player with unrevealed badges, `/en/badge-reveals`, then
+  `/en/achievements/<key>`.
+
 ## Plan
 
 - Format: Reel (reach to non-followers; owner decision 2026-10-14: HyperFrames for feature reveals) + Story share with

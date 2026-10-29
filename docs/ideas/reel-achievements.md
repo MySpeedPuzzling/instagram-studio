@@ -59,4 +59,4 @@ Paths in the app repo (speedpuzzling.cz). Show only what shipped as "what users 
 - Build in HyperFrames from the SVG masters (sharp, house style). Optional: one screen-recorded beat of the real
   detail sheet / holo medal from the local dev stack with fixture players (never real members).
 - Tie-in: Muscle Memory echoes "The grind" Reel (27 Oct).
-- Lab first (key frames in 2–3 looks for Works / Unsure / No-go), then the builder. Owner 2026-10-29: start the lab only once the final art is in (no stand-ins).
+- Lab first (key frames in 2–3 looks for Works / Unsure / No-go), then the builder. The lab must include reveal variant A (app's shipped cut, ported as is) and B (same motion, our generator's pieces) side by side. Owner 2026-10-29: start the lab only once the final art is in (no stand-ins).

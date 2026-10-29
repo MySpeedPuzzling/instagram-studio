@@ -260,3 +260,6 @@ Docker and other unneeded apps turned off.
   `docs/ideas/reel-achievements.md`.
 - **Wait for the final badge art** before any lab or key frames (no stand-in art); start when the app session reports
   the art approved.
+- **Reveal pieces (2026-10-29):** the lab shows both variants side by side: the app's shipped last-piece reveal
+  ported as is (its own cut) and the same motion with pieces from `src/pieces/jigsaw.ts`; the owner picks after
+  comparing. No exception to the pieces rule until then.

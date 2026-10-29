@@ -9,6 +9,7 @@
 //   node tools/motion.ts reel1000 <draft-id> --look A|B|C|v2 [--qa-only]  # Reel "A 1000 isn't twice a 500" (last fresh run)
 //   node tools/motion.ts partners <draft-id> [--qa-only] [--fresh]           # Reel "Find your missing piece" (partner finder)
 //   node tools/motion.ts grind <draft-id> [--qa-only] [--fresh] [--snap=<dir>]   # Reel "Same puzzle. N times." (the grind)
+//   node tools/motion.ts achievements <draft-id> [--qa-only] [--snap=<dir>]     # Reel "5 new achievements" (lab AC1, look L4)
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -58,6 +59,17 @@ if (kind === 'grind' && id) {
   const motion = reelGrindMotion(HOUSE, spec);
   activateVariant(undefined);
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-grind'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel grind` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 'achievements' && id) {
+  // Reel "5 new achievements" (owner 2026-10-29: look L4 from lab AC1, reveal cut A); no DB numbers (rules are the app's)
+  const { reelAchievementsMotion } = await import('../src/motion/reel-achievements.ts');
+  activateVariant(HOUSE);
+  const motion = reelAchievementsMotion(HOUSE);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-achievements'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel achievements` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);

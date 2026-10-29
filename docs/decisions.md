@@ -266,3 +266,6 @@ Docker and other unneeded apps turned off.
 - **Look (2026-10-29):** L4 "Reveal → shelf": every new badge assembles through the app's puzzle reveal with its rule
   (L1), then the five fly onto the shelf and land in lit sockets (L2); close on the full shelf with the link. Copy
   names only the new ones (no count of the existing badges).
+- **Reveal cut (2026-10-29):** owner left it to Claude → **A, the app's shipped cut** (what players see, already
+  ported); the pieces rule's exception covers the app's own UI only. Each badge also steps Bronze → Diamond with its
+  rule's number (Claude's addition, easy to drop).

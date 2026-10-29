@@ -42,4 +42,4 @@ User-facing texts: app `translations/messages.en.yml`, keys `badges.badge.<key>`
 - Build in HyperFrames from the SVG masters (sharp, house style). Optional: one screen-recorded beat of the real
   detail sheet / holo medal from the local dev stack with fixture players (never real members).
 - Tie-in: Muscle Memory echoes "The grind" Reel (27 Oct).
-- Lab first (key frames in 2–3 looks for Works / Unsure / No-go), then the builder.
+- Lab first (key frames in 2–3 looks for Works / Unsure / No-go), then the builder. Owner 2026-10-29: start the lab only once the final art is in (no stand-ins).

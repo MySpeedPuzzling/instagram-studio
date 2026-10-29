@@ -253,3 +253,10 @@ Docker and other unneeded apps turned off.
 - The unboxed repeat (a Christmas puzzle solved again and again without the box picture) gets **its own December Reel**.
 - **Look L1 "Staircase"** for the whole Reel (lab GR1): every solve a dot, personal bests as coral generator pieces on a
   coral step line; splash = the box mounted under the hook. Builder `src/motion/reel-grind.ts`.
+
+## 2026-10-29: achievements launch Reel
+
+- A **Reel** (+ Story share with a link sticker) launches the 5 new achievements; idea and facts in
+  `docs/ideas/reel-achievements.md`.
+- **Wait for the final badge art** before any lab or key frames (no stand-in art); start when the app session reports
+  the art approved.

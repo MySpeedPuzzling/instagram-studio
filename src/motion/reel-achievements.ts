@@ -9,7 +9,8 @@
 //             Bronze to Diamond while the number in its rule counts up with it
 //   24.5–28.5 the shelf: the badges you can already earn (dimmed, never counted: owner 2026-10-29), five lit sockets; the
 //             five new ones line up and fly in
-//   28.5–32.0 the closing question over the full shelf + the link
+//   28.5–32.0 the closing line over the full shelf + "open your profile and reveal them" (the app has no notification:
+//             new tiers wait as "?" seals with a "Reveal them" call-out; app session 2026-10-29)
 //   32.0–33.1 loop back to the splash
 // The reveal is a port of speedpuzzling.cz assets/last_piece_reveal/reveal.js + looks.js (timing, offsets, colours),
 // fed with the app's badge art (content/assets/achievements/, copied from the app; gitignored).
@@ -230,7 +231,7 @@ export function reelAchievementsMotion(v: Variant): Motion {
   const shelf = `<div id="shelf">
     <div id="shead"><p class="h-abs h-cap" style="top:480px">All five</p><p class="h-abs h-title s" style="top:526px; width:${RW}px">5 new achievements to earn</p></div>
     <div id="close"><p class="h-abs h-ask" style="top:500px; width:${RW}px">Your past solves count: you may already have some</p>
-      <p class="h-abs h-lead" style="top:800px; width:${RW}px">See yours: myspeedpuzzling.com/en/achievements</p></div>
+      <p class="h-abs h-lead" style="top:800px; width:${RW}px">Open your profile on myspeedpuzzling.com and reveal them</p></div>
     ${oldHtml}
     ${flyers.map(f => `<div class="ac-socket" id="so${f.j}" style="left:${f1(f.p.x)}px; top:${f1(f.p.y)}px; width:${S}px; height:${S}px"></div>`).join('')}
     ${flyers.map(f => `<img class="ac-new" id="fy${f.j}" src="${art(f.b.key, 3)}" alt="" style="left:${f1(f.p.x)}px; top:${f1(f.p.y)}px; width:${S}px; height:${S}px">`).join('')}

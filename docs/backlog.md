@@ -9,7 +9,8 @@ Updated 2026-10-17.
 - [ ] **Achievements launch Reel** (`docs/ideas/reel-achievements.md`, draft `2026-10-29-reel-achievements`): 5 new badges, live
       on the site 29 Oct. Look L4 + reveal cut A; builder `src/motion/reel-achievements.ts`, `node tools/motion.ts achievements <id>`
       (no DB numbers). MP4 rendered 29 Oct (33.1 s, 92 s render, peak 1.7 GB), caption linted, **owner feedback on the video** →
-      post by hand with music + link Story to /en/achievements. Holder counts only after the app session reports recalculate-badges done.
+      post by hand with music + follow-up Story with holder numbers (`queries/achievements-new-holders.sql`, fresh on the day; 29 Oct: Muscle
+      Memory Bronze ~1 in 3 of 8399 active players, nobody at Competitor Diamond yet) + link sticker to /en/achievements.
 
 - **"The grind" Reel PUBLISHED Tue 27 Oct 21:22 Prague** (https://www.instagram.com/reel/DfAs85vN3QT/, draft
   `2026-10-27-reel-grind`, linked; caption as drafted). Insights at +24 h (Wed 28 Oct ~21:20) and +48 h (Thu 29 Oct ~21:20):

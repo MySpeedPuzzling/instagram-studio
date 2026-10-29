@@ -269,3 +269,6 @@ Docker and other unneeded apps turned off.
 - **Reveal cut (2026-10-29):** owner left it to Claude → **A, the app's shipped cut** (what players see, already
   ported); the pieces rule's exception covers the app's own UI only. Each badge also steps Bronze → Diamond with its
   rule's number (Claude's addition, easy to drop).
+- **Ending + numbers (2026-10-29):** the Reel ends on "open your profile on myspeedpuzzling.com and reveal them" (the
+  app sends no notification; new tiers wait as "?" seals with a "Reveal them" call-out). Holder counts go only into the
+  follow-up Story (query `achievements-new-holders`, re-run fresh on the day), never into the evergreen Reel.

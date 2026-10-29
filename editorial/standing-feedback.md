@@ -168,6 +168,9 @@ How to maintain it:
   link to its overview page (partner finder: myspeedpuzzling.com/en/partner-finder), never to one event. (owner,
   2026-10-22, partner finder Reel)
 
+- **Launches talk about what's new only:** don't mention or count what already existed ("joined the 16", "21 in
+  total"); say it like news: "5 new achievements!", "Now there are 5 more!". (owner, 2026-10-29, achievements Reel)
+
 - **After every publish, suggest the pins:** keep or swap each of the three pinned posts, with the reason and step-by-step
   app instructions (pinning is manual: the API can't pin). Pinned posts stay evergreen (see decisions 2026-10-18).
   (owner, 2026-10-19)

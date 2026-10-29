@@ -20,8 +20,8 @@ by the app session on 2026-10-29. **Not released yet**: re-check rules and texts
 User-facing texts: app `translations/messages.en.yml`, keys `badges.badge.<key>`, `badges.description.<key>`,
 `badges.requirement.<key>_1.._5` (all 6 locales). Use those words, not ours.
 
-- Existing: 16 tiered achievements (+ Early Adopter, admin-granted). Safe line: "5 new achievements join the existing
-  16: 21 to earn".
+- Existing: 16 tiered achievements (+ Early Adopter). **Owner 2026-10-29: don't mention or count them in the copy**;
+  say it as news ("5 new achievements!", "Now there are 5 more!").
 - **Retroactive:** after deploy everyone who already qualifies gets the badges, dated from history ("you may already
   have these"). Night Owl only for players with a time zone set (a CTA: set your time zone).
 - Link sticker: myspeedpuzzling.com/en/achievements.

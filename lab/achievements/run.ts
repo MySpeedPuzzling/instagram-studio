@@ -3,8 +3,8 @@
 //   L1 Puzzle reveal  every badge arrives through the app's shipped last-piece reveal (3×3 jigsaw, icon piece last);
 //   L2 Shelf          the 16 existing badges on a shelf, the 5 new ones drop into lit sockets;
 //   L3 Tier ladder    each badge from Bronze to Diamond with the number every tier needs.
-// Six frames per look: K1 hook (frame 0), K2 the reveal moment, K3 Muscle Memory, K4 Night Owl, K5 all five + "21 to
-// earn", K6 closing. Plus the reveal compared (owner 2026-10-29): A = the app's own cut (speedpuzzling.cz
+// Six frames per look: K1 hook (frame 0), K2 the reveal moment, K3 Muscle Memory, K4 Night Owl, K5 all five (no count of the
+// existing ones: owner 2026-10-29), K6 closing. Plus the reveal compared (owner 2026-10-29): A = the app's own cut (speedpuzzling.cz
 // assets/last_piece_reveal/geometry.json, ported as is), B = the same motion with pieces from src/pieces/jigsaw.ts.
 // Art: the app's final badge files, copied into gitignored content/assets/achievements/ (webp480, manifest, geometry).
 // Rule texts are the app's EN strings (translations/messages.en.yml, badges.requirement.*). Writes content/labs/AC1/.
@@ -175,7 +175,7 @@ function k1(lk: Look) {
     <p class="ac-site" style="top:528px">myspeedpuzzling.com</p>
     <p class="ac-c ac-hook" style="top:620px">Badges for</p>
     <p class="ac-c ac-hook hot" style="top:724px">solving puzzles?</p>
-    <p class="ac-c ac-sub" style="top:860px">5 new ones just joined the 16</p>
+    <p class="ac-c ac-sub" style="top:860px">Now there are 5 more!</p>
   </div>${artHtml}`;
 }
 
@@ -200,8 +200,8 @@ const k3 = (lk: Look) => explain(lk, 'muscle_memory', 1);
 const k4 = (lk: Look) => explain(lk, 'night_owl', 3, `<p class="h-abs h-lab ac-note" style="top:${lk === 'L3' ? 1180 : 760}px; width:${RW}px">Set your time zone in your profile settings</p>`);
 
 function k5(lk: Look) {
-  const head = `<p class="h-abs h-cap" style="top:480px">All five</p><p class="h-abs h-title s" style="top:526px; width:${RW}px">21 achievements to earn</p>`;
-  if (lk === 'L2') return `${head}<p class="h-abs h-lab" style="top:640px; width:${RW}px">5 new ones join the existing 16</p>${shelf(740, 126)}`;
+  const head = `<p class="h-abs h-cap" style="top:480px">All five</p><p class="h-abs h-title s" style="top:526px; width:${RW}px">5 new achievements to earn</p>`;
+  if (lk === 'L2') return `${head}${shelf(740, 126)}`;
   const rows = NEW.map((b, i) => {
     const y = 640 + i * 126;
     return `${img(b.key, lk === 'L3' ? 5 : 3, X0, y, 100)}<p class="ac-row" style="left:${X0 + 140}px; top:${y + 2}px; width:${RW - 140}px"><b>${h(b.name)}</b><br>${h(b.rule(b.tiers[0]))}</p>`;
@@ -228,12 +228,12 @@ const FRAMES_OF = [
   { k: 'K2', label: 'The reveal moment', f: k2 },
   { k: 'K3', label: 'Muscle Memory and its rule', f: k3 },
   { k: 'K4', label: 'Night Owl (+ time zone note)', f: k4 },
-  { k: 'K5', label: 'All five · 21 to earn', f: k5 },
+  { k: 'K5', label: 'All five', f: k5 },
   { k: 'K6', label: 'Closing: past solves count + link', f: k6 },
 ];
 const LOOKS_OF: Array<{ id: Look; name: string; note: string }> = [
   { id: 'L1', name: 'Puzzle reveal', note: 'Every badge arrives through the app\'s own last-piece reveal: frame pieces snap in, the icon piece clicks in last, burst and piece confetti.' },
-  { id: 'L2', name: 'Shelf', note: 'The 16 existing badges on a shelf (dimmed), the 5 new ones drop into lit sockets.' },
+  { id: 'L2', name: 'Shelf', note: 'The badges you can already earn on a shelf (dimmed, no count named), the 5 new ones drop into lit sockets.' },
   { id: 'L3', name: 'Tier ladder', note: 'Each badge from Bronze to Diamond with the number every tier needs.' },
 ];
 const REVEALS = [
@@ -298,7 +298,7 @@ writeFileSync(join(DIR, 'index.html'), `<!doctype html><html><head><meta charset
 main{padding:24px;max-width:1700px}h2{margin:34px 0 4px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}.tile{background:#fff;border-radius:10px;padding:10px}.tile img{width:100%;border-radius:6px;display:block}
 .code{margin:8px 0 4px;font-size:14px}.rate button{margin-right:5px;padding:3px 9px;border:1px solid #c9ced8;background:#fff;border-radius:6px;cursor:pointer}.rate button.on{background:#1d2433;color:#fff}.rate textarea{width:100%;margin-top:6px;box-sizing:border-box}.saved{color:#2a7;font-size:12px}</style></head><body>
 <header>${labNav(LAB)}<h1 style="font-size:20px;margin:0">${LAB} · Achievements launch Reel: key frames, three looks + reveal A/B</h1></header>
-<main><p>5 new achievements (Muscle Memory, Muscle Memory unboxed, Night Owl, Competitor, Online Competitor) join the existing 16: 21 to earn.
+<main><p>5 new achievements (Muscle Memory, Muscle Memory unboxed, Night Owl, Competitor, Online Competitor) are released. Copy names only the new ones (owner 2026-10-29: no \"joined the 16\").
 Final app art (approved 29 Oct); rule texts are the app's own. Six key frames per look of a ~25 s Reel; the motion between them (pieces flying in,
 badges dropping, count-ups) comes in the builder. Rate each frame (codes like "L2-K3" work in the chat); mixing looks per frame is fine.
 Frames are 1080×1920; text stays in the Reel safe area (y 220–1250), art below it may sit under Instagram's caption.</p>

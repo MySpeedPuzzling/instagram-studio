@@ -10,6 +10,7 @@
 //   node tools/motion.ts partners <draft-id> [--qa-only] [--fresh]           # Reel "Find your missing piece" (partner finder)
 //   node tools/motion.ts grind <draft-id> [--qa-only] [--fresh] [--snap=<dir>]   # Reel "Same puzzle. N times." (the grind)
 //   node tools/motion.ts achievements <draft-id> [--qa-only] [--snap=<dir>]     # Reel "5 new achievements" (lab AC1, look L4)
+//   node tools/motion.ts achievements <draft-id> --story                        # its follow-up Story (holder numbers, fresh)
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -28,7 +29,7 @@ import { REEL_PUZZLES, reel1000Spec } from '../src/posts/reel-1000.ts';
 import { weeklyStoryMotion } from '../src/motion/weekly-story.ts';
 import { buildWeeklySpec } from '../src/posts/weekly-data.ts';
 
-const { values: o, positionals: [kind, id] } = parseArgs({ allowPositionals: true, options: { 'qa-only': { type: 'boolean' }, snap: { type: 'string' }, look: { type: 'string', default: 'A' }, fresh: { type: 'boolean' } } });
+const { values: o, positionals: [kind, id] } = parseArgs({ allowPositionals: true, options: { 'qa-only': { type: 'boolean' }, snap: { type: 'string' }, look: { type: 'string', default: 'A' }, fresh: { type: 'boolean' }, story: { type: 'boolean' } } });
 if (kind === 'partners' && id) {
   const spec = await reelPartnersSpec({ id, fresh: !!o.fresh });
   if (spec.placeholder) console.log('  note: UI screens are placeholders (ui-placeholder/), not the real UI');
@@ -65,6 +66,22 @@ if (kind === 'grind' && id) {
 }
 if (kind === 'achievements' && id) {
   // Reel "5 new achievements" (owner 2026-10-29: look L4 from lab AC1, reveal cut A); no DB numbers (rules are the app's)
+  if (o.story) {
+    // the follow-up Story: holder numbers queried fresh (sticker Story; the link sticker is placed by hand)
+    const { query } = await import('../src/data/db.ts');
+    const { achievementsStory, holderFacts } = await import('../src/posts/reel-achievements.ts');
+    const f = holderFacts(query('achievements-new-holders', { fresh: true }));
+    activateVariant(HOUSE);
+    const html = page(achievementsStory(HOUSE, f), { frame: 'story', css: HOUSE_CSS, title: `${id} story 1` });
+    activateVariant(undefined);
+    const r = await createRenderer(join(DRAFTS, id));
+    try {
+      const sr = await r.render({ id: 'stories/story-1', html, frame: 'story', safe: STICKER_STORY_SAFE });
+      if (sr.qa.errors.length) throw new Error(`story QA:\n  ${sr.qa.errors.join('\n  ')}`);
+      console.log(`story: ${sr.jpg} (data ${f.queriedAt}, ${f.active} active players)`);
+    } finally { await r.close(); }
+    process.exit(0);
+  }
   const { reelAchievementsMotion } = await import('../src/motion/reel-achievements.ts');
   activateVariant(HOUSE);
   const motion = reelAchievementsMotion(HOUSE);

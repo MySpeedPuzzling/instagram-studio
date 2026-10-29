@@ -6,6 +6,10 @@ Updated 2026-10-17.
 
 ## Now
 
+- [ ] **Achievements launch Reel** (`docs/ideas/reel-achievements.md`): 5 new badges, Reel + link Story. Blocked on the
+      final art for the 5 new badges and the release date (app session reports both). Then: lab of key frames → owner
+      picks a look → builder → render on release day.
+
 - **"The grind" Reel PUBLISHED Tue 27 Oct 21:22 Prague** (https://www.instagram.com/reel/DfAs85vN3QT/, draft
   `2026-10-27-reel-grind`, linked; caption as drafted). Insights at +24 h (Wed 28 Oct ~21:20) and +48 h (Thu 29 Oct ~21:20):
   retention, avg watch time, sends, non-follower reach vs the first three Reels. Not pinned (the count goes stale). Answer the

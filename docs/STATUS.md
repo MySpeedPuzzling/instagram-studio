@@ -2,7 +2,7 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-10-27 (grind Reel: lab GR1, L1 builder, draft; Weekly Numbers ep. 2 drafted, week-on-week fixed; earlier: partner finder launch Reel drafted: src/motion/reel-partners.ts; standing rules: event-neutral feature promos, no white piece, hooks never narrow the feature).
+`docs/backlog.md` (what to do next). Updated 2026-10-29 (achievements launch Reel + holder Story published: lab AC1, look L4, builder `src/motion/reel-achievements.ts`; earlier 27 Oct: grind Reel: lab GR1, L1 builder, draft; Weekly Numbers ep. 2 drafted, week-on-week fixed; earlier: partner finder launch Reel drafted: src/motion/reel-partners.ts; standing rules: event-neutral feature promos, no white piece, hooks never narrow the feature).
 
 ## Where we are
 

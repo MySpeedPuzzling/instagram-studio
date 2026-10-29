@@ -6,7 +6,7 @@
 //             then it all leaves
 //   3.0–24.5  five beats of 4.3 s: name and rule, the badge assembles (the app's timing: 8 frame pieces corners first, the
 //             icon piece hovers and clicks in last ~1 s in, seams flash, burst, piece confetti), then it steps up from
-//             Bronze to Diamond while the number in its rule counts up with it
+//             Bronze to Diamond; the rule stays put, only its own line "Bronze · 3 times" steps with it
 //   24.5–28.5 the shelf: the badges you can already earn (dimmed, never counted: owner 2026-10-29), five lit sockets; the
 //             five new ones line up and fly in
 //   28.5–32.0 the closing line over the full shelf + "open your profile and reveal them" (the app has no notification:
@@ -30,14 +30,16 @@ const RX = SAFE.x1, RW = RX - X0, CX = X0 + RW / 2;
 const NAVY = '#2b3445', CORAL = '#ec726f';
 
 export type BadgeKey = 'muscle_memory' | 'muscle_memory_unboxed' | 'night_owl' | 'competitor' | 'online_competitor';
-export interface NewBadge { key: BadgeKey; name: string; tiers: number[]; rule: (n: number) => string; note?: string }
+/** `rule` = the app's text per tier (facts, alt text); the Reel shows `line` (static) and `amount` per tier on its own
+ * line, so only that short line changes as the badge steps up (owner 2026-10-29: the sentence must not jump). */
+export interface NewBadge { key: BadgeKey; name: string; tiers: number[]; rule: (n: number) => string; line: string; amount: (n: number) => string; note?: string }
 /** The five, with the app's EN texts (translations/messages.en.yml, badges.requirement.<key>_1.._5), 2026-10-29. */
 export const NEW_BADGES: NewBadge[] = [
-  { key: 'muscle_memory', name: 'Muscle Memory', tiers: [3, 8, 15, 30, 50], rule: n => `Solve the same 500-piece puzzle ${n} times (solo)` },
-  { key: 'muscle_memory_unboxed', name: 'Muscle Memory (unboxed)', tiers: [2, 4, 8, 15, 25], rule: n => `Solve the same 500-piece puzzle ${n} times without looking at the box (solo)` },
-  { key: 'night_owl', name: 'Night Owl', tiers: [10, 30, 75, 150, 250], rule: n => `Log ${n} results between 10 pm and 4 am`, note: 'Set your time zone in your profile settings' },
-  { key: 'competitor', name: 'Competitor', tiers: [1, 3, 6, 12, 25], rule: n => `Take part in ${n} in-person competition${n === 1 ? '' : 's'}` },
-  { key: 'online_competitor', name: 'Online Competitor', tiers: [2, 6, 12, 25, 50], rule: n => `Log ${n} results at online competitions` },
+  { key: 'muscle_memory', name: 'Muscle Memory', tiers: [3, 8, 15, 30, 50], rule: n => `Solve the same 500-piece puzzle ${n} times (solo)`, line: 'Solve the same 500-piece puzzle again and again (solo)', amount: n => `${n} times` },
+  { key: 'muscle_memory_unboxed', name: 'Muscle Memory (unboxed)', tiers: [2, 4, 8, 15, 25], rule: n => `Solve the same 500-piece puzzle ${n} times without looking at the box (solo)`, line: 'Solve the same 500-piece puzzle without looking at the box (solo)', amount: n => `${n} times` },
+  { key: 'night_owl', name: 'Night Owl', tiers: [10, 30, 75, 150, 250], rule: n => `Log ${n} results between 10 pm and 4 am`, line: 'Log results between 10 pm and 4 am', amount: n => `${n} results`, note: 'Set your time zone in your profile settings' },
+  { key: 'competitor', name: 'Competitor', tiers: [1, 3, 6, 12, 25], rule: n => `Take part in ${n} in-person competition${n === 1 ? '' : 's'}`, line: 'Take part in puzzle competitions in person', amount: n => `${n} competition${n === 1 ? '' : 's'}` },
+  { key: 'online_competitor', name: 'Online Competitor', tiers: [2, 6, 12, 25, 50], rule: n => `Log ${n} results at online competitions`, line: 'Log your results at online competitions', amount: n => `${n} results` },
 ];
 const OLD = ['puzzles_solved', 'pieces_solved', 'speed_500_pieces', 'speed_1000_pieces', 'streak', 'team_player', 'zen_puzzler', 'first_try',
   'unboxed', 'brand_explorer', 'marathoner', 'photographer', 'steady_hands', 'librarian', 'weekend_puzzler', 'cataloger'];
@@ -209,12 +211,13 @@ export function reelAchievementsMotion(v: Variant): Motion {
   const nameSize = (s: string) => Math.min(88, Math.floor(RW / (s.length * 0.6)));
   const beats = NEW_BADGES.map((b, n) => {
     const t0 = T.beats + n * T.beat;
-    const st = stage(G, `b${n}`, b.key, [1, 2, 3, 4, 5], CX, 850, 440, t0 + 0.35, { seed: 11 + n });
+    const st = stage(G, `b${n}`, b.key, [1, 2, 3, 4, 5], CX, 960, 400, t0 + 0.35, { seed: 11 + n });
     const html = `<div class="ac-beat" id="beat${n}">
       <p class="h-abs h-cap" style="top:480px">New achievement ${n + 1} of 5</p>
       <p class="ac-name" style="top:530px; font-size:${nameSize(b.name)}px">${h(b.name)}</p>
-      <p class="h-abs h-lead ac-rule" style="top:648px; width:${RW}px"><b class="ac-tier" id="tn${n}">Bronze</b> <span id="rt${n}">${h(b.rule(b.tiers[0]))}</span></p>
-      ${b.note ? `<p class="h-abs h-lab ac-note" style="top:790px; width:${RW}px">${h(b.note)}</p>` : ''}
+      <p class="h-abs h-lead ac-rule" style="top:648px; width:${RW}px">${h(b.line)}</p>
+      ${b.note ? `<p class="h-abs h-lab ac-note" style="top:716px; width:${RW}px">${h(b.note)}</p>` : ''}
+      <p class="h-abs ac-step" style="top:784px; width:${RW}px"><b class="ac-tier" id="tn${n}">Bronze</b> · <span id="rt${n}">${h(b.amount(b.tiers[0]))}</span></p>
     </div>${st.html}`;
     return { b, n, t0, st, html };
   });
@@ -258,6 +261,7 @@ export function reelAchievementsMotion(v: Variant): Motion {
 .ac-conf { position: absolute; overflow: visible; pointer-events: none; }
 .ac-name { position: absolute; left: ${X0}px; width: ${RW}px; margin: 0; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; white-space: nowrap; color: var(--g-ink); }
 .ac-rule { font-size: 46px; }
+.ac-step { margin: 0; font-size: 50px; font-weight: 600; line-height: 1; white-space: nowrap; color: var(--g-ink); font-variant-numeric: tabular-nums; }
 .ac-tier { font-weight: 700; }
 .ac-note { color: var(--g-hot-text); font-weight: 600; }
 .ac-site { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 32px; font-weight: 700; color: var(--g-ink); }
@@ -285,7 +289,7 @@ ${x.st.js}
   const draw = () => { const t = Math.min(5, Math.floor(o.v + 1e-6));
     for (let i = 0; i < 5; i++) $('b' + n + 'i' + i).style.opacity = i === t - 1 ? 1 : 0;
     const tn = $('tn' + n); tn.textContent = D.tier[t - 1]; tn.style.color = D.ink[t - 1];
-    $('rt' + n).textContent = D.rules[n][t - 1]; };
+    $('rt' + n).textContent = D.amounts[n][t - 1]; };
   draw();
   tl.fromTo(o, { v: 1 }, { v: 5, duration: ${f1(step * 4)}, ease: 'none', onUpdate: draw, onComplete: draw, immediateRender: false }, ${f1(st0)});
   for (let k = 1; k <= 4; k++) flash('#b${x.n}bg', ${f1(st0)} + k * ${step} - 0.02);
@@ -336,7 +340,7 @@ tl.fromTo('#splash > *', { y: -60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duratio
 ${logo.back(T.loop + 0.5)}
 tl.set({}, {}, ${DURATION});
 `;
-  const data = { tier: TIER, ink: TIER_INK, rules: NEW_BADGES.map(b => b.tiers.map(n => b.rule(n))) };
+  const data = { tier: TIER, ink: TIER_INK, amounts: NEW_BADGES.map(b => b.tiers.map(n => b.amount(n))) };
   const qaAt = [0.05, 1.2, 2.3, ...beats.flatMap(x => [x.t0 + 0.9, x.t0 + 1.6, x.t0 + 3.5]), T.shelf + 1.0, T.shelf + 3.6, T.close + 1.5, T.loop - 0.1, DURATION - 0.05];
   return {
     // Cover = frame 0, the complete splash.

@@ -168,6 +168,10 @@ How to maintain it:
   link to its overview page (partner finder: myspeedpuzzling.com/en/partner-finder), never to one event. (owner,
   2026-10-22, partner finder Reel)
 
+- **Moving text never reflows a sentence:** keep the sentence static and put the changing part (a tier, a count, a
+  time) on its own short line, with tabular digits, so only that line changes. (owner, 2026-10-29, achievements Reel:
+  "Bronze Solve … 3 times" jumping to "Diamond … 50 times" was bad to read)
+
 - **Launches talk about what's new only:** don't mention or count what already existed ("joined the 16", "21 in
   total"); say it like news: "5 new achievements!", "Now there are 5 more!". (owner, 2026-10-29, achievements Reel)
 

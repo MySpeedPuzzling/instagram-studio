@@ -7,7 +7,8 @@ Updated 2026-10-17.
 ## Now
 
 - [x] **Achievements launch Reel PUBLISHED 29 Oct 16:03 Prague** (https://www.instagram.com/reel/DfFSLQLNCQK/, draft
-      `2026-10-29-reel-achievements`, linked) + holder-numbers Story with a link sticker.
+      `2026-10-29-reel-achievements`, linked) + holder-numbers Story with a link sticker (posted ~16:10 Prague):
+      **read its Story insights (link taps, replies, exits) before it expires, Fri 30 Oct ~16:00.**
 - [ ] Achievements Reel insights at +24 h (Fri 30 Oct ~16:00) and +48 h (Sat 31 Oct ~16:00) vs the grind and partner Reels;
       pin verdict at +48 h (candidate to replace the postcard quiz pin: evergreen).
 

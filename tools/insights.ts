@@ -9,7 +9,10 @@ import { igClient, IgError } from '../src/ig/api.ts';
 import { openStore } from '../src/store/db.ts';
 
 const FEED = ['reach', 'views', 'likes', 'comments', 'shares', 'saved', 'total_interactions', 'follows', 'profile_visits'];
-const REELS = ['reach', 'views', 'likes', 'comments', 'shares', 'saved', 'total_interactions', 'ig_reels_avg_watch_time'];
+const REELS = ['reach', 'views', 'likes', 'comments', 'shares', 'saved', 'total_interactions', 'ig_reels_avg_watch_time',
+  'reels_skip_rate', 'ig_reels_video_view_total_time'];
+// Stories are only in the API while live (24 h): each run snapshots the live ones, so run once more shortly before expiry.
+const STORY = ['reach', 'views', 'replies', 'shares', 'follows', 'profile_visits', 'total_interactions'];
 
 const ig = igClient();
 const db = openStore();
@@ -53,6 +56,22 @@ async function pull() {
       v('total_interactions'), v('follows'), v('profile_visits'), v('ig_reels_avg_watch_time'), JSON.stringify(metrics));
   }
 
+  const stories = (await ig.get('me/stories', { fields: 'id,timestamp,media_type,permalink' })).data ?? [];
+  for (const s of stories) {
+    db.prepare(`INSERT INTO media (id, timestamp, media_type, media_product_type, permalink) VALUES (?, ?, ?, 'STORY', ?)
+      ON CONFLICT(id) DO NOTHING`).run(s.id, s.timestamp, s.media_type, s.permalink ?? null);
+    const metrics = await insightsFor(s.id, STORY);
+    if (!metrics) continue;
+    try { // exits, taps forward/back, next story: only as a breakdown of `navigation`
+      const n = await ig.get(`${s.id}/insights`, { metric: 'navigation', breakdown: 'story_navigation_action_type' });
+      for (const r of n.data?.[0]?.total_value?.breakdowns?.[0]?.results ?? []) metrics[`nav_${r.dimension_values[0].toLowerCase()}`] = r.value;
+    } catch { /* not available yet */ }
+    const age = (now.getTime() - Date.parse(s.timestamp)) / 3_600_000;
+    const v = (k: string) => (metrics[k] == null ? null : Number(metrics[k]));
+    snap.run(s.id, now.toISOString(), +age.toFixed(1), v('views'), v('reach'), null, null, v('shares'), null,
+      v('total_interactions'), v('follows'), v('profile_visits'), null, JSON.stringify(metrics));
+  }
+
   // Account daily metrics, last 30 days (the API's maximum window per call).
   const until = Math.floor(now.getTime() / 1000), since = until - 30 * 86400;
   const daily = db.prepare('INSERT OR REPLACE INTO account_daily VALUES (?, ?, ?, ?)');
@@ -62,7 +81,7 @@ async function pull() {
       for (const v of r.data?.[0]?.values ?? []) daily.run(String(v.end_time).slice(0, 10), metric, v.value, now.toISOString());
     } catch (e) { console.warn(`account ${metric}: ${(e as Error).message}`); }
   }
-  console.log(`followers ${me.followers_count}; media ${media.length}, ${withData} with insights; account metrics stored`);
+  console.log(`followers ${me.followers_count}; media ${media.length}, ${withData} with insights; ${stories.length} live Stories; account metrics stored`);
 }
 
 function summary() {
@@ -76,7 +95,7 @@ function summary() {
   const median = (xs: number[]) => { const s = xs.filter(x => x != null).sort((a, b) => a - b); return s.length ? s[Math.floor((s.length - 1) / 2)] : null; };
   const groups = new Map<string, any[]>();
   for (const r of rows) {
-    const k = `${r.year} ${r.media_type === 'CAROUSEL_ALBUM' ? 'carousel' : r.kind === 'REELS' ? 'reel' : 'image'}`;
+    const k = `${r.year} ${r.media_type === 'CAROUSEL_ALBUM' ? 'carousel' : r.kind === 'REELS' ? 'reel' : r.kind === 'STORY' ? 'story' : 'image'}`;
     groups.set(k, [...(groups.get(k) ?? []), r]);
   }
   console.log('year  format     posts  reach  views  likes  shares  saved  follows  ER(int/reach)');

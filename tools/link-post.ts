@@ -5,6 +5,7 @@
 //   node tools/link-post.ts <draft-id> [<permalink-code>]      # e.g. 2026-10-18-about DepAfaWDaud
 import { loadDraft, saveDraft } from '../src/drafts/model.ts';
 import { igClient, redact } from '../src/ig/api.ts';
+import { openStore } from '../src/store/db.ts';
 
 const [id, code] = process.argv.slice(2);
 if (!id) { console.error('usage: node tools/link-post.ts <draft-id> [<permalink-code>]'); process.exit(2); }
@@ -23,6 +24,11 @@ try {
   if (slides !== d.slides.length) console.log(`note: the draft has ${d.slides.length} slides`);
   Object.assign(d, { status: 'published', media_id: m.id, permalink: m.permalink, updated_at: new Date().toISOString() });
   saveDraft(d);
+  // Same row publish.ts writes, so insights can group hand-posted Reels and Stories by draft and series.
+  openStore().prepare(`INSERT INTO media (id, timestamp, media_type, permalink, caption_chars, hashtags, children, source, draft_id, tags)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'manual', ?, ?) ON CONFLICT(id) DO UPDATE SET source = 'manual', draft_id = excluded.draft_id, tags = excluded.tags`)
+    .run(m.id, m.timestamp, m.media_type, m.permalink, [...(m.caption ?? '')].length, ((m.caption ?? '').match(/#[\p{L}\d_]+/gu) ?? []).length,
+      m.children?.data?.length ?? null, id, JSON.stringify({ pillar: d.pillar, ...d.tags }));
   console.log(`draft ${id} linked`);
 } catch (e) {
   console.error(redact(String(e)));

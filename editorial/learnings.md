@@ -2,6 +2,26 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## First 12 days of the pipeline (pulled 2026-10-29)
+Baseline: median reach of the 12 posts before 17 Oct = ~1220. Since then 4 carousels + 4 Reels (+ the 29 Oct Reel, too
+young). Posts are 2–12 days old, so the youngest will still grow. n = 4 per format: **hunches, not findings.**
+- **Every pipeline post reached about the baseline or more (0.8–1.9×); no breakout (≥ 3×) yet.** Best: postcard quiz and
+  clocks Reel 1.9×, 1000-vs-500 Reel 1.7×, Start here 1.7×; lowest: Weekly Numbers ep. 1 1.0×, ep. 2 0.8× at 3 days.
+- **Reels vs carousels: similar reach (median ~1860 vs ~1640).** Over 30 days Reels brought the most account reach
+  (4291 accounts vs 3578 carousels, 1064 Stories, 152 single images). 74 % of the account's reach is non-followers.
+- **Carousels get more likes and shares per reach** (likes ~7.1 % vs ~5.5 %; shares ~0.55 % vs ~0.36 %). Weekly
+  Numbers has the highest shares per reach of any format (0.6–0.7 %) but the lowest reach and follows: it is shared by
+  the community, not discovered by new people. Matches the 2025 baseline (recaps were the most-shared posts).
+- **Reel retention separates the Reels:** 1000-vs-500 (a myth with a number) kept viewers 51 % of its length, skip rate
+  49 % (share of views that leave in the first 3 s), 18 shares; the feature promo (partner finder) 29 % and 63 % skip,
+  the worst of the four; clocks 38 % / 46 % but 0 shares; grind 40 % / 54 %. Reading: the hook that states a surprising
+  claim holds people and gets sent; a feature demo loses them in the first seconds.
+- **Follows:** the API gives follows only for feed posts, not Reels. Start here (pinned) converts best: 60 follows,
+  23 bio-link taps. Quiz 27 follows. Account: +179 followers 13→29 Oct (~1/day before 17 Oct, ~15/day since).
+- **Audience (follower demographics, Oct):** US 23 %, DE 11 %, CA 6 %, AU 5 %, GB 5 %, CZ 5 %; ages 35–44 40 %,
+  25–34 31 %, 45–54 18 %; 60 % women, 9 % men, 31 % unknown. Engaged audience is a bit more German (16 %).
+- Saves stay ~0–9 per post on every format: don't judge anything on saves yet.
+
 ## Weekly Numbers ep. 2 (2026-10-26)
 - Published 26 Oct ~11:00: https://www.instagram.com/p/De8_0AzCuDa/ (week 43, 13 photo tags incl. two brands).
 - **"Invalid user id" on a photo tag doesn't mean the handle is wrong:** the owner confirmed two rejected handles are

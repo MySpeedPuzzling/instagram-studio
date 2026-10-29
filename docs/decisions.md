@@ -263,3 +263,6 @@ Docker and other unneeded apps turned off.
 - **Reveal pieces (2026-10-29):** the lab shows both variants side by side: the app's shipped last-piece reveal
   ported as is (its own cut) and the same motion with pieces from `src/pieces/jigsaw.ts`; the owner picks after
   comparing. No exception to the pieces rule until then.
+- **Look (2026-10-29):** L4 "Reveal → shelf": every new badge assembles through the app's puzzle reveal with its rule
+  (L1), then the five fly onto the shelf and land in lit sockets (L2); close on the full shelf with the link. Copy
+  names only the new ones (no count of the existing badges).

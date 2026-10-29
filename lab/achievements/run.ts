@@ -2,7 +2,8 @@
 // three looks side by side so the owner can rate each frame before the HyperFrames builder is written:
 //   L1 Puzzle reveal  every badge arrives through the app's shipped last-piece reveal (3×3 jigsaw, icon piece last);
 //   L2 Shelf          the 16 existing badges on a shelf, the 5 new ones drop into lit sockets;
-//   L3 Tier ladder    each badge from Bronze to Diamond with the number every tier needs.
+//   L3 Tier ladder    each badge from Bronze to Diamond with the number every tier needs;
+//   L4 Reveal → shelf the owner's combination (2026-10-29): L1's reveals, then the five fly onto L2's shelf.
 // Six frames per look: K1 hook (frame 0), K2 the reveal moment, K3 Muscle Memory, K4 Night Owl, K5 all five (no count of the
 // existing ones: owner 2026-10-29), K6 closing. Plus the reveal compared (owner 2026-10-29): A = the app's own cut (speedpuzzling.cz
 // assets/last_piece_reveal/geometry.json, ported as is), B = the same motion with pieces from src/pieces/jigsaw.ts.
@@ -136,9 +137,19 @@ function rays() {
 const img = (key: string, tier: number, x: number, y: number, s: number, cls = '') =>
   `<img class="ac-b ${cls}" src="${art(key, tier)}" alt="" style="left:${f1(x)}px; top:${f1(y)}px; width:${f1(s)}px; height:${f1(s)}px">`;
 
-/** A shelf of 21: the 16 existing badges dimmed, the new 5 lit (or empty sockets when `empty`). */
-function shelf(top: number, s: number, o: { empty?: boolean; focus?: Key } = {}) {
+/** A shelf of 21: the 16 existing badges dimmed, the new 5 lit (or empty sockets when `empty`; `fly` = the new 5 on
+ * their way from a row at `fly.y` into the sockets, `fly.k` 0 = start, 1 = in). */
+function shelf(top: number, s: number, o: { empty?: boolean; focus?: Key; fly?: { y: number; k: number; size: number } } = {}) {
   const cols = 6, gap = (RW - cols * s) / (cols - 1);
+  if (o.fly) {
+    const f = o.fly, start = (j: number) => ({ x: X0 + j * ((RW - f.size) / 4), y: f.y + (j % 2) * 60 });
+    const flying = NEW.map((b, j) => {
+      const i = OLD.length + j, sx = X0 + (i % cols) * (s + gap), sy = top + Math.floor(i / cols) * (s + 26), a = start(j);
+      const size = f.size + (s - f.size) * f.k, x = a.x + (sx - a.x) * f.k, y = a.y + (sy - a.y) * f.k - Math.sin(Math.PI * f.k) * 50;
+      return img(b.key, 3, x, y, size, 'lit fly');
+    }).join('');
+    return shelf(top, s, { empty: true }) + flying;
+  }
   const all = [...OLD.map(k => ({ k, isNew: false })), ...NEW.map(b => ({ k: b.key as string, isNew: true }))];
   return all.map((b, i) => {
     const x = X0 + (i % cols) * (s + gap), y = top + Math.floor(i / cols) * (s + 26);
@@ -163,7 +174,7 @@ const ruleLine = (top: number, text: string) => `<p class="h-abs h-lead ac-rule"
 
 // ------------------------------------------------------------------ frames
 
-type Look = 'L1' | 'L2' | 'L3';
+type Look = 'L1' | 'L2' | 'L3' | 'L4';
 
 function k1(lk: Look) {
   const logo = logoExit({ cx: CX, cy: 410, width: 220 });
@@ -209,6 +220,12 @@ function k5(lk: Look) {
   return `${head}${rows}`;
 }
 
+/** L4 (owner 2026-10-29): L1's reveals, then the five fly onto the shelf. */
+const k5shelf = () => `<p class="h-abs h-cap" style="top:480px">All five</p><p class="h-abs h-title s" style="top:526px; width:${RW}px">5 new achievements to earn</p>
+  ${shelf(1060, 118, { fly: { y: 700, k: 0.08, size: 170 } })}`;
+const k6shelf = () => `<p class="h-abs h-ask" style="top:500px; width:${RW}px">Your past solves count: you may already have some</p>
+  <p class="h-abs h-lead" style="top:800px; width:${RW}px">See yours: myspeedpuzzling.com/en/achievements</p>${shelf(1000, 118)}`;
+
 function k6(lk: Look) {
   let artHtml = '';
   if (lk === 'L1') artHtml = reveal('A', 'competitor', 5, 'pop', CX, 1000, 560);
@@ -235,6 +252,7 @@ const LOOKS_OF: Array<{ id: Look; name: string; note: string }> = [
   { id: 'L1', name: 'Puzzle reveal', note: 'Every badge arrives through the app\'s own last-piece reveal: frame pieces snap in, the icon piece clicks in last, burst and piece confetti.' },
   { id: 'L2', name: 'Shelf', note: 'The badges you can already earn on a shelf (dimmed, no count named), the 5 new ones drop into lit sockets.' },
   { id: 'L3', name: 'Tier ladder', note: 'Each badge from Bronze to Diamond with the number every tier needs.' },
+  { id: 'L4', name: 'Reveal → shelf (owner\'s combination)', note: 'L1\'s puzzle reveal for every badge (K1–K4 as L1), then the five fly onto the shelf and land in lit sockets (K5), closing on the full shelf (K6).' },
 ];
 const REVEALS = [
   { k: 'RA-1', cut: 'A' as const, state: 'flight' as const, label: 'A · app cut: frame pieces flying in' },
@@ -249,6 +267,7 @@ const CSS = HOUSE_CSS + LOGO_CSS + `
 .ac-b.dim { opacity: .38; }
 .ac-b.dim2 { opacity: .55; }
 .ac-b.lit { filter: drop-shadow(0 0 18px rgba(255, 210, 120, .55)); }
+.ac-b.fly { filter: drop-shadow(0 0 18px rgba(255, 210, 120, .55)) drop-shadow(0 22px 26px rgba(0, 0, 0, .45)); }
 .ac-b.drop { filter: drop-shadow(0 26px 30px rgba(0, 0, 0, .5)); transform: rotate(-8deg); }
 .ac-socket { position: absolute; border-radius: 50%; border: 4px dashed ${CORAL}; background: rgba(236, 114, 111, .12); box-sizing: border-box; }
 .ac-name { position: absolute; left: ${X0}px; width: ${RW}px; margin: 0; font-size: 88px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; color: var(--g-ink); }
@@ -272,7 +291,11 @@ const CSS = HOUSE_CSS + LOGO_CSS + `
 activateVariant(HOUSE);
 const wrap = (body: string, splash = false) => `<div class="${splash ? 'splash' : ''}">${frame({ ground: 'navy', kind: 'story', kicker: 'New · achievements', device: HOUSE.device, src: 'Achievements · added Oct 2026', rows: { headTop: 296 }, masthead: true, body })}</div>`;
 const jobs = [
-  ...LOOKS_OF.flatMap(L => FRAMES_OF.map(F => ({ key: `${L.id}-${F.k}`, group: L.id as string, label: F.label, body: wrap(F.f(L.id), F.splash) }))),
+  ...LOOKS_OF.flatMap(L => FRAMES_OF.map(F => {
+    const f = L.id !== 'L4' ? F.f(L.id) : F.k === 'K5' ? k5shelf() : F.k === 'K6' ? k6shelf() : F.f('L1');
+    const label = L.id === 'L4' && F.k === 'K5' ? 'All five fly onto the shelf' : L.id === 'L4' && F.k === 'K6' ? 'Closing on the full shelf + link' : F.label;
+    return { key: `${L.id}-${F.k}`, group: L.id as string, label, body: wrap(f, F.splash) };
+  })),
   ...REVEALS.map(R => ({ key: R.k, group: 'R', label: R.label, body: wrap(rv(R.cut, R.state)) })),
 ].map(j => ({ ...j, html: page(j.body, { frame: 'reel', css: CSS, title: `${LAB} ${j.key}` }) }));
 activateVariant(undefined);
@@ -302,7 +325,7 @@ main{padding:24px;max-width:1700px}h2{margin:34px 0 4px}.grid{display:grid;grid-
 Final app art (approved 29 Oct); rule texts are the app's own. Six key frames per look of a ~25 s Reel; the motion between them (pieces flying in,
 badges dropping, count-ups) comes in the builder. Rate each frame (codes like "L2-K3" work in the chat); mixing looks per frame is fine.
 Frames are 1080×1920; text stays in the Reel safe area (y 220–1250), art below it may sit under Instagram's caption.</p>
-<p>Claude's pick: <b>L1 Puzzle reveal</b> for K1–K3 and K6 (it is what players really see), <b>L3's ladder</b> for one badge (K4) and <b>L1's list</b> for K5.</p>
+<p>Owner's direction (29 Oct): <b>L4</b> = L1's reveal for each badge, then the five onto the shelf. L1–L3 stay for reference.</p>
 <h2>Reveal pieces: A vs B</h2><p>The same moment twice. <b>A</b> = the app's shipped cut, ported as is (what players see). <b>B</b> = the same motion with pieces from our generator (house rule). L1 frames above use A until you pick.</p>
 ${tiles('R')}
 ${LOOKS_OF.map(L => `<h2>${L.id} · ${L.name}</h2><p>${h(L.note)}</p>${tiles(L.id)}`).join('')}

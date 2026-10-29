@@ -6,9 +6,10 @@ Updated 2026-10-17.
 
 ## Now
 
-- [ ] **Achievements launch Reel** (`docs/ideas/reel-achievements.md`): 5 new badges, Reel + link Story. Blocked on the
-      final art for the 5 new badges and the release date (app session reports both). Then: lab of key frames → owner
-      picks a look → builder → render on release day.
+- [ ] **Achievements launch Reel** (`docs/ideas/reel-achievements.md`): 5 new badges, released 29 Oct. Lab **AC1**
+      (`node lab/achievements/run.ts`, 22 key frames: L1 reveal / L2 shelf / L3 tier ladder + reveal A app cut vs B generator)
+      in review → owner picks → HyperFrames builder → render (owner go-ahead) → post by hand + link Story. Holder counts only
+      after the app session reports recalculate-badges done (table `badge`, exclude private profiles).
 
 - **"The grind" Reel PUBLISHED Tue 27 Oct 21:22 Prague** (https://www.instagram.com/reel/DfAs85vN3QT/, draft
   `2026-10-27-reel-grind`, linked; caption as drafted). Insights at +24 h (Wed 28 Oct ~21:20) and +48 h (Thu 29 Oct ~21:20):

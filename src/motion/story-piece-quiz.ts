@@ -7,13 +7,33 @@
 //   2.9–4.3  a few wobbles, as if trying where it fits; then it settles back into place
 //   4.6      "Halloween quiz · tomorrow 10:00" pulses once
 //   6.6–7.2  the "?" fades out; hold on the still
-// Nothing animates below y ≈ 1460.
+//   all the way: navy bat silhouettes (flat poster shapes, owner 2026-10-30: "spooky flying around") cross behind the
+//            text and the piece at three depths (small and faint far away, bigger near), wings flapping; two are
+//            already in the air on frame 0 so the preview reads spooky too
+// Nothing animates below y ≈ 1460 (the countdown sticker zone).
 import { GROUNDS, LOGO_OUTLINE_URL, f1, type Variant } from '../design/house.ts';
 import { PIECE, TEASER_BOX, at, fitOf, teaserBig } from '../posts/piece-quiz.ts';
 import { composition } from './kit.ts';
 import type { Motion } from './render.ts';
 
 const DURATION = 8;
+
+/** One bat, centred on 0,0 (≈ 220 × 90): two scalloped wings that beat up and down around the shoulders (rotation,
+ *  so the silhouette always reads as a bat; squashing them read as lines), body, head and ears. */
+const BAT_RIGHT = 'M 8 -6 C 30 -30 70 -36 104 -16 C 92 -8 88 4 90 16 C 78 4 64 4 56 16 C 48 4 36 2 28 14 C 22 4 14 2 8 8 Z';
+const bat = (id: string, fill: string) => `<div id="${id}" class="pq-bat" style="position:absolute; left:0; top:0"><div class="bob">
+  <svg width="220" height="100" viewBox="-110 -50 220 100" style="position:absolute; left:-110px; top:-50px; overflow:visible" aria-hidden="true"><g class="dir" fill="${fill}">
+    <g class="wing-r"><path d="${BAT_RIGHT}"/></g><g class="wing-l"><path d="${BAT_RIGHT}" transform="scale(-1 1)"/></g>
+    <ellipse cx="0" cy="4" rx="11" ry="19"/><circle cx="0" cy="-15" r="10"/>
+    <path d="M -9 -19 L -7 -32 L -2 -22 Z M 9 -19 L 7 -32 L 2 -22 Z"/></g></svg></div></div>`;
+/** Flights: x/y from → to (frame px), start, duration, depth scale, opacity. Bats 1 and 2 are in frame at t = 0. */
+const BATS = [
+  { x0: 120, x1: 1300, y0: 880, y1: 820, t0: 0, dur: 7.5, sc: 0.8, op: 0.45 },
+  { x0: 940, x1: -350, y0: 1180, y1: 1060, t0: 0, dur: 4.4, sc: 1.6, op: 0.9 },
+  { x0: -250, x1: 1350, y0: 370, y1: 310, t0: 1.2, dur: 6.5, sc: 0.7, op: 0.35 },
+  { x0: 1400, x1: -400, y0: 760, y1: 920, t0: 3.0, dur: 4.0, sc: 1.9, op: 0.9 },
+  { x0: -300, x1: 1350, y0: 1010, y1: 1230, t0: 4.6, dur: 4.6, sc: 1.2, op: 0.6 },
+];
 
 export function pieceQuizTeaserMotion(_v: Variant): Motion {
   const key = 'story-piece-quiz-teaser';
@@ -30,7 +50,7 @@ export function pieceQuizTeaserMotion(_v: Variant): Motion {
   const q = `<svg id="qmark" width="1080" height="1920" style="position:absolute; left:0; top:0; opacity:0" aria-hidden="true"><g transform="translate(540 ${f1(cy - 40)}) scale(2.3)" fill="none" stroke="${navy.bg}" stroke-width="64" stroke-linecap="round">
     <path d="M -120 -150 C -120 -300 150 -300 150 -150 C 150 -50 10 -50 10 50"/><circle cx="10" cy="175" r="22" fill="${navy.bg}"/></g></svg>`;
   // The "?" sits behind everything; the back sits right after the piece in paint order.
-  const frameHtml = teaserBig(q).html.replace('<p id="cred"', `${back}<p id="cred"`);
+  const frameHtml = teaserBig(q + BATS.map((_, i) => bat(`bat${i}`, navy.bg)).join('')).html.replace('<p id="cred"', `${back}<p id="cred"`);
   const css = `<style>#piece, #back { transform-origin: ${f1(cx)}px ${f1(cy)}px; } #qmark { transform-origin: 540px ${f1(cy)}px; }</style>`;
   const script = `
 const O = '${f1(cx)}px ${f1(cy)}px';
@@ -56,11 +76,22 @@ tl.to('#piece', { rotation: 0, x: 0, y: 0, scale: 1, duration: 0.4, ease: 'back.
 flash('#when', 4.6);
 // the "?" leaves; hold on the still
 tl.to('#qmark', { opacity: 0, duration: 0.6, ease: 'power1.in', overwrite: 'auto' }, 6.6);
+// bats: fly across at their depth, bob, beat their wings around the shoulders
+DATA.bats.forEach((b, i) => {
+  const sel = '#bat' + i;
+  tl.set(sel, { x: b.x0, y: b.y0, scale: b.sc, opacity: b.op }, 0);
+  tl.set(sel + ' .dir', { scaleX: b.x1 < b.x0 ? -1 : 1, svgOrigin: '0 0' }, 0);
+  tl.to(sel, { x: b.x1, y: b.y1, duration: b.dur, ease: 'none' }, b.t0);
+  tl.to(sel + ' .bob', { y: -26, duration: 0.55, ease: 'sine.inOut', yoyo: true, repeat: Math.ceil(${DURATION} / 0.55) }, 0);
+  const beat = 0.16 + i * 0.012;
+  tl.fromTo(sel + ' .wing-r', { rotation: -28 }, { rotation: 22, svgOrigin: '8 -6', duration: beat, ease: 'sine.inOut', yoyo: true, repeat: Math.ceil(${DURATION} / beat) }, 0);
+  tl.fromTo(sel + ' .wing-l', { rotation: 28 }, { rotation: -22, svgOrigin: '-8 -6', duration: beat, ease: 'sine.inOut', yoyo: true, repeat: Math.ceil(${DURATION} / beat) }, 0);
+});
 tl.set({}, {}, ${DURATION});
 `;
   return {
     key, duration: DURATION, coverAt: DURATION - 0.1,
-    qaAt: [0.05, 1.2, 2.0, 3.3, 4.7, DURATION - 0.1],
-    html: composition({ key, title: 'Piece quiz teaser Story', duration: DURATION, frameHtml, css, script }),
+    qaAt: [0.05, 1.2, 2.0, 3.3, 4.0, 4.7, 6.0, DURATION - 0.1],
+    html: composition({ key, title: 'Piece quiz teaser Story', duration: DURATION, frameHtml, css, data: { bats: BATS }, script }),
   };
 }

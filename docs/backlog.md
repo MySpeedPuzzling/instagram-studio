@@ -6,6 +6,13 @@ Updated 2026-10-17.
 
 ## Now
 
+- [ ] **Halloween piece quiz (owner 2026-10-30: structure A, Fantasy Mystic Witch, comments = guess + slide number).**
+      Fri evening: animated teaser Story (lab PQ1 `video.mp4`, `node lab/piece-quiz/run.ts --video`) + countdown sticker
+      to Sat 10:00. **Sat 31 Oct morning:** `node src/data/db.ts quiz-piece-halloween --fresh`, build the 7-slide carousel
+      A as a draft (builder from `src/posts/piece-quiz.ts`, caption + alt text, @ravensburgerglobal photo tag), owner
+      approves, publish ~10:00; poll Story the same day, answer Story Sun. Read comments/sends per reach at +48 h; then
+      decide whether the weekend slot becomes a rotation (piece quiz → weekend challenge → guess the number).
+
 - [x] **Achievements launch Reel PUBLISHED 29 Oct 16:03 Prague** (https://www.instagram.com/reel/DfFSLQLNCQK/, draft
       `2026-10-29-reel-achievements`, linked) + holder-numbers Story with a link sticker (posted ~16:10 Prague):
       **read its Story insights (link taps, replies, exits) before it expires, Fri 30 Oct ~16:00.**

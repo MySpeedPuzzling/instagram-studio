@@ -149,12 +149,23 @@ function teaser(): Out {
     html: frame({ ground: 'coral', kind: 'story', kicker: 'Halloween quiz', device: HOUSE.device, src: '', rows: STICKER_STORY_ROWS, masthead: true, body }) };
 }
 
+/** Bigger-type teaser (owner 2026-10-30: "bigger text"): two big lines, the piece large, a fixed time, sticker room. */
+function teaserBig(): Out {
+  const body = CSS + `<h1 class="h-title" style="top:360px; font-size:150px; line-height:1">One piece.</h1>
+    <h1 class="h-title" style="top:530px; font-size:96px; line-height:1.02">Which puzzle is it from?</h1>`
+    + pieces([PIECE], { x: 210, y: 760, w: 660, h: 560 }).replace('height="1350"', 'height="1920"')
+    + `<p class="pq-cred" style="top:1340px; text-align:center; font-size:34px">Mystery puzzle · Ravensburger</p>
+    <p class="h-abs" style="top:1400px; width:${CW}px; text-align:center; font-size:52px; font-weight:700; color:var(--g-ink)">Halloween quiz · tomorrow 10:00</p>`;
+  return { key: 'S-2', label: 'Teaser Story, big type; countdown sticker under the last line (y ≈ 1480–1700)', story: true,
+    html: frame({ ground: 'coral', kind: 'story', kicker: 'Halloween quiz', device: HOUSE.device, src: '', rows: STICKER_STORY_ROWS, masthead: true, body }) };
+}
+
 // ---------------------------------------------------------------- render + gallery
 activateVariant(HOUSE);
 const groups: Array<{ id: string; title: string; note: string; slides: Out[] }> = [
   { id: 'A', title: 'A · Zoom-out hints (7 slides)', note: 'Every swipe shows more of the picture: piece → neighbours → 3×3 chunk → three options → spoiler alert → answer → numbers. Slide 2 repeats the piece and the question, so it works when Instagram re-serves the post starting on slide 2.', slides: structureA() },
   { id: 'B', title: "B · The owner's sketch (4 slides)", note: '"Guess without swiping" → one hint slide → spoiler alert → answer with the numbers. Shorter, fewer swipes.', slides: structureB() },
-  { id: 'S', title: 'Teaser Story for tonight', note: 'Coral (timely), masthead, a single piece; the bottom stays free for a countdown sticker to Saturday 10:00.', slides: [teaser()] },
+  { id: 'S', title: 'Teaser Story for tonight', note: 'Coral (timely), masthead, a single piece; the bottom stays free for a countdown sticker to Saturday 10:00.', slides: [teaser(), teaserBig()] },
 ];
 activateVariant(undefined);
 

@@ -21,8 +21,8 @@ const DURATION = 8;
 /** One bat, centred on 0,0 (≈ 220 × 90): two scalloped wings that beat up and down around the shoulders (rotation,
  *  so the silhouette always reads as a bat; squashing them read as lines), body, head and ears. */
 const BAT_RIGHT = 'M 8 -6 C 30 -30 70 -36 104 -16 C 92 -8 88 4 90 16 C 78 4 64 4 56 16 C 48 4 36 2 28 14 C 22 4 14 2 8 8 Z';
-const bat = (id: string, fill: string) => `<div id="${id}" class="pq-bat" style="position:absolute; left:0; top:0"><div class="bob">
-  <svg width="220" height="100" viewBox="-110 -50 220 100" style="position:absolute; left:-110px; top:-50px; overflow:visible" aria-hidden="true"><g class="dir" fill="${fill}">
+const bat = (id: string, fill: string, flip: boolean) => `<div id="${id}" class="pq-bat" style="position:absolute; left:0; top:0"><div class="bob">
+  <svg width="220" height="100" viewBox="-110 -50 220 100" style="position:absolute; left:-110px; top:-50px; overflow:visible" aria-hidden="true"><g fill="${fill}"${flip ? ' transform="scale(-1 1)"' : ''}>
     <g class="wing-r"><path d="${BAT_RIGHT}"/></g><g class="wing-l"><path d="${BAT_RIGHT}" transform="scale(-1 1)"/></g>
     <ellipse cx="0" cy="4" rx="11" ry="19"/><circle cx="0" cy="-15" r="10"/>
     <path d="M -9 -19 L -7 -32 L -2 -22 Z M 9 -19 L 7 -32 L 2 -22 Z"/></g></svg></div></div>`;
@@ -50,7 +50,7 @@ export function pieceQuizTeaserMotion(_v: Variant): Motion {
   const q = `<svg id="qmark" width="1080" height="1920" style="position:absolute; left:0; top:0; opacity:0" aria-hidden="true"><g transform="translate(540 ${f1(cy - 40)}) scale(2.3)" fill="none" stroke="${navy.bg}" stroke-width="64" stroke-linecap="round">
     <path d="M -120 -150 C -120 -300 150 -300 150 -150 C 150 -50 10 -50 10 50"/><circle cx="10" cy="175" r="22" fill="${navy.bg}"/></g></svg>`;
   // The "?" sits behind everything; the back sits right after the piece in paint order.
-  const frameHtml = teaserBig(q + BATS.map((_, i) => bat(`bat${i}`, navy.bg)).join('')).html.replace('<p id="cred"', `${back}<p id="cred"`);
+  const frameHtml = teaserBig(q + BATS.map((b, i) => bat(`bat${i}`, navy.bg, b.x1 < b.x0)).join('')).html.replace('<p id="cred"', `${back}<p id="cred"`);
   const css = `<style>#piece, #back { transform-origin: ${f1(cx)}px ${f1(cy)}px; } #qmark { transform-origin: 540px ${f1(cy)}px; }</style>`;
   const script = `
 const O = '${f1(cx)}px ${f1(cy)}px';
@@ -80,12 +80,15 @@ tl.to('#qmark', { opacity: 0, duration: 0.6, ease: 'power1.in', overwrite: 'auto
 DATA.bats.forEach((b, i) => {
   const sel = '#bat' + i;
   tl.set(sel, { x: b.x0, y: b.y0, scale: b.sc, opacity: b.op }, 0);
-  tl.set(sel + ' .dir', { scaleX: b.x1 < b.x0 ? -1 : 1, svgOrigin: '0 0' }, 0);
   tl.to(sel, { x: b.x1, y: b.y1, duration: b.dur, ease: 'none' }, b.t0);
   tl.to(sel + ' .bob', { y: -26, duration: 0.55, ease: 'sine.inOut', yoyo: true, repeat: Math.ceil(${DURATION} / 0.55) }, 0);
-  const beat = 0.16 + i * 0.012;
-  tl.fromTo(sel + ' .wing-r', { rotation: -28 }, { rotation: 22, svgOrigin: '8 -6', duration: beat, ease: 'sine.inOut', yoyo: true, repeat: Math.ceil(${DURATION} / beat) }, 0);
-  tl.fromTo(sel + ' .wing-l', { rotation: 28 }, { rotation: -22, svgOrigin: '-8 -6', duration: beat, ease: 'sine.inOut', yoyo: true, repeat: Math.ceil(${DURATION} / beat) }, 0);
+  // The wing beat writes the rotation straight into each wing's SVG transform, pivoting exactly on its shoulder
+  // (GSAP's svgOrigin drifted with the mirrored flight direction and tore the wings off the body).
+  const beat = 0.16 + i * 0.012, w = { a: -28 };
+  const wr = document.querySelector(sel + ' .wing-r'), wl = document.querySelector(sel + ' .wing-l');
+  const flapSet = () => { wr.setAttribute('transform', 'rotate(' + w.a.toFixed(2) + ' 8 -6)'); wl.setAttribute('transform', 'rotate(' + (-w.a).toFixed(2) + ' -8 -6)'); };
+  flapSet();
+  tl.fromTo(w, { a: -28 }, { a: 22, duration: beat, ease: 'sine.inOut', yoyo: true, repeat: Math.ceil(${DURATION} / beat), onUpdate: flapSet, onComplete: flapSet }, 0);
 });
 tl.set({}, {}, ${DURATION});
 `;

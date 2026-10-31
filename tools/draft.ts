@@ -84,6 +84,42 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       searchPhrases: ['speed puzzling', 'puzzle times', 'jigsaw puzzle'],
     };
   },
+  // Halloween piece quiz, structure A (lab PQ1, owner 2026-10-30): the caption never names the answer.
+  'piece-quiz-halloween': async () => {
+    const q = query('quiz-piece-halloween', { fresh: true });
+    const { structureA, ans, options } = await import('../src/posts/piece-quiz.ts');
+    activateVariant(HOUSE);
+    const slides = structureA().map(s => s.html);
+    activateVariant(undefined);
+    const fmtT = (s: number) => { const hh = Math.floor(s / 3600), mm = Math.floor(s % 3600 / 60), ss = s % 60; return hh ? `${hh}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}` : `${mm}:${String(ss).padStart(2, '0')}`; };
+    const [a, b, c] = options;
+    const caption = [
+      '1 piece, 3 hints: which Halloween puzzle is it from? 🎃 Guess before you swipe.',
+      '',
+      `Every swipe shows you a little more of the picture, then three options, and the answer on slide 6. All three options are @ravensburgerglobal Halloween puzzles, so the brand won't give it away.`,
+      '',
+      'Comment your guess and the slide where you knew it: 1 if one piece was enough 👀',
+      '',
+      '#speedpuzzling #jigsawpuzzle #halloweenpuzzle #ravensburger',
+    ].join('\n');
+    const alt = [
+      'Halloween quiz cover: a single jigsaw piece cut from a puzzle picture: a pale curl of smoke on the left, grass green on the right with two orange splashes. Title: One piece. Which spooky puzzle is it from? Mystery puzzle, Ravensburger. Guess before you swipe.',
+      `Hint 1: the piece with two of its neighbours, pulled slightly apart. ${ans.solvers} MySpeedPuzzling puzzlers have solved it.`,
+      `Hint 2: a bigger corner, a 3 by 3 block of pieces around the quiz piece. Logged ${ans.results} times on MySpeedPuzzling.`,
+      `Hint 3: it is one of these. A: ${a.puzzle}, ${a.pieces} pieces. B: ${b.puzzle}, ${b.pieces} pieces. C: ${c.puzzle}, ${c.pieces} pieces. All three are Ravensburger Halloween puzzles.`,
+      'Spoiler alert, with a warning sign: comment your guess and the slide where you knew it, numbers 1 to 4. 1 means from the single piece, 4 means the options gave it away.',
+      `The answer: ${ans.puzzle}, Ravensburger, ${ans.pieces} pieces. The whole picture of a witch at her bubbling cauldron in a dark forest, with the quiz piece outlined in coral: the potion splash above the cauldron.`,
+      `The numbers for ${ans.puzzle}, the most-solved Halloween puzzle on MySpeedPuzzling: ${ans.solvers} puzzlers, ${ans.results} solves, typical solo time ${fmtT(ans.medianS)}, fastest solo ${fmtT(ans.fastestS)}. Only ${ans.month} solves this October. Solving a spooky one this weekend?`,
+    ];
+    return {
+      id: `${new Date().toISOString().slice(0, 10)}-piece-quiz-halloween`, title: 'Halloween quiz: which puzzle is this piece from? (A, zoom-out hints)', pillar: 'community', format: 'carousel',
+      tags: { series: 'piece-quiz', slot: 'weekend-interactive', season: 'halloween', mechanic: 'guess', template: 'piece-quiz-zoom', style: 'H4', lab: 'PQ1/A' },
+      // Photo tag on the answer slide (the brand), never on the cover: a tag there would hint at the brand only.
+      userTags: { 5: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.6 }] },
+      facts: { 'quiz-piece-halloween': q }, slides, alt, caption, captionPillar: 'carousel',
+      searchPhrases: ['halloween puzzle'], properNouns: [ans.puzzle, a.puzzle, c.puzzle],
+    };
+  },
   'faster-postcards': async () => {
     const q = query('quiz-postcards', { fresh: true });
     const want: Array<[string, string]> = [['Postcard from Paris', 'Paris'], ['London Postcard', 'London'], ['New York Postcard', 'New York']];

@@ -295,3 +295,9 @@ Docker and other unneeded apps turned off.
   script: splash → clear → top 10 placed one by one → burst → edges first → colour waves → back to the splash. Refined
   to **No. 1–3 slow (name, brand, puzzlers) + No. 4–10 fast (rank + brand)**; one fact on a solid backing. Script in
   `docs/ideas/reel-month-colour.md`; builder `src/motion/reel-month.ts`.
+- **October Reel goes out as a Trial Reel (non-followers only), its Story version to everyone** (owner, 2026-11-01
+  evening). Followers still get the whole animation: the Story is the same 27 s piece with a link sticker to the
+  carousel, kept in the Recaps highlight; and they saw the carousel the same day, so a regular Reel would have been
+  the second October post in their feed within hours. "Auto-share to followers if it performs well" on. Narrows the
+  "no Trial Reels for content followers should see" rule: allowed when the followers get the same content in a
+  Story kept in a highlight.

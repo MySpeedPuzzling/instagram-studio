@@ -25,7 +25,7 @@ Updated 2026-10-17.
       25.7 s, 2 min render, 1.9 GB peak; MR1 concept A + owner's script, `docs/ideas/reel-month-colour.md`): owner to
       watch `content/drafts/2026-11-04-reel-october/reels/reel-month.mp4` (540p copy alongside) and give timing notes;
       then caption, `--fresh` re-render on the day, post by hand with music, tag @ravensburgerglobal (+ speedpuzzle.eu).
-- [ ] (was) **"October, sorted by colour" Reel, Wed 4 / Thu 5 Nov** (regular Reel, not Trial: followers must not miss it): the
+- [ ] (was) **"October, sorted by colour" Reel, Wed 4 / Thu 5 Nov** (went out 1 Nov evening as a **Trial Reel**; followers get it as the Story with the link sticker, see decisions 2026-11-01): the
       1000 boxes drop in shuffled and sort themselves by colour into the piece; **frame 0 / splash = the finished collage
       piece** (owner 2026-11-01: "I want the reel to have the collage on the intro to catch attention"); one short line at a time, long holds
       (new Reel rule 2026-11-01: less text, slower). Reuse `src/posts/mosaic.ts` + `monthly-boxes`. Key frames: lab **MR1** (`node lab/monthly-reel/run.ts`,

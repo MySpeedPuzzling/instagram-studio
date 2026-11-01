@@ -155,7 +155,7 @@ How to maintain it:
   action (poll, link sticker, "find yours"). Stories disappear after 24 h, so facts that would live only there (e.g.
   holder counts) go into the post, the Reel or the caption. A one-tap share of the post is a fine Story.
   (owner, 2026-11-01)
-- **Followers must not miss a post's content:** no Trial Reels for content the followers should see; a Reel on the same
+- **Followers must not miss a post's content:** no Trial Reels for content the followers should see, unless they get the same piece as a Story kept in a highlight (owner, 2026-11-01 evening: October Reel as Trial, its Story to everyone); a Reel on the same
   topic as a carousel is a different experience (the visual), not the slides animated. (owner, 2026-11-01)
 
 - **Reel pacing: the joke gets time, text gets time.** A reveal the whole Reel hangs on (a snap-back, a twist) builds

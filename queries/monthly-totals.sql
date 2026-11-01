@@ -1,18 +1,19 @@
--- The monthly recap: solves finished in the last full calendar month (as in the Weekly Numbers: older solves logged
--- that month don't count, results without a finish date never count), with the same month a year earlier.
--- Hours, distinct puzzles, countries, pieces, new puzzlers and personal-best moments of the month.
--- Private profiles excluded from every column (player.is_private; owner decision 2026-10-13); suspicious results and
--- embargoed puzzles excluded.
+-- The monthly recap: results logged in the last full calendar month, the way MSP's statistics page counts a month
+-- (owner 2026-11-01: match the website; older solves typed in that month count, e.g. the achievement backfills of
+-- October 2026), with the same month a year earlier. Hours, distinct puzzles, countries, pieces, new puzzlers and
+-- personal-best moments of the month. Private profiles excluded from every column (player.is_private; owner decision
+-- 2026-10-13), so the total sits a little below the website's; suspicious results and embargoed puzzles excluded.
 WITH m AS (SELECT date_trunc('month', now()) - interval '1 month' AS start, date_trunc('month', now()) AS stop),
 t AS (
-  SELECT CASE WHEN t.finished_at >= m.start THEN 'this' ELSE 'year_ago' END AS mo, t.player_id, t.puzzle_id,
-         t.seconds_to_solve, pl.country, pz.pieces_count
+  SELECT CASE WHEN t.tracked_at >= m.start THEN 'this' ELSE 'year_ago' END AS mo, t.player_id, t.puzzle_id,
+         t.seconds_to_solve, t.finished_at, pl.country, pz.pieces_count
   FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id JOIN puzzle pz ON pz.id = t.puzzle_id, m
   WHERE NOT t.suspicious AND NOT pl.is_private AND (pz.hide_until IS NULL OR pz.hide_until <= now())
-    AND ((t.tracked_at >= m.start AND t.finished_at >= m.start AND t.finished_at < m.stop)
-      OR (t.tracked_at >= m.start - interval '1 year' AND t.finished_at >= m.start - interval '1 year' AND t.finished_at < m.stop - interval '1 year')))
+    AND ((t.tracked_at >= m.start AND t.tracked_at < m.stop)
+      OR (t.tracked_at >= m.start - interval '1 year' AND t.tracked_at < m.stop - interval '1 year')))
 SELECT (SELECT to_char(start, 'YYYY-MM-DD') FROM m) AS month_start,
   count(*) FILTER (WHERE mo = 'this') AS results,
+  count(*) FILTER (WHERE mo = 'this' AND finished_at >= (SELECT start FROM m)) AS results_finished_in_month,
   count(DISTINCT player_id) FILTER (WHERE mo = 'this') AS puzzlers,
   count(DISTINCT puzzle_id) FILTER (WHERE mo = 'this') AS puzzles,
   sum(pieces_count) FILTER (WHERE mo = 'this') AS pieces,

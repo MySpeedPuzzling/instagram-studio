@@ -1,5 +1,5 @@
-// Facts for the monthly recap (src/posts/monthly.ts): the last full calendar month, counted like the Weekly Numbers
-// (solves finished in the month). The draft tool runs the queries fresh on the 1st (owner rule: fresh data on the day).
+// Facts for the monthly recap (src/posts/monthly.ts): the last full calendar month, results logged in it (like MSP's
+// statistics page; owner 2026-11-01). The draft tool runs the queries fresh on the 1st (owner rule: fresh data on the day).
 import { fetchBoxes } from '../data/boxes.ts';
 import { query, type QueryResult } from '../data/db.ts';
 import type { MonthlySpec } from './monthly.ts';
@@ -7,7 +7,7 @@ import { prepareTones } from './mosaic.ts';
 
 const num = Number;
 
-export async function buildMonthlySpec(o: { fresh: boolean }): Promise<{ spec: MonthlySpec; facts: Record<string, QueryResult> }> {
+export async function buildMonthlySpec(o: { fresh: boolean; note?: string }): Promise<{ spec: MonthlySpec; facts: Record<string, QueryResult> }> {
   const names = ['monthly-totals', 'monthly-history', 'monthly-boxes'] as const;
   const q = Object.fromEntries(names.map(n => [n, query(n, { fresh: o.fresh })])) as Record<typeof names[number], QueryResult>;
   const t = q['monthly-totals'].rows[0];
@@ -25,7 +25,7 @@ export async function buildMonthlySpec(o: { fresh: boolean }): Promise<{ spec: M
     results: num(t.results), puzzlers: num(t.puzzlers), puzzles: num(t.puzzles), pieces: num(t.pieces), hours: num(t.hours),
     countries: num(t.countries), newPuzzlers: num(t.new_puzzlers), personalBests: num(t.personal_bests), resultsYearAgo: num(t.results_year_ago),
     history: q['monthly-history'].rows.map(r => ({ month: r.month, results: num(r.results) })),
-    boxes, tones, src: `Data: myspeedpuzzling.com · ${asOf}`,
+    boxes, tones, note: o.note, src: `Data: myspeedpuzzling.com · ${asOf}`,
   };
   return { spec, facts: q };
 }

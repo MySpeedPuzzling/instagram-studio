@@ -81,3 +81,11 @@ test('stock phrases are errors and generated sentence shapes are warnings', () =
   // A list of three cities is how puzzlers talk, not a tell: no triad rule.
   assert.deepEqual(lintCaption(POSTCARDS).errors, []);
 });
+
+test('"unlock" is allowed only as the app does it: badges and achievements', () => {
+  const tags = '\n\n#speedpuzzling #jigsawpuzzle #puzzlecommunity';
+  const banned = (c: string) => lintCaption(c + tags, 'carousel').errors.filter(e => e.startsWith('banned phrase'));
+  assert.deepEqual(banned('Many of you logged older solves to unlock badges.'), []);
+  assert.deepEqual(banned('Solve 50 to unlock new achievements.'), []);
+  assert.deepEqual(banned('Unlock your speed puzzling potential.'), ['banned phrase: "unlock"']);
+});

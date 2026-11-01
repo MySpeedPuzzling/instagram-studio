@@ -279,7 +279,10 @@ Docker and other unneeded apps turned off.
   mosaic (H4-26/27/28: the month's 1000 most-solved puzzles sorted by colour into one piece, zoom-in, by brand) plus a
   report cover and the record-month chart. A **regular** (not Trial) Reel on the same topic later that week, as a
   different visual experience (the boxes sorting themselves by colour), since followers must not miss anything.
-  Counting: solves **finished** in the month, as in Weekly Numbers.
+  **Counting (owner, 2026-11-01): results logged in the month, matching MSP's statistics page** (the site showed 43 861
+  for October, the first draft 34 360 "finished in October"); private profiles still excluded, so the post sits ~0.3 %
+  below the site. Weekly Numbers keeps "finished in the week" (its boards need it). October's jump came from members
+  logging older solves for the achievements (week of 12 Oct); the caption says so ("to unlock badges", owner wording).
 - **Weekly Numbers moves to Mon 19:00** when a monthly recap goes out the day before (24 h apart).
 - **Stories only point and add an action**, never hold unique information (standing rule). This supersedes the
   2026-10-29 note that holder counts go "only into the follow-up Story".

@@ -7,8 +7,8 @@ Updated 2026-10-17.
 ## Now
 
 - [ ] **Monthly report, October (first monthly recap) — draft `2026-11-01-monthly` in review**, to go out **Sun 1 Nov
-      19:00 Prague** after owner approval (`node tools/draft.ts monthly`, fresh 1 Nov: 34 360 solves = biggest month ever,
-      +94 % year on year). 6 slides: cover, record chart, colour mosaic, zoom-in, by brand, month in numbers + "is your last
+      19:00 Prague** after owner approval (`node tools/draft.ts monthly`, fresh 1 Nov: 43 748 results logged = biggest month ever,
+      +143 % year on year; counted like the website's statistics page). 6 slides: cover, record chart, colour mosaic, zoom-in, by brand, month in numbers + "is your last
       puzzle in there?". After publishing: one-tap share to Story (no extra info, standing rule) → Recaps highlight
       (replace any older monthly); pins advice; insights at +48 h (Tue 3 Nov ~19:00): shares and comments per reach vs
       Weekly Numbers.

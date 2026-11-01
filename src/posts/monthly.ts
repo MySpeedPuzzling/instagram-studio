@@ -6,7 +6,9 @@
 //   zoom     the 3×3 neighbourhood of No. 1 with ranks and credits (H4-27);
 //   brands   the same tiles regrouped by brand (H4-28);
 //   numbers  the month in numbers, and the question: can you spot the last puzzle you solved?
-// No names or speed boards: the Weekly Numbers the next day carries those. Every number comes from the facts snapshot.
+// Counting: results logged in the month, like MSP's statistics page (owner 2026-11-01: match the website; older solves
+// typed in count too). No names or speed boards: the Weekly Numbers the next day carries those. Every number comes
+// from the facts snapshot.
 import { CW, FEED, GROUNDS, W, X0, X1, cover, f1, slide, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
 import { barGeometry } from '../design/svg.ts';
 import { escapeHtml as h, fmtInt, fmtSignedPct } from '../design/page.ts';
@@ -26,6 +28,8 @@ export interface MonthlySpec {
   newPuzzlers: number;
   personalBests: number;
   resultsYearAgo: number;
+  /** Optional caption line about the month (owner's context, e.g. why it jumped). */
+  note?: string;
   history: Array<{ month: string; results: number }>;
   boxes: MonthBox[];
   tones: Map<string, Tone>;
@@ -90,7 +94,7 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
     cover: () => cover(ctx('cover'), 'cover', {
       kicker: kick, title: 'Monthly report', dek: isRecord ? `${range} · our biggest month ever` : range, src: s.src,
       hero: { value: name, max: 300 },
-      stats: [['Solves', fmtInt(s.results)], ['Puzzlers', fmtInt(s.puzzlers)], ['Year on year', fmtSignedPct(yoyPct(s), 0)]],
+      stats: [['Results', fmtInt(s.results)], ['Puzzlers', fmtInt(s.puzzlers)], ['Year on year', fmtSignedPct(yoyPct(s), 0)]],
     }),
 
     chart: () => {
@@ -101,16 +105,20 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
       const bars = g.bars.map(b => `<rect x="${f1(b.x)}" y="${f1(b.y)}" width="${f1(b.width)}" height="${f1(b.height)}" fill="${fill(b.datum)}"/>`).join('');
       const bCur = g.bars.find(b => b.datum === cur)!, bPrev = g.bars.find(b => b.datum === prev)!;
       const mid = (b: { x: number; width: number }) => b.x + b.width / 2;
+      // A record month right before this one: its value ends at its bar's edge (centred, it runs into the hot bar).
+      const adjacent = g.bars.indexOf(bCur) - g.bars.indexOf(bPrev) === 1;
       const jan = g.bars.filter(b => b.datum.month.endsWith('-01'));
       const title = isRecord ? `${name} was our biggest month ever` : `${name} on MSP, month by month`;
       return slide(ctx('chart'), 'data', { kicker: kick, src: s.src, title, body: `
-        <p class="h-abs h-dek" style="top:${FEED.contentTop + 170}px">Solves finished per month. ${isRecord ? `${fmtInt(s.results - prev.results)} more than the record from ${monthName(prev.month)}.` : ''}</p>
+        <p class="h-abs h-dek" style="top:${FEED.contentTop + 170}px">Results logged per month. ${isRecord ? `${fmtInt(s.results - prev.results)} more than the record from ${monthName(prev.month)}.` : ''}</p>
         <svg width="${CW}" height="${CH + 60}" style="position:absolute; left:${X0}px; top:${top}px" aria-hidden="true">
           ${bars}
           <text class="c-hot" x="${f1(bCur.x + bCur.width)}" y="${f1(bCur.y - 18)}" text-anchor="end">${fmtInt(cur.results)}</text>
-          <text class="c-lab-b" x="${f1(mid(bPrev))}" y="${f1(bPrev.y - 18)}" text-anchor="middle">${fmtInt(prev.results)}</text>
+          ${adjacent
+            ? `<text class="c-lab-b" x="${f1(bPrev.x + bPrev.width)}" y="${f1(bPrev.y - 18)}" text-anchor="end">${fmtInt(prev.results)}</text>`
+            : `<text class="c-lab-b" x="${f1(mid(bPrev))}" y="${f1(bPrev.y - 18)}" text-anchor="middle">${fmtInt(prev.results)}</text>`}
           ${jan.map((b, i) => `<text class="c-lab" x="${f1(i === 0 ? b.x : mid(b))}" y="${CH + 46}" text-anchor="${i === 0 ? 'start' : 'middle'}">${h(`${monthName(b.datum.month, 'short')} ${year(b.datum.month)}`)}</text>`).join('')}
-          <text class="c-lab-b" x="${f1(mid(bPrev))}" y="${CH + 48}" text-anchor="middle">${h(monthName(prev.month, 'short'))}</text>
+          ${!adjacent ? `<text class="c-lab-b" x="${f1(mid(bPrev))}" y="${CH + 48}" text-anchor="middle">${h(monthName(prev.month, 'short'))}</text>` : ''}
           <text class="c-lab-b" x="${f1(bCur.x + bCur.width)}" y="${CH + 48}" text-anchor="end">${h(monthName(s.month, 'short'))}</text>
         </svg>` }).html;
     },
@@ -160,7 +168,7 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
           <ol class="mo-cr" data-qa-small style="list-style:none; margin:0; padding:0">
             ${list.map(z => `<li><b>No. ${rank.get(z.b.puzzleId)}</b> ${h(z.b.puzzle)} · ${h(z.b.brand)} · ${fmtInt(z.b.solvers)} puzzlers</li>`).join('')}
           </ol>
-          <p class="h-body" style="margin-top:16px; font-size:30px">No. 1 sits among the ${colourFamily(t1.crop ?? t1)}. Together the ${fmtInt(n)} were solved <b style="color:var(--g-ink)">${fmtInt(solves)}</b> times, ${share}% of all ${fmtInt(s.results)} solves in ${h(name)}.</p>
+          <p class="h-body" style="margin-top:16px; font-size:30px">No. 1 sits among the ${colourFamily(t1.crop ?? t1)}. Together the ${fmtInt(n)} were logged <b style="color:var(--g-ink)">${fmtInt(solves)}</b> times, ${share}% of all ${fmtInt(s.results)} results in ${h(name)}.</p>
         </div>` }).html;
     },
 
@@ -202,7 +210,7 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
       const cells: Array<[string, string, boolean?]> = [
         [fmtInt(s.hours), `hours: ${yrs} years non-stop`, true],
         [fmtInt(s.pieces), 'pieces put in place'],
-        [fmtInt(s.puzzles), 'different puzzles finished'],
+        [fmtInt(s.puzzles), 'different puzzles'],
         [fmtInt(s.personalBests), 'personal bests'],
         [fmtInt(s.newPuzzlers), 'new puzzlers joined'],
         [fmtInt(s.countries), 'countries'],
@@ -229,8 +237,8 @@ export function monthlyAlt(s: MonthlySpec): string[] {
   for (const b of s.boxes) brands.set(b.brand, (brands.get(b.brand) ?? 0) + 1);
   const [lead] = [...brands.entries()].sort((a, b) => b[1] - a[1]);
   return [
-    `Cover: ${name}, monthly report, ${monthRange(s.month)}${isRecord ? ', our biggest month ever' : ''}. ${fmtInt(s.results)} solves by ${fmtInt(s.puzzlers)} puzzlers, ${fmtSignedPct(yoyPct(s), 0)} on ${name} ${Number(year(s.month)) - 1}.`,
-    `Bar chart of solves finished per month since January 2025, rising over time. ${name} ${year(s.month)} is the tallest bar with ${fmtInt(s.results)}; the previous record, ${monthName(prev.month)} ${year(prev.month)}, had ${fmtInt(prev.results)}.`,
+    `Cover: ${name}, monthly report, ${monthRange(s.month)}${isRecord ? ', our biggest month ever' : ''}. ${fmtInt(s.results)} results logged by ${fmtInt(s.puzzlers)} puzzlers, ${fmtSignedPct(yoyPct(s), 0)} on ${name} ${Number(year(s.month)) - 1}.`,
+    `Bar chart of results logged per month since January 2025, rising over time. ${name} ${year(s.month)} is the tallest bar with ${fmtInt(s.results)}; the previous record, ${monthName(prev.month)} ${year(prev.month)}, had ${fmtInt(prev.results)}.`,
     `A big jigsaw piece made of ${fmtInt(n)} tiny box images, the most-solved puzzles of ${name}, sorted by colour: reds and oranges on the left, then yellows and greens, blues and purples on the right.`,
     `Zoom into the piece: nine box images around No. 1, ${top.puzzle} by ${top.brand}, solved by ${fmtInt(top.solvers)} puzzlers in ${name}.`,
     `The same ${fmtInt(n)} tiles regrouped by brand: ${lead[1]} ${lead[0]} puzzles form the biggest block, then smaller blocks for the next brands and the rest.`,
@@ -242,9 +250,9 @@ export function monthlyCaption(s: MonthlySpec): string {
   const name = monthName(s.month), { prev, isRecord } = record(s);
   const n = s.boxes.length;
   return [
-    `Monthly report, ${name} (${monthRange(s.month)}): ${fmtInt(s.results)} puzzles solved${isRecord ? `, our biggest month ever` : ''} 🧩`,
+    `Monthly report, ${name} (${monthRange(s.month)}): ${fmtInt(s.results)} puzzles logged${isRecord ? `, our biggest month ever` : ''} 🧩`,
     '',
-    `${fmtInt(s.puzzlers)} puzzlers finished ${fmtInt(s.puzzles)} different puzzles, ${fmtSignedPct(yoyPct(s), 0)} on ${name} last year${isRecord ? ` and ${fmtInt(s.results - prev.results)} more than the old record from ${monthName(prev.month)}` : ''}. Together that's ${fmtInt(s.hours)} hours of puzzling.`,
+    `${fmtInt(s.puzzlers)} puzzlers logged ${fmtInt(s.puzzles)} different puzzles, ${fmtSignedPct(yoyPct(s), 0)} on ${name} last year${isRecord ? ` and ${fmtInt(s.results - prev.results)} more than the old record from ${monthName(prev.month)}` : ''}. Together that's ${fmtInt(s.hours)} hours of puzzling.${s.note ? ` ${s.note}` : ''}`,
     '',
     `Slide 3 is ${name} in one piece: the ${fmtInt(n)} most-solved puzzles of the month, one tile each, sorted by colour. Is the last puzzle you solved in there? Tell us in the comments.`,
     '',

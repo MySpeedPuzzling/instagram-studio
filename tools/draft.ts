@@ -8,6 +8,7 @@
 //   node tools/draft.ts faster-postcards          # "Which is faster?" with Ravensburger's three postcards
 //   node tools/draft.ts about                     # "Start here" explainer (third pinned post)
 //   node tools/draft.ts weekly-rc1 | weekly-rc2   # The Weekly Numbers, two release candidates (full / compact)
+//   node tools/draft.ts monthly                   # The monthly recap of the last full month (run on the 1st)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { lintCaption } from '../src/captions/lint.ts';
@@ -21,6 +22,8 @@ import { aboutAlt, aboutSlides, plus, tens } from '../src/posts/about.ts';
 import { buildAboutSpec } from '../src/posts/about-data.ts';
 import { weeklyAlt, weeklyCaption, weeklyNames, weeklySlides, weeklyStories, weeklyTags, type Segment } from '../src/posts/weekly.ts';
 import { buildWeeklySpec } from '../src/posts/weekly-data.ts';
+import { monthlyAlt, monthlyCaption, monthlySlides } from '../src/posts/monthly.ts';
+import { buildMonthlySpec } from '../src/posts/monthly-data.ts';
 import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
 import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
@@ -58,6 +61,20 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
   // RC1 full: every segment of the owner's list (8 slides). RC2 compact: cover, top, fastest 500s, shoutout, the week (5).
   'weekly-rc1': weekly('rc1', ['cover', 'top', 'fast500', 'fast1000', 'active', 'shout', 'days', 'close']),
   'weekly-rc2': weekly('rc2', ['cover', 'top', 'fast500', 'shout', 'days']),
+  // Monthly recap (owner 2026-11-01): carousel on the 1st, built on the DL4 colour mosaic (H4-26/27/28).
+  monthly: async () => {
+    const { spec, facts } = await buildMonthlySpec({ fresh: !process.argv.includes('--cached') });
+    activateVariant(HOUSE);
+    const slides = monthlySlides(HOUSE, spec);
+    activateVariant(undefined);
+    const [y, m] = spec.month.split('-').map(Number);
+    return {
+      id: `${new Date().toISOString().slice(0, 10)}-monthly`, title: `Monthly report, ${spec.month}`, pillar: 'data', format: 'carousel',
+      tags: { series: 'monthly-report', season: 1, episode: (y - 2026) * 12 + m - 9, slot: 'monthly-recap', mechanic: 'recap+find-yours', template: 'monthly-mosaic', style: 'H4', month: spec.month },
+      facts, slides, alt: monthlyAlt(spec), caption: monthlyCaption(spec), captionPillar: 'carousel',
+      searchPhrases: ['puzzles', 'puzzling'], properNouns: [spec.boxes[0].puzzle],
+    };
+  },
   about: async () => {
     const { spec, facts } = await buildAboutSpec({ fresh: true });
     activateVariant(HOUSE);

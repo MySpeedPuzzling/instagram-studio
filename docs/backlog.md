@@ -6,6 +6,21 @@ Updated 2026-10-17.
 
 ## Now
 
+- [ ] **Monthly report, October (first monthly recap) — draft `2026-11-01-monthly` in review**, to go out **Sun 1 Nov
+      19:00 Prague** after owner approval (`node tools/draft.ts monthly`, fresh 1 Nov: 34 360 solves = biggest month ever,
+      +94 % year on year). 6 slides: cover, record chart, colour mosaic, zoom-in, by brand, month in numbers + "is your last
+      puzzle in there?". After publishing: one-tap share to Story (no extra info, standing rule) → Recaps highlight
+      (replace any older monthly); pins advice; insights at +48 h (Tue 3 Nov ~19:00): shares and comments per reach vs
+      Weekly Numbers.
+- [ ] **Weekly Numbers ep. 3 moves to Mon 2 Nov 19:00** (24 h after the monthly). No overlap: the monthly has no names
+      or boards.
+- [ ] **"October, sorted by colour" Reel, Wed 4 / Thu 5 Nov** (regular Reel, not Trial: followers must not miss it): the
+      1000 boxes drop in shuffled and sort themselves by colour into the piece; one short line at a time, long holds
+      (new Reel rule 2026-11-01: less text, slower). Reuse `src/posts/mosaic.ts` + `monthly-boxes`. Key frames to the
+      owner first; the MP4 render needs the owner's go-ahead.
+- [ ] Monthly recap as a routine: run `node tools/draft.ts monthly` on the 1st of each month (November → 1 Dec, same
+      day as Advent door 2: decide the order then).
+
 - [x] **Halloween piece quiz PUBLISHED Sat 31 Oct ~11:20 Prague** (https://www.instagram.com/p/DfJ7Cx6CPBJ/, draft
       `2026-10-31-piece-quiz-halloween`, `node tools/draft.ts piece-quiz-halloween`; fresh data 31 Oct 11:14: 212 puzzlers,
       337 solves, 13 this October). Teaser Story with countdown posted Fri evening. Went out ~1 h 20 min after the countdown ended.

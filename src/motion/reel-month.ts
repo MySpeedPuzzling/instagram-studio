@@ -19,7 +19,7 @@
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { X0, f1, frame, type Variant } from '../design/house.ts';
+import { STICKER_STORY_SAFE, X0, f1, frame, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtInt } from '../design/page.ts';
 import { colourField, pieceCells, tileUrl, type Cell } from '../posts/mosaic.ts';
 import type { MonthBox, MonthlySpec } from '../posts/monthly.ts';
@@ -32,7 +32,9 @@ import type { Motion } from './render.ts';
 const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0, CX = X0 + RW / 2;
 const FW = 1080, FH = 1920, PITCH = 20;
-const PIECE = { top: 770, size: 740 };
+const REEL_PIECE = { top: 770, size: 740 }, STORY_PIECE = { top: 712, size: 640 };
+/** Story: the lowest point anything moves to (the link sticker zone starts below it). */
+const STORY_FLOOR = 1440;
 
 export interface ReelMonthSpec { spec: MonthlySpec; top: Array<MonthBox & { large: string; aspect: number }>; /** "col,row" → URL of the edge tile cropped by the piece's outline. */ edgeImg: Map<string, string> }
 
@@ -69,7 +71,13 @@ function marks() {
   return { splashOut: 0.9, clear: 1.0, slow, SLOW, fast, burst, fact: burst + 0.7, factOut: burst + 3.4, edge: burst + 3.5, fill: burst + 4.7, done: burst + 8.2, loop: burst + 8.8, end: burst + 11.2 };
 }
 
-export function reelMonthMotion(v: Variant, r: ReelMonthSpec): Motion {
+/**
+ * `story`: the same animation as a Story pointing to the monthly report (owner 2026-11-01): the piece smaller and
+ * higher, a fixed cue to the report under it, and y ≈ 1480–1720 left empty for the owner's link sticker (nothing
+ * animates there, as in the Weekly Numbers Story).
+ */
+export function reelMonthMotion(v: Variant, r: ReelMonthSpec, o: { story?: boolean } = {}): Motion {
+  const story = !!o.story, PIECE = story ? STORY_PIECE : REEL_PIECE, key = story ? 'story-month' : 'reel-month';
   const s = r.spec, T = marks(), DURATION = +T.end.toFixed(2);
   const month = new Date(s.month + '-01T12:00:00Z').toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
   const n = s.boxes.length;
@@ -104,7 +112,7 @@ export function reelMonthMotion(v: Variant, r: ReelMonthSpec): Motion {
   const clear = { x0: PX - 50, y0: PY - 50, x1: PX + pc.w * SC + 50, y1: PY + pc.h * SC + 50 };
   const spot = () => {
     for (;;) {
-      const sx = rnd() * (FW - 60) + 10, sy = 150 + rnd() * (FH - 330);
+      const sx = rnd() * (FW - 60) + 10, sy = 150 + rnd() * ((story ? STORY_FLOOR - 40 : FH - 180) - 150);
       if (sx + 40 < clear.x0 || sx > clear.x1 || sy + 40 < clear.y0 || sy > clear.y1) return { sx: +sx.toFixed(1), sy: +sy.toFixed(1) };
     }
   };
@@ -159,7 +167,8 @@ export function reelMonthMotion(v: Variant, r: ReelMonthSpec): Motion {
     };
   });
   const fact = `<p id="fact" class="mm-c mm-beat" style="top:300px; visibility:hidden"><span><b class="hot">${fmtInt(s.results)}</b> puzzles logged<br>in ${month}</span></p>`;
-  const body = `${splash}${board}${homeWrap}${rings}${freeLayer}${boxes.map(b => b.html).join('')}${fact}`;
+  const cue = story ? `<p class="mm-c mm-cue" style="top:${STORY_FLOOR - 50}px">The full ${month} report <span class="hot">↓</span></p>` : '';
+  const body = `${splash}${board}${homeWrap}${rings}${freeLayer}${boxes.map(b => b.html).join('')}${fact}${cue}`;
   const frameHtml = `<div class="bare">${frame({ ground: 'navy', kind: 'story', kicker: `${month} in ${fmtInt(n)} puzzles`, device: v.device, src: 'myspeedpuzzling.com', rows: { headTop: 296 }, masthead: true, body })}</div>`;
 
   const css = LOGO_CSS + `
@@ -170,6 +179,7 @@ export function reelMonthMotion(v: Variant, r: ReelMonthSpec): Motion {
 .mm-c .hot { color: var(--g-hot); }
 .mm-site { font-size: 34px; letter-spacing: 0; }
 .mm-hook { font-size: 72px; line-height: 1.05; }
+.mm-cue { font-size: 44px; line-height: 1.1; z-index: 5; }
 .mm-rank { font-size: 88px; line-height: 1; color: var(--g-hot); }
 .mm-name { font-size: 60px; line-height: 1.05; }
 .mm-sub { font-size: 40px; line-height: 1.2; font-weight: 600; letter-spacing: 0; color: var(--g-soft); }
@@ -273,8 +283,8 @@ tl.set({}, {}, ${DURATION});
     boxes: boxes.map(b => ({ x: +b.x.toFixed(1), y: +b.y.toFixed(1), w: +b.w.toFixed(1), h: +b.h.toFixed(1) })),
   };
   return {
-    key: 'reel-month', duration: DURATION, coverAt: 0.05, safe: SAFE,
+    key, duration: DURATION, coverAt: 0.05, safe: story ? STICKER_STORY_SAFE : SAFE,
     qaAt: [0.05, T.slow[0] + 1.2, T.slow[1] + 1.2, T.slow[2] + 1.2, T.fast[0] + 0.3, T.fast[6] + 0.3, T.fact + 1.0, T.edge + 0.6, T.fill + 1.7, T.done + 0.5, DURATION - 0.05],
-    html: composition({ key: 'reel-month', title: `Reel ${month} in ${n} puzzles`, duration: DURATION, frameHtml, css, data, script }),
+    html: composition({ key, title: `${story ? 'Story' : 'Reel'} ${month} in ${n} puzzles`, duration: DURATION, frameHtml, css, data, script }),
   };
 }

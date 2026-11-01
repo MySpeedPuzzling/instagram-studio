@@ -12,6 +12,7 @@
 //   node tools/motion.ts achievements <draft-id> [--qa-only] [--snap=<dir>]     # Reel "5 new achievements" (lab AC1, look L4)
 //   node tools/motion.ts achievements <draft-id> --story                        # its follow-up Story (holder numbers, fresh)
 //   node tools/motion.ts month <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "October in 1000 puzzles" (lab MR1, A + owner's script)
+//   node tools/motion.ts month <monthly-report-id> --story   # the same as a Story with a link-sticker zone to the report
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -63,13 +64,16 @@ if (kind === 'month' && id) {
     const url = large.get(b.image) ?? b.img, m = await sharp(join(ROOT, url.slice(1))).metadata();
     return { ...b, large: url, aspect: (m.width ?? 4) / (m.height ?? 3) };
   }));
-  mkdirSync(join(DRAFTS, id), { recursive: true });
-  writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(facts, null, 1) + '\n');
+  // --story renders into the monthly report's draft (published: its facts.json is never rewritten)
+  if (!o.story) {
+    mkdirSync(join(DRAFTS, id), { recursive: true });
+    writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(facts, null, 1) + '\n');
+  }
   const edgeImg = await edgeTiles(spec);
   activateVariant(HOUSE);
-  const motion = reelMonthMotion(HOUSE, { spec, top, edgeImg });
+  const motion = reelMonthMotion(HOUSE, { spec, top, edgeImg }, { story: !!o.story });
   activateVariant(undefined);
-  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-month'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel month` });
+  const res = await renderMotion(motion, join(DRAFTS, id, o.story ? 'stories' : 'reels', o.story ? 'story-month' : 'reel-month'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} ${o.story ? 'story' : 'reel'} month` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);

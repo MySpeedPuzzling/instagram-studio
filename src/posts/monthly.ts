@@ -1,15 +1,16 @@
 // The monthly recap (first: October 2026, owner 2026-11-01), in the house style (HOUSE = H4). A carousel on the 1st
 // (a regular Reel on the same topic follows later in the week as a different, visual experience):
-//   cover    poster: the month as the big text, "Monthly report", the dates; solves, puzzlers, year on year;
-//   chart    solves per month since January 2025, this month hot, the previous record in the accent;
-//   mosaic   the month's 1000 most-solved puzzles sorted by colour into one generator piece (DL4 H4-26);
-//   zoom     the 3×3 neighbourhood of No. 1 with ranks and credits (H4-27);
+//   cover    poster: the month as the big text over the mosaic (owner 2026-11-01: the stat-strip cover was "boring",
+//            the collage catches the eye): the month's 1000 most-solved puzzles sorted by colour into one generator
+//            piece (DL4 H4-26), the dates and "biggest month ever" under it; the numbers move to the next slides;
+//   chart    results per month since January 2025, this month hot, the previous record in the accent;
+//   zoom     the 3×3 neighbourhood of No. 1 on the cover's piece, with ranks and credits (H4-27);
 //   brands   the same tiles regrouped by brand (H4-28);
 //   numbers  the month in numbers, and the question: can you spot the last puzzle you solved?
 // Counting: results logged in the month, like MSP's statistics page (owner 2026-11-01: match the website; older solves
 // typed in count too). No names or speed boards: the Weekly Numbers the next day carries those. Every number comes
 // from the facts snapshot.
-import { CW, FEED, GROUNDS, W, X0, X1, cover, f1, slide, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
+import { CW, FEED, GROUNDS, W, X0, X1, f1, frame, groundVars, hero, heroFit, posterTopPath, seamReach, slide, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
 import { barGeometry } from '../design/svg.ts';
 import { escapeHtml as h, fmtInt, fmtSignedPct } from '../design/page.ts';
 import { colourField, colourFamily, pieceCells, tileUrl, type Cell, type MosaicBox, type Tone } from './mosaic.ts';
@@ -72,7 +73,7 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
   const range = monthRange(s.month);
   const { prev, isRecord } = record(s);
   const n = s.boxes.length;
-  const order = ['cover', 'chart', 'mosaic', 'zoom', 'brands', 'numbers'] as const;
+  const order = ['cover', 'chart', 'zoom', 'brands', 'numbers'] as const;
   const ctx = (k: typeof order[number]): SlideCtx => ({ v, post: s.key, slide: order.indexOf(k) + 1, of: order.length });
 
   const pc = pieceCells(n, PITCH, 4, 0.2);
@@ -81,21 +82,29 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
   const brandCount = new Set(s.boxes.map(b => b.brand)).size;
   const solves = s.boxes.reduce((t, b) => t + b.results, 0);
   const share = Math.round((solves / s.results) * 100);
-  // The tiles' gaps and the piece's outline show the ground, so the mosaic sits on any ground.
+  // Tiles fill every cell the outline touches; the piece's curve trims them (no stroke: it left a halo line).
   const mosaic = (ox: number, oy: number, scale = 1) => `
     <div style="position:absolute; left:${f1(ox)}px; top:${f1(oy)}px; width:${f1(pc.w)}px; height:${f1(pc.h)}px; transform-origin:0 0; transform:scale(${scale}); clip-path:path('${pc.d}'); background:var(--g-bg)">
       ${pc.cells.map(cell => `<img class="mo-tile" src="${tileUrl(assign.get(cell)!)}" alt="" style="left:${cell.x + GAP / 2}px; top:${cell.y + GAP / 2}px; width:${PITCH - GAP}px; height:${PITCH - GAP}px">`).join('')}
-      <svg style="position:absolute; left:0; top:0" width="${f1(pc.w)}" height="${f1(pc.h)}"><path d="${pc.d}" fill="none" stroke="var(--g-bg)" stroke-width="${f1(10 / scale)}"/></svg>
     </div>`;
   const credit = `${fmtInt(n)} most-solved of ${label} · ${brandCount} brands · box art: publishers`;
 
   const make: Record<typeof order[number], () => string> = {
-    // Owner 2026-10-18: a recurring report's cover says what it is (period big, "report", dates); numbers in the strip.
-    cover: () => cover(ctx('cover'), 'cover', {
-      kicker: kick, title: 'Monthly report', dek: isRecord ? `${range} · our biggest month ever` : range, src: s.src,
-      hero: { value: name, max: 300 },
-      stats: [['Results', fmtInt(s.results)], ['Puzzlers', fmtInt(s.puzzlers)], ['Year on year', fmtSignedPct(yoyPct(s), 0)]],
-    }),
+    // Owner 2026-10-18: a recurring report's cover says what it is (period big, "report" in the header, the dates);
+    // owner 2026-11-01: the mosaic is the cover's picture. H2 poster: the month on the top piece, the mosaic on navy.
+    cover: () => {
+      const c = ctx('cover'), top = GROUNDS[v.ground(slotOf(c, 'cover'))], base = GROUNDS[v.posterBase ?? 'navyDeep'];
+      const SEAM = 470, above = Math.max(112, Math.round(seamReach().up) + 22), below = Math.max(96, Math.round(seamReach().down) + 20);
+      const size = Math.min(heroFit(name, 300), Math.floor((SEAM - above - 8 - 170) / 0.72));
+      const dekY = FEED.contentBottom - 62, mTop = SEAM + below - 20, room = dekY - 24 - mTop;
+      const sc = Math.min(room / pc.h, CW / pc.w);
+      const under = `<svg class="h-poster-top" width="${W}" height="${FEED.footRule}" viewBox="0 0 ${W} ${FEED.footRule}" aria-hidden="true">
+        <path d="${posterTopPath(SEAM)}" fill="${top.bg}"/></svg>
+        <div style="${groundVars(top)}" data-qa-bg="${top.bg}">${hero(name, { size, baseline: SEAM - above })}</div>`;
+      const body = CSS + mosaic((W - pc.w * sc) / 2, mTop, sc) + `
+        <p class="h-dek h-abs" style="top:${dekY}px; text-align:center; width:${CW}px">${h(range)}${isRecord ? ' · <b style="color:var(--g-hot); font-weight:700">our biggest month ever</b>' : ''}</p>`;
+      return frame({ ground: base.key, kicker: kick, idx: [1, order.length], device: v.device, body, src: credit, under, noRule: true, headGround: top.key });
+    },
 
     chart: () => {
       const CH = 560, top = 560;
@@ -110,7 +119,7 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
       const jan = g.bars.filter(b => b.datum.month.endsWith('-01'));
       const title = isRecord ? `${name} was our biggest month ever` : `${name} on MSP, month by month`;
       return slide(ctx('chart'), 'data', { kicker: kick, src: s.src, title, body: `
-        <p class="h-abs h-dek" style="top:${FEED.contentTop + 170}px">Results logged per month. ${isRecord ? `${fmtInt(s.results - prev.results)} more than the record from ${monthName(prev.month)}.` : ''}</p>
+        <p class="h-abs h-dek" style="top:${FEED.contentTop + 170}px">Results logged per month. ${isRecord ? `${fmtInt(s.results - prev.results)} more than the record from ${monthName(prev.month)}, ` : ''}${fmtSignedPct(yoyPct(s), 0)} on ${monthName(s.month)} ${Number(year(s.month)) - 1}.</p>
         <svg width="${CW}" height="${CH + 60}" style="position:absolute; left:${X0}px; top:${top}px" aria-hidden="true">
           ${bars}
           <text class="c-hot" x="${f1(bCur.x + bCur.width)}" y="${f1(bCur.y - 18)}" text-anchor="end">${fmtInt(cur.results)}</text>
@@ -121,12 +130,6 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
           ${!adjacent ? `<text class="c-lab-b" x="${f1(mid(bPrev))}" y="${CH + 48}" text-anchor="middle">${h(monthName(prev.month, 'short'))}</text>` : ''}
           <text class="c-lab-b" x="${f1(bCur.x + bCur.width)}" y="${CH + 48}" text-anchor="end">${h(monthName(s.month, 'short'))}</text>
         </svg>` }).html;
-    },
-
-    mosaic: () => {
-      const top = 268, room = FEED.contentBottom - top;
-      const sc = Math.min(1, room / pc.h, CW / pc.w);
-      return slide(ctx('mosaic'), 'image', { kicker: kick, src: credit, title: `${name} in ${fmtInt(n)} puzzles`, body: CSS + mosaic((W - pc.w * sc) / 2, top + (room - pc.h * sc) / 2, sc) }).html;
     },
 
     zoom: () => {
@@ -152,7 +155,7 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
       const win1 = { x: mapX + win.c0 * PITCH * mapScale, y: mapY + win.r0 * PITCH * mapScale, s: 3 * PITCH * mapScale };
       const listY = zy + zw + 30;
       const t1 = s.tones.get(top1.img)!;
-      return slide(ctx('zoom'), 'image', { kicker: 'Zoom in', src: `Box art by their publishers · ${s.src}`, title: 'Every tile is one puzzle, sorted by colour', titleSize: 's', body: CSS + `
+      return slide(ctx('zoom'), 'image', { kicker: 'Zoom into the cover', src: `Box art by their publishers · ${s.src}`, title: 'Every tile is one puzzle, sorted by colour', titleSize: 's', body: CSS + `
         ${zoom.map(z => {
           const t = s.tones.get(z.b.img)!, cr = t.crop!, k = zs / cr.s;
           return `<div style="position:absolute; left:${zx + z.i * (zs + zg)}px; top:${zy + z.j * (zs + zg)}px; width:${zs}px; height:${zs}px; overflow:hidden; border-radius:3px">
@@ -212,8 +215,8 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
         [fmtInt(s.pieces), 'pieces put in place'],
         [fmtInt(s.puzzles), 'different puzzles'],
         [fmtInt(s.personalBests), 'personal bests'],
+        [fmtInt(s.puzzlers), 'puzzlers logged a result'],
         [fmtInt(s.newPuzzlers), 'new puzzlers joined'],
-        [fmtInt(s.countries), 'countries'],
       ];
       const gridTop = 296, sc = 0.4, mx = X0, my = 852;
       return slide(ctx('numbers'), 'data', { kicker: kick, src: s.src, title: `${name} in numbers`, body: CSS + `
@@ -223,7 +226,7 @@ export function monthlySlides(v: Variant, s: MonthlySpec): string[] {
         ${mosaic(mx, my, sc)}
         <div style="position:absolute; left:${f1(mx + pc.w * sc + 44)}px; width:${f1(X1 - (mx + pc.w * sc + 44))}px; top:${f1(my + (pc.h * sc) / 2 - 104)}px">
           <p class="mo-ask">Is the last puzzle you solved in there?</p>
-          <p class="mo-ask-s">Swipe back to the piece and tell us in the comments.</p>
+          <p class="mo-ask-s">Swipe back to the cover and tell us in the comments.</p>
         </div>` }).html;
     },
   };
@@ -237,12 +240,11 @@ export function monthlyAlt(s: MonthlySpec): string[] {
   for (const b of s.boxes) brands.set(b.brand, (brands.get(b.brand) ?? 0) + 1);
   const [lead] = [...brands.entries()].sort((a, b) => b[1] - a[1]);
   return [
-    `Cover: ${name}, monthly report, ${monthRange(s.month)}${isRecord ? ', our biggest month ever' : ''}. ${fmtInt(s.results)} results logged by ${fmtInt(s.puzzlers)} puzzlers, ${fmtSignedPct(yoyPct(s), 0)} on ${name} ${Number(year(s.month)) - 1}.`,
-    `Bar chart of results logged per month since January 2025, rising over time. ${name} ${year(s.month)} is the tallest bar with ${fmtInt(s.results)}; the previous record, ${monthName(prev.month)} ${year(prev.month)}, had ${fmtInt(prev.results)}.`,
-    `A big jigsaw piece made of ${fmtInt(n)} tiny box images, the most-solved puzzles of ${name}, sorted by colour: reds and oranges on the left, then yellows and greens, blues and purples on the right.`,
-    `Zoom into the piece: nine box images around No. 1, ${top.puzzle} by ${top.brand}, solved by ${fmtInt(top.solvers)} puzzlers in ${name}.`,
+    `Cover: monthly report, ${name}, ${monthRange(s.month)}${isRecord ? ', our biggest month ever' : ''}. Under the word ${name}, a big jigsaw piece made of ${fmtInt(n)} tiny box images, the most-solved puzzles of the month, sorted by colour: reds and oranges on the left, then yellows and greens, blues and purples on the right.`,
+    `Bar chart of results logged per month since January 2025, rising over time. ${name} ${year(s.month)} is the tallest bar with ${fmtInt(s.results)}, ${fmtSignedPct(yoyPct(s), 0)} on a year earlier; the previous record, ${monthName(prev.month)} ${year(prev.month)}, had ${fmtInt(prev.results)}.`,
+    `Zoom into the cover's piece: nine box images around No. 1, ${top.puzzle} by ${top.brand}, solved by ${fmtInt(top.solvers)} puzzlers in ${name}.`,
     `The same ${fmtInt(n)} tiles regrouped by brand: ${lead[1]} ${lead[0]} puzzles form the biggest block, then smaller blocks for the next brands and the rest.`,
-    `${name} in numbers: ${fmtInt(s.hours)} hours of puzzling, ${fmtInt(s.pieces)} pieces, ${fmtInt(s.puzzles)} different puzzles, ${fmtInt(s.personalBests)} personal bests, ${fmtInt(s.newPuzzlers)} new puzzlers, ${s.countries} countries. Is the last puzzle you solved in there?`,
+    `${name} in numbers: ${fmtInt(s.hours)} hours of puzzling, ${fmtInt(s.pieces)} pieces, ${fmtInt(s.puzzles)} different puzzles, ${fmtInt(s.personalBests)} personal bests, ${fmtInt(s.puzzlers)} puzzlers, ${fmtInt(s.newPuzzlers)} new puzzlers. Is the last puzzle you solved in there?`,
   ];
 }
 
@@ -254,7 +256,7 @@ export function monthlyCaption(s: MonthlySpec): string {
     '',
     `${fmtInt(s.puzzlers)} puzzlers logged ${fmtInt(s.puzzles)} different puzzles, ${fmtSignedPct(yoyPct(s), 0)} on ${name} last year${isRecord ? ` and ${fmtInt(s.results - prev.results)} more than the old record from ${monthName(prev.month)}` : ''}. Together that's ${fmtInt(s.hours)} hours of puzzling.${s.note ? ` ${s.note}` : ''}`,
     '',
-    `Slide 3 is ${name} in one piece: the ${fmtInt(n)} most-solved puzzles of the month, one tile each, sorted by colour. Is the last puzzle you solved in there? Tell us in the comments.`,
+    `The cover is ${name} in one piece: the ${fmtInt(n)} most-solved puzzles of the month, one tile each, sorted by colour. Is the last puzzle you solved in there? Tell us in the comments.`,
     '',
     'Box art by their publishers. Thank you for every solve you logged ⏱️',
     '',

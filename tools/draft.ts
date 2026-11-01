@@ -64,7 +64,7 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
   // Monthly recap (owner 2026-11-01): carousel on the 1st, built on the DL4 colour mosaic (H4-26/27/28).
   monthly: async () => {
     // Owner's context for the month's caption (owner 2026-11-01: the October jump came from achievement backfills).
-    const NOTES: Record<string, string> = { '2026-10': 'Many of you also logged older solves to unlock badges 🏅' };
+    const NOTES: Record<string, string> = { '2026-10': 'Many of you also logged older solves to earn badges 🏅' };
     const prevMonth = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() - 1, 1)).toISOString().slice(0, 7);
     const { spec, facts } = await buildMonthlySpec({ fresh: !process.argv.includes('--cached'), note: NOTES[prevMonth] });
     activateVariant(HOUSE);

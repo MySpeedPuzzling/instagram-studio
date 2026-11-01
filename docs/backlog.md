@@ -8,14 +8,15 @@ Updated 2026-10-17.
 
 - [ ] **Monthly report, October (first monthly recap) — draft `2026-11-01-monthly` in review**, to go out **Sun 1 Nov
       19:00 Prague** after owner approval (`node tools/draft.ts monthly`, fresh 1 Nov: 43 748 results logged = biggest month ever,
-      +143 % year on year; counted like the website's statistics page). 6 slides: cover, record chart, colour mosaic, zoom-in, by brand, month in numbers + "is your last
-      puzzle in there?". After publishing: one-tap share to Story (no extra info, standing rule) → Recaps highlight
+      +143 % year on year; counted like the website's statistics page). 5 slides: cover = the colour mosaic under "October" (owner: the stat cover was boring), record chart,
+      zoom-in, by brand, month in numbers + "is your last puzzle in there?". After publishing: one-tap share to Story (no extra info, standing rule) → Recaps highlight
       (replace any older monthly); pins advice; insights at +48 h (Tue 3 Nov ~19:00): shares and comments per reach vs
       Weekly Numbers.
 - [ ] **Weekly Numbers ep. 3 moves to Mon 2 Nov 19:00** (24 h after the monthly). No overlap: the monthly has no names
       or boards.
 - [ ] **"October, sorted by colour" Reel, Wed 4 / Thu 5 Nov** (regular Reel, not Trial: followers must not miss it): the
-      1000 boxes drop in shuffled and sort themselves by colour into the piece; one short line at a time, long holds
+      1000 boxes drop in shuffled and sort themselves by colour into the piece; **frame 0 / splash = the finished collage
+      piece** (owner 2026-11-01: "I want the reel to have the collage on the intro to catch attention"); one short line at a time, long holds
       (new Reel rule 2026-11-01: less text, slower). Reuse `src/posts/mosaic.ts` + `monthly-boxes`. Key frames to the
       owner first; the MP4 render needs the owner's go-ahead.
 - [ ] Monthly recap as a routine: run `node tools/draft.ts monthly` on the 1st of each month (November → 1 Dec, same

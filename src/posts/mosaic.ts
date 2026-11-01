@@ -93,32 +93,41 @@ function pointIn(poly: Point[], x: number, y: number) {
   return inside;
 }
 
-/** One interior jigsaw piece, scaled so that exactly `n` grid cells (by centre) fall inside its outline. */
+/**
+ * One interior jigsaw piece filled edge to edge with exactly `n` grid cells: every cell the outline touches gets a tile,
+ * and the piece's own curve (clip-path) trims the edge tiles, so the edge is smooth with no notches (owner 2026-11-01:
+ * "I don't like the sharp edges"). The piece is scaled until the touched cells number `n`; if no scale lands exactly,
+ * the cells with the smallest visible sliver are dropped (a few px at most).
+ */
 export function pieceCells(n: number, pitch: number, seed: number, tabSize: number) {
   const base = generateJigsaw({ cols: 3, rows: 3, width: 300, height: 300, seed, tabSize, jitter: 0 });
   const p = base.pieces.find(q => q.col === 1 && q.row === 1)!;
   const norm = p.outline.map(([x, y]) => [x - p.bbox.x, y - p.bbox.y] as Point);
   const poly0 = sampleOutline(norm, 40);
-  const count = (s: number) => {
+  const K = 6; // samples per cell side for the visible share
+  const cover = (s: number) => {
     const poly = poly0.map(([x, y]) => [x * s, y * s] as Point);
-    const cells: Cell[] = [];
+    const cells: Array<Cell & { share: number }> = [];
     for (let row = 0; row * pitch < p.bbox.height * s; row++) for (let col = 0; col * pitch < p.bbox.width * s; col++) {
-      const cx = col * pitch + pitch / 2, cy = row * pitch + pitch / 2;
-      if (pointIn(poly, cx, cy)) cells.push({ col, row, x: col * pitch, y: row * pitch, cx, cy });
+      const x = col * pitch, y = row * pitch;
+      let hit = 0;
+      for (let j = 0; j < K; j++) for (let i = 0; i < K; i++) if (pointIn(poly, x + (i + 0.5) * pitch / K, y + (j + 0.5) * pitch / K)) hit++;
+      // A cell the outline only grazes between samples still counts when an outline point falls inside it.
+      const grazed = !hit && poly.some(([px, py]) => px > x && px < x + pitch && py > y && py < y + pitch);
+      if (hit || grazed) cells.push({ col, row, x, y, cx: x + pitch / 2, cy: y + pitch / 2, share: hit / (K * K) || 0.5 / (K * K) });
     }
     return cells;
   };
   let s = 2;
-  while (count(s).length < n) s += 0.1;
+  while (cover(s).length < n) s += 0.1;
   s -= 0.1;
-  while (count(s).length < n) s += 0.002;
-  let cells = count(s);
-  if (cells.length > n) {
-    const poly = poly0.map(([x, y]) => [x * s, y * s] as Point);
-    const edge = (c: Cell) => Math.min(...poly.map(([x, y]) => Math.hypot(x - c.cx, y - c.cy)));
-    cells = cells.map(c => ({ c, d: edge(c) })).sort((a, z) => z.d - a.d).slice(0, n).map(o => o.c);
-  }
-  return { cells, d: outlineToPath(norm.map(([x, y]) => [+(x * s).toFixed(2), +(y * s).toFixed(2)] as Point)), w: p.bbox.width * s, h: p.bbox.height * s };
+  let cells = cover(s);
+  while (cells.length < n) { s += 0.0005; cells = cover(s); }
+  if (cells.length > n) cells = [...cells].sort((a, z) => z.share - a.share).slice(0, n);
+  return {
+    cells: cells.map(({ share: _, ...c }) => c), dropped: cover(s).length - n,
+    d: outlineToPath(norm.map(([x, y]) => [+(x * s).toFixed(2), +(y * s).toFixed(2)] as Point)), w: p.bbox.width * s, h: p.bbox.height * s,
+  };
 }
 
 /** Colour field: hue runs left → right (greys first), lightness top → bottom within each column. */

@@ -41,6 +41,12 @@ How to maintain it:
   narrow space between groups of three from 10 000 up ("12 450", "3 654 448"; SI style). Always format with `fmtInt`
   (`src/design/page.ts`); the caption lint rejects "8,103". (owner, 2026-10-18)
 
+- **Report covers lead with the post's most striking visual, not a block of numbers** (changed 2026-11-01): the period
+  stays the big text with the dates, and the eye-catcher (e.g. the colour mosaic) fills the rest; the stat strip moves
+  to later slides when it would make the cover a wall of text. (owner, 2026-11-01, monthly report: the stat-strip cover
+  was "kind of boring though many info there"; "the collage is great")
+- **Image mosaics and pieces have smooth edges:** tiles fill every cell the piece outline touches and the outline trims
+  them; no stair-step notches, no outline stroke halo. (owner, 2026-11-01, "I don't like the sharp edges")
 - **A recurring report's cover says what it is at first sight:** the period as the big text ("Week 42", "October")
   with the word "report" in the title and the dates under it; the headline numbers go in the stat strip, never as the
   cover's big number. The caption opens the same way ("Weekly report, week 42 (12–18 Oct): …"). (owner, 2026-10-18,

@@ -59,12 +59,20 @@ export function reelMonthMotion(v: Variant, r: ReelMonthSpec): Motion {
   // Seeded scatter (mulberry32), so every render is the same.
   let seed = 20261101;
   const rnd = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  // The burst throws the tiles around the board, never over it, so the edges and the colour waves stay visible.
+  const clear = { x0: PX - 50, y0: PY - 50, x1: PX + pc.w * SC + 50, y1: PY + pc.h * SC + 50 };
+  const spot = () => {
+    for (;;) {
+      const sx = rnd() * (FW - 60) + 10, sy = 150 + rnd() * (FH - 330);
+      if (sx + 40 < clear.x0 || sx > clear.x1 || sy + 40 < clear.y0 || sy > clear.y1) return { sx: +sx.toFixed(1), sy: +sy.toFixed(1) };
+    }
+  };
   const tiles = pc.cells.map(c => {
     const b = assign.get(c)!, p = home(c), edge = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !at.has(`${c.col + dx},${c.row + dy}`));
     const ang = (Math.atan2(p.y + S / 2 - cy0, p.x + S / 2 - cx0) / (2 * Math.PI) + 1.25) % 1; // 0 at the top, clockwise
     return {
       x: +p.x.toFixed(1), y: +p.y.toFixed(1), url: tileUrl(b), rank: rankOf.get(b.puzzleId)!,
-      sx: +(rnd() * (FW - 60) + 10).toFixed(1), sy: +(150 + rnd() * (FH - 330)).toFixed(1), sr: +((rnd() - 0.5) * 70).toFixed(1), sk: +(1.6 + rnd() * 0.9).toFixed(2),
+      ...spot(), sr: +((rnd() - 0.5) * 70).toFixed(1), sk: +(1.6 + rnd() * 0.9).toFixed(2),
       col: +(c.col / (cols - 1)).toFixed(3), edge, ang: +ang.toFixed(3), d: +(Math.hypot(p.x - cx0, p.y - cy0) / 330).toFixed(3), j: +rnd().toFixed(3),
     };
   });

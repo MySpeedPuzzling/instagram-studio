@@ -14,7 +14,11 @@ Updated 2026-10-17.
       Weekly Numbers.
 - [ ] **Weekly Numbers ep. 3 moves to Mon 2 Nov 19:00** (24 h after the monthly). No overlap: the monthly has no names
       or boards.
-- [ ] **"October, sorted by colour" Reel, Wed 4 / Thu 5 Nov** (regular Reel, not Trial: followers must not miss it): the
+- [ ] **"October in 1000 puzzles" Reel: first full render 1 Nov** (`node tools/motion.ts month 2026-11-04-reel-october`,
+      25.7 s, 2 min render, 1.9 GB peak; MR1 concept A + owner's script, `docs/ideas/reel-month-colour.md`): owner to
+      watch `content/drafts/2026-11-04-reel-october/reels/reel-month.mp4` (540p copy alongside) and give timing notes;
+      then caption, `--fresh` re-render on the day, post by hand with music, tag @ravensburgerglobal (+ speedpuzzle.eu).
+- [ ] (was) **"October, sorted by colour" Reel, Wed 4 / Thu 5 Nov** (regular Reel, not Trial: followers must not miss it): the
       1000 boxes drop in shuffled and sort themselves by colour into the piece; **frame 0 / splash = the finished collage
       piece** (owner 2026-11-01: "I want the reel to have the collage on the intro to catch attention"); one short line at a time, long holds
       (new Reel rule 2026-11-01: less text, slower). Reuse `src/posts/mosaic.ts` + `monthly-boxes`. Key frames: lab **MR1** (`node lab/monthly-reel/run.ts`,

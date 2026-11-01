@@ -288,3 +288,10 @@ Docker and other unneeded apps turned off.
   2026-10-29 note that holder counts go "only into the follow-up Story".
 - **Reels: less information noise, slower reading** (viewers' feedback relayed by the owner): replaces the 2026-10-21
   "data-dense Reels" rule in `editorial/standing-feedback.md`.
+
+## 2026-11-01: monthly Reel ("October in 1000 puzzles")
+
+- Owner picked concept **A "The Shuffle"** from lab MR1 (C "1000-piece puzzle" read as clunky/too sharp) and wrote the
+  script: splash → clear → top 10 placed one by one → burst → edges first → colour waves → back to the splash. Refined
+  to **No. 1–3 slow (name, brand, puzzlers) + No. 4–10 fast (rank + brand)**; one fact on a solid backing. Script in
+  `docs/ideas/reel-month-colour.md`; builder `src/motion/reel-month.ts`.

@@ -15,7 +15,7 @@ import { barGeometry } from '../design/svg.ts';
 import { escapeHtml as h, fmtInt, fmtSignedPct } from '../design/page.ts';
 import { colourField, colourFamily, pieceCells, tileUrl, type Cell, type MosaicBox, type Tone } from './mosaic.ts';
 
-export interface MonthBox extends MosaicBox { pieces: number; solvers: number; results: number }
+export interface MonthBox extends MosaicBox { pieces: number; solvers: number; results: number; /** Image path in MSP's store (for other presets). */ image: string }
 export interface MonthlySpec {
   key: 'month';
   /** "2026-10". */

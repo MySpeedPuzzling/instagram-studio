@@ -15,7 +15,7 @@ export async function buildMonthlySpec(o: { fresh: boolean; note?: string }): Pr
   if (!t || q['monthly-boxes'].rows.length < 1000 || !q['monthly-history'].rows.some(r => r.month === month)) throw new Error('monthly: a query came back incomplete');
   const imgs = await fetchBoxes(q['monthly-boxes'].rows.map(r => r.image), 'puzzle_medium');
   const boxes = q['monthly-boxes'].rows.filter(r => imgs.has(r.image)).map(r => ({
-    puzzleId: r.puzzle_id, puzzle: r.puzzle, brand: r.brand, img: imgs.get(r.image)!,
+    puzzleId: r.puzzle_id, puzzle: r.puzzle, brand: r.brand, img: imgs.get(r.image)!, image: r.image,
     pieces: num(r.pieces), solvers: num(r.solvers), results: num(r.results),
   }));
   const tones = await prepareTones(boxes);

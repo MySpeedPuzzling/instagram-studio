@@ -145,6 +145,13 @@ How to maintain it:
 
 ## Formats and slots
 
+- **Stories never hold information that isn't in a post or Reel:** a Story only points to a post or Reel and adds an
+  action (poll, link sticker, "find yours"). Stories disappear after 24 h, so facts that would live only there (e.g.
+  holder counts) go into the post, the Reel or the caption. A one-tap share of the post is a fine Story.
+  (owner, 2026-11-01)
+- **Followers must not miss a post's content:** no Trial Reels for content the followers should see; a Reel on the same
+  topic as a carousel is a different experience (the visual), not the slides animated. (owner, 2026-11-01)
+
 - **Reel pacing: the joke gets time, text gets time.** A reveal the whole Reel hangs on (a snap-back, a twist) builds
   up over ≥ 1.5 s and lands with a hold, never a 0.5 s blink ("way too fast, I did not even notice"); count-ups that
   matter tick visibly (one step every ~0.6 s). Text-heavy beats (2+ lines or a chart) hold ≥ 4 s, short title beats
@@ -216,10 +223,11 @@ How to maintain it:
   `src/motion/logo.ts`), never a build-in first. Pure transitions (tear-aparts, drops, entrances) stay quick
   (~0.2–0.5 s); the time goes to reading holds. (owner, 2026-10-21, first Reel)
 
-- **Data Reels and animated Stories may be data-dense and longer** (~15–25 s): puzzlers pause and replay them to read
-  the numbers (seen on the Week 42 animated Story), so depth beats brevity. Still cut to a seamless loop and land the
-  first payoff early; show both the typical pace and the fastest (MSP holds both, it's the de facto standard for
-  times). (owner, 2026-10-21, first Reel)
+- **Reels: visuals first, less text, slower reading** (changed 2026-11-01; was "data-dense is fine"): viewers love the
+  visuals but can't keep up reading. One short line on screen at a time, held long enough to read twice (rule of thumb
+  ≥ 0.4 s per word, never under 2 s); at most one number per beat; cut secondary labels, footnotes and boards; the
+  detail goes into the caption or a carousel. Still land the first payoff early and cut to a seamless loop.
+  (owner relaying viewers' feedback, 2026-11-01; earlier rule from 2026-10-21 replaced)
 
 - **Reels:** no logo intro; by default no outro (it breaks the loop); optionally the 0.6 s loop-back sting.
   Decision on logo motion is open (LM1). (research 2026-10-16, owner to confirm)

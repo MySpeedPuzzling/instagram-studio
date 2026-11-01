@@ -17,8 +17,9 @@ Updated 2026-10-17.
 - [ ] **"October, sorted by colour" Reel, Wed 4 / Thu 5 Nov** (regular Reel, not Trial: followers must not miss it): the
       1000 boxes drop in shuffled and sort themselves by colour into the piece; **frame 0 / splash = the finished collage
       piece** (owner 2026-11-01: "I want the reel to have the collage on the intro to catch attention"); one short line at a time, long holds
-      (new Reel rule 2026-11-01: less text, slower). Reuse `src/posts/mosaic.ts` + `monthly-boxes`. Key frames to the
-      owner first; the MP4 render needs the owner's go-ahead.
+      (new Reel rule 2026-11-01: less text, slower). Reuse `src/posts/mosaic.ts` + `monthly-boxes`. Key frames: lab **MR1** (`node lab/monthly-reel/run.ts`,
+      19 frames, 4 concepts A Shuffle / B Powers of Ten / C 1000-piece puzzle / D Rainbow rain + shared splash S1 and end
+      E1) waiting for the owner's per-frame rating; then a low-res motion preview of the top 1–2 and the MP4 (go-ahead).
 - [ ] Monthly recap as a routine: run `node tools/draft.ts monthly` on the 1st of each month (November → 1 Dec, same
       day as Advent door 2: decide the order then).
 

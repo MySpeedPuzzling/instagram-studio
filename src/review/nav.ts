@@ -4,6 +4,7 @@ export const LABS: Array<{ id: string; label: string }> = [
   { id: 'PQ1', label: 'Piece quiz (PQ1)' },
   { id: 'GR1', label: 'Grind Reel (GR1)' },
   { id: 'AC1', label: 'Achievements Reel (AC1)' },
+  { id: 'MR1', label: 'Monthly Reel (MR1)' },
   { id: 'AB1', label: 'Start here covers (AB1)' },
   { id: 'AD1', label: 'Advent (AD1)' },
   { id: 'DL4', label: 'House system (DL4)' },

@@ -56,7 +56,7 @@ if (kind === 'month' && id) {
   const { ROOT } = await import('../src/render/server.ts');
   const { fetchBoxes } = await import('../src/data/boxes.ts');
   const { buildMonthlySpec } = await import('../src/posts/monthly-data.ts');
-  const { reelMonthMotion } = await import('../src/motion/reel-month.ts');
+  const { reelMonthMotion, edgeTiles } = await import('../src/motion/reel-month.ts');
   const { spec, facts } = await buildMonthlySpec({ fresh: !!o.fresh });
   const top10 = spec.boxes.slice(0, 10), large = await fetchBoxes(top10.map(b => b.image), 'puzzle_large');
   const top = await Promise.all(top10.map(async b => {
@@ -65,8 +65,9 @@ if (kind === 'month' && id) {
   }));
   mkdirSync(join(DRAFTS, id), { recursive: true });
   writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(facts, null, 1) + '\n');
+  const edgeImg = await edgeTiles(spec);
   activateVariant(HOUSE);
-  const motion = reelMonthMotion(HOUSE, { spec, top });
+  const motion = reelMonthMotion(HOUSE, { spec, top, edgeImg });
   activateVariant(undefined);
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-month'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel month` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);

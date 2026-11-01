@@ -181,6 +181,11 @@ How to maintain it:
   link to its overview page (partner finder: myspeedpuzzling.com/en/partner-finder), never to one event. (owner,
   2026-10-22, partner finder Reel)
 
+- **Shapes stay cropped while they move:** a tile or piece cut by an outline keeps its cut shape in flight (no square
+  corners popping at take-off or landing); bake such crops into images rather than live clip-paths (10× render cost).
+  (owner, 2026-11-01, monthly Reel)
+- **Reel layout uses the full height for the art:** the hero visual may run below the text band (to ~y 1500), with
+  generous space between the text block and the art; no big empty bottom. (owner, 2026-11-01, monthly Reel)
 - **Moving text never reflows a sentence:** keep the sentence static and put the changing part (a tier, a count, a
   time) on its own short line, with tabular digits, so only that line changes. (owner, 2026-10-29, achievements Reel:
   "Bronze Solve … 3 times" jumping to "Diamond … 50 times" was bad to read)

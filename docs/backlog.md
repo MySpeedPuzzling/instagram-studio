@@ -6,8 +6,8 @@ Updated 2026-10-17.
 
 ## Now
 
-- [ ] **Monthly report, October (first monthly recap) — draft `2026-11-01-monthly` in review**, to go out **Sun 1 Nov
-      19:00 Prague** after owner approval (`node tools/draft.ts monthly`, fresh 1 Nov: 43 748 results logged = biggest month ever,
+- [x] **Monthly report, October (first monthly recap) PUBLISHED Sun 1 Nov ~13:30 Prague** (owner: "publish now";
+      https://www.instagram.com/p/DfMuk0dCNqu/, draft `2026-11-01-monthly`) (`node tools/draft.ts monthly`, fresh 1 Nov: 43 748 results logged = biggest month ever,
       +143 % year on year; counted like the website's statistics page). 5 slides: cover = the colour mosaic under "October" (owner: the stat cover was boring), record chart,
       zoom-in, by brand, month in numbers + "is your last puzzle in there?". After publishing: one-tap share to Story (no extra info, standing rule) → Recaps highlight
       (replace any older monthly); pins advice; insights at +48 h (Tue 3 Nov ~19:00): shares and comments per reach vs

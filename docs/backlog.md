@@ -12,6 +12,10 @@ Updated 2026-10-17.
       zoom-in, by brand, month in numbers + "is your last puzzle in there?". After publishing: one-tap share to Story (no extra info, standing rule) → Recaps highlight
       (replace any older monthly); pins advice; insights at +48 h (Tue 3 Nov ~19:00): shares and comments per reach vs
       Weekly Numbers.
+- [ ] **Story to the monthly report** (owner 2026-11-01): the Reel's animation as a Story with a link sticker to
+      https://www.instagram.com/p/DfMuk0dCNqu/ (`node tools/motion.ts month 2026-11-01-monthly --story` →
+      `content/drafts/2026-11-01-monthly/stories/story-month.mp4` + `story-month-sticker-guide.jpg`); owner posts it
+      tonight after the Reel. Read link taps before it expires (Mon evening).
 - [ ] **Weekly Numbers ep. 3 moves to Mon 2 Nov 19:00** (24 h after the monthly). No overlap: the monthly has no names
       or boards.
 - [ ] **"October in 1000 puzzles" Reel APPROVED 1 Nov, owner posts by hand Sun 1 Nov evening with music** (draft

@@ -9,7 +9,8 @@ WITH w AS (SELECT date_trunc('week', now()) - interval '7 days' AS start, date_t
 t AS (
   SELECT CASE WHEN t.finished_at >= w.start THEN 'last' WHEN t.tracked_at < now() - interval '7 days' THEN 'previous' END AS wk, t.player_id, p.pieces_count
   FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id JOIN puzzle p ON p.id = t.puzzle_id, w
-  WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start - interval '7 days' AND t.finished_at >= w.start - interval '7 days' AND t.finished_at < w.stop)
+  WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start - interval '7 days' AND t.finished_at >= w.start - interval '7 days' AND t.finished_at < w.stop
+    AND (p.hide_until IS NULL OR p.hide_until <= now()))
 SELECT (SELECT to_char(start, 'YYYY-MM-DD') FROM w) AS week_start,
   count(*) FILTER (WHERE wk = 'last') AS results, count(*) FILTER (WHERE wk = 'previous') AS results_prev,
   count(DISTINCT player_id) FILTER (WHERE wk = 'last') AS puzzlers, count(DISTINCT player_id) FILTER (WHERE wk = 'previous') AS puzzlers_prev,

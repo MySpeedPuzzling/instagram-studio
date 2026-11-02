@@ -6,9 +6,10 @@ Updated 2026-10-17.
 
 ## Now
 
-- [ ] **Weekly Numbers ep. 3 (week 44)**: owner review of `2026-11-02-weekly-rc1`, publish, post the animated Story with the link sticker, Recaps highlight (4 weeks max). Facts queried 2 Nov ~18:30 UTC: refresh before publishing after ~18:30 UTC Tue.
+- [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Owner: animated Story + link sticker + Recaps. Insights Wed 4 Nov ~20:00.
+- [ ] Weekly: week total (weekly-totals) and the day chart differ by ~3 solves (results logged before the week began but finished in it count in one, not the other); align the two filters.
 - [ ] Ask the owner: should the weekly cover follow the monthly's "lead with a visual" rule (e.g. the most-solved boxes, as the Story does)?
-- [ ] Tool: pre-check photo tags with an unpublished test container (eps. 1 and 2 both failed the first publish on refused handles).
+- [x] Tag pre-check: `tools/check-tags.ts` (2 Nov).
 
 - [x] **Monthly report, October (first monthly recap) PUBLISHED Sun 1 Nov ~13:30 Prague** (owner: "publish now";
       https://www.instagram.com/p/DfMuk0dCNqu/, draft `2026-11-01-monthly`) (`node tools/draft.ts monthly`, fresh 1 Nov: 43 748 results logged = biggest month ever,

@@ -177,7 +177,9 @@ chats until the week's draw is done.
 ## Weekly Numbers (every Monday)
 
 1. `node tools/draft.ts weekly-rc1`: fresh data for the last full week (Mon–Sun, solves with a finish date in the week),
-   8 slides + the still Story (`stories/story-1.jpg`) in `content/drafts/<monday>-weekly-rc1/`. Review, approve, publish.
+   8 slides + the still Story (`stories/story-1.jpg`) in `content/drafts/<monday>-weekly-rc1/`. Review, approve, then
+   `node tools/check-tags.ts <draft-id> --remove` (one unpublished test container per photo tag; refused tags are dropped
+   and listed for the owner to tag by hand), then publish.
 2. `node tools/motion.ts weekly <draft-id>`: the 16 s animated Story (`stories/story-1-video.mp4`) from the same numbers
    (the last fresh run). It opens on a title card, which Instagram shows as the preview: check
    `stories/story-1-video-preview.jpg`. Light: ~21 s render, ~1.5 GB peak, logged in `content/motion-runs.jsonl`. `--qa-only` for a

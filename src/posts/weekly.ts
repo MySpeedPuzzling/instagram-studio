@@ -278,7 +278,7 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
       // One line in the ~600 px name column: at most ~37 characters of 30 px text.
       // Puzzle + brand always stay (brand credit); "First attempt", then the team name, drop when the puzzle
       // would get fewer than 16 characters (week 44: team + first attempt left the puzzle a negative budget).
-      const brand = cut(r.brand, 14), MIN_PUZZLE = 16;
+      const MIN_PUZZLE = 16, brand = cut(r.brand, Math.max(14, 37 - 3 - r.puzzle.length)); // a short puzzle name leaves room for the full brand
       const team = r.teamName ? `${cut(r.teamName, 16)} · ` : '', first = r.firstAttempt ? 'First attempt · ' : '';
       const fits = (pre: string) => 37 - pre.length - brand.length - 3 >= Math.min(MIN_PUZZLE, r.puzzle.length);
       const pre = [team + first, first, team, ''].find(fits) ?? '';
@@ -413,7 +413,7 @@ export function weeklyCaption(s: WeeklySpec): string {
   const pair500 = s.fast.find(r => r.kind === 'duo' && r.pieces === 500);
   const team500 = s.fast.find(r => r.kind === 'team' && r.pieces === 500);
   // Credits by MSP name (owner 2026-10-19): handles live only in the photo tags on each puzzler's row.
-  const credit = (r?: FastRow) => (r ? `${r.teamName ? `${r.teamName} (${groupName(r)})` : groupName(r)}` : '');
+  const credit = (r?: FastRow) => (r ? `${r.teamName ? `${r.teamName}: ${groupName(r)}` : groupName(r)}` : '');
   const credits = [solo500 && `solo ${credit(solo500)} (${sec(solo500.seconds)})`, pair500 && `pairs ${credit(pair500)} (${sec(pair500.seconds)})`, team500 && `teams ${credit(team500)} (${sec(team500.seconds)})`].filter(Boolean);
   const shout = s.segments.includes('shout') && s.shout.length ? `Shoutout draw 🎉 ${andJoin(s.shout.map(x => x.person.name))}, picked at random from everyone who finished a puzzle last week.` : '';
   const b = s.week.biggest;

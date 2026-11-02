@@ -96,7 +96,7 @@ export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklyS
   const spec: WeeklySpec = {
     key: 'weekly', season: o.season, episode: o.episode, segments: o.segments, question: o.question,
     weekStart: t.week_start, range, src: `Data: myspeedpuzzling.com · ${range}`,
-    results: num(t.results), resultsPrev: num(t.results_prev), puzzlers: num(t.puzzlers), pieces: num(t.pieces),
+    results: num(t.results), resultsPrev: num(t.results_prev), puzzlers: num(t.puzzlers), participants: num(t.participants), pieces: num(t.pieces),
     newPuzzlers: num(t.new_puzzlers), personalBests: num(t.personal_bests),
     days: days.map(d => ({ weekday: d.weekday, day: d.day, results: num(d.results) })),
     median500s: num(days[0].week_median_solo500_s), solo500Results: num(days[0].week_solo500_results),
@@ -104,7 +104,7 @@ export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklyS
     fast, active,
     shout: picks.map(r => ({ person: person(r), results: num(r.results), seconds: r.shown_seconds ? num(r.shown_seconds) : undefined, kind: r.shown_type as Kind, puzzle: r.last_puzzle, brand: r.last_brand, pieces: num(r.last_pieces), img: r.last_image ? imgs.get(r.last_image) : undefined })),
     poolSize: q['weekly-pool'].rows.length,
-    week: { hours: num(f.hours), countries: num(f.countries), puzzles: num(f.puzzles), firstEver: num(f.first_ever_puzzles), added: num(f.puzzles_added),
+    week: { hours: num(f.hours), countries: num(t.participant_countries), puzzles: num(f.puzzles), firstEver: num(f.first_ever_puzzles), added: num(f.puzzles_added),
       biggest: { puzzle: f.biggest_puzzle, brand: f.biggest_brand, pieces: num(f.biggest_pieces), people: bigPeople.map(person),
         seconds: bigOne?.seconds ? num(bigOne.seconds) : undefined, img: bigRows[0]?.image ? imgs.get(bigRows[0].image) : undefined,
         avatar: bigOne?.avatar ? avatars.get(bigOne.avatar) : undefined }, firstAttemptPct: num(f.solo_first_attempt_pct) },

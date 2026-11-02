@@ -7,6 +7,7 @@ Updated 2026-10-17.
 ## Now
 
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Owner: animated Story + link sticker + Recaps. Insights Wed 4 Nov ~20:00.
+- [ ] Monthly report: "puzzlers" counts only who logged a result (`monthly-totals`); switch to everyone who took part, like the weekly (2 Nov).
 - [ ] Weekly: week total (weekly-totals) and the day chart differ by ~3 solves (results logged before the week began but finished in it count in one, not the other); align the two filters.
 - [ ] Ask the owner: should the weekly cover follow the monthly's "lead with a visual" rule (e.g. the most-solved boxes, as the Story does)?
 - [x] Tag pre-check: `tools/check-tags.ts` (2 Nov).

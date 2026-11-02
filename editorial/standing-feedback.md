@@ -79,6 +79,11 @@ How to maintain it:
   puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the
   site shows publicly where the reader can check it. (owner, 2026-10-18, after wrong numbers in comment replies)
 
+- **"Puzzlers" counts everyone who took part, registered teammates included** (the person who logged a pair or team
+  result plus its registered members; guests without an account can't be counted). Counting only who logged a result
+  undercounts (week 44: 1798 vs 1914) and clashed with the draw slide. A count of who logged results is labelled as such
+  ("Puzzlers added times"). Two numbers on one post that describe the same people must match or say why they differ.
+  (owner, 2026-11-02, Weekly Numbers ep. 3: cover 1798 vs draw 1874)
 - **Pairs and teams are counted by line-up** (the exact same members together), never by merging members whose
   per-person counts happen to match: two puzzlers who each joined 12 team solves with rotating teammates showed as
   one "team" (week 43). Per-person counts are fine only when labelled as per puzzler. (owner question, 2026-10-26)

@@ -93,7 +93,7 @@ export function weeklyStoryMotion(v: Variant, s: WeeklySpec): Motion {
     </div>
     <div class="h-abs h-strip" id="stats" style="top:${SEAM + 120}px">
       <div><p class="k">Solves</p><p class="v" id="n1">${fmtInt(s.results)}</p></div>
-      <div><p class="k">Puzzlers</p><p class="v" id="n2">${fmtInt(s.puzzlers)}</p></div>
+      <div><p class="k">Puzzlers</p><p class="v" id="n2">${fmtInt(s.participants)}</p></div>
       <div><p class="k">PBs</p><p class="v" id="n3">${fmtInt(s.personalBests)}</p></div>
     </div>
     <span class="mo-card" id="most-thumb" style="left:${thumb.x}px; top:${thumb.y}px; width:${thumb.w}px; height:${thumb.h}px"><img src="${p.img}" alt=""></span>
@@ -200,7 +200,7 @@ tl.set({}, {}, ${DURATION});
 `;
   const data = {
     pieces: pieces.map(({ id, dx, dy, rot, busiest }) => ({ id, dx, dy, rot, busiest })), busiest: pieces.find(pc => pc.busiest)!.id,
-    results: s.results, puzzlers: s.puzzlers, pbs: s.personalBests, solo: solo?.seconds ?? 0,
+    results: s.results, puzzlers: s.participants, pbs: s.personalBests, solo: solo?.seconds ?? 0,
     cards: cards.map(c => ({ id: c.id, rot: c.rot, y: c.y })), thumb, T, O: INTRO, c0: { x: cards[0].x, y: cards[0].y, w: 300, h: 220 },
   };
   return {

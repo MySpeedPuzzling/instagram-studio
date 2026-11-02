@@ -10,8 +10,20 @@ t AS (
   SELECT CASE WHEN t.finished_at >= w.start THEN 'last' WHEN t.tracked_at < now() - interval '7 days' THEN 'previous' END AS wk, t.player_id, p.pieces_count
   FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id JOIN puzzle p ON p.id = t.puzzle_id, w
   WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start - interval '7 days' AND t.finished_at >= w.start - interval '7 days' AND t.finished_at < w.stop
+    AND (p.hide_until IS NULL OR p.hide_until <= now())),
+-- Everyone who took part: the puzzler who logged each result plus the registered members of their pair or team (a
+-- teammate who never logs shows up only here; week 44: 1799 loggers vs 1914 who took part). Guests typed in by name
+-- have no account and are not counted. Same filters as t, last week only.
+part AS (
+  SELECT DISTINCT pl.id, nullif(lower(pl.country), '') AS country
+  FROM puzzle_solving_time t JOIN puzzle p ON p.id = t.puzzle_id, w,
+  LATERAL jsonb_array_elements(CASE WHEN t.team IS NULL THEN jsonb_build_array(jsonb_build_object('player_id', t.player_id))
+    ELSE t.team::jsonb->'puzzlers' END) AS e(m)
+  JOIN player pl ON pl.id = nullif(e.m->>'player_id', '')::uuid
+  WHERE NOT t.suspicious AND NOT pl.is_private AND t.tracked_at >= w.start AND t.finished_at >= w.start AND t.finished_at < w.stop
     AND (p.hide_until IS NULL OR p.hide_until <= now()))
 SELECT (SELECT to_char(start, 'YYYY-MM-DD') FROM w) AS week_start,
+  (SELECT count(*) FROM part) AS participants, (SELECT count(DISTINCT country) FROM part) AS participant_countries,
   count(*) FILTER (WHERE wk = 'last') AS results, count(*) FILTER (WHERE wk = 'previous') AS results_prev,
   count(DISTINCT player_id) FILTER (WHERE wk = 'last') AS puzzlers, count(DISTINCT player_id) FILTER (WHERE wk = 'previous') AS puzzlers_prev,
   sum(pieces_count) FILTER (WHERE wk = 'last') AS pieces,

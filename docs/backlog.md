@@ -6,6 +6,10 @@ Updated 2026-10-17.
 
 ## Now
 
+- [ ] **Weekly Numbers ep. 3 (week 44)**: owner review of `2026-11-02-weekly-rc1`, publish, post the animated Story with the link sticker, Recaps highlight (4 weeks max). Facts queried 2 Nov ~18:30 UTC: refresh before publishing after ~18:30 UTC Tue.
+- [ ] Ask the owner: should the weekly cover follow the monthly's "lead with a visual" rule (e.g. the most-solved boxes, as the Story does)?
+- [ ] Tool: pre-check photo tags with an unpublished test container (eps. 1 and 2 both failed the first publish on refused handles).
+
 - [x] **Monthly report, October (first monthly recap) PUBLISHED Sun 1 Nov ~13:30 Prague** (owner: "publish now";
       https://www.instagram.com/p/DfMuk0dCNqu/, draft `2026-11-01-monthly`) (`node tools/draft.ts monthly`, fresh 1 Nov: 43 748 results logged = biggest month ever,
       +143 % year on year; counted like the website's statistics page). 5 slides: cover = the colour mosaic under "October" (owner: the stat cover was boring), record chart,

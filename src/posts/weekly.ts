@@ -276,9 +276,13 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
     const sections = fastSections(s, pieces);
     const detail = (r: FastRow) => {
       // One line in the ~600 px name column: at most ~37 characters of 30 px text.
-      const team = r.teamName ? `${cut(r.teamName, 16)} · ` : '';
-      const pre = team + (r.firstAttempt ? 'First attempt · ' : ''), brand = cut(r.brand, 14);
-      return `${pre}${h(cut(r.puzzle, 37 - pre.length - brand.length - 3))} · ${h(brand)}`;
+      // Puzzle + brand always stay (brand credit); "First attempt", then the team name, drop when the puzzle
+      // would get fewer than 16 characters (week 44: team + first attempt left the puzzle a negative budget).
+      const brand = cut(r.brand, 14), MIN_PUZZLE = 16;
+      const team = r.teamName ? `${cut(r.teamName, 16)} · ` : '', first = r.firstAttempt ? 'First attempt · ' : '';
+      const fits = (pre: string) => 37 - pre.length - brand.length - 3 >= Math.min(MIN_PUZZLE, r.puzzle.length);
+      const pre = [team + first, first, team, ''].find(fits) ?? '';
+      return `${h(pre)}${h(cut(r.puzzle, 37 - pre.length - brand.length - 3))} · ${h(brand)}`;
     };
     const note = fastNote(s, pieces)
       ? `<p class="wk-note" style="margin-top:18px">The week's typical solo 500: <b>${sec(s.median500s)}</b>, the middle of ${fmtInt(s.solo500Results)} solo times.</p>` : '';
@@ -353,6 +357,9 @@ export function weeklyAlt(s: WeeklySpec): string[] {
 }
 
 /** Photo tags per slide index: everyone named on a slide who has an Instagram handle on their MSP profile, on their row. */
+/** Brand accounts verified on Instagram (tagged in published posts: ep. 2, grind Reel, quizzes). Add only checked handles. */
+export const BRAND_HANDLES: Record<string, string> = { 'Ravensburger': 'ravensburgerglobal', 'speedpuzzle.eu': 'speedpuzzle.eu', 'Cobble Hill': 'cobblehillpuzzles' };
+
 export function weeklyTags(s: WeeklySpec): Record<number, Array<{ username: string; x: number; y: number }>> {
   // Each puzzler with an Instagram handle on their MSP profile is tagged on their own row (the slides show no handles,
   // owner 2026-10-19): y = the row's middle, x over the name (two names side by side for pairs, then further right).
@@ -379,6 +386,14 @@ export function weeklyTags(s: WeeklySpec): Record<number, Array<{ username: stri
     put('active', ps, y, actRowH(ps), ACT_WHO_W, 0);
   }));
   s.shout.forEach((x, i) => tag('shout', x.person, 0.3 * W, shoutTop(s, i) + 100));
+  // Brand credit (standing rule): each brand with a verified handle tagged once, on its first box on the most-solved slide.
+  const ti = s.segments.indexOf('top'), seen = new Set<string>();
+  if (ti >= 0) s.top.forEach((p, i) => {
+    const handle = BRAND_HANDLES[p.brand];
+    if (!handle || seen.has(handle)) return;
+    seen.add(handle);
+    (out[ti] ??= []).push({ username: handle, x: 0.22, y: Math.round(((380 + 62 + 150 * i + 75) / 1350) * 1000) / 1000 });
+  });
   // The biggest puzzle's finisher(s), on the card's last line (same geometry as the days slide).
   const cardTop = underTitle(`${fmtInt(s.week.hours)} hours of puzzling in one week`) + 150 + 250 + 70 + 165;
   s.week.biggest.people.forEach((p, j) => tag('days', p, Math.min(W * 0.8, W * 0.62 + j * 120), cardTop + 104));
@@ -404,9 +419,9 @@ export function weeklyCaption(s: WeeklySpec): string {
   const b = s.week.biggest;
   const biggest = s.segments.includes('days') && b.people.length ? `Biggest finish of the week: ${andJoin(b.people.map(p => p.name))} completed ${b.puzzle} by ${b.brand}, all ${fmtInt(b.pieces)} pieces 👏` : '';
   return [
-    `Weekly report, week ${isoWeek(s.weekStart)} (${s.range.replace(/ \d{4}$/, '')}): ${fmtInt(s.week.hours)} hours of puzzling, that's ${fmtInt(Math.floor(s.week.hours / 24))} days around the clock on MySpeedPuzzling.`,
+    `Weekly report, week ${isoWeek(s.weekStart)} (${s.range.replace(/ \d{4}$/, '').replace(' – ', ' to ')}): ${fmtInt(s.week.hours)} hours of puzzling, that's ${fmtInt(Math.floor(s.week.hours / 24))} days around the clock on MySpeedPuzzling.`,
     '',
-    `${fmtInt(s.puzzlers)} puzzlers in ${s.week.countries} countries finished ${fmtInt(s.results)} puzzles. The most-solved was ${s.top[0].puzzle} by ${s.top[0].brand}, done by ${fmtInt(s.top[0].solvers)} of you. The typical solo 500 took ${sec(s.median500s)}, and ${fmtInt(s.personalBests)} of you set a personal best.`,
+    `${fmtInt(s.puzzlers)} puzzlers in ${s.week.countries} countries finished ${fmtInt(s.results)} puzzles. The most-solved was ${s.top[0].puzzle} by ${BRAND_HANDLES[s.top[0].brand] ? `@${BRAND_HANDLES[s.top[0].brand]}` : s.top[0].brand}, done by ${fmtInt(s.top[0].solvers)} of you. The typical solo 500 took ${sec(s.median500s)}, and ${fmtInt(s.personalBests)} of you set a personal best.`,
     '',
     credits.length ? `Fastest 500s of the week ⏱️ ${credits.join(' · ')}` : '',
     '',

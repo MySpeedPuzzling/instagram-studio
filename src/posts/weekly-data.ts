@@ -81,7 +81,7 @@ export async function buildWeeklySpec(o: WeeklyOptions): Promise<{ spec: WeeklyS
   // that changes another slide can only swap out a puzzler who just landed on that slide, never reshuffle the draw.
   const rand = rng(seed), order = [...pool];
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
-  const picks = order.filter(r => !shown.has(r.player_id)).slice(0, o.shoutouts ?? 3);
+  const picks = order.filter(r => !shown.has(r.player_id) && plainName(r.player)).slice(0, o.shoutouts ?? 3);
 
   // Who finished the biggest puzzle (owner 2026-10-26: a shoutout with their avatar on the week slide). Only results
   // whose every member is featurable come back from SQL; do-not-feature drops the whole result here.

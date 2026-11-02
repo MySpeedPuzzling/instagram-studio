@@ -29,6 +29,9 @@ import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
 
+/** One tag per account and slide (week 44: a puzzler on two rows, a club handle shared by two members); the first row keeps it. */
+const uniqueTags = <T extends { username: string }>(tags: T[]): T[] => tags.filter((t, i) => tags.findIndex(u => u.username === t.username) === i);
+
 interface Built { userTags?: Record<number, Array<{ username: string; x: number; y: number }>>; stories?: string[]; id: string; title: string; pillar: string; format: Draft['format']; tags: Record<string, string | number>; facts: Record<string, QueryResult>; slides: string[]; alt: string[]; caption: string; captionPillar: string; searchPhrases?: string[]; properNouns?: string[] }
 
 const dayOf = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
@@ -211,7 +214,7 @@ const slides = await metered(join(ROOT, 'content/drafts/runs.jsonl'), { draft: b
       const n = String(i + 1).padStart(2, '0');
       const res = await renderer.render({ id: `slides/slide-${n}`, html: page(body, { css: HOUSE_CSS, title: `${b.id} ${n}` }) });
       errors.push(...res.qa.errors.map(e => `slide ${n}: ${e}`));
-      out.push({ file: `content/drafts/${b.id}/slides/slide-${n}.jpg`, preview: `content/drafts/${b.id}/slides/slide-${n}.ig.jpg`, alt: b.alt[i] ?? '', ...(b.userTags?.[i] ? { user_tags: b.userTags[i] } : {}) });
+      out.push({ file: `content/drafts/${b.id}/slides/slide-${n}.jpg`, preview: `content/drafts/${b.id}/slides/slide-${n}.ig.jpg`, alt: b.alt[i] ?? '', ...(b.userTags?.[i] ? { user_tags: uniqueTags(b.userTags[i]) } : {}) });
     }
     // Story frames that follow the post (posted by hand with a sticker): content/drafts/<id>/stories/story-N.jpg
     for (const [i, body] of (b.stories ?? []).entries()) {

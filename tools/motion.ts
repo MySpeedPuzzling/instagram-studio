@@ -13,6 +13,7 @@
 //   node tools/motion.ts achievements <draft-id> --story                        # its follow-up Story (holder numbers, fresh)
 //   node tools/motion.ts month <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "October in 1000 puzzles" (lab MR1, A + owner's script)
 //   node tools/motion.ts month <monthly-report-id> --story   # the same as a Story with a link-sticker zone to the report
+//   node tools/motion.ts missing <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "WHERE IS IT?" (the missing piece)
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -90,6 +91,22 @@ if (kind === 'grind' && id) {
   const motion = reelGrindMotion(HOUSE, spec);
   activateVariant(undefined);
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-grind'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel grind` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 'missing' && id) {
+  // Reel "WHERE IS IT?" (the missing piece; owner 2026-11-04, concept A "The search"); facts.json = the queries used
+  const { reelMissingSpec } = await import('../src/posts/reel-missing.ts');
+  const { reelMissingMotion } = await import('../src/motion/reel-missing.ts');
+  const { spec, facts } = await reelMissingSpec({ fresh: !!o.fresh, draft: id });
+  mkdirSync(join(DRAFTS, id), { recursive: true });
+  writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(facts, null, 1) + '\n');
+  console.log(`missing: ${spec.missing} of ${spec.notes} notes, ${spec.foundLater} found later, cats ${spec.cats} / dogs ${spec.dogs}, board ${spec.box.puzzle}, data ${spec.queriedAt}`);
+  activateVariant(HOUSE);
+  const motion = reelMissingMotion(HOUSE, spec);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-missing'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel missing` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);

@@ -87,6 +87,15 @@ document.querySelectorAll('.media').forEach(m => {
 ${script}
 </script></body></html>`;
 
+/** A slide in the phone mock: MP4 Reels/Stories play (muted, looping, with controls; the poster is the render's
+ *  frame-0 preview), stills are images. */
+const isVideo = (u: string) => /\.mp4($|\?)/i.test(u);
+const poster = (u: string) => u.replace(/\.mp4($|\?)/i, '-preview.jpg$1');
+const media = (u: string) => isVideo(u)
+  ? `<video src="${u}" poster="${poster(u)}" autoplay muted loop playsinline controls preload="auto" style="width:100%; display:block"></video>`
+  : `<img src="${u}" alt="">`;
+const still = (u: string) => (isVideo(u) ? poster(u) : u);
+
 function phone(d: Draft) {
   const story = d.format === 'story' || d.format === 'reel';
   const slides = d.slides.map(s => url(s.preview ?? s.file));
@@ -94,7 +103,7 @@ function phone(d: Draft) {
   const short = [...d.caption].length > 125 ? [...d.caption].slice(0, 125).join('') : d.caption;
   return `<div class="phone ${story ? 'story' : ''}">
     <div class="ig-head"><img class="avatar" src="/assets/brand/speedpuzzling-logo-square.png" alt=""><b>myspeedpuzzling</b></div>
-    <div class="media" data-count="${slides.length}"><div class="track">${slides.map(s => `<img src="${s}" alt="">`).join('')}</div>
+    <div class="media" data-count="${slides.length}"><div class="track">${slides.map(media).join('')}</div>
     ${slides.length > 1 ? `<span class="count">1/${slides.length}</span>` : ''}</div>
     ${slides.length > 1 ? `<div class="dots">${slides.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : '<div style="height:8px"></div>'}
     ${story ? '' : `<p class="cap" id="cap"><b>myspeedpuzzling</b> <span id="capShort">${h(short)}</span>${short !== d.caption ? `<span class="more" onclick="this.previousElementSibling.textContent=${h(JSON.stringify(d.caption))};this.remove()">… more</span>` : ''}</p>`}
@@ -106,7 +115,7 @@ function indexPage() {
   const drafts = listDrafts();
   const groups = STATUS_ORDER.map(s => [s, drafts.filter(d => d.status === s)] as const).filter(([, ds]) => ds.length);
   const body = drafts.length ? groups.map(([s, ds]) => `<h2>${s.replace(/_/g, ' ')} (${ds.length})</h2><div class="cards">${ds.map(d => `
-    <a class="card" href="/review/d/${d.id}"><img src="${url(d.slides[0]?.preview ?? d.slides[0]?.file ?? '')}" alt="">
+    <a class="card" href="/review/d/${d.id}"><img src="${still(url(d.slides[0]?.preview ?? d.slides[0]?.file ?? ''))}" alt="">
     <div><b>${h(d.title)}</b><br><span class="pill">${h(d.format)}</span> <span class="pill">${h(d.pillar ?? '')}</span> <span class="pill">v${d.version}</span></div></a>`).join('')}</div>`).join('')
     : '<p>No drafts yet. Claude creates them under content/drafts/.</p>';
   return layout('Drafts', body);
@@ -115,7 +124,7 @@ function indexPage() {
 function draftPage(d: Draft) {
   const fb = feedback(d.id);
   const lint = lintCaption(d.caption, pillarOf(d), { searchPhrases: d.search_phrases, properNouns: d.proper_nouns });
-  const grid = [url(d.slides[0]?.preview ?? d.slides[0]?.file ?? ''), ...realGrid()];
+  const grid = [still(url(d.slides[0]?.preview ?? d.slides[0]?.file ?? '')), ...realGrid()];
   const canAct = ['in_review', 'changes_requested', 'drafted', 'failed', 'needs_reschedule', 'approved'].includes(d.status);
   const body = `
   <p><a href="/review">← Drafts</a> · <span class="pill">${h(d.status.replace(/_/g, ' '))}</span> <span class="pill">v${d.version}</span> ${d.permalink ? `· <a href="${h(d.permalink)}">on Instagram</a>` : ''}</p>

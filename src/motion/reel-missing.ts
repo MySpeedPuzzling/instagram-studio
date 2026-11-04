@@ -14,7 +14,7 @@
 //   24.2–27.8 the send: "Send this to someone who's still looking."
 //   27.8–28.8 loop: the piece pops out again, the splash returns (= frame 0)
 // Text only in the Reel safe area (x 60–960, y 220–1250); art may run to ~y 1500.
-import { GROUNDS, W, X0, f1, frame, groundVars, hero, outlinedLogo, pieceMark, posterTopPath, type Variant } from '../design/house.ts';
+import { GROUNDS, W, X0, f1, frame, groundVars, hero, outlinedLogo, pieceMark, posterTopPath, siteLine, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtInt } from '../design/page.ts';
 import { generateJigsaw } from '../pieces/jigsaw.ts';
 import { FRAMES } from '../render/render.ts';
@@ -34,7 +34,7 @@ export function times(o: { cat: boolean; box: boolean }) {
 const PLATE_SEAM = 700;
 const SEAM = 1262;
 /** The board: 8×6 generator pieces of 100 px, the slot at column 4, row 2. */
-const B = { cols: 8, rows: 6, pc: 108, x: 92, y: 852 };
+const B = { cols: 8, rows: 6, pc: 108, x: 92, y: 884 };
 const BW = B.cols * B.pc, BH = B.rows * B.pc;
 const HOLE = { col: 4, row: 2 };
 /** Where the lost piece lies under the board (board-local), and its tilt. */
@@ -110,16 +110,14 @@ function sceneBowl() {
 
 /** Scene 4: the suspects: notes mentioning cats vs dogs as two bars; "Prime suspect" stamp on the cats. */
 function sceneSuspects(s: ReelMissingSpec) {
-  const max = Math.max(s.cats, s.dogs), L = 560;
-  const bar = (k: string, n: number, y: number, col: string) => `
-    <p class="mo-bl" style="top:${y}px">${k}</p>
-    <div class="mo-bar" id="bar-${k.toLowerCase()}" style="top:${y + 70}px; width:${Math.round(L * n / max)}px; background:${col}"></div>
-    <p class="mo-bn" id="n-${k.toLowerCase()}" style="top:${y + 62}px; left:${X0 + Math.round(L * n / max) + 24}px">${fmtInt(n)}</p>`;
+  // owner 2026-11-04: the numbers are too low for a chart; two big text rows instead
+  const row = (k: string, n: number, y: number, hot: boolean) => `
+    <p class="mo-sr${hot ? ' hot' : ''}" style="top:${y}px"><span class="k">${k}</span><span class="n" id="n-${k.toLowerCase()}">${fmtInt(n)}</span><span class="x">×</span></p>`;
   return `<div class="mo-scene" id="s4">
     <p class="mo-line" style="top:470px">The suspects</p>
     <p class="mo-sub2" style="top:566px">Mentioned in your result notes</p>
-    ${bar('Cats', s.cats, 640, C.coral)}
-    ${bar('Dogs', s.dogs, 820, C.sky)}
+    ${row('Cats', s.cats, 660, true)}
+    ${row('Dogs', s.dogs, 820, false)}
     <p class="mo-stamp" id="stamp" style="top:1100px; left:${CX - 290}px">Prime suspect</p>
   </div>`;
 }
@@ -158,14 +156,16 @@ export function reelMissingMotion(v: Variant, s: ReelMissingSpec): Motion {
   <div id="splash">
     <p class="mo-site" style="top:528px">myspeedpuzzling.com</p>
     <p class="mo-c mo-hook" style="top:600px">WHERE IS IT?</p>
-    <p class="mo-c mo-sub" style="top:730px">The last piece of the puzzle</p>
+    <p class="mo-c mo-sub" style="top:718px">The last piece of the puzzle</p>
+    <p class="mo-c mo-true" style="top:784px">Based on ${fmtInt(s.missing)} true stories</p>
   </div>`;
-  const boardCredit = `<p class="h-abs h-credit mo-cc" id="bcredit" style="top:796px; width:${RW}px">Puzzle: ${h(credit)}</p>`;
+  const boardCredit = `<p class="h-abs h-credit mo-cc" id="bcredit" style="top:836px; width:${RW}px">Puzzle: ${h(credit)}</p>`;
 
   const poster = `<div id="poster">
     <svg class="h-poster-top" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true"><path d="${posterTopPath(SEAM)}" fill="${coral.bg}"/></svg>
     <div id="ptext" style="${groundVars(coral)}" data-qa-bg="${coral.bg}">
       <header class="h-head" style="top:296px">${pieceMark('var(--g-device)')}<span class="h-kick">Did you know · result notes</span><span style="margin-left:auto">${outlinedLogo(96).replace('.svg"', '.svg?poster"')}</span></header>
+      <p class="h-src h-abs" style="top:388px">${siteLine(`Result notes · data ${s.queriedAt.slice(0, 10)}`)}</p>
       ${hero(fmtInt(s.missing), { size: 400, baseline: 860 })}
       <p class="h-abs h-lead" style="top:930px; width:${RW}px; font-size:52px">of your notes on MySpeedPuzzling say a piece was missing.</p>
     </div>
@@ -200,13 +200,16 @@ export function reelMissingMotion(v: Variant, s: ReelMissingSpec): Motion {
 .mo-site { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 32px; font-weight: 700; color: var(--g-ink); }
 .mo-c { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-weight: 700; line-height: 1; letter-spacing: -0.02em; white-space: nowrap; color: var(--g-ink); }
 .mo-hook { font-size: 112px; color: var(--g-hot); }
+.mo-true { font-size: 34px; font-weight: 500; font-style: italic; letter-spacing: 0.04em; color: var(--g-accent); }
 .mo-sub { font-size: 56px; font-weight: 600; letter-spacing: 0; color: var(--g-soft); }
 .mo-line { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 76px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; color: var(--g-ink); white-space: nowrap; }
 .mo-line.hot { color: var(--g-hot); }
 .mo-sub2 { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 44px; font-weight: 500; color: var(--g-soft); }
-.mo-bl { position: absolute; left: ${X0}px; font-size: 48px; font-weight: 700; color: var(--g-ink); }
-.mo-bar { position: absolute; left: ${X0}px; height: 96px; border-radius: 0 10px 10px 0; transform-origin: 0 50%; }
-.mo-bn { position: absolute; font-size: 96px; font-weight: 700; line-height: 1; color: var(--g-ink); font-variant-numeric: tabular-nums; }
+.mo-sr { position: absolute; left: ${X0 + 150}px; width: ${RW - 300}px; display: flex; align-items: baseline; font-weight: 700; line-height: 1; color: var(--g-ink); }
+.mo-sr .k { flex: 1; font-size: 64px; }
+.mo-sr .n { font-size: 120px; font-variant-numeric: tabular-nums; }
+.mo-sr .x { font-size: 72px; margin-left: 6px; color: var(--g-soft); }
+.mo-sr.hot .n, .mo-sr.hot .x { color: var(--g-hot); }
 .mo-stamp { position: absolute; z-index: 6; background: rgba(34, 42, 56, 0.82); padding: 14px 34px; font-size: 64px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
   color: ${C.coral}; border: 7px solid ${C.coral}; border-radius: 14px; transform: rotate(-7deg); white-space: nowrap; }
 .mo-boxin { position: absolute; left: 0; right: 0; top: -36px; height: 72px; background: ${C.dark}; border: 8px solid #c95855; border-radius: 50%; }
@@ -216,14 +219,14 @@ export function reelMissingMotion(v: Variant, s: ReelMissingSpec): Motion {
 #s4 { z-index: 6; }
 `;
 
-  const frameHtml = frame({ ground: 'navy', kind: 'story', kicker: 'Did you know · the missing piece', device: v.device, src: `Result notes · data ${s.queriedAt.slice(0, 10)}`, rows: { headTop: 296 }, masthead: true, body });
+  const frameHtml = frame({ ground: 'navy', kind: 'story', kicker: 'Did you know · the missing piece', device: v.device, src: '', rows: { headTop: 296 }, masthead: true, body });
 
   const script = `
 const D = DATA, T = D.T;
 const show = (sel, at, dur) => tl.to(sel, { autoAlpha: 1, duration: dur ?? 0.3 }, at);
 const hide = (sel, at, dur) => tl.to(sel, { autoAlpha: 0, duration: dur ?? 0.25 }, at);
 const MAST = '.hf > .h-head, .hf > .h-src';
-const plate = (id, at, out) => { show(id, at, 0.01); tl.fromTo(id + ' .mo-plwrap', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, at); tl.fromTo(id + ' .mo-pl', { scale: 1.0 }, { scale: 1.09, duration: out - at, ease: 'none', immediateRender: false }, at); riseIn(id + ' .mo-line', at + 0.1, { dur: 0.35 }); hide(id, out - 0.25, 0.2); };
+const plate = (id, at, out) => { show(id, at, 0.01); tl.fromTo(id + ' .mo-plwrap', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, at); tl.fromTo(id + ' .mo-pl', { scale: 1.0, transformOrigin: '50% 100%' }, { scale: 1.07, duration: out - at, ease: 'none', immediateRender: false }, at); riseIn(id + ' .mo-line', at + 0.1, { dur: 0.35 }); hide(id, out - 0.25, 0.2); };
 const scene = (id, at, out) => { show(id, at, 0.01); riseIn(id + ' .mo-line', at, { dur: 0.35 }); tl.fromTo(id + ' .mo-art, ' + id + ' #box', { y: 500, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.4, ease: 'power3.out', immediateRender: false }, at + 0.05); hide(id, out - 0.25, 0.2); };
 
 // ---- the empty slot pulses on the splash (it already shows on frame 0)
@@ -260,18 +263,15 @@ tl.to('#bowl', { rotation: 4, transformOrigin: '${CX}px 1340px', duration: 0.12,
 }
 if (D.plated.s5) plate('#s5', T.cat, T.sus);
 
-// ---- 4: the suspects, bars grow, numbers count, the stamp lands on the cats
+// ---- 4: the suspects: two rows (Cats N×, Dogs N×), numbers count, the stamp lands on the cats
 show('#s4', T.sus, 0.01);
 riseIn('#s4 .mo-line, #s4 .mo-sub2', T.sus, { stagger: 0.15, dur: 0.35 });
-riseIn('#s4 .mo-bl', T.sus + 0.5, { stagger: 0.3, dur: 0.3 });
-tl.fromTo('#bar-cats', { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: 'power3.out', immediateRender: true }, T.sus + 0.6);
-tl.fromTo('#bar-dogs', { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: 'power3.out', immediateRender: true }, T.sus + 0.9);
-tl.fromTo('#s4 .mo-bn', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: true }, T.sus + 0.6);
+riseIn('#s4 .mo-sr', T.sus + 0.5, { stagger: 0.3, dur: 0.35 });
 countUp('#n-cats', D.cats, T.sus + 0.6, 1.0);
 countUp('#n-dogs', D.dogs, T.sus + 0.9, 0.8);
 tl.set('#board', { autoAlpha: 1, y: 1150, scale: 0.72, transformOrigin: '50% 0%' }, T.sus);
-tl.to('#board', { y: 188, duration: 0.5, ease: 'power3.out' }, T.sus + 0.3);
-tl.set('#bcredit', { y: 204 }, T.sus);
+tl.to('#board', { y: 156, duration: 0.5, ease: 'power3.out' }, T.sus + 0.3);
+tl.set('#bcredit', { y: 164 }, T.sus);
 show('#bcredit', T.sus + 0.6);
 tl.fromTo('#stamp', { scale: 2.4, opacity: 0, rotation: -18 }, { scale: 1, opacity: 1, rotation: -7, duration: 0.3, ease: 'power4.in', immediateRender: true }, T.sus + 2.1);
 tl.to('#s4', { x: 8, duration: 0.05, repeat: 3, yoyo: true }, T.sus + 2.4);

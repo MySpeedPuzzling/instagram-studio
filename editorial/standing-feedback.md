@@ -13,6 +13,9 @@ How to maintain it:
 
 ## Design
 
+- **Two or three small numbers are big text, not a chart** ("Cats 41×, Dogs 11×"): bars for tiny counts look empty and
+  over-serious. The data source line goes on the slide or beat that holds the number, not on every frame. (owner,
+  2026-11-05, missing-piece Reel)
 - **Scenes and objects in Reels: AI paper-cut collage, not flat code shapes.** Code-drawn props (table, box, bowl) looked
   like "just vector or CSS objects"; the IL1 **I2 paper-cut** look (matte card in the brand colours, real layer shadows) is the
   house style for illustrated scenes, generated as stills (Z-Image Turbo) and moved by code (push-in), framed under a navy

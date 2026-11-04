@@ -256,3 +256,11 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Sound effects baked into the weekly Story (CC0: clicks on piece snaps, whoosh on poster, ticks on count-up, box thuds,
       stopwatch tick + ding, slot whirr), mastered to ~−14 LUFS; owner may still add a Music sticker on top.
 - [ ] Weekly Story template: consider moving the cue/sticker zone up ~150 px (bottom centre is Instagram's delete zone).
+
+## Missing-piece Reel (published 2026-11-05 00:24)
+- [ ] Insights at +24 h (Fri 6 Nov ~00:30) and +48 h (Sat 7 Nov ~00:30): sends, saves, retention, skip rate, non-follower reach vs the
+      1000-vs-500, clock, grind and October Reels; first humour Reel and first AI paper-cut art: record in editorial/learnings.md.
+- [ ] Answer comments ("where did your missing piece turn up?"): good candidates for a follow-up post.
+- [ ] Paper-cut style as a reusable kit: move the MP1 runner (content/labs/MP1/run.ts, gitignored) into lab/ or tools/ with the
+      I2 prompt recipe (no puzzle words), so future Reels can order plates in one command.
+- [ ] Owner question: posting time. This one went out at 00:24 (outside the 19:00–22:00 window); compare its first-hour reach.

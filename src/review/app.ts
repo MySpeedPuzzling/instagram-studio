@@ -159,7 +159,7 @@ function draftPage(d: Draft) {
           <select id="reason" style="width:auto">${REJECT_REASONS.map(r => `<option>${r}</option>`).join('')}</select><button class="danger" id="reject">Reject</button>
         </div><p class="msg" id="decideMsg"></p>` : `<p class="meta">No actions in this state.</p>`}
       </div>
-      <div class="panel"><h3>History</h3>${fb.length ? fb.slice().reverse().map(f => `<div class="fb"><b>${h(f.kind.replace(/_/g, ' '))}</b> ${f.target ? `· ${h(f.target)}` : ''} ${f.reason ? `· ${h(f.reason)}` : ''} <span class="meta">${h(f.author)} · ${h(f.at.slice(0, 16).replace('T', ' '))}${f.version ? ` · v${f.version}` : ''}</span>${f.text ? `<br>${h(f.text)}` : ''}</div>`).join('') : '<p class="meta">Nothing yet.</p>'}</div>
+      <div class="panel"><h3>History</h3>${fb.length ? fb.slice().reverse().map(f => `<div class="fb"><b>${h(String(f.kind ?? (f as { type?: string }).type ?? 'note').replace(/_/g, ' '))}</b> ${f.target ? `· ${h(f.target)}` : ''} ${f.reason ? `· ${h(f.reason)}` : ''} <span class="meta">${h(f.author)} · ${h(String(f.at ?? '').slice(0, 16).replace('T', ' '))}${f.version ? ` · v${f.version}` : ''}</span>${f.text ? `<br>${h(f.text)}` : ''}</div>`).join('') : '<p class="meta">Nothing yet.</p>'}</div>
     </div>
   </div>`;
   const script = `

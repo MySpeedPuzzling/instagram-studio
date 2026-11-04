@@ -248,6 +248,9 @@ How to maintain it:
   `src/motion/logo.ts`), never a build-in first. Pure transitions (tear-aparts, drops, entrances) stay quick
   (~0.2–0.5 s); the time goes to reading holds. (owner, 2026-10-21, first Reel)
 
+- **Reels run slower than feels natural while building them** (owner, 2026-11-05, missing-piece Reel: "the reels are
+  great but they must be slightly slower", asked again on this one): picture/joke beats hold ~3.5–4 s, a hero number
+  beat ~5 s, the end card ~4.5 s. When unsure, add a second rather than cut one.
 - **Reels: visuals first, less text, slower reading** (changed 2026-11-01; was "data-dense is fine"): viewers love the
   visuals but can't keep up reading. One short line on screen at a time, held long enough to read twice (rule of thumb
   ≥ 0.4 s per word, never under 2 s); at most one number per beat; cut secondary labels, footnotes and boards; the

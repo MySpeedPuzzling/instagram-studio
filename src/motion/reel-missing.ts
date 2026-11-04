@@ -27,9 +27,11 @@ const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0, CX = X0 + RW / 2;
 /** Beat times. With a cat plate an extra beat ("Or was it the cat?") comes before the suspects; with AI plates but no
  *  box plate the box beat is dropped (owner 2026-11-04: the code box looks cheap next to photos; shorter is better). */
-export function times(o: { cat: boolean; box: boolean }) {
-  const st = 2.7, s1 = 2.9, s2 = s1 + st, s3 = o.box ? s2 + st : s2, cat = s3 + st, sus = o.cat ? cat + 2.6 : cat, d = sus - 11.0;
-  return { splashOut: 2.4, s1, s2, s3, cat, sus, poster: 15.4 + d, posterOut: 19.3 + d, found: 19.6 + d, lift: 21.4 + d, snap: 22.7 + d, send: 24.2 + d, loop: 27.8 + d, end: 28.8 + d };
+export function times(o: { cat: boolean; box: boolean; plated?: boolean }) {
+  // picture beats hold 1 s longer than the code-art beats (owner 2026-11-05: "these all make 1s longer each")
+  const st = o.plated ? 3.7 : 2.7, s1 = 2.9, s2 = s1 + st, s3 = o.box ? s2 + st : s2, cat = s3 + st, sus = o.cat ? cat + 3.6 : cat, d = sus - 11.0;
+  // +1 s on the number poster and +1 s on the end card (owner 2026-11-05: slower Reels)
+  return { splashOut: 2.4, s1, s2, s3, cat, sus, poster: 15.4 + d, posterOut: 20.3 + d, found: 20.6 + d, lift: 22.4 + d, snap: 23.7 + d, send: 25.2 + d, loop: 29.8 + d, end: 30.8 + d };
 }
 const PLATE_SEAM = 700;
 const SEAM = 1262;
@@ -139,7 +141,7 @@ export function reelMissingMotion(v: Variant, s: ReelMissingSpec): Motion {
   const key = 'reel-missing';
   const pl = s.plates ?? {};
   const anyPlate = Object.keys(pl).length > 0, withBox = !anyPlate || !!pl.box;
-  const T = times({ cat: !!pl.cat, box: withBox }), DURATION = T.end;
+  const T = times({ cat: !!pl.cat, box: withBox, plated: anyPlate }), DURATION = T.end;
   const scenes = {
     s1: pl.sofa ? plateScene('s1', 'Under the sofa?', pl.sofa, T.s1, T.s2 - T.s1) : sceneTable(),
     s2: pl.box ? plateScene('s2', 'In the box?', pl.box, T.s2, T.s3 - T.s2) : withBox ? sceneBox(s.box.img) : '',

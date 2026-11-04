@@ -301,3 +301,13 @@ Docker and other unneeded apps turned off.
   the second October post in their feed within hours. "Auto-share to followers if it performs well" on. Narrows the
   "no Trial Reels for content followers should see" rule: allowed when the followers get the same content in a
   Story kept in a highlight.
+
+## 2026-11-04: missing-piece Reel, AI art
+
+- Midweek humour Reel **"WHERE IS IT?"** (concept A "The search", `docs/ideas/reel-missing-piece.md`): data = notes that say
+  a piece was missing (negations left out), cats vs dogs mentioned in notes; the hiding places are jokes, never stats.
+- **Illustrated scenes use AI paper-cut stills** (IL1 I2 recipe), owner pick after comparing code shapes, photoreal stills
+  and WAN 2.2 image-to-video. Photoreal video looked convincing (a cat clip) but costs ~34 min per 3 s clip on the M3 Max
+  (24 GB footprint, swapping): not for regular posts on this machine. Stills: ~3–4 min each.
+- Posting format stays a **Reel** (owner offered a post instead; Reels are the non-follower lever).
+

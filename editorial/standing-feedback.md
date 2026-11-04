@@ -13,6 +13,12 @@ How to maintain it:
 
 ## Design
 
+- **Scenes and objects in Reels: AI paper-cut collage, not flat code shapes.** Code-drawn props (table, box, bowl) looked
+  like "just vector or CSS objects"; the IL1 **I2 paper-cut** look (matte card in the brand colours, real layer shadows) is the
+  house style for illustrated scenes, generated as stills (Z-Image Turbo) and moved by code (push-in), framed under a navy
+  band with the poster seam so text sits on a solid backing. Data, boards, box pictures and pieces stay code. Never write
+  "puzzle" or "jigsaw" into an AI prompt, not even as "no puzzle": with no negative prompt it *adds* puzzle cuts (rugs, a
+  floating piece); reject any output with a puzzle shape. (owner, 2026-11-04, missing-piece Reel)
 - **Pairs and teams always show every member, never "+2":** names separated by their flags only (no commas or
   "&"); a member without a flag gets a comma in front. Long groups wrap onto a second line. Captions name everyone too.
   (owner, 2026-10-26, Weekly Numbers ep. 2)

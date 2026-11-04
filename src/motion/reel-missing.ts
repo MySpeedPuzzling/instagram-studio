@@ -6,6 +6,8 @@
 //   2.9–5.6   "Under the table?"   a torch beam sweeps under a flat table: dust, a coin, no piece
 //   5.6–8.3   "In the box?"        the box turns upside down and shakes: two specks fall, no piece
 //   8.3–11.0  "Did the dog eat it?" an empty bowl, licked clean, wobbles
+//   (AI plates, owner 2026-11-04: when the draft has plates/{sofa,box,dog,cat}.{mp4,png,jpg}, those beats show the photo
+//   or clip full-bleed under a navy seam band instead of the code art; a cat plate adds "Or was it the cat?" (+2.5 s))
 //   11.0–15.4 the suspects (data): mentions in notes, cats vs dogs as two bars, "Prime suspect" stamp on cats
 //   15.4–19.6 coral poster: N of your notes say a piece was missing
 //   19.6–24.2 "N found it later." the board comes back, lifts, the piece was under the puzzle; it snaps in
@@ -23,8 +25,13 @@ import type { ReelMissingSpec } from '../posts/reel-missing.ts';
 
 const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0, CX = X0 + RW / 2;
-export const T = { splashOut: 2.4, s1: 2.9, s2: 5.6, s3: 8.3, sus: 11.0, poster: 15.4, posterOut: 19.3, found: 19.6, lift: 21.4, snap: 22.7, send: 24.2, loop: 27.8 } as const;
-const DURATION = 28.8;
+/** Beat times. With a cat plate an extra beat ("Or was it the cat?") comes before the suspects; with AI plates but no
+ *  box plate the box beat is dropped (owner 2026-11-04: the code box looks cheap next to photos; shorter is better). */
+export function times(o: { cat: boolean; box: boolean }) {
+  const st = 2.7, s1 = 2.9, s2 = s1 + st, s3 = o.box ? s2 + st : s2, cat = s3 + st, sus = o.cat ? cat + 2.6 : cat, d = sus - 11.0;
+  return { splashOut: 2.4, s1, s2, s3, cat, sus, poster: 15.4 + d, posterOut: 19.3 + d, found: 19.6 + d, lift: 21.4 + d, snap: 22.7 + d, send: 24.2 + d, loop: 27.8 + d, end: 28.8 + d };
+}
+const PLATE_SEAM = 700;
 const SEAM = 1262;
 /** The board: 8×6 generator pieces of 100 px, the slot at column 4, row 2. */
 const B = { cols: 8, rows: 6, pc: 108, x: 92, y: 852 };
@@ -117,8 +124,31 @@ function sceneSuspects(s: ReelMissingSpec) {
   </div>`;
 }
 
+/** An AI plate scene (owner 2026-11-04: AI artwork for the hiding places): the photo or clip full-bleed, a navy band
+ *  with the poster's jigsaw seam on top carrying the one line (text always on a solid backing). */
+function plateScene(id: string, line: string, pl: { src: string; video?: boolean }, at: number, dur: number) {
+  const media = pl.video
+    ? `<video class="mo-pl" id="${id}-v" src="${pl.src}" muted playsinline preload="auto" data-start="${f1(at)}" data-duration="${f1(dur)}"></video>`
+    : `<img class="mo-pl" src="${pl.src}" alt="">`;
+  return `<div class="mo-scene" id="${id}">
+    <div class="mo-plwrap">${media}</div>
+    <svg class="mo-plcap" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true"><path d="${posterTopPath(PLATE_SEAM)}" fill="${GROUNDS.navy.bg}"/></svg>
+    <p class="mo-line" style="top:520px">${h(line)}</p>
+  </div>`;
+}
+
 export function reelMissingMotion(v: Variant, s: ReelMissingSpec): Motion {
   const key = 'reel-missing';
+  const pl = s.plates ?? {};
+  const anyPlate = Object.keys(pl).length > 0, withBox = !anyPlate || !!pl.box;
+  const T = times({ cat: !!pl.cat, box: withBox }), DURATION = T.end;
+  const scenes = {
+    s1: pl.sofa ? plateScene('s1', 'Under the sofa?', pl.sofa, T.s1, T.s2 - T.s1) : sceneTable(),
+    s2: pl.box ? plateScene('s2', 'In the box?', pl.box, T.s2, T.s3 - T.s2) : withBox ? sceneBox(s.box.img) : '',
+    s3: pl.dog ? plateScene('s3', 'Did the dog eat it?', pl.dog, T.s3, T.cat - T.s3) : sceneBowl(),
+    cat: pl.cat ? plateScene('s5', 'Or was it the cat?', pl.cat, T.cat, T.sus - T.cat) : '',
+  };
+  const plated = { s1: !!pl.sofa, s2: !!pl.box, s3: !!pl.dog, s5: !!pl.cat, box: withBox };
   const coral = GROUNDS.coral;
   const b = board(s.box.img);
   const logo = logoExit({ cx: CX, cy: 410, width: 220 });
@@ -150,12 +180,16 @@ export function reelMissingMotion(v: Variant, s: ReelMissingSpec): Motion {
     <p class="mo-line hot" style="top:580px">who's still looking.</p>
   </div>`;
 
-  const body = `${splash}${sceneTable()}${sceneBox(s.box.img)}${sceneBowl()}${sceneSuspects(s)}${b.lost}${b.svg}${boardCredit}${found}${send}${poster}`;
+  const body = `${splash}${scenes.s1}${scenes.s2}${scenes.s3}${scenes.cat}${sceneSuspects(s)}${b.lost}${b.svg}${boardCredit}${found}${send}${poster}`;
 
   const css = LOGO_CSS + `
-#s1, #s2, #s3, #s4, #found, #send, #poster, #ptext, #f1, #f2 { visibility: hidden; opacity: 0; }
+#s1, #s2, #s3, #s4, #s5, #found, #send, #poster, #ptext, #f1, #f2 { visibility: hidden; opacity: 0; }
 .hf > .h-head, .hf > .h-src { visibility: hidden; opacity: 0; }
 .mo-scene { position: absolute; inset: 0; }
+.mo-plwrap { position: absolute; inset: 0; overflow: hidden; background: #111; }
+.mo-pl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mo-plcap { position: absolute; left: 0; top: 0; }
+.hf > .h-head, .hf > .h-src { z-index: 4; }
 .mo-art { position: absolute; left: 0; top: 0; }
 .mo-board { position: absolute; overflow: visible; }
 #lost { visibility: hidden; }
@@ -189,6 +223,7 @@ const D = DATA, T = D.T;
 const show = (sel, at, dur) => tl.to(sel, { autoAlpha: 1, duration: dur ?? 0.3 }, at);
 const hide = (sel, at, dur) => tl.to(sel, { autoAlpha: 0, duration: dur ?? 0.25 }, at);
 const MAST = '.hf > .h-head, .hf > .h-src';
+const plate = (id, at, out) => { show(id, at, 0.01); tl.fromTo(id + ' .mo-plwrap', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, at); tl.fromTo(id + ' .mo-pl', { scale: 1.0 }, { scale: 1.09, duration: out - at, ease: 'none', immediateRender: false }, at); riseIn(id + ' .mo-line', at + 0.1, { dur: 0.35 }); hide(id, out - 0.25, 0.2); };
 const scene = (id, at, out) => { show(id, at, 0.01); riseIn(id + ' .mo-line', at, { dur: 0.35 }); tl.fromTo(id + ' .mo-art, ' + id + ' #box', { y: 500, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.4, ease: 'power3.out', immediateRender: false }, at + 0.05); hide(id, out - 0.25, 0.2); };
 
 // ---- the empty slot pulses on the splash (it already shows on frame 0)
@@ -204,19 +239,26 @@ tl.set('#board', { autoAlpha: 0 }, T.splashOut + 0.55);
 show(MAST, T.splashOut + 0.68);
 
 // ---- 1: under the table, the beam sweeps left → right → back a little
+if (D.plated.s1) plate('#s1', T.s1, T.s2); else {
 scene('#s1', T.s1, T.s2);
 tl.fromTo('#beam', { x: 0 }, { x: 620, duration: 1.7, ease: 'sine.inOut', immediateRender: false }, T.s1 + 0.4);
 tl.to('#beam', { x: 380, duration: 0.5, ease: 'sine.inOut' }, T.s1 + 2.1);
+}
 
 // ---- 2: the box turns over, shakes, two specks fall
+if (D.plated.s2) plate('#s2', T.s2, T.s3); else if (D.plated.box) {
 scene('#s2', T.s2, T.s3);
 tl.to('#box', { rotation: 180, duration: 0.6, ease: 'back.inOut(1.4)' }, T.s2 + 0.5);
 tl.to('#box', { x: '+=26', duration: 0.07, repeat: 7, yoyo: true, ease: 'none' }, T.s2 + 1.15);
 tl.fromTo(['#sp1', '#sp2'], { y: 0, opacity: 1 }, { y: 260, opacity: 0, duration: 0.6, ease: 'power2.in', stagger: 0.15, immediateRender: false }, T.s2 + 1.3);
+}
 
 // ---- 3: the bowl wobbles, empty
-scene('#s3', T.s3, T.sus);
+if (D.plated.s3) plate('#s3', T.s3, T.cat); else {
+scene('#s3', T.s3, T.cat);
 tl.to('#bowl', { rotation: 4, transformOrigin: '${CX}px 1340px', duration: 0.12, repeat: 5, yoyo: true, ease: 'sine.inOut' }, T.s3 + 0.9);
+}
+if (D.plated.s5) plate('#s5', T.cat, T.sus);
 
 // ---- 4: the suspects, bars grow, numbers count, the stamp lands on the cats
 show('#s4', T.sus, 0.01);
@@ -282,10 +324,10 @@ tl.fromTo('#splash > *', { y: -60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duratio
 ${logo.back(T.loop + 0.4)}
 tl.set({}, {}, ${DURATION});
 `;
-  const data = { T, cats: s.cats, dogs: s.dogs, missing: s.missing, under: UNDER, origin: b.origin };
+  const data = { T, plated, cats: s.cats, dogs: s.dogs, missing: s.missing, under: UNDER, origin: b.origin };
   return {
     key, duration: DURATION, coverAt: 0.05, safe: SAFE,
-    qaAt: [0.05, 1.5, 4.2, 6.9, 7.6, 10.0, 13.5, 17.6, 20.8, 22.2, 23.6, 26.0, DURATION - 0.05],
+    qaAt: [0.05, 1.5, T.s1 + 1.3, ...(withBox ? [T.s2 + 1.3, T.s2 + 2.0] : []), T.s3 + 1.7, ...(pl.cat ? [T.cat + 1.5] : []), T.sus + 2.5, T.poster + 2.2, T.found + 1.2, T.snap - 0.5, T.snap + 0.9, T.send + 1.8, DURATION - 0.05],
     html: composition({ key, title: 'Reel WHERE IS IT? (missing piece)', duration: DURATION, frameHtml, css, data, script }),
   };
 }

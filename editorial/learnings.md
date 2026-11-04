@@ -82,3 +82,10 @@ young). Posts are 2–12 days old, so the youngest will still grow. n = 4 per fo
 - First "Which is faster?" poll Story (17 Oct 2026, postcard trio): the crowd picked the right answer
   (48 / 30 / 22 % for the actual 1st / 2nd / 3rd), even though only seconds separate 1st and 2nd. One poll: a hunch,
   not a finding. Poll votes can't be read by the API: read them off the Stories archive in the app within days.
+
+## Local AI for Reels (2026-11-04, lab MP1)
+- Z-Image Turbo Q8 stills at 832×1472: ~3–4 min each, ~15–24 GB, no failures. Paper-cut (I2) and photoreal both usable.
+- WAN 2.2 I2V A14B Q4 + 4-step LightX2V: 49 frames at 480×848 = 34 min, 24 GB footprint, 5.4 GB swap. Output convincing
+  (no morphing) but soft at 480p; too slow for routine use on the M3 Max.
+- Prompt words "no puzzle pieces" made puzzles appear (no negative prompt in the Turbo graph): 3 of 8 paper stills had
+  puzzle cuts. Leave puzzle words out entirely.

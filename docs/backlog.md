@@ -270,3 +270,10 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
   list now follows it (`tier-subjects`, `tier-hell`, rule in `editorial/standing-feedback.md`). Older queries take a
   median over every logged solve: check each `percentile_cont` query before its next use (weekly "typical time",
   `quiz-postcards`, `reel-1000-vs-500`, `about-*`, `solo-distribution`) and switch per-puzzle numbers to the site's rule.
+
+## After the tier list (2026-11-07)
+- Insights at +48 h (Mon 9 Nov ~10:40): comments (HELL nominations: reply with each nominee's median from its puzzle
+  page, fresh), saves, shares vs the carousel median. If nominations come in, a follow-up "Your HELL nominations" post.
+- Unused today, kept: "we're all getting faster" (`bs-yearly-speed`, re-check with the per-puzzler rule), country PB
+  atlas (not on a championship day of a low-ranked country), night owls (thin), 300M pieces ~16 Nov (E1 night-ocean plate).
+- `bs-theme-speed` / `boxes-subject-speed` count every solve: don't reuse their medians.

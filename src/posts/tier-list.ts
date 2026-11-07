@@ -377,7 +377,7 @@ export function tierAlt(s: TierSpec): string[] {
   const tiers = tiersOf(subs);
   const slowest = subs[subs.length - 1], fastest = subs[0];
   const row = (x: Subject) => `${x.box.puzzle} (${lc(x.name)}, ${x.box.brand}) ${Math.round(x.median)} min`;
-  const tierLine = (t: (typeof tiers)[number]) => `${t.key} tier (${t.band}): ${t.subs.map(row).join(', ')}`;
+  const tierLine = (t: (typeof tiers)[number]) => `${t.key} tier (${t.band}): ${t.subs.map(x => `${x.box.puzzle} ${Math.round(x.median)}`).join(', ')}`;
   const det = (keys: string[]) => tiers.filter(t => keys.includes(t.key)).flatMap(t => t.subs.map(x => `${row(x)}, ${fmtInt(x.puzzlers)} puzzlers`)).join('; ');
   return [
     `Cover: Where would you put ${slowest.box.puzzle}? A tier list board made of jigsaw pieces cut from puzzle box art, rows S to D, with the ${slowest.box.puzzle} piece lifted off the board. ${subs.length} popular 500-piece puzzles, one per subject, ranked by median solo time, plus one tier from hell.`,

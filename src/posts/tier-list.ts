@@ -251,7 +251,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
       // Cover (no labels under the pieces): the time range sits inside the tier's label piece, under the letter.
       const inside = o.labels === false;
       html.push(`<span class="tl-mid" data-qa-bg="${tone.hex}" style="left:${f1(cx(0) - 6)}px; top:${f1(y + PH / 2 - (inside ? 14 : 0))}px; font-size:${Math.round(Math.min(64, PH * (inside ? 0.46 : 0.56)))}px; color:${lt.css}">${t.key}</span>
-        ${inside ? `<span class="tl-mid" data-qa-bg="${tone.hex}" data-qa-small style="left:${f1(cx(0) - 13)}px; top:${f1(y + PH / 2 + PH * 0.27)}px; font-size:24px; font-weight:700; color:${lt.css}">${h(t.band)}</span>` : ''}
+        ${inside ? `<span class="tl-mid" data-qa-bg="${tone.hex}" data-qa-small style="left:${f1(cx(0) - 10)}px; top:${f1(y + PH / 2 + PH * 0.27)}px; font-size:24px; font-weight:700; color:${lt.css}">${h(t.band)}</span>` : ''}
         ${o.labels === false ? '' : `<div class="tl-sub" data-qa-small style="left:${f1(cx(0))}px; top:${y + PH + 10}px; width:${f1(PW - 8)}px"><p class="bd">${h(t.band)}</p></div>`}`);
       t.subs.forEach((x, k) => {
         if (x.theme === o.hide || o.labels === false) return;

@@ -8,6 +8,7 @@
 //   node tools/draft.ts faster-postcards          # "Which is faster?" with Ravensburger's three postcards
 //   node tools/draft.ts about                     # "Start here" explainer (third pinned post)
 //   node tools/draft.ts weekly-rc1 | weekly-rc2   # The Weekly Numbers, two release candidates (full / compact)
+//   node tools/draft.ts tier-list                 # Subject tier list + HELL tier (Krypt), weekend data carousel
 //   node tools/draft.ts monthly                   # The monthly recap of the last full month (run on the 1st)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -25,6 +26,7 @@ import { buildWeeklySpec } from '../src/posts/weekly-data.ts';
 import { monthlyAlt, monthlyCaption, monthlySlides } from '../src/posts/monthly.ts';
 import { buildMonthlySpec } from '../src/posts/monthly-data.ts';
 import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
+import { buildTierSpec, tierAlt, tierCaption, tierSlides } from '../src/posts/tier-list.ts';
 import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
@@ -141,6 +143,21 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       userTags: { 5: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.6 }] },
       facts: { 'quiz-piece-halloween': q }, slides, alt, caption, captionPillar: 'carousel',
       searchPhrases: ['halloween puzzle'], properNouns: [ans.puzzle, a.puzzle, c.puzzle],
+    };
+  },
+  // Subject tier list + HELL tier (owner 2026-11-07): weekend data carousel, DL4 H4 tier-list prototype made real.
+  'tier-list': async () => {
+    const { spec, facts } = await buildTierSpec({ fresh: !process.argv.includes('--cached') });
+    activateVariant(HOUSE);
+    const slides = tierSlides(HOUSE, spec);
+    activateVariant(undefined);
+    return {
+      id: `${new Date().toISOString().slice(0, 10)}-tier-list`, title: 'Subject tier list (+ HELL tier)', pillar: 'data', format: 'carousel',
+      tags: { series: 'tier-list', slot: 'weekend-data', mechanic: 'identity+debate', template: 'tier-list', style: 'H4', lab: 'DL4/tier-list' },
+      // Brand tag on the HELL slide (all four Krypts are Ravensburger), never on the cover.
+      userTags: { 4: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.3 }] },
+      facts, slides, alt: tierAlt(spec), caption: tierCaption(spec), captionPillar: 'carousel',
+      searchPhrases: ['jigsaw puzzle', 'puzzle'], properNouns: ['Krypt', ...spec.hell.map(k => k.puzzle)],
     };
   },
   'faster-postcards': async () => {

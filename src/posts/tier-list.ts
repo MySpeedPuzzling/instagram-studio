@@ -70,6 +70,8 @@ const STYLE = `<style>
 .tl-sc { position: absolute; font-size: 30px; line-height: 1.05; white-space: nowrap; color: var(--g-ink); }
 .tl-sc i { font-style: normal; font-size: 24px; color: var(--g-soft); }
 .tl-scv { position: absolute; font-size: 30px; font-weight: 700; line-height: 1; white-space: nowrap; color: var(--g-ink); }
+.tl-plate { position: absolute; left: 0; top: 0; width: ${W}px; height: ${FEED_H}px; display: block; object-fit: cover; }
+.tl-band { position: absolute; left: 0; width: ${W}px; background: var(--g-bg); }
 .tl-ask { position: absolute; left: ${X0}px; width: ${CW}px; font-size: 42px; font-weight: 700; line-height: 1.15; color: var(--g-ink); }
 </style>`;
 
@@ -95,7 +97,22 @@ const HELL_MIN = 240;
 interface Box { puzzle: string; brand: string; img: string; ar: number }
 export interface Subject { theme: string; name: string; median: number; results: number; puzzles: number; box: Box }
 export interface HellPuzzle { puzzle: string; short: string; pieces: number; medianS: number; fastestS: number; results: number; solvers: number; box: Box }
-export interface TierSpec { subjects: Subject[]; hell: HellPuzzle[]; mercy?: HellPuzzle; src: string; asOf: string }
+/** The gallery stage (DL3 G2 approach: the AI paints only the empty wall; code hangs the real boxes and every word). */
+export interface Plate { url: string; credit: string }
+export interface TierSpec { subjects: Subject[]; hell: HellPuzzle[]; mercy?: HellPuzzle; plate: Plate; src: string; asOf: string }
+
+/** AI1 E4 shelf plates (DL3 G2-7 moonlight / G2-9 candle; owner 2026-11-07: "use G2-7 or G2-9 as the HELL tier").
+ *  TIER_PLATE=moonlight|candle picks one (default candle: the warm glow reads as hellfire). */
+const PLATE_FILE = `content/labs/AI1/E4/shelf-${process.env.TIER_PLATE === 'moonlight' ? 'moonlight' : 'candle'}-s401`;
+/** The shelf scaffold's box slots (generation px → design px), as DL3 G2. */
+const SLOTS = (JSON.parse(readFileSync(join(ROOT, 'content/labs/AI1/scaffolds/shelf.json'), 'utf8')).slots as Array<{ kind: string; gen: { x: number; y: number; w: number; h: number } }>)
+  .filter(x => x.kind === 'box').map(x => ({ x: x.gen.x * (W / 1024), y: x.gen.y * (W / 1024), w: x.gen.w * (W / 1024), h: x.gen.h * (W / 1024) }));
+const MODEL: Record<string, string> = { zimage: 'Z-Image Turbo', klein4b: 'FLUX.2 klein 4B', klein9b: 'FLUX.2 klein 9B' };
+
+async function loadPlate(): Promise<Plate> {
+  const side = JSON.parse(readFileSync(join(ROOT, `${PLATE_FILE}.json`), 'utf8')) as { family?: string; licence?: string };
+  return { url: `/${PLATE_FILE}.png`, credit: `Backdrop: AI (${MODEL[side.family ?? ''] ?? side.family}, ${side.licence ?? 'licence unknown'})` };
+}
 
 function imgSize(url: string) {
   const b = readFileSync(join(ROOT, url));
@@ -139,7 +156,7 @@ export async function buildTierSpec(o: { fresh: boolean }): Promise<{ spec: Tier
   const mercy = krypt.find(k => k.medianS / 60 < HELL_MIN);
   if (hell.length < 3) throw new Error('tier-list: fewer than 3 Krypt puzzles for HELL');
   const asOf = new Date(q['bs-theme-speed'].queried_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
-  return { spec: { subjects, hell, mercy, asOf, src: `Data: myspeedpuzzling.com · ${asOf}` }, facts: q };
+  return { spec: { subjects, hell, mercy, plate: await loadPlate(), asOf, src: `Data: myspeedpuzzling.com · ${asOf}` }, facts: q };
 }
 
 // ---------------------------------------------------------------- formatting
@@ -210,7 +227,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
   const slowest = subs[subs.length - 1], fastest = subs[0];
   const cols = 6, PW = CW / cols;
   const twoLines = (t: (typeof tiers)[number]) => t.subs.some(x => x.name.length > 11);
-  const order = ['cover', 'board', 'fast', 'slow', 'hell'] as const;
+  const order = ['cover', 'board', 'fast', 'slow', 'hell', 'gallery'] as const;
   const ctx = (k: typeof order[number]): SlideCtx => ({ v, post: 'tier-list', slide: order.indexOf(k) + 1, of: order.length });
   const allBoxes = subs.map(x => x.box);
   const mainBrand = [...allBoxes.reduce((m, b) => m.set(b.brand, (m.get(b.brand) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1])[0][0];
@@ -310,7 +327,46 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
     fast: () => detail(ctx('fast'), ['S', 'A'], 'S and A: the quick ones'),
     slow: () => detail(ctx('slow'), ['B', 'C'], 'B and C: settle in'),
     hell: () => hellSlide(ctx('hell')),
+    gallery: () => gallerySlide(ctx('gallery')),
   };
+
+  /** The HELL shelf (DL3 G2-7 / G2-9): the AI paints only the dark shelf; code puts the real Krypt boxes into the
+   *  scaffold's exact slots with a ghost tag per median time, two "?" slots for the comments, every word on solid bands. */
+  function gallerySlide(x: SlideCtx) {
+    const g = GROUNDS[v.ground(slotOf(x, 'image'))];
+    const DY = -36, BAND = 306; // plate lifted so the bottom row clears the footer band; title band over the type zone
+    const slots = SLOTS.map(o => ({ ...o, y: o.y + DY }));
+    const INK = '#2b3445', CORAL = g.chart.hot, LIGHT = '#f4f2fb';
+    const ghost = (gx: number, gy: number, label: string, hero: boolean) => {
+      const gw = hero ? 178 : 160, gh = gw * 0.92, fill = hero ? CORAL : LIGHT;
+      const d = `M 6 ${f1(gh * 0.45)} A ${gw / 2 - 6} ${gw / 2 - 6} 0 0 1 ${gw - 6} ${f1(gh * 0.45)} L ${gw - 6} ${f1(gh - 6)} L ${f1(gw * 0.8)} ${f1(gh - 18)} L ${f1(gw * 0.6)} ${f1(gh - 6)} L ${f1(gw * 0.4)} ${f1(gh - 18)} L ${f1(gw * 0.2)} ${f1(gh - 6)} L 6 ${f1(gh - 18)} Z`;
+      return `<div style="position:absolute; left:${f1(gx)}px; top:${f1(gy)}px; width:${gw}px; height:${f1(gh)}px; transform:rotate(${hero ? -6 : 5}deg)">
+        <svg width="${gw}" height="${f1(gh)}" style="position:absolute; left:0; top:0"><path d="${d}" fill="${fill}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+          <ellipse cx="${f1(gw * 0.4)}" cy="${f1(gh * 0.24)}" rx="5" ry="7" fill="${INK}"/><ellipse cx="${f1(gw * 0.6)}" cy="${f1(gh * 0.24)}" rx="5" ry="7" fill="${INK}"/></svg>
+        <span data-qa-bg="${fill}" style="position:absolute; left:0; right:0; top:${f1(gh * 0.4)}px; text-align:center; font-size:${hero ? 40 : 32}px; font-weight:800; line-height:1; letter-spacing:-0.5px; color:${INK}; white-space:nowrap">${h(label)}</span></div>`;
+    };
+    const boxes = s.hell.slice(0, 4).map((k, i) => {
+      const sl = slots[i];
+      let bh = sl.h - 10, bw = bh * k.box.ar;
+      if (bw > sl.w - 12) { bw = sl.w - 12; bh = bw / k.box.ar; }
+      const bx = sl.x + (sl.w - bw) / 2, by = sl.y + sl.h - bh;
+      return `<img src="${k.box.img}" alt="" style="position:absolute; left:${f1(bx)}px; top:${f1(by)}px; width:${f1(bw)}px; height:${f1(bh)}px; object-fit:cover; box-shadow:0 8px 12px -4px rgba(0,0,0,.7); outline:2px solid rgba(0,0,0,.55)">
+        <p data-qa-bg="${g.bg}" data-qa-small style="position:absolute; left:${f1(sl.x + sl.w / 2)}px; top:${f1(sl.y + sl.h + 4)}px; transform:translateX(-50%); padding:2px 12px; background:var(--g-bg); color:var(--g-ink); font-size:24px; font-weight:600; line-height:1.25; white-space:nowrap">${h(k.puzzle)} · ${fmtInt(k.pieces)} pieces</p>
+        ${ghost(bx + bw - (i === 0 ? 120 : 108), by - (i === 0 ? 74 : 62), hm(k.medianS).replace(' min', ''), i === 0)}`;
+    }).join('');
+    const empty = slots.slice(s.hell.slice(0, 4).length).map((sl, i) => {
+      const bw = sl.w - 64, bh = bw / 1.4, bx = sl.x + 32, by = sl.y + sl.h - bh;
+      return `<div data-qa-bg="#2c3142" style="position:absolute; left:${f1(bx)}px; top:${f1(by)}px; width:${f1(bw)}px; height:${f1(bh)}px; box-sizing:border-box; background:#2c3142; border:3px dashed #8a93a6; border-radius:6px; transform:rotate(${i % 2 ? 2 : -2}deg); display:grid; place-items:center">
+        <p style="font-size:72px; font-weight:800; line-height:1; color:var(--c-hot)">?</p></div>`;
+    }).join('');
+    const under = `<img class="tl-plate" src="${s.plate.url}" alt="" style="top:${DY}px">
+      <div class="tl-band" style="top:0; height:${BAND}px"></div><div class="tl-band" style="top:1184px; height:${FEED_H - 1184}px"></div>`;
+    const body = STYLE + `
+      <h1 class="h-title" style="top:${FEED.contentTop}px; width:${CW}px; font-size:56px">The HELL shelf</h1>
+      <p class="h-abs h-dek" style="top:${FEED.contentTop + 72}px; font-size:30px">Median solo times. Two slots left: which puzzle belongs in <b style="color:var(--c-hot)">HELL</b>?</p>
+      ${boxes}${empty}`;
+    return frame({ ground: g.key, kicker: KICKER, idx: [x.slide, x.of], device: v.device, body, src: `Box art: Ravensburger · ${s.plate.credit}`, under });
+  }
 
   /** HELL: the Krypt row as one jigsaw strip (label piece + one piece per Krypt), then one time scale for everything. */
   function hellSlide(x: SlideCtx) {
@@ -356,7 +412,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
       body: STYLE + svg(art.join('')) + titleBlock('And then there’s HELL tier', 56)
         + `<p class="h-abs tl-small" data-qa-small style="top:252px; font-size:26px">Ravensburger’s Krypt puzzles: one colour, no picture. Median solo time; half of all solves are faster.</p>`
         + html.join('')
-        + `<p class="tl-ask" style="top:${askY}px">Which puzzle belongs in <span style="color:var(--c-hot)">HELL</span>?</p>`,
+        + `<p class="tl-ask" style="top:${askY}px">Swipe for the <span style="color:var(--c-hot)">HELL</span> shelf →</p>`,
     }).html;
   }
 
@@ -375,6 +431,7 @@ export function tierAlt(s: TierSpec): string[] {
     `S and A in detail, each subject with its most-solved box and a bar from 0 to 100 minutes: ${det(['S', 'A'])}.`,
     `B and C in detail: ${det(['B', 'C'])}.`,
     `HELL tier: Ravensburger's Krypt puzzles, one colour and no picture, as pieces in a coral row. Median solo times: ${s.hell.map(k => `Krypt ${k.short}, ${k.pieces} pieces, ${hm(k.medianS)}`).join('; ')}. A bar scale compares them with ${fastest.name} (${Math.round(fastest.median)} min) and ${lc(slowest.name)} (${Math.round(slowest.median)} min)${s.mercy ? ` and ${s.mercy.puzzle}, which has colours (${hm(s.mercy.medianS)})` : ''}. Which puzzle belongs in HELL? Comment below.`,
+    `The HELL shelf: a dark wooden shelf with cobwebs, lit by a candle. The ${s.hell.length} Krypt boxes stand in its slots, each with a little ghost holding its median solo time: ${s.hell.map(k => `Krypt ${k.short}, ${k.pieces} pieces, ${hm(k.medianS)}`).join('; ')}. The last two slots are empty with question marks: two slots left, which puzzle belongs in HELL?`,
   ];
 }
 

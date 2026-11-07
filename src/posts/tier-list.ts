@@ -198,7 +198,7 @@ function artCoverSlide(x: SlideCtx, s: { kicker: string; title: string; dek: str
     <div style="${groundVars(topG)}" data-qa-bg="${topG.bg}">${head}</div>`;
   return frame({ ground: base.key, kicker: s.kicker, idx: [x.slide, x.of], device: v.device, body: STYLE + s.art({ top: seam + Math.max(82, Math.round(seamReach().down) + 16), bottom: FEED.contentBottom, g: base, seam }), src: s.src, under, noRule: true, headGround: topG.key });
 }
-const titleBlock = (title: string, px = TYPE.title) => `<h1 class="h-title" style="top:${FEED.contentTop}px; width:${CW}px; font-size:${px}px">${h(title)}</h1>`;
+const titleBlock = (title: string, px: number = TYPE.title) => `<h1 class="h-title" style="top:${FEED.contentTop}px; width:${CW}px; font-size:${px}px">${h(title)}</h1>`;
 
 // ---------------------------------------------------------------- slides
 const KICKER = 'Tier list · Puzzle subjects';

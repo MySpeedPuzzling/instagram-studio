@@ -44,7 +44,7 @@ function tierTones(g: Ground): Tone[] {
   const s: Tone = dist(g.chart.hot, g.ink) > 120 ? { css: 'var(--c-hot)', hex: g.chart.hot } : { css: 'var(--g-ink)', hex: g.ink };
   const tone = (op: number): Tone => {
     const best = (o: number) => { const hx = blend(g.ink, g.bg, o); return Math.max(contrast(g.ink, hx), contrast(g.bg, hx)); };
-    for (let k = 0; k < 12 && best(op) < 3.4; k++) op = op >= 0.5 ? Math.min(1, op + 0.03) : Math.max(0, op - 0.03);
+    for (let k = 0; k < 16 && best(op) < 4.6; k++) op = op >= 0.5 ? Math.min(1, op + 0.03) : Math.max(0, op - 0.03);
     return { css: 'var(--g-ink)', op: Number(op.toFixed(2)), hex: blend(g.ink, g.bg, op) };
   };
   return [s, ...[0.8, 0.6, 0.42, 0.26].map(tone)];
@@ -248,7 +248,10 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
       }
       const cx = (k: number) => X0 + PW * (k + 0.5);
       const lt = textOn(o.g, tone.hex);
-      html.push(`<span class="tl-mid" data-qa-bg="${tone.hex}" style="left:${f1(cx(0))}px; top:${f1(y + PH / 2)}px; font-size:${Math.round(Math.min(64, PH * 0.56))}px; color:${lt.css}">${t.key}</span>
+      // Cover (no labels under the pieces): the time range sits inside the tier's label piece, under the letter.
+      const inside = o.labels === false;
+      html.push(`<span class="tl-mid" data-qa-bg="${tone.hex}" style="left:${f1(cx(0) - 6)}px; top:${f1(y + PH / 2 - (inside ? 14 : 0))}px; font-size:${Math.round(Math.min(64, PH * (inside ? 0.46 : 0.56)))}px; color:${lt.css}">${t.key}</span>
+        ${inside ? `<span class="tl-mid" data-qa-bg="${tone.hex}" data-qa-small style="left:${f1(cx(0) - 13)}px; top:${f1(y + PH / 2 + PH * 0.27)}px; font-size:24px; font-weight:700; color:${lt.css}">${h(t.band)}</span>` : ''}
         ${o.labels === false ? '' : `<div class="tl-sub" data-qa-small style="left:${f1(cx(0))}px; top:${y + PH + 10}px; width:${f1(PW - 8)}px"><p class="bd">${h(t.band)}</p></div>`}`);
       t.subs.forEach((x, k) => {
         if (x.theme === o.hide || o.labels === false) return;

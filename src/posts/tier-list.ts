@@ -294,7 +294,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
   const make: Record<typeof order[number], () => string> = {
     cover: () => artCoverSlide(ctx('cover'), {
       kicker: KICKER, title: `Where would you put ${slowest.name.toLowerCase()}?`, titleW: 640, titlePx: 68,
-      dek: `${subs.length} subjects, ranked by solo time on 500s. Plus one tier from hell.`, dekPx: 30, src: boardCredit,
+      dek: `${subs.length} subjects, ranked by median solo time on 500s. Plus one tier from hell.`, dekPx: 30, src: boardCredit,
       art: a => {
         const q = board({ g: a.g, top: a.top, bottom: a.bottom, hide: slowest.theme, times: false, maxGap: 52 });
         const cy = a.seam ?? FEED.contentTop + 120;
@@ -303,7 +303,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
     }),
     board: () => {
       const x = ctx('board'), g = GROUNDS[v.ground(slotOf(x, 'data'))];
-      const title = `${slowest.name} take ${Math.round(slowest.median)} minutes. ${fastest.name} takes ${Math.round(fastest.median)}.`;
+      const title = `Median solo times: ${lc(slowest.name)} ${Math.round(slowest.median)} min, ${fastest.name} ${Math.round(fastest.median)}.`;
       const a = board({ g, top: 344, bottom: FEED.contentBottom, times: true, highlight: slowest.theme });
       return slide(x, 'data', { kicker: KICKER, src: boardCredit, body: STYLE + svg(a.art) + titleBlock(title, 56) + a.html }).html;
     },
@@ -327,7 +327,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
     ps.forEach(p => art.push(`<path d="${p.d}" fill="none" stroke="var(--g-bg)" stroke-width="5" stroke-linejoin="round"/>`));
     const cx = (k: number) => X0 + PWh * (k + 0.5);
     html.push(`<span class="tl-mid" data-qa-bg="${hot.hex}" style="left:${f1(cx(0))}px; top:${f1(top + PH / 2)}px; font-size:46px; color:${textOn(g, hot.hex).css}">HELL</span>
-      <div class="tl-hell" data-qa-small style="left:${f1(cx(0))}px; top:${top + PH + 14}px; width:${f1(PWh - 6)}px"><p class="p">4+ hours</p></div>`);
+      <div class="tl-hell" data-qa-small style="left:${f1(cx(0))}px; top:${top + PH + 14}px; width:${f1(PWh - 6)}px"><p class="p">median, solo</p></div>`);
     s.hell.forEach((k, i) => {
       html.push(`<div class="tl-hell" style="left:${f1(cx(i + 1))}px; top:${top + PH + 14}px; width:${f1(PWh - 6)}px">
         <p class="t">${h(hm(k.medianS).replace(' min', ''))}</p><p class="nm" data-qa-small>${h(k.short)}</p><p class="p" data-qa-small>${fmtInt(k.pieces)} pieces</p></div>`);
@@ -349,7 +349,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
       html.push(`<p class="tl-sc" style="left:${LX}px; top:${y}px; width:${BX0 - LX - 16}px"><b>${h(r.label)}</b><br><i data-qa-small>${h(r.meta)}</i></p>
         <span class="tl-scv" style="left:${f1(BX0 + bw + 14)}px; top:${y + 13}px">${h(hm(r.sec))}</span>`);
     });
-    html.push(`<p class="h-abs tl-small" data-qa-small style="top:${sTop - 52}px">On one clock:</p>`);
+    html.push(`<p class="h-abs tl-small" data-qa-small style="top:${sTop - 52}px">Median solo times on one clock:</p>`);
     const askY = sTop + scale.length * rowH + 40;
     return slide(x, 'data', {
       kicker: KICKER, src: `Box art: Ravensburger · ${s.src}`,
@@ -370,8 +370,8 @@ export function tierAlt(s: TierSpec): string[] {
   const tierLine = (t: (typeof tiers)[number]) => `${t.key} tier (${t.band}): ${t.subs.map(x => `${x.name} ${Math.round(x.median)}`).join(', ')}`;
   const det = (keys: string[]) => tiers.filter(t => keys.includes(t.key)).flatMap(t => t.subs.map(x => `${x.name}, ${x.median.toFixed(1)} minutes, ${fmtInt(x.puzzles)} puzzles and ${fmtInt(x.results)} results; box shown: ${x.box.puzzle} by ${x.box.brand}`)).join('. ');
   return [
-    `Cover: Where would you put ${lc(slowest.name)}? A tier list board made of jigsaw pieces cut from puzzle box art, rows S, A, B and C, with the ${lc(slowest.name)} piece lifted off the board. ${subs.length} subjects ranked by solo time on 500-piece puzzles, plus one tier from hell.`,
-    `${slowest.name} take ${Math.round(slowest.median)} minutes, ${fastest.name} takes ${Math.round(fastest.median)}. The full board, median solo minutes on 500-piece puzzles: ${tiers.map(tierLine).join('. ')}.`,
+    `Cover: Where would you put ${lc(slowest.name)}? A tier list board made of jigsaw pieces cut from puzzle box art, rows S, A, B and C, with the ${lc(slowest.name)} piece lifted off the board. ${subs.length} subjects ranked by median solo time on 500-piece puzzles, plus one tier from hell.`,
+    `Median solo times: ${lc(slowest.name)} ${Math.round(slowest.median)} minutes, ${fastest.name} ${Math.round(fastest.median)}. The full board, median solo minutes on 500-piece puzzles: ${tiers.map(tierLine).join('. ')}.`,
     `S and A in detail, each subject with its most-solved box and a bar from 0 to 100 minutes: ${det(['S', 'A'])}.`,
     `B and C in detail: ${det(['B', 'C'])}.`,
     `HELL tier: Ravensburger's Krypt puzzles, one colour and no picture, as pieces in a coral row. Median solo times: ${s.hell.map(k => `Krypt ${k.short}, ${k.pieces} pieces, ${hm(k.medianS)}`).join('; ')}. A bar scale compares them with ${fastest.name} (${Math.round(fastest.median)} min) and ${lc(slowest.name)} (${Math.round(slowest.median)} min)${s.mercy ? ` and ${s.mercy.puzzle}, which has colours (${hm(s.mercy.medianS)})` : ''}. Which puzzle belongs in HELL? Comment below.`,
@@ -385,13 +385,13 @@ export function tierCaption(s: TierSpec): string {
   const worst = s.hell[0];
   const sameTier = tiers.find(t => ['cats', 'dogs'].every(th => t.subs.some(x => x.theme === th)));
   return [
-    `${slowest.name} take ${Math.round(slowest.median)} minutes. ${fastest.name} takes ${Math.round(fastest.median)}. We ranked ${subs.length} jigsaw puzzle subjects by their median solo time on 500 pieces 🧩`,
+    `Median solo time on a 500: ${lc(slowest.name)} ${Math.round(slowest.median)} minutes, ${fastest.name} ${Math.round(fastest.median)}. We ranked ${subs.length} jigsaw puzzle subjects by it 🧩 Median means half of all solo times are faster, so the fastest puzzlers are far quicker.`,
     '',
     `S tier, under an hour: ${andList(tiers[0].subs.map(x => lc(x.name)))}. C tier, 70 minutes and up: ${andList(tiers[3].subs.map(x => lc(x.name)))}.${sameTier ? ` Cats and dogs share ${sameTier.key} tier.` : ''}`,
     '',
     `And then there's HELL tier: @ravensburgerglobal's Krypt puzzles, one colour and no picture. Krypt ${worst.short} (${worst.pieces} pieces) takes a median ${hm(worst.medianS)} solo 😈`,
     '',
-    'Subjects come from words in puzzle titles; slides 3 and 4 show how many puzzles and results sit behind each.',
+    'Subjects come from words in puzzle titles; slides 3 and 4 show the numbers behind each.',
     '',
     `Where would you move ${lc(slowest.name)}, and which puzzle belongs in HELL? Tell us in the comments.`,
     '',

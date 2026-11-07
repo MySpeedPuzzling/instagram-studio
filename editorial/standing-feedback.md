@@ -83,6 +83,10 @@ How to maintain it:
 
 ## Data
 
+- **Say "median" wherever a typical time is shown:** in the headline or title of the slide that carries it, on the label
+  next to the number, and in the caption's first line; explain it once ("half of all solo times are faster"). The
+  fastest puzzlers are far quicker than the median, so an unlabelled "95 minutes" reads as a claim about everyone or a
+  record. (owner, 2026-11-07, subject tier list)
 - **Always double-check numbers against fresh data, replies to comments included**, and say exactly what is counted:
   "most solved" (results) and "most puzzlers" (distinct players) can disagree (London 5,802 solves vs New York 1,923
   puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the

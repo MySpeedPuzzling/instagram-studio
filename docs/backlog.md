@@ -264,3 +264,9 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Paper-cut style as a reusable kit: move the MP1 runner (content/labs/MP1/run.ts, gitignored) into lab/ or tools/ with the
       I2 prompt recipe (no puzzle words), so future Reels can order plates in one command.
 - [ ] Owner question: posting time. This one went out at 00:24 (outside the 19:00–22:00 window); compare its first-hour reach.
+
+## Median audit (2026-11-07)
+- The site's median = each puzzler's best time on a puzzle counts once (`puzzle_statistics.median_time_solo`); the tier
+  list now follows it (`tier-subjects`, `tier-hell`, rule in `editorial/standing-feedback.md`). Older queries take a
+  median over every logged solve: check each `percentile_cont` query before its next use (weekly "typical time",
+  `quiz-postcards`, `reel-1000-vs-500`, `about-*`, `solo-distribution`) and switch per-puzzle numbers to the site's rule.

@@ -131,7 +131,7 @@ export async function buildTierSpec(o: { fresh: boolean }): Promise<{ spec: Tier
     const rep = reps.filter(r => r.theme === theme).sort((a, b) => num(a.rk) - num(b.rk)).find(r => !used.has(r.puzzle_id) && toBox(r));
     if (!rep) return [];
     used.add(rep.puzzle_id);
-    return [{ theme, name, median: num(rep.puzzle_median_min), puzzlers: num(rep.puzzle_puzzlers), box: toBox(rep)! }];
+    return [{ theme, name, median: num(rep.puzzle_median_s) / 60, puzzlers: num(rep.puzzle_puzzlers), box: toBox(rep)! }];
   }).sort((a, b) => a.median - b.median);
   if (subjects.length < 16) throw new Error(`tier-list: only ${subjects.length} subjects came back`);
   const krypt = q['tier-hell'].rows.flatMap(r => {
@@ -267,7 +267,7 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
     const g = GROUNDS[v.ground(slotOf(x, 'data'))], tones = tierTones(g);
     const ts = tiers.map((t, i) => ({ ...t, tone: tones[i] })).filter(t => tierKeys.includes(t.key));
     const list = ts.flatMap(t => t.subs.map(sub => ({ sub, t })));
-    const top = 340, bottom = 1186, rh = Math.min(124, (bottom - top - 24 * (ts.length - 1)) / list.length);
+    const top = 340, bottom = 1186, rh = Math.min(list.length <= 4 ? 168 : 124, (bottom - top - 24 * (ts.length - 1)) / list.length);
     const BX = 178, BW = 108, NX = 306, barX = 702, barW = 290, maxMin = 100;
     const art: string[] = [], html: string[] = [];
     let y = top, prev = '';

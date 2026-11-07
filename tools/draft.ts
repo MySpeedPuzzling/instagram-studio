@@ -155,7 +155,7 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       id: `${new Date().toISOString().slice(0, 10)}-tier-list`, title: 'Subject tier list (+ HELL tier)', pillar: 'data', format: 'carousel',
       tags: { series: 'tier-list', slot: 'weekend-data', mechanic: 'identity+debate', template: 'tier-list', style: 'H4', lab: 'DL4/tier-list' },
       // Brand tag on the HELL slide (all four Krypts are Ravensburger), never on the cover.
-      userTags: { 4: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.3 }] },
+      userTags: { [slides.length - 1]: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.3 }] },
       facts, slides, alt: tierAlt(spec), caption: tierCaption(spec), captionPillar: 'carousel',
       searchPhrases: ['jigsaw puzzle', 'puzzle'], properNouns: ['Krypt', ...spec.hell.map(k => k.puzzle), ...spec.subjects.map(x => x.box.puzzle)],
     };

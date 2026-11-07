@@ -157,7 +157,7 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       // Brand tag on the HELL slide (all four Krypts are Ravensburger), never on the cover.
       userTags: { 4: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.3 }] },
       facts, slides, alt: tierAlt(spec), caption: tierCaption(spec), captionPillar: 'carousel',
-      searchPhrases: ['jigsaw puzzle', 'puzzle'], properNouns: ['Krypt', ...spec.hell.map(k => k.puzzle)],
+      searchPhrases: ['jigsaw puzzle', 'puzzle'], properNouns: ['Krypt', ...spec.hell.map(k => k.puzzle), ...spec.subjects.map(x => x.box.puzzle)],
     };
   },
   'faster-postcards': async () => {

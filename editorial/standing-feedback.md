@@ -83,6 +83,12 @@ How to maintain it:
 
 ## Data
 
+- **Medians follow MSP's own rule: each puzzler's best time on a puzzle counts once** (as `puzzle_statistics.median_time_solo`
+  on every puzzle page), never every logged solve: repeat solvers skew an all-solves median by minutes (Winter Bunny 84.6
+  vs the site's 81.4). A number shown next to a puzzle is that puzzle's number; an aggregate over many puzzles never
+  sits next to one box as if it were its time. Check a sample against the puzzle pages before showing a draft (private
+  profiles excluded, so a few seconds off is expected). (owner, 2026-11-07, tier list: "on website is median 66 mins
+  and you display 69")
 - **Say "median" wherever a typical time is shown:** in the headline or title of the slide that carries it, on the label
   next to the number, and in the caption's first line; explain it once ("half of all solo times are faster"). The
   fastest puzzlers are far quicker than the median, so an unlabelled "95 minutes" reads as a claim about everyone or a

@@ -1,12 +1,14 @@
 // Subject tier list (DL3 G1 idea A2, DL4 H4 "tier-list" prototype; owner picked it 2026-11-07 as a weekend data
 // carousel and asked for "a category on its own for puzzles like Krypt, call it HELL or something funny"):
-//   1 cover   poster: "Where would you put butterflies?", the S–C board below with the slowest subject lifted off;
-//   2 board   every subject with its median solo-500 time (S = fastest);
-//   3 detail  S and A: box, median bar from 0, puzzles and results behind each subject;
-//   4 detail  B and C;
-//   5 hell    HELL tier: Ravensburger's Krypt puzzles (one colour, no picture) as pieces in a row, then one time scale
+// Owner 2026-11-07 (after the subject medians didn't match the site): ONE PUZZLE PER SUBJECT, the most-solved 500 of
+// each subject (most puzzlers), by MSP's own median rule (each puzzler's best counts once, as on the puzzle page), so
+// every number can be checked on the site (private profiles excluded, so it can sit a few seconds off).
+//   1 cover   poster: "Where would you put <slowest puzzle>?", the S–D board below with the slowest piece lifted off;
+//   2 board   every puzzle with its median solo time (S = fastest);
+//   3–5       S+A, B+C, D: box, puzzle, median bar from 0, puzzlers;
+//   6 hell    HELL tier: Ravensburger's Krypt puzzles (one colour, no picture) as pieces in a row, then one time scale
 //             from the fastest subject to the slowest Krypt, and the question for the comments.
-// Subjects come from words in puzzle titles (bs-theme-speed, boxes-subject-speed); every number comes from the facts.
+// Subjects come from words in puzzle titles (tier-subjects); every number comes from the facts.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fetchBoxes } from '../data/boxes.ts';
@@ -45,7 +47,7 @@ function tierTones(g: Ground): Tone[] {
     for (let k = 0; k < 12 && best(op) < 3.4; k++) op = op >= 0.5 ? Math.min(1, op + 0.03) : Math.max(0, op - 0.03);
     return { css: 'var(--g-ink)', op: Number(op.toFixed(2)), hex: blend(g.ink, g.bg, op) };
   };
-  return [s, ...[0.76, 0.54, 0.28].map(tone)];
+  return [s, ...[0.8, 0.6, 0.42, 0.26].map(tone)];
 }
 const fillAttr = (t: Tone) => `fill="${t.css}"${t.op ? ` fill-opacity="${t.op}"` : ''}`;
 
@@ -59,7 +61,7 @@ const STYLE = `<style>
 .tl-sub .m span { font-size: 24px; font-weight: 400; color: var(--g-soft); }
 .tl-sub .bd { font-size: 24px; font-weight: 600; line-height: 1.1; color: var(--g-soft); white-space: nowrap; }
 .tl-drow { position: absolute; }
-.tl-drow .nm { font-size: 34px; font-weight: 700; line-height: 1.1; color: var(--g-ink); }
+.tl-drow .nm { font-size: 32px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; line-height: 1.1; color: var(--g-ink); }
 .tl-drow .cr { font-size: 24px; line-height: 1.2; color: var(--g-soft); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tl-dval { position: absolute; font-size: 34px; font-weight: 700; line-height: 1; white-space: nowrap; color: var(--g-ink); }
 .tl-dmeta { position: absolute; font-size: 24px; line-height: 1.2; color: var(--g-soft); white-space: nowrap; }
@@ -67,11 +69,9 @@ const STYLE = `<style>
 .tl-hell .t { font-size: 36px; font-weight: 700; line-height: 1.05; color: var(--g-ink); white-space: nowrap; }
 .tl-hell .nm { font-size: 30px; font-weight: 700; line-height: 1.15; margin-top: 6px; color: var(--g-ink); }
 .tl-hell .p { font-size: 24px; line-height: 1.2; color: var(--g-soft); white-space: nowrap; }
-.tl-sc { position: absolute; font-size: 30px; line-height: 1.05; white-space: nowrap; color: var(--g-ink); }
-.tl-sc i { font-style: normal; font-size: 24px; color: var(--g-soft); }
+.tl-sc { position: absolute; font-size: 30px; line-height: 1.05; color: var(--g-ink); }
+.tl-sc i { font-style: normal; font-size: 24px; color: var(--g-soft); display: block; overflow: hidden; text-overflow: ellipsis; }
 .tl-scv { position: absolute; font-size: 30px; font-weight: 700; line-height: 1; white-space: nowrap; color: var(--g-ink); }
-.tl-plate { position: absolute; left: 0; top: 0; width: ${W}px; height: ${FEED_H}px; display: block; object-fit: cover; }
-.tl-band { position: absolute; left: 0; width: ${W}px; background: var(--g-bg); }
 .tl-ask { position: absolute; left: ${X0}px; width: ${CW}px; font-size: 42px; font-weight: 700; line-height: 1.15; color: var(--g-ink); }
 </style>`;
 
@@ -84,10 +84,11 @@ const SUBJECTS: Array<[string, string]> = [
   ['birds', 'Birds'], ['snow/winter', 'Winter'], ['food/sweets', 'Sweets'], ['mushrooms', 'Mushrooms'], ['butterflies', 'Butterflies'],
 ];
 const TIERS = [
-  { key: 'S', band: '< 60 min', max: 60 },
-  { key: 'A', band: '60–65 min', max: 65 },
-  { key: 'B', band: '65–70 min', max: 70 },
-  { key: 'C', band: '70+ min', max: Infinity },
+  { key: 'S', band: '< 55 min', max: 55 },
+  { key: 'A', band: '55–62 min', max: 63 },
+  { key: 'B', band: '63–67 min', max: 68 },
+  { key: 'C', band: '68–80 min', max: 81 },
+  { key: 'D', band: '81+ min', max: Infinity },
 ];
 /** Subjects per tier, by their minutes as shown (rounded), so "60 min" never sits under "< 60 min". */
 const tiersOf = (subs: Subject[]) => TIERS.map((t, i) => ({ ...t, subs: subs.filter(x => Math.round(x.median) < t.max && (i === 0 || Math.round(x.median) >= TIERS[i - 1].max)) }));
@@ -95,24 +96,10 @@ const tiersOf = (subs: Subject[]) => TIERS.map((t, i) => ({ ...t, subs: subs.fil
 const HELL_MIN = 240;
 
 interface Box { puzzle: string; brand: string; img: string; ar: number }
-export interface Subject { theme: string; name: string; median: number; results: number; puzzles: number; box: Box }
+/** One subject = its most-solved 500-piece puzzle; `median` is that puzzle's median (minutes), `puzzlers` its public puzzlers. */
+export interface Subject { theme: string; name: string; median: number; puzzlers: number; box: Box }
 export interface HellPuzzle { puzzle: string; short: string; pieces: number; medianS: number; fastestS: number; results: number; solvers: number; box: Box }
-/** The gallery stage (DL3 G2 approach: the AI paints only the empty wall; code hangs the real boxes and every word). */
-export interface Plate { url: string; credit: string }
-export interface TierSpec { subjects: Subject[]; hell: HellPuzzle[]; mercy?: HellPuzzle; plate: Plate; src: string; asOf: string }
-
-/** AI1 E4 shelf plates (DL3 G2-7 moonlight / G2-9 candle; owner 2026-11-07: "use G2-7 or G2-9 as the HELL tier").
- *  TIER_PLATE=moonlight|candle picks one (default candle: the warm glow reads as hellfire). */
-const PLATE_FILE = `content/labs/AI1/E4/shelf-${process.env.TIER_PLATE === 'moonlight' ? 'moonlight' : 'candle'}-s401`;
-/** The shelf scaffold's box slots (generation px → design px), as DL3 G2. */
-const SLOTS = (JSON.parse(readFileSync(join(ROOT, 'content/labs/AI1/scaffolds/shelf.json'), 'utf8')).slots as Array<{ kind: string; gen: { x: number; y: number; w: number; h: number } }>)
-  .filter(x => x.kind === 'box').map(x => ({ x: x.gen.x * (W / 1024), y: x.gen.y * (W / 1024), w: x.gen.w * (W / 1024), h: x.gen.h * (W / 1024) }));
-const MODEL: Record<string, string> = { zimage: 'Z-Image Turbo', klein4b: 'FLUX.2 klein 4B', klein9b: 'FLUX.2 klein 9B' };
-
-async function loadPlate(): Promise<Plate> {
-  const side = JSON.parse(readFileSync(join(ROOT, `${PLATE_FILE}.json`), 'utf8')) as { family?: string; licence?: string };
-  return { url: `/${PLATE_FILE}.png`, credit: `Backdrop: AI (${MODEL[side.family ?? ''] ?? side.family}, ${side.licence ?? 'licence unknown'})` };
-}
+export interface TierSpec { subjects: Subject[]; hell: HellPuzzle[]; mercy?: HellPuzzle; src: string; asOf: string }
 
 function imgSize(url: string) {
   const b = readFileSync(join(ROOT, url));
@@ -128,10 +115,10 @@ function imgSize(url: string) {
 }
 
 export async function buildTierSpec(o: { fresh: boolean }): Promise<{ spec: TierSpec; facts: Record<string, QueryResult> }> {
-  const names = ['bs-theme-speed', 'boxes-subject-speed', 'tier-hell'] as const;
+  const names = ['tier-subjects', 'tier-hell'] as const;
   const q = Object.fromEntries(names.map(n => [n, query(n, { fresh: o.fresh })])) as Record<typeof names[number], QueryResult>;
-  const speed = new Map(q['bs-theme-speed'].rows.map(r => [r.theme, r]));
-  const reps = q['boxes-subject-speed'].rows;
+  const rk = new Map<string, number>();
+  const reps = q['tier-subjects'].rows.map((r): Row => ({ ...r, rk: String((rk.set(r.theme, (rk.get(r.theme) ?? 0) + 1), rk.get(r.theme))) }));
   const imgs = await fetchBoxes([...reps.map(r => r.image), ...q['tier-hell'].rows.map(r => r.image)].filter(Boolean), 'puzzle_large');
   const toBox = (r: Row): Box | null => {
     const img = r.image ? imgs.get(r.image) : undefined;
@@ -141,22 +128,21 @@ export async function buildTierSpec(o: { fresh: boolean }): Promise<{ spec: Tier
   };
   const used = new Set<string>();
   const subjects = SUBJECTS.flatMap(([theme, name]) => {
-    const s = speed.get(theme);
     const rep = reps.filter(r => r.theme === theme).sort((a, b) => num(a.rk) - num(b.rk)).find(r => !used.has(r.puzzle_id) && toBox(r));
-    if (!s || !rep) return [];
+    if (!rep) return [];
     used.add(rep.puzzle_id);
-    return [{ theme, name, median: num(s.median_min), results: num(s.solo_results), puzzles: num(s.puzzles), box: toBox(rep)! }];
+    return [{ theme, name, median: num(rep.puzzle_median_min), puzzlers: num(rep.puzzle_puzzlers), box: toBox(rep)! }];
   }).sort((a, b) => a.median - b.median);
   if (subjects.length < 16) throw new Error(`tier-list: only ${subjects.length} subjects came back`);
   const krypt = q['tier-hell'].rows.flatMap(r => {
     const box = toBox(r);
-    return box ? [{ puzzle: r.puzzle, short: r.puzzle.replace(/^Krypt\s+/i, ''), pieces: num(r.pieces), medianS: num(r.median_s), fastestS: num(r.fastest_s), results: num(r.solo_results), solvers: num(r.solvers), box }] : [];
+    return box ? [{ puzzle: r.puzzle, short: r.puzzle.replace(/^Krypt\s+/i, ''), pieces: num(r.pieces), medianS: num(r.median_s), fastestS: num(r.fastest_s), results: num(r.solvers), solvers: num(r.solvers), box }] : [];
   });
   const hell = krypt.filter(k => k.medianS / 60 >= HELL_MIN).sort((a, b) => b.medianS - a.medianS);
   const mercy = krypt.find(k => k.medianS / 60 < HELL_MIN);
   if (hell.length < 3) throw new Error('tier-list: fewer than 3 Krypt puzzles for HELL');
-  const asOf = new Date(q['bs-theme-speed'].queried_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
-  return { spec: { subjects, hell, mercy, plate: await loadPlate(), asOf, src: `Data: myspeedpuzzling.com · ${asOf}` }, facts: q };
+  const asOf = new Date(q['tier-subjects'].queried_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
+  return { spec: { subjects, hell, mercy, asOf, src: `Data: myspeedpuzzling.com · ${asOf}` }, facts: q };
 }
 
 // ---------------------------------------------------------------- formatting
@@ -223,23 +209,24 @@ const KICKER = 'Tier list · Puzzle subjects';
 export function tierSlides(v: Variant, s: TierSpec): string[] {
   const subs = s.subjects;
   const tiers = tiersOf(subs);
-  if (tiers.some(t => t.subs.length > 5)) throw new Error(`tier-list: a tier has more than 5 subjects (${tiers.map(t => t.subs.length).join('/')})`);
+  if (tiers.some(t => t.subs.length > 5 || !t.subs.length)) throw new Error(`tier-list: tiers must hold 1–5 puzzles (${tiers.map(t => t.subs.length).join('/')}); adjust TIERS`);
   const slowest = subs[subs.length - 1], fastest = subs[0];
   const cols = 6, PW = CW / cols;
   const twoLines = (t: (typeof tiers)[number]) => t.subs.some(x => x.name.length > 11);
-  const order = ['cover', 'board', 'fast', 'slow', 'hell', 'gallery'] as const;
+  const nT = tiers.length;
+  const order = ['cover', 'board', 'sa', 'bc', 'd', 'hell'] as const;
   const ctx = (k: typeof order[number]): SlideCtx => ({ v, post: 'tier-list', slide: order.indexOf(k) + 1, of: order.length });
   const allBoxes = subs.map(x => x.box);
   const mainBrand = [...allBoxes.reduce((m, b) => m.set(b.brand, (m.get(b.brand) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1])[0][0];
-  const boardCredit = `Box art: ${brandList(allBoxes)}; every box is named on slides 3 and 4`;
+  const boardCredit = `Box art: ${brandList(allBoxes)}; every puzzle is named on slides 3 to 5`;
 
-  function board(o: { g: Ground; top: number; bottom: number; hide?: string; times: boolean; highlight?: string; maxGap?: number }) {
+  function board(o: { g: Ground; top: number; bottom: number; hide?: string; times: boolean; highlight?: string; maxGap?: number; labels?: boolean }) {
     const tones = tierTones(o.g);
-    const labH = (t: (typeof tiers)[number]) => 10 + (o.times ? 34 : 0) + (twoLines(t) ? 54 : 28);
+    const labH = (t: (typeof tiers)[number]) => (o.labels === false ? 0 : 10 + (o.times ? 34 : 0) + (twoLines(t) ? 54 : 28));
     const fixed = tiers.reduce((a, t) => a + labH(t), 0);
     const avail = o.bottom - o.top;
-    const PH = Math.floor(Math.min(118, (avail - fixed - 3 * 18) / 4));
-    const gap = Math.min(o.maxGap ?? 40, (avail - fixed - 4 * PH) / 3);
+    const PH = Math.floor(Math.min(118, (avail - fixed - (nT - 1) * 16) / nT));
+    const gap = Math.min(o.maxGap ?? 40, (avail - fixed - nT * PH) / (nT - 1));
     const art: string[] = [], html: string[] = [];
     let held: { p: Piece; s: Subject } | null = null;
     let y = o.top;
@@ -262,9 +249,9 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
       const cx = (k: number) => X0 + PW * (k + 0.5);
       const lt = textOn(o.g, tone.hex);
       html.push(`<span class="tl-mid" data-qa-bg="${tone.hex}" style="left:${f1(cx(0))}px; top:${f1(y + PH / 2)}px; font-size:${Math.round(Math.min(64, PH * 0.56))}px; color:${lt.css}">${t.key}</span>
-        <div class="tl-sub" data-qa-small style="left:${f1(cx(0))}px; top:${y + PH + 10}px; width:${f1(PW - 8)}px"><p class="bd">${h(t.band)}</p></div>`);
+        ${o.labels === false ? '' : `<div class="tl-sub" data-qa-small style="left:${f1(cx(0))}px; top:${y + PH + 10}px; width:${f1(PW - 8)}px"><p class="bd">${h(t.band)}</p></div>`}`);
       t.subs.forEach((x, k) => {
-        if (x.theme === o.hide) return;
+        if (x.theme === o.hide || o.labels === false) return;
         html.push(`<div class="tl-sub" data-qa-small style="left:${f1(cx(k + 1))}px; top:${y + PH + 10}px; width:${f1(PW - 8)}px">
           ${o.times ? `<p class="m">${Math.round(x.median)} <span>min</span></p>` : ''}<p class="nm">${h(x.name)}</p></div>`);
       });
@@ -277,8 +264,8 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
     const g = GROUNDS[v.ground(slotOf(x, 'data'))], tones = tierTones(g);
     const ts = tiers.map((t, i) => ({ ...t, tone: tones[i] })).filter(t => tierKeys.includes(t.key));
     const list = ts.flatMap(t => t.subs.map(sub => ({ sub, t })));
-    const top = 330, bottom = 1186, rh = Math.min(118, (bottom - top - 24 * (ts.length - 1)) / list.length);
-    const BX = 178, BW = 108, NX = 306, barX = 652, barW = 220, maxMin = 100;
+    const top = 340, bottom = 1186, rh = Math.min(124, (bottom - top - 24 * (ts.length - 1)) / list.length);
+    const BX = 178, BW = 108, NX = 306, barX = 702, barW = 290, maxMin = 100;
     const art: string[] = [], html: string[] = [];
     let y = top, prev = '';
     list.forEach(({ sub, t }) => {
@@ -292,81 +279,44 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
       const sz = fit(sub.box, BW - 8, rh - 22);
       html.push(mount(sub.box, BX + (BW - sz.w) / 2, y + (rh - sz.h) / 2 - 2, sz.w, sz.h));
       const bw = (Math.min(sub.median, maxMin) / maxMin) * barW;
-      art.push(`<rect x="${barX}" y="${f1(y + rh / 2 - 26)}" width="${barW}" height="26" fill="var(--g-band)"/>
-        <rect x="${barX}" y="${f1(y + rh / 2 - 26)}" width="${f1(bw)}" height="26" ${fillAttr(t.tone)}/>`);
-      html.push(`<div class="tl-drow" style="left:${NX}px; width:${barX - NX - 16}px; top:${f1(y + rh / 2 - 34)}px">
-          <p class="nm">${h(sub.name)}</p><p class="cr" data-qa-small>${h(sub.box.brand === mainBrand ? sub.box.puzzle : `${sub.box.puzzle} (${sub.box.brand})`)}</p></div>
-        <span class="tl-dval" style="left:${f1(barX + barW + 14)}px; top:${f1(y + rh / 2 - 31)}px">${sub.median.toFixed(1)}</span>
-        <span class="tl-dmeta" data-qa-small style="left:${barX}px; top:${f1(y + rh / 2 + 6)}px">${fmtInt(sub.puzzles)} puzzles · ${fmtInt(sub.results)} results</span>`);
+      // Line 1: the puzzle's full name, the median on the right. Line 2: subject (· brand) · puzzlers, then the bar.
+      art.push(`<rect x="${barX}" y="${f1(y + rh / 2 + 10)}" width="${barW}" height="20" fill="var(--g-band)"/>
+        <rect x="${barX}" y="${f1(y + rh / 2 + 10)}" width="${f1(bw)}" height="20" ${fillAttr(t.tone)}/>`);
+      html.push(`<div class="tl-drow" style="left:${NX}px; width:${X1 - 120 - NX}px; top:${f1(y + rh / 2 - 38)}px">
+          <p class="nm">${h(sub.box.puzzle)}</p><p class="cr" data-qa-small style="width:${barX - NX - 16}px">${h(sub.name)}${sub.box.brand === mainBrand ? '' : ` · ${h(sub.box.brand)}`} · ${fmtInt(sub.puzzlers)} puzzlers</p></div>
+        <span class="tl-dval" style="right:${W - X1}px; top:${f1(y + rh / 2 - 36)}px">${Math.round(sub.median)} <span data-qa-small style="font-size:24px; font-weight:400; color:var(--g-soft)">min</span></span>`);
       y += rh;
     });
     return slide(x, 'data', {
       kicker: KICKER, src: s.src,
       body: STYLE + svg(art.join('')) + titleBlock(title, 56)
-        + `<p class="h-abs tl-small" data-qa-small style="top:252px">Median solo minutes on 500-piece puzzles, bars from 0 to ${maxMin}. Each subject's most-solved box; box art: ${h(mainBrand)} unless noted.</p>`
+        + `<p class="h-abs tl-small" data-qa-small style="top:252px">Each subject's most-solved 500-piece puzzle. Median solo time, each puzzler's best counts once, as on the puzzle's page; bars 0–${maxMin} min. Box art: ${h(mainBrand)} unless noted.</p>`
         + html.join(''),
     }).html;
   };
 
   const make: Record<typeof order[number], () => string> = {
     cover: () => artCoverSlide(ctx('cover'), {
-      kicker: KICKER, title: `Where would you put ${slowest.name.toLowerCase()}?`, titleW: 640, titlePx: 68,
-      dek: `${subs.length} subjects, ranked by median solo time on 500s. Plus one tier from hell.`, dekPx: 30, src: boardCredit,
+      kicker: KICKER, title: `Where would you put ${slowest.box.puzzle}?`, titleW: 640, titlePx: 64,
+      dek: `${subs.length} popular 500s, one per subject, ranked by median solo time. Plus one tier from hell.`, dekPx: 30, src: boardCredit,
       art: a => {
-        const q = board({ g: a.g, top: a.top, bottom: a.bottom, hide: slowest.theme, times: false, maxGap: 52 });
+        const q = board({ g: a.g, top: a.top, bottom: a.bottom, hide: slowest.theme, times: false, maxGap: 22, labels: false });
         const cy = a.seam ?? FEED.contentTop + 120;
         return svg(q.art + (q.held ? lifted(q.held.p, q.held.s.box, 862, cy, 11, 1.3 * Math.min(1, 118 / q.PH)) : '')) + q.html;
       },
     }),
     board: () => {
       const x = ctx('board'), g = GROUNDS[v.ground(slotOf(x, 'data'))];
-      const title = `Median solo times: ${lc(slowest.name)} ${Math.round(slowest.median)} min, ${fastest.name} ${Math.round(fastest.median)}.`;
-      const a = board({ g, top: 344, bottom: FEED.contentBottom, times: true, highlight: slowest.theme });
-      return slide(x, 'data', { kicker: KICKER, src: boardCredit, body: STYLE + svg(a.art) + titleBlock(title, 56) + a.html }).html;
+      const title = `From ${Math.round(fastest.median)} to ${Math.round(slowest.median)} minutes`;
+      const a = board({ g, top: 330, bottom: FEED.contentBottom, times: true, highlight: slowest.theme });
+      return slide(x, 'data', { kicker: KICKER, src: boardCredit, body: STYLE + svg(a.art) + titleBlock(title, 56)
+        + `<p class="h-abs tl-small" data-qa-small style="top:252px; font-size:26px">Median solo time of each subject's most-solved 500-piece puzzle.</p>` + a.html }).html;
     },
-    fast: () => detail(ctx('fast'), ['S', 'A'], 'S and A: the quick ones'),
-    slow: () => detail(ctx('slow'), ['B', 'C'], 'B and C: settle in'),
+    sa: () => detail(ctx('sa'), ['S', 'A'], 'S and A: the quick ones'),
+    bc: () => detail(ctx('bc'), ['B', 'C'], 'B and C: settle in'),
+    d: () => detail(ctx('d'), ['D'], 'D: bring snacks'),
     hell: () => hellSlide(ctx('hell')),
-    gallery: () => gallerySlide(ctx('gallery')),
   };
-
-  /** The HELL shelf (DL3 G2-7 / G2-9): the AI paints only the dark shelf; code puts the real Krypt boxes into the
-   *  scaffold's exact slots with a ghost tag per median time, two "?" slots for the comments, every word on solid bands. */
-  function gallerySlide(x: SlideCtx) {
-    const g = GROUNDS[v.ground(slotOf(x, 'image'))];
-    const DY = -36, BAND = 306; // plate lifted so the bottom row clears the footer band; title band over the type zone
-    const slots = SLOTS.map(o => ({ ...o, y: o.y + DY }));
-    const INK = '#2b3445', CORAL = g.chart.hot, LIGHT = '#f4f2fb';
-    const ghost = (gx: number, gy: number, label: string, hero: boolean) => {
-      const gw = hero ? 178 : 160, gh = gw * 0.92, fill = hero ? CORAL : LIGHT;
-      const d = `M 6 ${f1(gh * 0.45)} A ${gw / 2 - 6} ${gw / 2 - 6} 0 0 1 ${gw - 6} ${f1(gh * 0.45)} L ${gw - 6} ${f1(gh - 6)} L ${f1(gw * 0.8)} ${f1(gh - 18)} L ${f1(gw * 0.6)} ${f1(gh - 6)} L ${f1(gw * 0.4)} ${f1(gh - 18)} L ${f1(gw * 0.2)} ${f1(gh - 6)} L 6 ${f1(gh - 18)} Z`;
-      return `<div style="position:absolute; left:${f1(gx)}px; top:${f1(gy)}px; width:${gw}px; height:${f1(gh)}px; transform:rotate(${hero ? -6 : 5}deg)">
-        <svg width="${gw}" height="${f1(gh)}" style="position:absolute; left:0; top:0"><path d="${d}" fill="${fill}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-          <ellipse cx="${f1(gw * 0.4)}" cy="${f1(gh * 0.24)}" rx="5" ry="7" fill="${INK}"/><ellipse cx="${f1(gw * 0.6)}" cy="${f1(gh * 0.24)}" rx="5" ry="7" fill="${INK}"/></svg>
-        <span data-qa-bg="${fill}" style="position:absolute; left:0; right:0; top:${f1(gh * 0.4)}px; text-align:center; font-size:${hero ? 40 : 32}px; font-weight:800; line-height:1; letter-spacing:-0.5px; color:${INK}; white-space:nowrap">${h(label)}</span></div>`;
-    };
-    const boxes = s.hell.slice(0, 4).map((k, i) => {
-      const sl = slots[i];
-      let bh = sl.h - 10, bw = bh * k.box.ar;
-      if (bw > sl.w - 12) { bw = sl.w - 12; bh = bw / k.box.ar; }
-      const bx = sl.x + (sl.w - bw) / 2, by = sl.y + sl.h - bh;
-      return `<img src="${k.box.img}" alt="" style="position:absolute; left:${f1(bx)}px; top:${f1(by)}px; width:${f1(bw)}px; height:${f1(bh)}px; object-fit:cover; box-shadow:0 8px 12px -4px rgba(0,0,0,.7); outline:2px solid rgba(0,0,0,.55)">
-        <p data-qa-bg="${g.bg}" data-qa-small style="position:absolute; left:${f1(sl.x + sl.w / 2)}px; top:${f1(sl.y + sl.h + 4)}px; transform:translateX(-50%); padding:2px 12px; background:var(--g-bg); color:var(--g-ink); font-size:24px; font-weight:600; line-height:1.25; white-space:nowrap">${h(k.puzzle)} · ${fmtInt(k.pieces)} pieces</p>
-        ${ghost(bx + bw - (i === 0 ? 120 : 108), by - (i === 0 ? 74 : 62), hm(k.medianS).replace(' min', ''), i === 0)}`;
-    }).join('');
-    const empty = slots.slice(s.hell.slice(0, 4).length).map((sl, i) => {
-      const bw = sl.w - 64, bh = bw / 1.4, bx = sl.x + 32, by = sl.y + sl.h - bh;
-      return `<div data-qa-bg="#2c3142" style="position:absolute; left:${f1(bx)}px; top:${f1(by)}px; width:${f1(bw)}px; height:${f1(bh)}px; box-sizing:border-box; background:#2c3142; border:3px dashed #8a93a6; border-radius:6px; transform:rotate(${i % 2 ? 2 : -2}deg); display:grid; place-items:center">
-        <p style="font-size:72px; font-weight:800; line-height:1; color:var(--c-hot)">?</p></div>`;
-    }).join('');
-    const under = `<img class="tl-plate" src="${s.plate.url}" alt="" style="top:${DY}px">
-      <div class="tl-band" style="top:0; height:${BAND}px"></div><div class="tl-band" style="top:1184px; height:${FEED_H - 1184}px"></div>`;
-    const body = STYLE + `
-      <h1 class="h-title" style="top:${FEED.contentTop}px; width:${CW}px; font-size:56px">The HELL shelf</h1>
-      <p class="h-abs h-dek" style="top:${FEED.contentTop + 72}px; font-size:30px">Median solo times. Two slots left: which puzzle belongs in <b style="color:var(--c-hot)">HELL</b>?</p>
-      ${boxes}${empty}`;
-    return frame({ ground: g.key, kicker: KICKER, idx: [x.slide, x.of], device: v.device, body, src: `Box art: Ravensburger · ${s.plate.credit}`, under });
-  }
 
   /** HELL: the Krypt row as one jigsaw strip (label piece + one piece per Krypt), then one time scale for everything. */
   function hellSlide(x: SlideCtx) {
@@ -391,13 +341,13 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
 
     // One time scale: fastest subject, slowest subject, the friendly Krypt, the HELL Krypts (minutes, from 0).
     const scale: Array<{ label: string; meta: string; sec: number; hot?: boolean }> = [
-      { label: fastest.name, meta: '500 pieces', sec: fastest.median * 60 },
-      { label: slowest.name, meta: '500 pieces', sec: slowest.median * 60 },
+      { label: fastest.box.puzzle, meta: '500 pieces', sec: fastest.median * 60 },
+      { label: slowest.box.puzzle, meta: '500 pieces', sec: slowest.median * 60 },
       ...(s.mercy ? [{ label: s.mercy.puzzle, meta: `${s.mercy.pieces} pieces, with colours`, sec: s.mercy.medianS }] : []),
       { label: s.hell[0].puzzle, meta: `${s.hell[0].pieces} pieces`, sec: s.hell[0].medianS, hot: true },
     ];
     const maxS = Math.max(...scale.map(r => r.sec));
-    const sTop = 660, rowH = 96, LX = X0, BX0 = X0 + 300, BW = X1 - BX0 - 190;
+    const sTop = 676, rowH = 100, LX = X0, BX0 = X0 + 340, BW = X1 - BX0 - 190;
     scale.forEach((r, i) => {
       const y = sTop + i * rowH;
       const bw = Math.max(4, (r.sec / maxS) * BW);
@@ -406,13 +356,13 @@ export function tierSlides(v: Variant, s: TierSpec): string[] {
         <span class="tl-scv" style="left:${f1(BX0 + bw + 14)}px; top:${y + 13}px">${h(hm(r.sec))}</span>`);
     });
     html.push(`<p class="h-abs tl-small" data-qa-small style="top:${sTop - 52}px">Median solo times on one clock:</p>`);
-    const askY = sTop + scale.length * rowH + 40;
+    const askY = sTop + scale.length * rowH + 22;
     return slide(x, 'data', {
       kicker: KICKER, src: `Box art: Ravensburger · ${s.src}`,
       body: STYLE + svg(art.join('')) + titleBlock('And then there’s HELL tier', 56)
-        + `<p class="h-abs tl-small" data-qa-small style="top:252px; font-size:26px">Ravensburger’s Krypt puzzles: one colour, no picture. Median solo time; half of all solves are faster.</p>`
+        + `<p class="h-abs tl-small" data-qa-small style="top:252px; font-size:26px">Ravensburger’s Krypt puzzles: one colour, no picture. Median solo time; half of the puzzlers were faster.</p>`
         + html.join('')
-        + `<p class="tl-ask" style="top:${askY}px">Swipe for the <span style="color:var(--c-hot)">HELL</span> shelf →</p>`,
+        + `<p class="tl-ask" style="top:${askY}px">Which puzzle belongs in <span style="color:var(--c-hot)">HELL</span>?</p>`,
     }).html;
   }
 
@@ -423,15 +373,16 @@ export function tierAlt(s: TierSpec): string[] {
   const subs = s.subjects;
   const tiers = tiersOf(subs);
   const slowest = subs[subs.length - 1], fastest = subs[0];
-  const tierLine = (t: (typeof tiers)[number]) => `${t.key} tier (${t.band}): ${t.subs.map(x => `${x.name} ${Math.round(x.median)}`).join(', ')}`;
-  const det = (keys: string[]) => tiers.filter(t => keys.includes(t.key)).flatMap(t => t.subs.map(x => `${x.name}, ${x.median.toFixed(1)} minutes, ${fmtInt(x.puzzles)} puzzles and ${fmtInt(x.results)} results; box shown: ${x.box.puzzle} by ${x.box.brand}`)).join('. ');
+  const row = (x: Subject) => `${x.box.puzzle} (${lc(x.name)}, ${x.box.brand}) ${Math.round(x.median)} min`;
+  const tierLine = (t: (typeof tiers)[number]) => `${t.key} tier (${t.band}): ${t.subs.map(row).join(', ')}`;
+  const det = (keys: string[]) => tiers.filter(t => keys.includes(t.key)).flatMap(t => t.subs.map(x => `${row(x)}, ${fmtInt(x.puzzlers)} puzzlers`)).join('; ');
   return [
-    `Cover: Where would you put ${lc(slowest.name)}? A tier list board made of jigsaw pieces cut from puzzle box art, rows S, A, B and C, with the ${lc(slowest.name)} piece lifted off the board. ${subs.length} subjects ranked by median solo time on 500-piece puzzles, plus one tier from hell.`,
-    `Median solo times: ${lc(slowest.name)} ${Math.round(slowest.median)} minutes, ${fastest.name} ${Math.round(fastest.median)}. The full board, median solo minutes on 500-piece puzzles: ${tiers.map(tierLine).join('. ')}.`,
-    `S and A in detail, each subject with its most-solved box and a bar from 0 to 100 minutes: ${det(['S', 'A'])}.`,
+    `Cover: Where would you put ${slowest.box.puzzle}? A tier list board made of jigsaw pieces cut from puzzle box art, rows S to D, with the ${slowest.box.puzzle} piece lifted off the board. ${subs.length} popular 500-piece puzzles, one per subject, ranked by median solo time, plus one tier from hell.`,
+    `From ${Math.round(fastest.median)} to ${Math.round(slowest.median)} minutes: median solo time of each subject's most-solved 500-piece puzzle. ${tiers.map(tierLine).join('. ')}.`,
+    `S and A in detail, each puzzle with its box, its subject and a bar from 0 to 100 minutes: ${det(['S', 'A'])}.`,
     `B and C in detail: ${det(['B', 'C'])}.`,
-    `HELL tier: Ravensburger's Krypt puzzles, one colour and no picture, as pieces in a coral row. Median solo times: ${s.hell.map(k => `Krypt ${k.short}, ${k.pieces} pieces, ${hm(k.medianS)}`).join('; ')}. A bar scale compares them with ${fastest.name} (${Math.round(fastest.median)} min) and ${lc(slowest.name)} (${Math.round(slowest.median)} min)${s.mercy ? ` and ${s.mercy.puzzle}, which has colours (${hm(s.mercy.medianS)})` : ''}. Which puzzle belongs in HELL? Comment below.`,
-    `The HELL shelf: a dark wooden shelf with cobwebs, lit by a candle. The ${s.hell.length} Krypt boxes stand in its slots, each with a little ghost holding its median solo time: ${s.hell.map(k => `Krypt ${k.short}, ${k.pieces} pieces, ${hm(k.medianS)}`).join('; ')}. The last two slots are empty with question marks: two slots left, which puzzle belongs in HELL?`,
+    `D tier in detail: ${det(['D'])}.`,
+    `HELL tier: Ravensburger's Krypt puzzles, one colour and no picture, as pieces in a coral row. Median solo times: ${s.hell.map(k => `Krypt ${k.short}, ${k.pieces} pieces, ${hm(k.medianS)}`).join('; ')}. A bar scale compares them with ${fastest.box.puzzle} (${Math.round(fastest.median)} min) and ${slowest.box.puzzle} (${Math.round(slowest.median)} min)${s.mercy ? ` and ${s.mercy.puzzle}, which has colours (${hm(s.mercy.medianS)})` : ''}. Which puzzle belongs in HELL?`,
   ];
 }
 
@@ -439,18 +390,17 @@ export function tierCaption(s: TierSpec): string {
   const subs = s.subjects;
   const tiers = tiersOf(subs);
   const slowest = subs[subs.length - 1], fastest = subs[0];
-  const worst = s.hell[0];
-  const sameTier = tiers.find(t => ['cats', 'dogs'].every(th => t.subs.some(x => x.theme === th)));
+  const worst = s.hell[0], last = tiers[tiers.length - 1];
   return [
-    `Median solo time on a 500: ${lc(slowest.name)} ${Math.round(slowest.median)} minutes, ${fastest.name} ${Math.round(fastest.median)}. We ranked ${subs.length} jigsaw puzzle subjects by it 🧩 Median means half of all solo times are faster, so the fastest puzzlers are far quicker.`,
+    `From ${Math.round(fastest.median)} to ${Math.round(slowest.median)} minutes: we took the most-solved 500-piece jigsaw puzzle of ${subs.length} subjects and ranked them by median solo time 🧩`,
     '',
-    `S tier, under an hour: ${andList(tiers[0].subs.map(x => lc(x.name)))}. C tier, 70 minutes and up: ${andList(tiers[3].subs.map(x => lc(x.name)))}.${sameTier ? ` Cats and dogs share ${sameTier.key} tier.` : ''}`,
+    `Median as on every puzzle page on MySpeedPuzzling: each puzzler's best time counts once, and half of them were faster.`,
+    '',
+    `S tier: ${andList(tiers[0].subs.map(x => x.box.puzzle))}. ${last.key} tier, ${last.band.replace('+ min', ' minutes and up')}: ${andList(last.subs.map(x => x.box.puzzle))}.`,
     '',
     `And then there's HELL tier: @ravensburgerglobal's Krypt puzzles, one colour and no picture. Krypt ${worst.short} (${worst.pieces} pieces) takes a median ${hm(worst.medianS)} solo 😈`,
     '',
-    'Subjects come from words in puzzle titles; slides 3 and 4 show the numbers behind each.',
-    '',
-    `Where would you move ${lc(slowest.name)}, and which puzzle belongs in HELL? Tell us in the comments.`,
+    `Where would you put ${slowest.box.puzzle}, and which puzzle belongs in HELL? Tell us in the comments.`,
     '',
     `Box art by ${brandList([...subs.map(x => x.box), ...s.hell.map(k => k.box)])}.`,
     '',

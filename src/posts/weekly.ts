@@ -4,7 +4,7 @@
 // which segments they carry and in what order:
 //   cover     poster: solves finished, puzzlers, week on week;
 //   top       the week's five most-solved puzzles, box images credited;
-//   fast500 / fast1000   fastest solo (top 3), pair and team of the week, with the week's typical solo time;
+//   fast500 / fast1000   fastest solo (top 3), pair and team of the week, with the week's median solo time;
 //   active    most solves this week, solo / pairs / teams;
 //   shout     three puzzlers drawn at random from everyone who solved something (seeded by the week, reproducible);
 //   days      the week in hours: solves per day (busiest day hot), countries, puzzles; closes with the question
@@ -27,6 +27,8 @@ export interface WeeklySpec {
   season: number;
   episode: number;
   segments: Segment[];
+  /** Cover: 'stats' = the stat strip (eps. 1–3); 'boxes' = the three most-solved boxes lead (owner 2026-11-01 rule for report covers). */
+  coverStyle?: 'stats' | 'boxes';
   question: string;
   weekStart: string;
   /** "5–11 Oct 2026". */
@@ -176,7 +178,15 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
       // Owner 2026-10-18: the cover says what the post is at first sight (week number + "report"), not a big count.
       kicker: `The Weekly Numbers · Ep. ${s.episode}`, title: 'Weekly report', dek: s.range, src: s.src,
       hero: { value: `Week ${isoWeek(s.weekStart)}`, max: 300 },
-      stats: [['Solves', fmtInt(s.results)], ['Puzzlers', fmtInt(s.participants)], ['Week on week', fmtSignedPct(wow)]],
+      ...(s.coverStyle === 'boxes'
+        // Owner 2026-11-01 (monthly): a report cover leads with its most striking visual, the numbers stay small.
+        ? { extraHeight: 410, extra: `${CSS}
+            <p class="wk-note" style="margin-bottom:22px">The week's most-solved puzzles</p>
+            <div style="display:flex; gap:30px">${s.top.slice(0, 3).map((p, i) => `<div style="width:${Math.floor((CW - 60) / 3)}px">
+              <span class="wk-thumb" style="display:block; width:100%; height:228px; margin:0; box-sizing:border-box"><img src="${p.img}" alt=""></span>
+              <p class="wk-note" style="margin-top:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${i === 0 ? '<b style="color:var(--g-hot)">' : '<b>'}${fmtInt(p.solvers)}</b> · ${h(cut(p.brand, 18))}</p></div>`).join('')}</div>
+            <p class="wk-note" style="margin-top:20px">${fmtInt(s.results)} solves · ${fmtInt(s.participants)} puzzlers · ${fmtSignedPct(wow)} week on week</p>` }
+        : { stats: [['Solves', fmtInt(s.results)], ['Puzzlers', fmtInt(s.participants)], ['Week on week', fmtSignedPct(wow)]] as Array<[string, string]> }),
     }),
 
     top: () => {
@@ -288,7 +298,7 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
       return `${h(pre)}${h(cut(r.puzzle, 37 - pre.length - brand.length - 3))} · ${h(brand)}`;
     };
     const note = fastNote(s, pieces)
-      ? `<p class="wk-note" style="margin-top:18px">The week's typical solo 500: <b>${sec(s.median500s)}</b>, the middle of ${fmtInt(s.solo500Results)} solo times.</p>` : '';
+      ? `<p class="wk-note" style="margin-top:18px">The week's median solo 500: <b>${sec(s.median500s)}</b>. Half of ${fmtInt(s.solo500Results)} solo times were faster.</p>` : '';
     return slide(ctx(seg), 'data', { kicker: kick, src: s.src, title: `The week's fastest ${sizeOf(pieces)}s`, body: CSS + `
       <div class="h-abs" style="top:${FAST_TOP}px"><div class="h-board" style="position:static">
         ${sections.map(({ k, rows: rs }, si) => `<div class="wk-sec"${si ? ` style="margin-top:${fastGap(s, pieces)}px"` : ''}><span>${KIND[k]} · ${sizeOf(pieces)} pieces</span>${si === 0 ? '<span>Time</span>' : ''}</div>
@@ -344,10 +354,10 @@ export function weeklyAlt(s: WeeklySpec): string[] {
   const max = Math.max(...s.days.map(d => d.results));
   const fastAlt = (pieces: number) => {
     const part = (k: Kind, take: number) => s.fast.filter(r => r.kind === k && r.pieces === pieces).slice(0, take).map(r => `${groupName(r)} ${sec(r.seconds)} (${r.puzzle} by ${r.brand})`);
-    return `The week's fastest ${sizeOf(pieces)}-piece times. Solo: ${part('solo', 3).join('; ') || 'none'}. Pairs: ${part('duo', 1).join('') || 'none'}. Teams: ${part('team', 1).join('') || 'none'}.${pieces === 500 ? ` The week's typical solo 500 took ${sec(s.median500s)}.` : ''}`;
+    return `The week's fastest ${sizeOf(pieces)}-piece times. Solo: ${part('solo', 3).join('; ') || 'none'}. Pairs: ${part('duo', 1).join('') || 'none'}. Teams: ${part('team', 1).join('') || 'none'}.${pieces === 500 ? ` The week's median solo 500 time was ${sec(s.median500s)}: half of ${fmtInt(s.solo500Results)} solo times were faster, each puzzler's best per puzzle counted once.` : ''}`;
   };
   const alt: Record<Segment, () => string> = {
-    cover: () => `Weekly report, week ${isoWeek(s.weekStart)}, ${s.range} (The Weekly Numbers, episode ${s.episode}): ${fmtInt(s.results)} solves finished by ${fmtInt(s.participants)} puzzlers in ${s.week.countries} countries, ${fmtSignedPct(((s.results - s.resultsPrev) / s.resultsPrev) * 100)} on the week before.`,
+    cover: () => `Weekly report, week ${isoWeek(s.weekStart)}, ${s.range} (The Weekly Numbers, episode ${s.episode}): ${fmtInt(s.results)} solves finished by ${fmtInt(s.participants)} puzzlers in ${s.week.countries} countries, ${fmtSignedPct(((s.results - s.resultsPrev) / s.resultsPrev) * 100)} on the week before.${s.coverStyle === 'boxes' ? ` Box images of the three most-solved puzzles: ${s.top.slice(0, 3).map(p => `${p.puzzle} by ${p.brand}, ${fmtInt(p.solvers)} puzzlers`).join('; ')}.` : ''}`,
     top: () => `The week's five most-solved puzzles with their box images: ${s.top.map(p => `${p.puzzle} by ${p.brand}, ${p.solvers} puzzlers`).join('; ')}.`,
     fast500: () => fastAlt(500),
     fast1000: () => fastAlt(1000),
@@ -424,7 +434,7 @@ export function weeklyCaption(s: WeeklySpec): string {
   return [
     `Weekly report, week ${isoWeek(s.weekStart)} (${s.range.replace(/ \d{4}$/, '').replace(' – ', ' to ')}): ${fmtInt(s.week.hours)} hours of puzzling, that's ${fmtInt(Math.floor(s.week.hours / 24))} days around the clock on MySpeedPuzzling.`,
     '',
-    `${fmtInt(s.participants)} puzzlers in ${s.week.countries} countries finished ${fmtInt(s.results)} puzzles. The most-solved was ${s.top[0].puzzle} by ${BRAND_HANDLES[s.top[0].brand] ? `@${BRAND_HANDLES[s.top[0].brand]}` : s.top[0].brand}, done by ${fmtInt(s.top[0].solvers)} of you. The typical solo 500 took ${sec(s.median500s)}, and ${fmtInt(s.personalBests)} of you set a personal best.`,
+    `${fmtInt(s.participants)} puzzlers in ${s.week.countries} countries finished ${fmtInt(s.results)} puzzles. The most-solved was ${s.top[0].puzzle} by ${BRAND_HANDLES[s.top[0].brand] ? `@${BRAND_HANDLES[s.top[0].brand]}` : s.top[0].brand}, done by ${fmtInt(s.top[0].solvers)} of you. The median solo 500 took ${sec(s.median500s)} (half of all solo times were faster), and ${fmtInt(s.personalBests)} of you set a personal best.`,
     '',
     credits.length ? `Fastest 500s of the week ⏱️ ${credits.join(' · ')}` : '',
     '',

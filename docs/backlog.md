@@ -9,7 +9,8 @@ Updated 2026-10-17.
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Story posted 2 Nov evening. Next: Story insights before Tue 3 Nov evening; post insights Wed 4 Nov ~20:00 (`node tools/insights.ts`).
 - [ ] Monthly report: "puzzlers" counts only who logged a result (`monthly-totals`); switch to everyone who took part, like the weekly (2 Nov).
 - [ ] Weekly: week total (weekly-totals) and the day chart differ by ~3 solves (results logged before the week began but finished in it count in one, not the other); align the two filters.
-- [ ] Ask the owner: should the weekly cover follow the monthly's "lead with a visual" rule (e.g. the most-solved boxes, as the Story does)?
+- [ ] Weekly cover: owner picks between the stat strip (`2026-11-09-weekly-rc1`) and the three most-solved boxes (`weekly-rc1b`, 9 Nov); make the winner the default and reject the other.
+- [ ] Weekly ep. 4 (week 45) drafted Mon 9 Nov ~20:10, after the 19:00 slot: publish tonight or tomorrow 19:00 (facts valid until Tue ~20:00).
 - [x] Tag pre-check: `tools/check-tags.ts` (2 Nov).
 
 - [x] **Monthly report, October (first monthly recap) PUBLISHED Sun 1 Nov ~13:30 Prague** (owner: "publish now";
@@ -268,7 +269,7 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 ## Median audit (2026-11-07)
 - The site's median = each puzzler's best time on a puzzle counts once (`puzzle_statistics.median_time_solo`); the tier
   list now follows it (`tier-subjects`, `tier-hell`, rule in `editorial/standing-feedback.md`). Older queries take a
-  median over every logged solve: check each `percentile_cont` query before its next use (weekly "typical time",
+  median over every logged solve: check each `percentile_cont` query before its next use (weekly median: done 9 Nov,
   `quiz-postcards`, `reel-1000-vs-500`, `about-*`, `solo-distribution`) and switch per-puzzle numbers to the site's rule.
 
 ## After the tier list (2026-11-07)

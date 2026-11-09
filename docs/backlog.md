@@ -9,8 +9,9 @@ Updated 2026-10-17.
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Story posted 2 Nov evening. Next: Story insights before Tue 3 Nov evening; post insights Wed 4 Nov ~20:00 (`node tools/insights.ts`).
 - [ ] Monthly report: "puzzlers" counts only who logged a result (`monthly-totals`); switch to everyone who took part, like the weekly (2 Nov).
 - [ ] Weekly: week total (weekly-totals) and the day chart differ by ~3 solves (results logged before the week began but finished in it count in one, not the other); align the two filters.
-- [ ] Weekly cover: owner picks between the stat strip (`2026-11-09-weekly-rc1`) and the three most-solved boxes (`weekly-rc1b`, 9 Nov); make the winner the default and reject the other.
-- [ ] Weekly ep. 4 (week 45) drafted Mon 9 Nov ~20:10, after the 19:00 slot: publish tonight or tomorrow 19:00 (facts valid until Tue ~20:00).
+- [x] Weekly ep. 4 published 9 Nov ~20:25 (https://www.instagram.com/p/DfiE1_1ERhA/), owner picked the boxes cover (B).
+- [x] Boxes cover is the weekly default (`weekly-rc1`, 9 Nov).
+- [ ] Ep. 4 insights at +48 h (Wed 11 Nov ~20:30); Story insights before it expires (Tue 10 Nov evening). Compare reach with eps. 1–3 (first boxes cover).
 - [x] Tag pre-check: `tools/check-tags.ts` (2 Nov).
 
 - [x] **Monthly report, October (first monthly recap) PUBLISHED Sun 1 Nov ~13:30 Prague** (owner: "publish now";

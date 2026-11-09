@@ -65,9 +65,8 @@ const weekly = (rc: string, segments: Segment[], coverStyle: 'stats' | 'boxes' =
 
 const BUILDERS: Record<string, () => Promise<Built>> = {
   // RC1 full: every segment of the owner's list (8 slides). RC2 compact: cover, top, fastest 500s, shoutout, the week (5).
-  'weekly-rc1': weekly('rc1', ['cover', 'top', 'fast500', 'fast1000', 'active', 'shout', 'days', 'close']),
-  // Cover test (owner 2026-11-09, ep. 4): same post, the three most-solved boxes lead the cover instead of the stat strip.
-  'weekly-rc1b': weekly('rc1b', ['cover', 'top', 'fast500', 'fast1000', 'active', 'shout', 'days', 'close'], 'boxes'),
+  // Owner 2026-11-09 (ep. 4): the three most-solved boxes lead the cover (picked over the stat strip, eps. 1–3).
+  'weekly-rc1': weekly('rc1', ['cover', 'top', 'fast500', 'fast1000', 'active', 'shout', 'days', 'close'], 'boxes'),
   'weekly-rc2': weekly('rc2', ['cover', 'top', 'fast500', 'shout', 'days']),
   // Monthly recap (owner 2026-11-01): carousel on the 1st, built on the DL4 colour mosaic (H4-26/27/28).
   monthly: async () => {

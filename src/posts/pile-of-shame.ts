@@ -24,11 +24,15 @@ import { ROOT } from '../render/server.ts';
 export const POST = 'fun-shelf'; // funny fact: coral poster (standing feedback, poster colour by type)
 const KICKER = 'Did you know? · Collections';
 const SHADOW = 'rgba(16,22,34,.36)';
-/** The dusty shelf (AI1 E4, FLUX.2 klein 4B, Apache-2.0): dusk light, cobwebs, six empty compartments. */
-export const SHELF_PLATE = 'content/labs/AI1/E4/shelf-dusk-s401.png';
-const PLATE_GEN = { w: 1024, h: 1280 };
-/** Compartments in generation pixels (AI1 scaffold `shelf`, 2 × 3). */
-const SLOTS = [384, 672, 960].flatMap(y => [192, 544].map(x => ({ x, y, w: 288, h: 192 })));
+/** The dusty wooden cube shelf (lab SH1, s1-empty-201): cobwebs, dust bunnies, a dangling spider. */
+export const SHELF_PLATE = 'content/labs/SH1/stills/s1-empty-201.png';
+const PLATE_GEN = { w: 896, h: 1120 };
+/** Clear cubbies of the SH1 shelf plate (896 × 1120 px; top row and bottom corners are full of cobwebs). */
+const SLOTS = [
+  { x: 340, y: 598, w: 212, h: 192 }, // row 3 middle, under the dangling spider: the "?" slot
+  { x: 100, y: 390, w: 220, h: 190 }, { x: 340, y: 390, w: 212, h: 190 }, { x: 578, y: 390, w: 222, h: 190 },
+  { x: 100, y: 598, w: 220, h: 192 }, { x: 578, y: 598, w: 222, h: 192 },
+];
 /** Empty gallery wall with a rope barrier (AI1 E1, Z-Image Turbo). */
 export const MUSEUM_PLATE = 'content/labs/AI1/E1/museum-wall-s101.png';
 
@@ -96,8 +100,8 @@ const boxImg = (b: ShelfPuzzle, x: number, y: number, w: number, hh: number, rot
 
 /** A shop-style shelf tag hanging from the board under a box: the unsolved share, big and fully inside the label. */
 function shelfTag(cx: number, top: number, value: number) {
-  return `<div data-qa-bg="#ec726f" style="position:absolute; left:${f1(cx)}px; top:${f1(top)}px; transform:translateX(-50%) rotate(-2deg); padding:6px 16px 8px; background:#ec726f; color:#222a38; border-radius:8px; box-shadow:0 6px 12px rgba(10,14,22,.45); text-align:center; white-space:nowrap">
-    <p style="font-size:40px; font-weight:800; line-height:1">${value}%</p><p data-qa-small style="font-size:24px; font-weight:700; line-height:1.1">unsolved</p></div>`;
+  return `<div data-qa-bg="#ec726f" style="position:absolute; left:${f1(cx)}px; top:${f1(top)}px; transform:translateX(-50%) rotate(-2deg); padding:4px 14px 6px; background:#ec726f; color:#222a38; border-radius:8px; box-shadow:0 6px 12px rgba(10,14,22,.45); text-align:center; white-space:nowrap">
+    <p style="font-size:36px; font-weight:800; line-height:1">${value}%</p><p data-qa-small style="font-size:24px; font-weight:700; line-height:1.1">unsolved</p></div>`;
 }
 
 /** A coral generator piece with a label on it (unsolved share, "?"). */
@@ -132,7 +136,7 @@ function shelfPhoto(left: number, top: number, k: number, cropY: number, height:
 }
 /** Box standing in a compartment: contained, bottom-aligned on the board. */
 function inSlot(b: ShelfPuzzle, s: { x: number; y: number; w: number; h: number }) {
-  const z = fit(b.ar, s.w - 16, s.h - 12);
+  const z = fit(b.ar, s.w - 20, s.h - 40);
   return { x: s.x + (s.w - z.w) / 2, y: s.y + s.h - z.h - 2, w: z.w, h: z.h };
 }
 
@@ -148,13 +152,13 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
     const seam = 452;
     if (dir === 'A') {
       // Photo: generation y 300 sits at the seam; the compartments follow at scale k.
-      const k = 0.84, cropY = 300, left = (W - PLATE_GEN.w * k) / 2, photoTop = seam - 40;
+      const k = 0.86, cropY = 150, left = (W - PLATE_GEN.w * k) / 2, photoTop = seam - 40;
       const place = (sl: typeof SLOTS[number]) => ({ x: left + sl.x * k, y: photoTop + (sl.y - cropY) * k, w: sl.w * k, h: sl.h * k });
       const slots = SLOTS.map(place);
       // Slot 1 stays empty (the punchline is on slide 5), the next five most-avoided boxes fill the rest.
       const boxes = slots.slice(1).map((sl, i) => {
         const b = others[i], z = inSlot(b, sl);
-        return boxImg(b, z.x, z.y, z.w, z.h) + shelfTag(z.x + z.w / 2, sl.y + sl.h - 6, b.pct);
+        return boxImg(b, z.x, z.y, z.w, z.h) + shelfTag(z.x + z.w / 2, z.y - 34, b.pct);
       }).join('');
       const empty = slots[0];
       return posterCover(ctx('cover'), {

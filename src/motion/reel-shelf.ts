@@ -112,7 +112,7 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
   const artW = cw - 44, artH = Math.min(ch - 44, artW / hero.p.ar);
   const plaqueTop = my(MUS.frameBottom) + 6;
   const museum = `<div class="mo-scene" id="museum"><div id="mcam">
-      <img src="${spec.plates.museum}" alt="" style="position:absolute; left:${MUS.left}px; top:${MUS.top}px; width:${f1(PLATE.w * MUS.k)}px; height:${f1(PLATE.h * MUS.k)}px">
+      <img src="${spec.plates.museum}" alt="" style="filter:saturate(1.2) brightness(1.06); position:absolute; left:${MUS.left}px; top:${MUS.top}px; width:${f1(PLATE.w * MUS.k)}px; height:${f1(PLATE.h * MUS.k)}px">
       <div class="mo-mat" style="left:${f1(mx(cv.x0))}px; top:${f1(my(cv.y0))}px; width:${f1(cw)}px; height:${f1(ch)}px">
         <img src="${hero.p.img}" alt="" style="width:${f1(artW)}px; height:${f1(artH)}px"><i></i></div>
       <div class="mo-plaque" data-qa-ignore style="left:${f1(CX - 290)}px; top:${f1(plaqueTop)}px; width:580px">
@@ -168,11 +168,11 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
 #slogo, #splash, #lapse, #walltext, #mustext, #send { position: absolute; inset: 0; z-index: 4; }
 #slogo { z-index: 5; }
 #cam, #mcam { position: absolute; inset: 0; transform-origin: 50% 70%; }
-.mo-plate { position: absolute; left: 0; top: ${f1(PT)}px; width: ${W}px; height: ${f1(PLATE.h * K)}px; }
+.mo-plate { filter: saturate(1.14) brightness(1.06) contrast(1.03); position: absolute; left: 0; top: ${f1(PT)}px; width: ${W}px; height: ${f1(PLATE.h * K)}px; }
 #p-dusty, #p-old { opacity: 0; }
 .mo-bx { position: absolute; border-radius: 3px; box-shadow: 0 12px 22px rgba(10, 14, 22, 0.55); overflow: hidden; }
 .mo-bx img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.mo-dust { position: absolute; inset: 0; opacity: 0; background: linear-gradient(180deg, rgba(200, 194, 182, 0.66) 0, rgba(200, 194, 182, 0.24) 20%, rgba(120, 110, 95, 0.16) 60%, rgba(40, 32, 24, 0.34) 100%); }
+.mo-dust { position: absolute; inset: 0; opacity: 0; background: linear-gradient(180deg, rgba(214, 208, 196, 0.62) 0, rgba(214, 208, 196, 0.16) 14%, rgba(214, 208, 196, 0) 34%, rgba(40, 32, 24, 0) 70%, rgba(40, 32, 24, 0.2) 100%); }
 #webs { position: absolute; left: 0; top: 0; }
 .mo-web { opacity: 0; fill: none; stroke: ${C.web}; stroke-width: 1; stroke-linecap: round; }
 .mo-web path { stroke-dasharray: 1 1; stroke-dashoffset: 1; }
@@ -185,8 +185,8 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
 #wfloor { position: absolute; left: 0; right: 0; top: 1920px; height: 400px; background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0, rgba(0, 0, 0, 0) 60px), repeating-linear-gradient(90deg, #4b3524 0 214px, #35251a 214px 217px); }
 #wallimg, #tile0 { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
 .mo-mat { position: absolute; background: #cfc5ab; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 34px rgba(40, 30, 14, 0.75); }
-.mo-mat img { filter: sepia(0.28) saturate(0.86) brightness(0.93); box-shadow: 0 2px 10px rgba(30, 20, 8, 0.6); }
-.mo-mat i { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(190, 184, 170, 0.34) 0, rgba(190, 184, 170, 0.05) 30%, rgba(30, 22, 12, 0.22) 100%); }
+.mo-mat img { filter: sepia(0.06) saturate(1.06); box-shadow: 0 2px 10px rgba(30, 20, 8, 0.6); }
+.mo-mat i { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(190, 184, 170, 0.16) 0, rgba(190, 184, 170, 0) 26%, rgba(30, 22, 12, 0) 70%, rgba(30, 22, 12, 0.12) 100%); }
 .mo-plaque { position: absolute; padding: 12px 18px 14px; background: linear-gradient(180deg, #e9dfc3, #d8cba6); border: 3px solid #8a6f2c; border-radius: 4px; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55); text-align: center; color: #2a2318; }
 .mo-plaque p { font-size: 30px; line-height: 1.22; font-weight: 500; white-space: nowrap; }
 .mo-plaque b { font-size: 36px; font-weight: 800; }
@@ -230,10 +230,11 @@ function applyAge() {
     gsap.set('#p-dusty', { opacity: clamp(a / 0.6) });
     gsap.set('#p-old', { opacity: clamp((a - 0.5) / 0.5) });
   } else gsap.set('#p-dusty', { opacity: clamp(a) });
-  gsap.set('.mo-dust', { opacity: clamp(a * 1.05) });
+  gsap.set('.mo-dust', { opacity: 0.7 * clamp(a * 1.05) });
   // generated frames: the baked boxes drift a few pixels as the shelf ages; the crisp boxes grow with them
   if (frames.length) gsap.set('.mo-bx', { scale: 1 + 0.05 * clamp((a - 0.3) / 0.7), transformOrigin: '0% 0%' });
-  gsap.set('.mo-bx img', { filter: 'saturate(' + (1 - 0.34 * a).toFixed(3) + ') brightness(' + (1 - 0.16 * a).toFixed(3) + ')' });
+  // (owner 2026-11-12: the video looked faded) the shelf ages, the pictures keep most of their colour
+  gsap.set('.mo-bx img', { filter: 'saturate(' + (1 - 0.1 * a).toFixed(3) + ') brightness(' + (1 - 0.04 * a).toFixed(3) + ')' });
   gsap.set('#motes', { opacity: 0.55 * clamp((a - 0.1) * 1.4) });
   webPaths.forEach((ps, w) => {
     const g = clamp((a - 0.4 - w * 0.035) / 0.42);

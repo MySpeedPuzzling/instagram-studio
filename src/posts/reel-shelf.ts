@@ -47,12 +47,12 @@ async function bakeWall(dir: string, dusty: string, arts: Array<{ img: string; a
   if (arts.length < count) throw new Error(`reel-shelf: only ${arts.length} different box pictures for ${count} cubbies`);
   const k = WALL.tile / SHELF.w, th = Math.round(SHELF.h * k), n = WALL.cols, rows = Math.ceil(count / (CUBBIES.length * n));
   const shelf = sharp(join(ROOT, dusty)).extract({ left: SHELF.x, top: SHELF.y, width: SHELF.w, height: SHELF.h });
-  const tileBuf = await shelf.clone().resize(WALL.tile, th).toBuffer();
+  const tileBuf = await shelf.clone().resize(WALL.tile, th).modulate({ brightness: 1.08, saturation: 1.14 }).toBuffer();
   const K0 = 1080 / SHELF.w, t0h = Math.round(SHELF.h * K0);
-  const tile0Buf = await shelf.clone().resize(1080, t0h).toBuffer();
+  const tile0Buf = await shelf.clone().resize(1080, t0h).modulate({ brightness: 1.08, saturation: 1.14 }).toBuffer();
   const cub = CUBBIES.map(c => ({ ...c, x: c.x - SHELF.x, y: c.y - SHELF.y }));
   const dustyBox = async (p: { img: string }, w: number, h: number) =>
-    sharp(join(ROOT, p.img.slice(1))).resize(Math.max(2, Math.round(w)), Math.max(2, Math.round(h)), { fit: 'cover' }).modulate({ brightness: 0.93, saturation: 0.88 }).toBuffer();
+    sharp(join(ROOT, p.img.slice(1))).resize(Math.max(2, Math.round(w)), Math.max(2, Math.round(h)), { fit: 'cover' }).modulate({ brightness: 1.03, saturation: 1.12 }).toBuffer();
   // filled shelf by shelf, row by row, every cubby a different puzzle (owner 2026-11-12: no picture twice); the last
   // shelf (bottom right) keeps the cubbies the pile doesn't need
   const comps: sharp.OverlayOptions[] = [], comps0: sharp.OverlayOptions[] = [];

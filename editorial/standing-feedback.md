@@ -13,6 +13,9 @@ How to maintain it:
 
 ## Design
 
+- **"Old and dusty" never means washed-out pictures:** age the scene (dust, webs, light), keep box art and brand
+  colours rich; desaturating or sepia-toning the pictures reads as low video quality. (owner, 2026-11-12,
+  pile-of-shame Reel: "the overall video seems faded")
 - **Reels: no site line under the masthead** (kicker + logo only); myspeedpuzzling.com is on the splash, and a data
   line belongs only on the beat that holds the number. (owner, 2026-11-12, pile-of-shame Reel; same note on the
   missing-piece Reel, 2026-11-04)

@@ -29,25 +29,25 @@ export const SHELF_PLATE = 'content/labs/AI1/E4/shelf-dusk-s401.png';
 const PLATE_GEN = { w: 1024, h: 1280 };
 /** Compartments in generation pixels (AI1 scaffold `shelf`, 2 × 3). */
 const SLOTS = [384, 672, 960].flatMap(y => [192, 544].map(x => ({ x, y, w: 288, h: 192 })));
-const AI_CREDIT = 'Shelf: AI (FLUX.2 klein 4B)';
 /** Empty gallery wall with a rope barrier (AI1 E1, Z-Image Turbo). */
 export const MUSEUM_PLATE = 'content/labs/AI1/E1/museum-wall-s101.png';
-const MUSEUM_CREDIT = 'Gallery: AI (Z-Image Turbo)';
+
 
 export type Direction = 'A' | 'B';
 export interface ShelfPuzzle { puzzle: string; brand: string; pieces: number; owners: number; unsolved: number; pct: number; medianS: number; img: string; ar: number }
 export interface ShelfSpec {
   collected: number; unsolved: number; pct: number; collections: number; piles: number; medianPile: number; unsolvedPieces: number;
-  big: { unsolved: number; withMedian: number; hours: number; days: number };
-  hoursMedian: number; hoursP90: number; hoursAll: number; yearsAll: number; over100h: number;
-  puzzles: ShelfPuzzle[]; hero: ShelfPuzzle; share: ShelfPuzzle; asOf: string; src: string;
+  big: { unsolved: number; hours: number; days: number };
+  ladder: { q1: number; median: number; q3: number; p90: number }; hoursAll: number; yearsAll: number;
+  puzzles: ShelfPuzzle[]; hero: ShelfPuzzle; share: ShelfPuzzle; sizes: Array<{ label: string; owners: number; pct: number }>; giant: ShelfPuzzle; asOf: string; src: string;
 }
 
 export async function buildShelfSpec(o: { fresh: boolean }): Promise<{ spec: ShelfSpec; facts: Record<string, QueryResult> }> {
-  const facts = { 'shelf-shame-totals': query('shelf-shame-totals', { fresh: o.fresh }), 'shelf-shame-puzzles': query('shelf-shame-puzzles', { fresh: o.fresh }), 'shelf-shame-pct': query('shelf-shame-pct', { fresh: o.fresh }) };
+  const facts = { 'shelf-shame-totals': query('shelf-shame-totals', { fresh: o.fresh }), 'shelf-shame-puzzles': query('shelf-shame-puzzles', { fresh: o.fresh }), 'shelf-shame-pct': query('shelf-shame-pct', { fresh: o.fresh }), 'shelf-shame-sizes': query('shelf-shame-sizes', { fresh: o.fresh }) };
   const t = facts['shelf-shame-totals'].rows[0];
   const rows = facts['shelf-shame-puzzles'].rows, pctRows = facts['shelf-shame-pct'].rows;
-  const imgs = await fetchBoxes([...rows, ...pctRows].map(r => r.image), 'puzzle_large');
+  const sizeRows = facts['shelf-shame-sizes'].rows, bigRows = sizeRows.filter(r => r.kind === 'big');
+  const imgs = await fetchBoxes([...rows, ...pctRows, ...bigRows].map(r => r.image), 'puzzle_large');
   const toP = (r: Record<string, string>): ShelfPuzzle[] => {
     const img = imgs.get(r.image);
     return img ? [{ puzzle: r.puzzle, brand: r.brand, pieces: +r.pieces, owners: +r.owners, unsolved: +r.unsolved, pct: +r.pct_unsolved, medianS: +r.median_solo_s, img, ar: +r.image_ratio || 1.4 }] : [];
@@ -57,24 +57,35 @@ export async function buildShelfSpec(o: { fresh: boolean }): Promise<{ spec: She
   // Exhibit by share: the highest unsolved share among puzzles in 40+ collections (owner 2026-11-12: a second exhibit
   // when it's a different puzzle than the most-avoided by number).
   const share = pctRows.flatMap(toP)[0];
+  // Plot twist 3 (owner 2026-11-12): the bigger the box, the less it gets solved. Bands merged from the query's 7.
+  const band = (ks: string[], label: string) => {
+    const rs = sizeRows.filter(r => r.kind === 'band' && ks.includes(r.k));
+    const owners = rs.reduce((a, r) => a + +r.owners, 0), uns = rs.reduce((a, r) => a + +r.unsolved, 0);
+    return { label, owners, pct: Math.round((100 * uns) / owners) };
+  };
+  const sizes = [band(['1', '2'], 'Up to 500 pieces'), band(['3', '4'], '501 to 1000'), band(['5', '6'], '1001 to 3999'), band(['7'], '4000 and more')];
+  // The giant: the biggest puzzle among the most-collected 4000+ ones that at least 10 people own.
+  const giant = bigRows.filter(r => +r.owners >= 10).sort((a, b) => +b.pieces - +a.pieces).flatMap(r => toP({ ...r, median_solo_s: '0' }))[0];
+  if (!giant) throw new Error('pile-of-shame: no 4000+ puzzle with 10+ owners');
   if (!share || share.puzzle === hero?.puzzle) throw new Error('pile-of-shame: the share exhibit is missing or the same puzzle as the count exhibit');
   if (!hero || hero.puzzle !== 'Speed Puzzling') throw new Error(`pile-of-shame: the most-avoided puzzle is now "${hero?.puzzle}", not "Speed Puzzling": rethink the punchline`);
-  const bigHours = Math.round(+t.big_median_s / 3600);
+  const bigHours = +t.big_hours;
   const asOf = new Date(facts['shelf-shame-totals'].queried_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague' });
   return {
     facts,
     spec: {
       collected: +t.collected, unsolved: +t.unsolved, pct: +t.pct_unsolved, collections: +t.collections, piles: +t.piles, medianPile: +t.median_pile,
       unsolvedPieces: +t.unsolved_pieces,
-      big: { unsolved: +t.big_unsolved, withMedian: +t.big_with_median, hours: bigHours, days: Math.floor(bigHours / 24) },
-      hoursMedian: Math.round(+t.hours_median), hoursP90: Math.round(+t.hours_p90), hoursAll: +t.hours_all, yearsAll: Math.floor(+t.hours_all / (24 * 365.25)),
-      over100h: +t.collections_100h, puzzles, hero, share, asOf, src: `Data: myspeedpuzzling.com · ${asOf}`,
+      big: { unsolved: +t.big_unsolved, hours: bigHours, days: Math.floor(bigHours / 24) },
+      ladder: { q1: +t.hours_q1, median: +t.hours_median, q3: +t.hours_q3, p90: +t.hours_p90 },
+      hoursAll: +t.hours_all, yearsAll: Math.floor(+t.hours_all / (24 * 365.25)), puzzles, hero, share, sizes, giant, asOf, src: `Data: myspeedpuzzling.com · ${asOf}`,
     },
   };
 }
 
 // ---------------------------------------------------------------- helpers
 const pct = (n: number) => `${n}%`;
+const hrs = (v: number) => (v < 10 ? v.toFixed(1) : fmtInt(Math.round(v)));
 const millions = (n: number) => `${(n / 1e6).toFixed(1)} million`;
 const rel = (p: string) => '/' + p;
 let uid = 0;
@@ -121,7 +132,7 @@ function inSlot(b: ShelfPuzzle, s: { x: number; y: number; w: number; h: number 
 
 // ---------------------------------------------------------------- slides
 export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] {
-  const order = ['cover', 'waffle', 'twist', 'scale', 'share', 'reveal', 'rest'] as const;
+  const order = ['cover', 'waffle', 'twist', 'scale', 'sizes', 'share', 'reveal', 'rest'] as const;
   const ctx = (k: typeof order[number]): SlideCtx => ({ v, post: POST, slide: order.indexOf(k) + 1, of: order.length });
   const others = s.puzzles.slice(1).filter(p => p.puzzle !== s.share.puzzle).sort((a, b) => b.pct - a.pct);
   const coverDek = `<b>${pct(Math.round(s.pct))}</b> of the puzzles in your collections have never been solved. The one you avoid most has a very ironic name…`;
@@ -144,7 +155,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
         title: 'The pile of shame is real', dek: coverDek, seam,
         underArt: shelfPhoto(left, photoTop, k, cropY, FEED.footRule - photoTop - 6),
         body: boxes + badge(empty.x + empty.w / 2, empty.y + empty.h / 2 + 10, 116, '?', 64, 41),
-        src: `${boxCredit} · ${AI_CREDIT}`,
+        src: `${boxCredit} · data ${s.asOf}`,
       });
     }
     // B: the same boxes as a heap on navy, a coral "?" piece on top.
@@ -186,48 +197,73 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
   };
 
   const disclaimer = (top: number) => `<p class="h-abs" data-qa-small style="top:${top}px; width:${CW}px; font-size:24px; line-height:1.35; color:var(--g-soft)">
-    Hours = each unsolved puzzle's median solo time from its MySpeedPuzzling page (half of puzzlers are faster), added up per puzzler. Puzzles nobody has timed yet count as 0. Your pace may vary.</p>`;
+    Hours = each puzzle's median solo time from its MySpeedPuzzling page (half of puzzlers are faster), added up per pile; puzzles nobody has timed yet get the typical time for their piece count. Your pace may vary.</p>`;
 
+  /** The pile ladder (owner 2026-11-12): quartiles of pile hours, each with a joke that matches its size. */
   const twist = () => {
-    const x = ctx('twist');
-    const small = s.hoursMedian <= 20, cols = small ? 5 : 7, rows = Math.ceil(s.hoursMedian / cols), pw = small ? 150 : 92, top = 640;
-    const jig = generateJigsaw({ cols, rows, width: cols * pw, height: rows * pw, x: X0, y: top, seed: 88, tabSize: 0.24 });
-    const art = jig.pieces.filter(p => p.row * cols + p.col < s.hoursMedian)
-      .map(p => `<path d="${p.d}" fill="var(--c-hot)" stroke="var(--g-bg)" stroke-width="4" stroke-linejoin="round"/>`).join('');
-        return slide(x, 'data', {
+    const x = ctx('twist'), L = s.ladder;
+    const rows = [
+      { who: '1 in 4 piles', q: 'up to', h: L.q1, joke: 'A lazy Sunday afternoon.' },
+      { who: 'Half of all piles', q: 'up to', h: L.median, joke: 'One rainy weekend. No excuses.' },
+      { who: '1 in 4 piles', q: 'over', h: L.q3, joke: 'A full week off, 7 hours a day.' },
+      { who: '1 in 10 piles', q: 'over', h: L.p90, joke: '5 hours every evening, for a month.' },
+    ];
+    const top = 430, rh = 156, BW = CW - 4, max = L.p90;
+    const art = rows.map((r, i) => `<rect x="${X0}" y="${top + i * rh + 96}" width="${BW}" height="26" fill="var(--g-band)"/>
+      <rect x="${X0}" y="${top + i * rh + 96}" width="${f1(Math.max(8, (r.h / max) * BW))}" height="26" fill="var(--c-hot)"/>`).join('');
+    const html = rows.map((r, i) => `
+      <p class="h-abs" style="top:${top + i * rh}px; width:${CW}px; font-size:36px; font-weight:700; line-height:1.1; color:var(--g-ink)">${h(r.who)}: ${r.q} <span style="color:var(--c-hot)">${hrs(r.h)} hours</span></p>
+      <p class="h-abs" style="top:${top + i * rh + 48}px; width:${CW}px; font-size:30px; line-height:1.2; color:var(--g-soft)">${h(r.joke)}</p>`).join('');
+    return slide(x, 'data', {
       kicker: 'Plot twist', src: s.src,
       title: 'How long would your pile take?',
-      body: svg(art) + `
-        <p class="h-abs" style="top:336px; width:${CW}px; font-size:34px; line-height:1.3; color:var(--g-ink)">Got a pile? We did the math nobody asked for: the median solo time of every puzzle on it, added up. The typical pile, ${s.medianPile} puzzles:</p>
-        <p class="h-abs" style="top:${top - 128}px; font-size:110px; font-weight:800; line-height:1; color:var(--c-hot)">${s.hoursMedian}<span style="font-size:54px; font-weight:700"> hours</span></p>
-        <p class="h-abs" style="top:${top + rows * pw + 24}px; width:${CW}px; font-size:34px; line-height:1.3; color:var(--g-ink)">1 piece = 1 hour. That’s one rainy weekend. <b style="color:var(--c-hot)">No excuses.</b></p>
-        ${disclaimer(1084)}`,
+      body: svg(art) + html + `
+        <p class="h-abs" style="top:336px; width:${CW}px; font-size:32px; line-height:1.3; color:var(--g-ink)">We did the math nobody asked for, for all ${fmtInt(s.piles)} piles:</p>
+        ${disclaimer(1066)}`,
     }).html;
   };
 
+  /** The biggest pile: 1 piece = 1 day, then the open question. */
   const scale = () => {
     const x = ctx('scale');
-    const items = [
-      { label: 'Typical pile', meta: `${s.medianPile} unsolved puzzles`, h: s.hoursMedian },
-      { label: 'Top 10%', meta: `${fmtInt(s.over100h)} piles pass 100 hours`, h: s.hoursP90 },
-      { label: 'The biggest pile', meta: `${fmtInt(s.big.unsolved)} unsolved puzzles`, h: s.big.hours, hot: true },
-    ];
-    const max = Math.max(...items.map(i => i.h));
-    const top = 330, rowH = 128, BX = X0, BW = CW - 200;
-    const art = items.map((it, i) => `<rect x="${BX}" y="${top + i * rowH + 56}" width="${f1(Math.max(6, (it.h / max) * BW))}" height="44" fill="${it.hot ? 'var(--c-hot)' : 'var(--c-base)'}"/>`).join('');
-    const html = items.map((it, i) => `
-      <p class="h-abs" style="top:${top + i * rowH}px; width:${CW}px; font-size:32px; font-weight:700; line-height:1.1; color:var(--g-ink)">${h(it.label)} <span data-qa-small style="font-size:24px; font-weight:400; color:var(--g-soft)">· ${h(it.meta)}</span></p>
-      <p class="h-abs" style="left:${f1(BX + Math.max(6, (it.h / max) * BW) + 16)}px; top:${top + i * rowH + 58}px; font-size:38px; font-weight:800; line-height:1; color:${it.hot ? 'var(--c-hot)' : 'var(--g-ink)'}; white-space:nowrap">${fmtInt(it.h)} h</p>`).join('');
-    const yT = top + items.length * rowH + 16;
+    const cols = 16, n = s.big.days, rws = Math.ceil(n / cols), pw = CW / cols, top = 440;
+    const jig = generateJigsaw({ cols, rows: rws, width: CW, height: rws * pw, x: X0, y: top, seed: 99, tabSize: 0.24 });
+    const art = jig.pieces.filter(p => p.row * cols + p.col < n)
+      .map(p => `<path d="${p.d}" fill="var(--c-hot)" stroke="var(--g-bg)" stroke-width="3" stroke-linejoin="round"/>`).join('');
+    const yT = top + rws * pw + 30;
     return slide(x, 'data', {
       kicker: 'Plot twist', src: s.src,
       title: 'And then there’s… this pile',
-      body: svg(art) + html + `
-        <p class="h-abs" style="top:${yT}px; width:${CW}px; font-size:46px; font-weight:800; line-height:1.15; color:var(--g-ink)">${fmtInt(s.big.hours)} hours = <span style="color:var(--c-hot)">${s.big.days} days and nights</span> without a break. Snacks not included.</p>
-        <p class="h-abs" style="top:${yT + 124}px; width:${CW}px; font-size:30px; line-height:1.3; color:var(--g-soft)">All ${fmtInt(s.piles)} piles together: ${fmtInt(s.hoursAll)} hours, over ${s.yearsAll} years non-stop.</p>
+      body: svg(art) + `
+        <p class="h-abs" style="top:300px; width:${CW}px; font-size:52px; font-weight:800; line-height:1.1; color:var(--g-ink)">${fmtInt(s.big.unsolved)} puzzles. <span style="color:var(--c-hot)">${fmtInt(s.big.hours)} hours.</span></p>
+        <p class="h-abs" style="top:${yT}px; width:${CW}px; font-size:40px; font-weight:700; line-height:1.2; color:var(--g-ink)">That’s ${n} days and nights without a break. Snacks not included.</p>
+        <p class="h-abs" data-qa-small style="top:${top - 46}px; font-size:24px; color:var(--g-soft)">1 piece = 1 day</p>
+        <p class="h-abs" style="top:${yT + 120}px; width:${CW}px; font-size:30px; line-height:1.3; color:var(--g-soft)">All ${fmtInt(s.piles)} piles together: ${fmtInt(s.hoursAll)} hours, over ${s.yearsAll} years non-stop.</p>
         <p class="h-abs" style="top:${yT + 196}px; width:${CW}px; font-size:52px; font-weight:800; line-height:1.1; color:var(--c-hot)">Who is this puzzle collector?</p>
-        <p class="h-abs" style="top:${yT + 262}px; width:${CW}px; font-size:32px; line-height:1.3; color:var(--g-ink)">Is it you? Blink twice. Or confess in the comments.</p>
-        <p class="h-abs" data-qa-small style="top:1110px; width:${CW}px; font-size:24px; line-height:1.35; color:var(--g-soft)">Sums of median solo times, as on slide 3 (${fmtInt(s.big.withMedian)} of the biggest pile's ${fmtInt(s.big.unsolved)} puzzles have one).</p>`,
+        <p class="h-abs" style="top:${yT + 262}px; width:${CW}px; font-size:32px; line-height:1.3; color:var(--g-ink)">Is it you? Blink twice. Or confess in the comments.</p>`,
+    }).html;
+  };
+
+  /** Plot twist 3: the bigger the box, the braver you need to be (owner 2026-11-12). */
+  const sizesSlide = () => {
+    const x = ctx('sizes'), top = 390, rh = 88, LW = 330, BX = X0 + LW, BW = X1 - BX - 120;
+    const art = s.sizes.map((b, i) => `<rect x="${BX}" y="${top + i * rh + 8}" width="${BW}" height="40" fill="var(--g-band)"/>
+      <rect x="${BX}" y="${top + i * rh + 8}" width="${f1((b.pct / 100) * BW)}" height="40" fill="${i === s.sizes.length - 1 ? 'var(--c-hot)' : 'var(--c-base)'}"/>`).join('');
+    const html = s.sizes.map((b, i) => `<p class="h-abs" style="top:${top + i * rh + 10}px; width:${LW - 20}px; font-size:30px; font-weight:700; line-height:1.15; color:var(--g-ink); white-space:nowrap">${h(b.label)}</p>
+      <p class="h-abs" style="left:${f1(BX + (b.pct / 100) * BW + 14)}px; top:${top + i * rh + 10}px; font-size:34px; font-weight:800; line-height:1.1; color:${i === s.sizes.length - 1 ? 'var(--c-hot)' : 'var(--g-ink)'}">${pct(b.pct)}</p>`).join('');
+    const g = s.giant, gy = top + s.sizes.length * rh + 30;
+    const z = fit(g.ar, 420, 230);
+    const tx = X0 + z.w + 36;
+    return slide(x, 'data', {
+      kicker: 'Plot twist', src: `Box art: ${g.brand} · data ${s.asOf}`,
+      title: 'The bigger the box, the braver you need to be',
+      body: svg(art) + html + `<p class="h-abs" data-qa-small style="top:${top - 46}px; font-size:24px; color:var(--g-soft)">Share of collected puzzles never solved by their owner, by size</p>`
+        + boxImg(g, X0, gy, z.w, z.h, -2)
+        + `<div class="h-abs" style="left:${f1(tx)}px; top:${gy}px; width:${f1(X1 - tx)}px">
+            <p style="font-size:34px; font-weight:800; line-height:1.15; color:var(--g-ink)">${h(g.puzzle)}</p>
+            <p style="font-size:30px; line-height:1.3; color:var(--g-soft); margin-top:6px">${h(g.brand)}, ${fmtInt(g.pieces)} pieces</p>
+            <p style="font-size:30px; line-height:1.3; color:var(--g-ink); margin-top:10px"><b style="color:var(--c-hot)">${g.unsolved} of its ${g.owners}</b> owners haven't solved it.</p></div>
+          <p class="h-abs" style="top:${f1(gy + Math.max(z.h, 210) + 34)}px; width:${CW}px; font-size:40px; font-weight:700; line-height:1.2; color:var(--g-ink)">We get it. It’s not for solving, it’s for owning. <span style="color:var(--c-hot)">Maybe one day you’ll find the courage.</span></p>`,
     }).html;
   };
 
@@ -253,7 +289,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
         <p data-qa-small style="font-weight:800">No. ${o.no} · ${h(b.puzzle)}</p>
         <p data-qa-small>${h(b.brand)}, ${fmtInt(b.pieces)} pieces</p>
         ${o.plaque.map((l, i) => `<p data-qa-small style="margin-top:10px${i === o.plaque.length - 1 ? '; font-style:italic' : ''}">${h(l)}</p>`).join('')}</div>`;
-    return slide(x, 'data', { kicker: `The exhibit · No. ${o.no}`, src: `Box art: ${b.brand} · ${MUSEUM_CREDIT}`, body: head + panel + framed + plaque + stats }).html;
+    return slide(x, 'data', { kicker: `The exhibit · No. ${o.no}`, src: `Box art: ${b.brand} · data ${s.asOf}`, body: head + panel + framed + plaque + stats }).html;
   };
   const shareExhibit = () => exhibit('share', s.share, {
     no: 1, lead: 'Most avoided by share of owners:',
@@ -288,7 +324,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
     }).html;
   };
 
-  return [cover(), waffle(), twist(), scale(), shareExhibit(), reveal(), rest()];
+  return [cover(), waffle(), twist(), scale(), sizesSlide(), shareExhibit(), reveal(), rest()];
 }
 
 export function shelfAlt(s: ShelfSpec, dir: Direction): string[] {
@@ -296,8 +332,9 @@ export function shelfAlt(s: ShelfSpec, dir: Direction): string[] {
   return [
     `Cover: The pile of shame is real. ${pct(Math.round(s.pct))} of the puzzles in your collections have never been solved, and the one you avoid most has a very ironic name. ${dir === 'A' ? 'A dusty, cobwebbed wooden shelf holds five puzzle boxes, each with a coral puzzle piece showing the share of owners who haven\'t solved it; the sixth compartment is empty with a question mark.' : 'A heap of puzzle boxes with a coral question-mark piece on top.'} Boxes: ${others.slice(0, 5).map(p => `${p.puzzle} ${pct(p.pct)}`).join(', ')}.`,
     `${fmtInt(s.unsolved)} puzzles, still waiting: a 10 by 10 grid of puzzle pieces with ${Math.round(s.pct)} in coral. ${pct(s.pct)} of ${fmtInt(s.collected)} puzzles in ${fmtInt(s.collections)} MySpeedPuzzling collections were never logged as solved by their owner. ${millions(s.unsolvedPieces)} pieces are still in their boxes; ${fmtInt(s.piles)} collectors have a pile of unsolved puzzles.`,
-    `Plot twist: how long would your pile take? Adding up the median solo time of every puzzle on it, the typical pile (${s.medianPile} puzzles) holds ${s.hoursMedian} hours of puzzling, shown as ${s.hoursMedian} coral pieces, one per hour. Note: median solo times from each puzzle's page, half of puzzlers are faster; puzzles nobody has timed count as 0; your pace may vary.`,
-    `And then there's the biggest pile. Bars: typical pile ${s.hoursMedian} hours, top 10% ${s.hoursP90} hours, the biggest pile ${fmtInt(s.big.hours)} hours for ${s.big.unsolved} unsolved puzzles. ${fmtInt(s.big.hours)} hours is ${s.big.days} days and nights without a break. All ${fmtInt(s.piles)} piles together: ${fmtInt(s.hoursAll)} hours, over ${s.yearsAll} years non-stop. Who is this puzzle collector? Is it you?`,
+    `Plot twist: how long would your pile take? The math nobody asked for, for all ${fmtInt(s.piles)} piles, with bars: 1 in 4 piles up to ${hrs(s.ladder.q1)} hours, a lazy Sunday afternoon. Half of all piles up to ${hrs(s.ladder.median)} hours, one rainy weekend. 1 in 4 piles over ${hrs(s.ladder.q3)} hours, a full week off. 1 in 10 piles over ${hrs(s.ladder.p90)} hours, 5 hours every evening for a month. Hours are each puzzle's median solo time from its page, added up per pile; untimed puzzles get the typical time for their piece count; your pace may vary.`,
+    `And then there's this pile: ${fmtInt(s.big.unsolved)} puzzles, ${fmtInt(s.big.hours)} hours, shown as ${s.big.days} coral puzzle pieces, one per day: ${s.big.days} days and nights without a break. All ${fmtInt(s.piles)} piles together: ${fmtInt(s.hoursAll)} hours, over ${s.yearsAll} years non-stop. Who is this puzzle collector? Is it you?`,
+    `The bigger the box, the braver you need to be. Share of collected puzzles never solved by their owner: ${s.sizes.map(b => `${b.label.toLowerCase()} ${pct(b.pct)}`).join(', ')}. ${s.giant.puzzle}, ${s.giant.brand}, ${s.giant.pieces} pieces: ${s.giant.unsolved} of its ${s.giant.owners} owners haven't solved it. We get it: it's not for solving, it's for owning. Maybe one day you'll find the courage.`,
     `Museum exhibit number 1, most avoided by share of owners: ${s.share.puzzle}, ${s.share.brand}, ${s.share.pieces} pieces, framed on a gallery wall with a plaque. ${s.share.unsolved} of its ${s.share.owners} owners haven't solved it (${pct(s.share.pct)}); solved by ${s.share.owners - s.share.unsolved} brave souls. Those who dared: median ${fmtDuration(s.share.medianS / 60)} solo.`,
     `Museum exhibit number 2, and by number of owners it's called… ${s.hero.puzzle}. The ${s.hero.brand} ${s.hero.pieces}-piece box framed on a gallery wall, plaque: unsolved by ${s.hero.unsolved} of its ${s.hero.owners} owners (${pct(s.hero.pct)}). Please do not touch. Nobody does. Those who dared: median ${fmtDuration(s.hero.medianS / 60)} solo.`,
     `Also high on the pile, share of owners who haven't solved it: ${others.slice(0, 6).map(p => `${p.puzzle} (${p.pieces} pieces) ${p.unsolved} of ${p.owners}, ${pct(p.pct)}`).join('; ')}. What's been waiting on your shelf the longest?`,
@@ -308,11 +345,13 @@ export function shelfCaption(s: ShelfSpec): string {
   return [
     `${pct(Math.round(s.pct))} of the puzzles in your collections have never been solved. The pile of shame is real, and we have the numbers 📦`,
     '',
-    `${fmtInt(s.unsolved)} puzzles on MySpeedPuzzling are waiting for "one day". Plot twist: we did the math nobody asked for and added up the median solo time of every puzzle on each pile. The typical pile (${s.medianPile} puzzles) is ${s.hoursMedian} hours: one rainy weekend, no excuses. The biggest one is ${fmtInt(s.big.hours)} hours, about ${s.big.days} days without sleep 😅 Who is this puzzle collector? Is it you? 👀`,
+    `${fmtInt(s.unsolved)} puzzles on MySpeedPuzzling are waiting for "one day". Plot twist: we did the math nobody asked for and added up the median solo time of every puzzle on each pile. Half of all piles are done in ${hrs(s.ladder.median)} hours (one rainy weekend, no excuses), 1 in 10 needs over ${hrs(s.ladder.p90)}. The biggest one is ${fmtInt(s.big.hours)} hours, about ${s.big.days} days without sleep 😅 Who is this puzzle collector? Is it you? 👀`,
+    '',
+    `And the bigger the box, the braver you need to be: ${pct(s.sizes[0].pct)} of collected 500s are unsolved, ${pct(s.sizes[s.sizes.length - 1].pct)} of the 4000+ giants. We get it, a ${fmtInt(s.giant.pieces)}-piece ${s.giant.puzzle} is for owning, not for solving. Maybe one day 🫡`,
     '',
     `Welcome to the museum of unsolved puzzles 🖼️ Exhibit No. 1: ${s.share.puzzle}, unsolved by ${pct(s.share.pct)} of its owners. Exhibit No. 2, the most avoided by number of owners, is called… Speed Puzzling. ${s.hero.unsolved} of its ${s.hero.owners} owners haven't solved it yet. @ravensburgerglobal, we need to talk.`,
     '',
-    `Hours are each puzzle's median solo time from its page, so half of puzzlers are faster and your pace may vary. Solved one and never logged it? Then it's still on the pile, so go log it ⏱️`,
+    `Hours are each puzzle's median solo time from its page (untimed puzzles get the typical time for their piece count), so half of puzzlers are faster and your pace may vary. Solved one and never logged it? Then it's still on the pile, so go log it ⏱️`,
     '',
     `What's been waiting on your shelf the longest? We won't judge. Much 👇`,
     '',

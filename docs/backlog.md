@@ -279,3 +279,9 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - Unused today, kept: "we're all getting faster" (`bs-yearly-speed`, re-check with the per-puzzler rule), country PB
   atlas (not on a championship day of a low-ranked country), night owls (thin), 300M pieces ~16 Nov (E1 night-ocean plate).
 - `bs-theme-speed` / `boxes-subject-speed` count every solve: don't reuse their medians.
+
+## 2026-11-12: pile of shame
+- [ ] Publish `2026-11-12-pile-of-shame` after the owner's approval (Thu ~19:00); re-query if it slips past 13 Nov 02:13 Prague.
+- [ ] Optional: a "between" shelf with denser natural cobwebs if the subtle webs read too quietly on phones (SH1, ~8 min ComfyUI).
+- [ ] Optional Story follow-up: the mystery box ("??% unsolved") as a teaser pointing to the post.
+- [ ] Insights at +24/+48 h: sends and comments ("What's been waiting on your shelf the longest?").

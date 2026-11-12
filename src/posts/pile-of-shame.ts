@@ -35,7 +35,7 @@ const SLOTS = [
 ];
 /** The old, forgotten museum wall (lab SH1, m1-museum-211): gilt frame with an empty grey canvas, cobwebs, a spider.
  *  `canvas` = the flat grey area inside the frame in plate pixels (measured from the image). */
-export const MUSEUM = { plate: 'content/labs/SH1/stills/m1-museum-211.png', w: 896, h: 1120, canvas: { x0: 267, x1: 629, y0: 321, y1: 764 } };
+export const MUSEUM = { plate: 'content/labs/SH1/stills/m1-museum-212.png', w: 896, h: 1120, canvas: { x0: 248, x1: 652, y0: 318, y1: 675 }, frameBottom: 735 };
 
 
 export type Direction = 'A' | 'B';
@@ -279,44 +279,49 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
   };
 
   /** A museum exhibit (owner 2026-11-12): the real box framed on the gallery wall, a plaque that carries the joke. */
-  const exhibit = (key: 'share' | 'reveal', b: ShelfPuzzle, o: { lead: string; no: number; line: string; plaque: string[] }) => {
+  const exhibit = (key: 'share' | 'reveal', b: ShelfPuzzle, o: { lead: string; no: number; plaque: string[]; line: string }) => {
     const x = ctx(key);
-    const stats = `<p class="h-abs" style="top:1000px; width:${CW}px; font-size:34px; line-height:1.3; color:var(--g-ink)"><b>${b.unsolved} of its ${b.owners} owners</b> haven't solved it <span style="color:var(--c-hot); font-weight:800">(${pct(b.pct)})</span>. ${h(o.line)}</p>
-      <p class="h-abs" style="top:1104px; width:${CW}px; font-size:30px; line-height:1.3; color:var(--g-soft)">Those who dared: median ${h(fmtDuration(b.medianS / 60))} solo.</p>`;
     const nameSize = b.puzzle.length > 16 ? 76 : 92;
     const head = `<p class="h-abs" style="top:${FEED.contentTop + 4}px; width:${CW}px; font-size:44px; font-weight:700; line-height:1.15; color:var(--g-ink)">${h(o.lead)}</p>
       <p class="h-abs" style="top:${FEED.contentTop + 70}px; width:${CW}px; font-size:${nameSize}px; font-weight:800; line-height:1.05; color:var(--c-hot); white-space:nowrap">${h(b.puzzle)}</p>`;
-    // The plate on the left (portrait frame), the real box art mounted on an aged mat inside its canvas, the plaque right.
-    const M = MUSEUM, cropY = 40, panelTop = 372, k = 0.6, pw0 = M.w * k, ph0 = (M.h - 60 - cropY) * k;
-    const panel = `<div style="position:absolute; left:${X0}px; top:${panelTop}px; width:${f1(pw0)}px; height:${f1(ph0)}px; overflow:hidden; border-radius:8px">
+    // The old room across the content width (owner 2026-11-12: bigger art, the label on the wall in the room).
+    const M = MUSEUM, k = 1, cropY = 225, panelTop = 352, panelH = 760, left = (W - M.w * k) / 2;
+    const panel = `<div style="position:absolute; left:${f1(left)}px; top:${panelTop}px; width:${f1(M.w * k)}px; height:${panelH}px; overflow:hidden; border-radius:8px">
       <img src="${rel(M.plate)}" alt="" style="position:absolute; left:0; top:${f1(-cropY * k)}px; width:${f1(M.w * k)}px; height:${f1(M.h * k)}px"></div>`;
-    const cv = { x: X0 + M.canvas.x0 * k, y: panelTop + (M.canvas.y0 - cropY) * k, w: (M.canvas.x1 - M.canvas.x0) * k, h: (M.canvas.y1 - M.canvas.y0) * k };
+    const cv = { x: left + M.canvas.x0 * k, y: panelTop + (M.canvas.y0 - cropY) * k, w: (M.canvas.x1 - M.canvas.x0) * k, h: (M.canvas.y1 - M.canvas.y0) * k };
     const z = fit(b.ar, cv.w - 14, cv.h - 14);
     const web = (x0: number, y0: number, r: number) => {
       const rays = [0, 22, 45, 68, 90].map(a => `<line x1="${f1(x0)}" y1="${f1(y0)}" x2="${f1(x0 + r * Math.cos(a * Math.PI / 180))}" y2="${f1(y0 + r * Math.sin(a * Math.PI / 180))}"/>`).join('');
       const arcs = [0.3, 0.55, 0.8].map(t => `<path d="M ${f1(x0 + r * t)} ${f1(y0)} Q ${f1(x0 + r * t * 0.62)} ${f1(y0 + r * t * 0.62)} ${f1(x0)} ${f1(y0 + r * t)}" fill="none"/>`).join('');
-      return `<g stroke="rgba(255,255,255,.7)" stroke-width="1.6">${rays}${arcs}</g>`;
+      return `<g stroke="rgba(255,255,255,.55)" stroke-width="1.2">${rays}${arcs}</g>`;
     };
+    // A small spider on its thread over the art (the plate's own spider sits inside the canvas).
+    const sx = cv.w * 0.8, sy = 96;
+    const spider = `<line x1="${f1(sx)}" y1="0" x2="${f1(sx)}" y2="${sy - 6}" stroke="rgba(255,255,255,.75)" stroke-width="1"/>
+      <g transform="translate(${f1(sx)} ${sy})" stroke="#111" stroke-width="2" fill="none">${[-1, 1].flatMap(d => [[-6, -7], [-9, -1], [-9, 5], [-6, 10]].map(([a, c]) => `<path d="M 0 2 Q ${d * 7} ${a + 2} ${d * 12} ${c}"/>`)).join('')}</g>
+      <ellipse cx="${f1(sx)}" cy="${sy + 3}" rx="5" ry="7" fill="#111"/><circle cx="${f1(sx)}" cy="${sy - 5}" r="3.5" fill="#111"/>`;
     const framed = `<div style="position:absolute; left:${f1(cv.x)}px; top:${f1(cv.y)}px; width:${f1(cv.w)}px; height:${f1(cv.h)}px; background:#ddd3bb; box-shadow:inset 0 0 18px rgba(60,50,30,.45)">
         <img src="${b.img}" alt="" style="position:absolute; left:${f1((cv.w - z.w) / 2)}px; top:${f1((cv.h - z.h) / 2)}px; width:${f1(z.w)}px; height:${f1(z.h)}px; object-fit:cover; filter:sepia(.3) saturate(.85) brightness(.95)">
         <div style="position:absolute; inset:0; background:linear-gradient(160deg, rgba(190,185,170,.32), rgba(150,145,130,.12) 45%, rgba(190,185,170,.28))"></div>
-        <svg style="position:absolute; left:0; top:0" width="${f1(cv.w)}" height="${f1(cv.h)}">${web(0, 0, 70)}</svg></div>`;
-    const px = X0 + pw0 + 30, pw = X1 - px;
-    const plaque = `<div data-qa-bg="#f3ecd9" style="position:absolute; left:${f1(px)}px; top:${f1(panelTop + 150)}px; width:${f1(pw)}px; padding:16px 18px; background:#f3ecd9; color:#222a38; border:2px solid #b89a5a; box-shadow:0 6px 14px rgba(10,14,22,.4); font-size:24px; line-height:1.3">
+        <svg style="position:absolute; left:0; top:0" width="${f1(cv.w)}" height="${f1(cv.h)}">${web(0, 0, 80)}${spider}</svg></div>`;
+    // The museum label on the wallpaper under the frame: an aged card in a thin brass edge, lit like the wall.
+    const ly = panelTop + (M.frameBottom + 22 - cropY) * k;
+    const plaque = `<div data-qa-bg="#ece2c8" style="position:absolute; left:${f1(cv.x - 60)}px; top:${f1(ly)}px; width:${f1(cv.w + 120)}px; padding:12px 16px; background:linear-gradient(170deg, #f1e8cf, #e2d6b6); color:#2a2418; border:3px solid #a8874a; border-radius:3px; box-shadow:0 8px 14px rgba(0,0,0,.45), inset 0 0 10px rgba(120,95,50,.25); font-size:24px; line-height:1.28">
         <p data-qa-small style="font-weight:800">No. ${o.no} · ${h(b.puzzle)}</p>
         <p data-qa-small>${h(b.brand)}, ${fmtInt(b.pieces)} pieces</p>
-        ${o.plaque.map((l, i) => `<p data-qa-small style="margin-top:10px${i === o.plaque.length - 1 ? '; font-style:italic' : ''}">${h(l)}</p>`).join('')}</div>`;
+        ${o.plaque.map((l, i) => `<p data-qa-small style="margin-top:6px${i === o.plaque.length - 1 ? '; font-style:italic' : ''}">${h(l)}</p>`).join('')}</div>`;
+    const stats = `<p class="h-abs" style="top:${panelTop + panelH + 14}px; width:${CW}px; font-size:30px; line-height:1.2; color:var(--g-ink); white-space:nowrap"><b style="color:var(--c-hot)">${pct(b.pct)}</b> of its owners haven't solved it. ${h(o.line)}</p>`;
     return slide(x, 'data', { kicker: `The exhibit · No. ${o.no}`, src: `Box art: ${b.brand} · data ${s.asOf}`, body: head + panel + framed + plaque + stats }).html;
   };
   const shareExhibit = () => exhibit('share', s.share, {
     no: 1, lead: 'Most avoided by share of owners:',
-    line: /most everyone/i.test(s.share.puzzle) ? 'Most everyone, indeed.' : 'Collected with love. Never opened. Probably.',
-    plaque: [`Unsolved by ${pct(s.share.pct)} of its owners.`, `Solved by ${s.share.owners - s.share.unsolved} brave souls.`],
+    plaque: [`Unsolved by ${s.share.unsolved} of its ${s.share.owners} owners.`, `Solved by ${s.share.owners - s.share.unsolved} brave souls (median ${fmtDuration(s.share.medianS / 60)}).`, 'Handle with courage.'],
+    line: /most everyone/i.test(s.share.puzzle) ? 'Most everyone, indeed.' : 'Collected with love.',
   });
   const reveal = () => exhibit('reveal', s.hero, {
     no: 2, lead: 'And by number of owners, it’s called…',
-    line: 'The name is not a promise.',
     plaque: [`Unsolved by ${s.hero.unsolved} of its ${s.hero.owners} owners.`, 'Please do not touch. Nobody does.'],
+    line: 'The name is not a promise.',
   });
 
   const rest = () => {

@@ -68,6 +68,27 @@ is gitignored and loaded automatically. Keep those details out of every committe
 - Every prototype and lab records what it used, so runs are comparable: wall time, peak memory and swap,
   GPU busy time, per-item time, and what else was running.
 
+## Background jobs (they run without an open Claude session)
+
+macOS launchd user agents, installed and listed with `tools/scheduled/schedule.sh` (`list`, `pull`, `check …`,
+`remove …`); logs and check prompts live in `var/scheduled/` (gitignored). Owner, 2026-11-12: insights are gathered
+automatically, never on request.
+
+- **`com.msp-instagram.insights-pull`**: every day at 08:10 and 20:10, `tools/scheduled/pull.sh` runs
+  `node tools/insights.ts` (read-only API calls into `content/state.sqlite`: every post, Reel and live Story gets
+  a snapshot). No Claude involved. Log: `var/scheduled/pull.log`.
+- **`com.msp-instagram.check-<name>`**: one-off unattended reviews. `tools/scheduled/run-check.sh` starts Claude Code
+  headless (`claude -p`) on `var/scheduled/prompt-<name>.txt` with a narrow allowlist: read files, pull insights,
+  list comments (`tools/comments.ts`), edit docs, `git add/commit`. It cannot publish, reply, push or run other
+  commands. It writes a report to `content/reports/`, shows a macOS notification and removes its own job.
+- **After every post, Reel or Story goes out, schedule its checks without being asked** (owner, 2026-11-12): one at
+  about +24 h (for a Story: at least an hour before it expires, its numbers are gone afterwards) and one at +48 h
+  with the pin verdict. Write the prompt file, then
+  `tools/scheduled/schedule.sh check <name> <month> <day> <hour> <minute>` (local time), and note the job in
+  `docs/backlog.md`. Read finished reports in `content/reports/` at the start of a session and tell the owner.
+- The Mac must be on (a job missed during sleep runs on wake). Never widen the allowlist to publishing or replying:
+  those stay with the owner's approval in a live session.
+
 ## Instagram
 
 - Publishing is never done by the model on its own initiative: only a human-approved draft is

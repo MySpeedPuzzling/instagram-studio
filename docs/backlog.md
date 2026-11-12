@@ -289,4 +289,5 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [x] Reel "I will solve it this weekend" published as a Trial Reel 12 Nov 12:22 Prague: https://www.instagram.com/reel/Dfo77FvN163/ (draft `2026-11-12-reel-shelf`, linked).
 - [x] Teaser Story for followers posted by the owner 12 Nov ~12:34 Prague (link sticker "SEE THE NUMBERS" to the carousel, the Reel's music).
 - [ ] Story insights (reach, link taps) before it expires, Fri 13 Nov ~12:34 Prague; check it is in the "Did you know" highlight.
-- [ ] Reel insights at +24/+48 h vs the missing-piece Reel: non-follower reach, skip rate, sends.
+- [ ] **Automatic checks scheduled (launchd, see CLAUDE.md "Background jobs"):** `check-shelf24` Fri 13 Nov 11:41 (Story before it expires, Reel +24 h, carousel) → `content/reports/pile-of-shame-check-24h.md`; `check-shelf48` Sat 14 Nov 12:33 (Reel +48 h, carousel, pin verdict) → `content/reports/pile-of-shame-check-48h.md`. Read both at the next session and tell the owner.
+- [ ] **Regular evaluation (owner 12 Nov):** twice-daily pull is installed; decide the rhythm of the automatic review (proposal: weekly digest Monday morning + monthly deep review) and what it should rank (formats, mechanics, hooks, send rate).

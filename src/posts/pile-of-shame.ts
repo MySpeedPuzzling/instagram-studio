@@ -99,8 +99,18 @@ const fit = (ar: number, maxW: number, maxH: number) => (maxW / ar <= maxH ? { w
 const boxImg = (b: ShelfPuzzle, x: number, y: number, w: number, hh: number, rot = 0, extra = '') =>
   `<img src="${b.img}" alt="" style="position:absolute; left:${f1(x)}px; top:${f1(y)}px; width:${f1(w)}px; height:${f1(hh)}px; object-fit:cover; transform:rotate(${rot}deg); box-shadow:0 10px 22px rgba(10,14,22,.5); border-radius:3px${extra}">`;
 
+/** The mystery box in the "?" slot: a coral box standing upright like the real ones, a big centred "?", the same price
+ *  sticker with "??%" (the reveal is the Speed Puzzling exhibit). Left in the cubby so the plate's dangling spider shows. */
+function mysteryBox(sl: { x: number; y: number; w: number; h: number }) {
+  const bw = 112, bh = 150, x = sl.x + sl.w * 0.1, y = sl.y + sl.h - bh - 4;
+  return `<div style="position:absolute; left:${f1(x)}px; top:${f1(y)}px; width:${bw}px; height:${bh}px; border-radius:3px; background:linear-gradient(100deg, #f08a86 0%, #ec726f 55%, #d9605d 100%); box-shadow:0 10px 22px rgba(10,14,22,.5), inset -6px 0 0 rgba(0,0,0,.08)">
+      <div style="position:absolute; left:0; right:0; bottom:0; height:26px; background:#222a38; opacity:.9; border-radius:0 0 3px 3px"></div>
+      <span data-qa-bg="#ec726f" style="position:absolute; left:50%; top:58%; transform:translate(-50%,-50%); font-size:84px; font-weight:800; line-height:1; color:#222a38">?</span></div>
+    ${shelfTag(x + bw / 2, y - 34, '??')}`;
+}
+
 /** A shop-style shelf tag hanging from the board under a box: the unsolved share, big and fully inside the label. */
-function shelfTag(cx: number, top: number, value: number) {
+function shelfTag(cx: number, top: number, value: number | string) {
   return `<div data-qa-bg="#ec726f" style="position:absolute; left:${f1(cx)}px; top:${f1(top)}px; transform:translateX(-50%) rotate(-2deg); padding:4px 14px 6px; background:#ec726f; color:#222a38; border-radius:8px; box-shadow:0 6px 12px rgba(10,14,22,.45); text-align:center; white-space:nowrap">
     <p style="font-size:36px; font-weight:800; line-height:1">${value}%</p><p data-qa-small style="font-size:24px; font-weight:700; line-height:1.1">unsolved</p></div>`;
 }
@@ -165,7 +175,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
       return posterCover(ctx('cover'), {
         title: 'The pile of shame is real', dek: coverDek, seam,
         underArt: shelfPhoto(left, photoTop, k, cropY, FEED.footRule - photoTop - 6),
-        body: boxes + badge(empty.x + empty.w * 0.36, empty.y + empty.h * 0.74, 104, '?', 64, 41),
+        body: boxes + mysteryBox(empty),
         src: `${boxCredit} · data ${s.asOf}`,
       });
     }
@@ -352,7 +362,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
 export function shelfAlt(s: ShelfSpec, dir: Direction): string[] {
   const others = s.puzzles.slice(1).filter(p => p.puzzle !== s.share.puzzle).sort((a, b) => b.pct - a.pct);
   return [
-    `Cover: The pile of shame is real. ${pct(Math.round(s.pct))} of the puzzles in your collections have never been solved, and the one you avoid most has a very ironic name. ${dir === 'A' ? 'A dusty, cobwebbed wooden shelf holds five puzzle boxes, each with a coral shelf tag showing the share of owners who haven\'t solved it; the sixth compartment is empty with a coral question-mark piece.' : 'A heap of puzzle boxes with a coral question-mark piece on top.'} Boxes: ${others.slice(0, 5).map(p => `${p.puzzle} ${pct(p.pct)}`).join(', ')}.`,
+    `Cover: The pile of shame is real. ${pct(Math.round(s.pct))} of the puzzles in your collections have never been solved, and the one you avoid most has a very ironic name. ${dir === 'A' ? 'A dusty, cobwebbed wooden shelf holds five puzzle boxes, each with a coral shelf tag showing the share of owners who haven\'t solved it; the sixth holds a coral mystery box with a big question mark and a ??% unsolved sticker.' : 'A heap of puzzle boxes with a coral question-mark piece on top.'} Boxes: ${others.slice(0, 5).map(p => `${p.puzzle} ${pct(p.pct)}`).join(', ')}.`,
     `${fmtInt(s.unsolved)} puzzles, still waiting: a 10 by 10 grid of puzzle pieces with ${Math.round(s.pct)} in coral. ${pct(s.pct)} of ${fmtInt(s.collected)} puzzles in ${fmtInt(s.collections)} MySpeedPuzzling collections were never logged as solved by their owner. ${millions(s.unsolvedPieces)} pieces are still in their boxes; ${fmtInt(s.piles)} collectors have a pile of unsolved puzzles.`,
     `Plot twist: how long would your pile take? The math nobody asked for, for all ${fmtInt(s.piles)} piles, with bars: 1 in 4 piles up to ${hrs(s.ladder.q1)} hours, a lazy Sunday afternoon. Half of all piles up to ${hrs(s.ladder.median)} hours, one rainy weekend. 1 in 4 piles over ${hrs(s.ladder.q3)} hours, a full week off. 1 in 10 piles over ${hrs(s.ladder.p90)} hours, 5 hours every evening for a month. Hours are each puzzle's median solo time from its page, added up per pile; untimed puzzles get the typical time for their piece count; your pace may vary.`,
     `And then there's this pile: ${fmtInt(s.big.unsolved)} puzzles, ${fmtInt(s.big.hours)} hours, shown as ${s.big.days} coral puzzle pieces, one per day: ${s.big.days} days and nights without a break. All ${fmtInt(s.piles)} piles together: ${fmtInt(s.hoursAll)} hours, over ${s.yearsAll} years non-stop. Who is this puzzle collector? Is it you?`,

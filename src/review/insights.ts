@@ -79,6 +79,7 @@ table.ins { border-collapse: collapse; width: 100%; font-size: 13px; font-varian
 table.ins th, table.ins td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
 table.ins th { font-weight: 600; color: var(--muted); cursor: pointer; user-select: none; position: sticky; top: 0; background: #fff; }
 table.ins th.sorted::after { content: ' ↓'; } table.ins th.sorted.asc::after { content: ' ↑'; }
+table.ins td.date, table.ins th.date { text-align: left; color: var(--muted); }
 table.ins td.post, table.ins th.post { text-align: left; white-space: normal; min-width: 240px; }
 table.ins tr:hover td { background: #f8f9fb; }
 .post a { display: flex; gap: 10px; align-items: center; color: inherit; } .post img { width: 34px; height: 42px; object-fit: cover; border-radius: 4px; flex: none; background: #eef0f6; }
@@ -120,7 +121,8 @@ export function insightsPage(q: URLSearchParams): string {
     const extra = r.kind === 'story' ? [r.raw.replies != null ? `${r.raw.replies} replies` : '', r.raw.nav_tap_exit != null ? `${r.raw.nav_tap_exit} exits` : ''].filter(Boolean).join(' · ') : String(r.tags.series ?? '');
     const cell = (v: number | null, sort = v) => `<td data-v="${sort ?? -1}">${n0(v)}</td>`;
     return `<tr data-kind="${r.kind}">
-      <td class="post" data-v="${h(r.timestamp)}"><a href="${h(link)}">${still(r.draft) ? `<img src="${h(still(r.draft))}" alt="" loading="lazy">` : '<img alt="">'}<span>${h(title)}<small>${when(r.timestamp)} · ${KIND_LABEL[r.kind]}${extra ? ' · ' + h(extra) : ''} · read at ${r.age_hours < 72 ? `${Math.round(r.age_hours)} h` : `${Math.round(r.age_hours / 24)} d`}</small></span></a></td>
+      <td class="date" data-v="${h(r.timestamp)}">${when(r.timestamp)}</td>
+      <td class="post" data-v="${h(title.toLowerCase())}"><a href="${h(link)}">${still(r.draft) ? `<img src="${h(still(r.draft))}" alt="" loading="lazy">` : '<img alt="">'}<span>${h(title)}<small>${KIND_LABEL[r.kind]}${extra ? ' · ' + h(extra) : ''} · read at ${r.age_hours < 72 ? `${Math.round(r.age_hours)} h` : `${Math.round(r.age_hours / 24)} d`}</small></span></a></td>
       <td data-v="${r.reach ?? -1}" title="${ratio == null ? 'no median to compare with' : `${ratio.toFixed(2)}× the median ${KIND_LABEL[r.kind].toLowerCase()} (${fmtInt(Math.round(m!))}, ${med[r.kind].n} posts)`}"><div class="vs"><span>${n0(r.reach)}</span><i class="${ratio != null && ratio < 1 ? 'low' : ''}" style="width:${Math.round((90 * (r.reach ?? 0)) / maxReach)}px"></i><em>${ratio == null ? '' : ratio.toFixed(1) + '×'}</em></div></td>
       ${cell(r.views)}${cell(r.likes)}${cell(r.comments)}${cell(r.shares)}${cell(r.saved)}
       <td data-v="${sendRate ?? -1}">${p1(sendRate)}</td>${cell(r.follows)}
@@ -150,7 +152,7 @@ export function insightsPage(q: URLSearchParams): string {
   </div>
   <div class="filters" id="kinds"><button class="on" data-k="">All</button>${(['carousel', 'reel', 'image', 'story'] as Kind[]).filter(k => med[k].n).map(k => `<button data-k="${k}">${k === 'story' ? 'Stories' : KIND_LABEL[k] + 's'}</button>`).join('')}
     <span class="meta" style="margin-left:auto">${since ? `Since the first pipeline post (17 Oct 2026) · <a href="/review/insights?since=all">show everything</a>` : `All posts with numbers · <a href="/review/insights">since 17 Oct 2026 only</a>`}</span></div>
-  <div class="tablewrap"><table class="ins" id="ins"><thead><tr><th class="post sorted" data-t="s">Post</th><th>Reach vs median</th><th>Views</th><th>Likes</th><th>Comments</th><th>Sends</th><th>Saves</th><th>Send rate</th><th>Follows</th><th>Avg watch</th></tr></thead>
+  <div class="tablewrap"><table class="ins" id="ins"><thead><tr><th class="date sorted" data-t="s">Date</th><th class="post" data-t="s">Post</th><th>Reach vs median</th><th>Views</th><th>Likes</th><th>Comments</th><th>Sends</th><th>Saves</th><th>Send rate</th><th>Follows</th><th>Avg watch</th></tr></thead>
     <tbody>${rows.map(tr).join('')}</tbody></table></div>
   <p class="meta">Reach is compared with the median of the same format in this list (hover a bar); posts younger than a day are shown but not counted in medians or groups. A Trial Reel's reach is non-followers. Story numbers exist only if a pull ran while the Story was live. History is thin before 12 Nov 2026: until then numbers were pulled on five days only.</p>
   <div class="groups">${group('By format', r => [KIND_LABEL[r.kind]])}${group('By series', r => [String(r.tags.series ?? 'untagged')])}${group('By mechanic', r => (mech(r).length ? mech(r) : ['untagged']))}</div>

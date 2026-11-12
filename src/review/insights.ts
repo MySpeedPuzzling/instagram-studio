@@ -11,6 +11,7 @@ import { openStore } from '../store/db.ts';
 
 type Kind = 'carousel' | 'image' | 'reel' | 'story';
 interface Row {
+  storyOf?: Draft;
   id: string; timestamp: string; kind: Kind; permalink: string | null; draft?: Draft; tags: Record<string, string | number>;
   pulled_at: string; age_hours: number; snapshots: number;
   views: number | null; reach: number | null; likes: number | null; comments: number | null; shares: number | null; saved: number | null;
@@ -22,7 +23,23 @@ const median = (xs: Array<number | null | undefined>) => { const s = xs.filter((
 const n0 = (v: number | null | undefined) => (v == null ? '<span class="na">n/a</span>' : fmtInt(v));
 const pct = (a: number | null | undefined, b: number | null | undefined) => (a == null || !b ? null : (100 * a) / b);
 const p1 = (v: number | null) => (v == null ? '<span class="na">n/a</span>' : `${v.toFixed(1)}%`);
-const still = (d?: Draft) => { const f = d?.slides[0]?.preview ?? d?.slides[0]?.file; return f ? '/' + f.replace(/\.mp4$/i, '-preview.jpg') : ''; };
+/** A picture for a post: the draft's first slide (a video's frame-0 preview, else its cover), else the thumbnail the
+ *  insights pull saved from Instagram (Stories, posts made by hand). Only files that exist. */
+export function thumbOf(d?: Draft, mediaId?: string): string {
+  const f = d?.slides[0]?.preview ?? d?.slides[0]?.file;
+  const cands = f ? (/\.mp4$/i.test(f) ? [f.replace(/\.mp4$/i, '-preview.jpg'), f.replace(/\.mp4$/i, '.jpg'), f.replace(/-final\.mp4$/i, '-cover.jpg')] : [f]) : [];
+  const id = mediaId ?? d?.media_id;
+  if (id) cands.push(`content/cache/ig-thumbs/${id}.jpg`);
+  const hit = cands.find(c => existsSync(join(ROOT, c)));
+  return hit ? '/' + hit : '';
+}
+/** The still of a draft's Story (content/drafts/<id>/stories/*.jpg), if it has one. */
+function storyStill(d: Draft): string {
+  const dir = join(ROOT, 'content/drafts', d.id, 'stories');
+  if (!existsSync(dir)) return '';
+  const f = readdirSync(dir).filter(x => /\.jpg$/.test(x) && !/guide|\.ig\.jpg$/.test(x)).sort((a, b) => Number(/preview/.test(b)) - Number(/preview/.test(a)))[0];
+  return f ? `/content/drafts/${d.id}/stories/${f}` : '';
+}
 const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' });
 
 function load(): { rows: Row[]; followers: Array<{ pulled_at: string; followers: number }> } {
@@ -44,6 +61,13 @@ function load(): { rows: Row[]; followers: Array<{ pulled_at: string; followers:
     try { metrics = JSON.parse(r.raw ?? '{}') ?? {}; } catch { /* no raw */ }
     return { ...r, kind, draft, tags, raw: metrics };
   });
+  // A Story has no draft of its own: it belongs to the post or Reel published shortly before it (within 3 h), whose
+  // draft may hold the Story's still (stories/*.jpg) for the rows whose Instagram thumbnail was never saved.
+  for (const r of rows.filter(x => x.kind === 'story')) {
+    const near = rows.filter(x => x.draft && x.kind !== 'story' && Math.abs(Date.parse(r.timestamp) - Date.parse(x.timestamp)) < 3 * 3_600_000)
+      .sort((a, b) => Math.abs(Date.parse(r.timestamp) - Date.parse(a.timestamp)) - Math.abs(Date.parse(r.timestamp) - Date.parse(b.timestamp)))[0];
+    if (near) r.storyOf = near.draft;
+  }
   const followers = db.prepare('SELECT pulled_at, followers FROM account_snapshot ORDER BY pulled_at').all() as any[];
   db.close();
   return { rows, followers };
@@ -83,6 +107,7 @@ table.ins td.date, table.ins th.date { text-align: left; color: var(--muted); }
 table.ins td.post, table.ins th.post { text-align: left; white-space: normal; min-width: 240px; }
 table.ins tr:hover td { background: #f8f9fb; }
 .post a { display: flex; gap: 10px; align-items: center; color: inherit; } .post img { width: 34px; height: 42px; object-fit: cover; border-radius: 4px; flex: none; background: #eef0f6; }
+.post .noimg { width: 34px; height: 42px; border-radius: 4px; flex: none; background: #eef0f6; }
 .post small { display: block; color: var(--muted); }
 .vs { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
 .vs i { display: block; height: 8px; border-radius: 0 4px 4px 0; background: #4e54c8; min-width: 2px; }
@@ -115,14 +140,15 @@ export function insightsPage(q: URLSearchParams): string {
 
   const tr = (r: Row) => {
     const m = med[r.kind].reach, ratio = r.reach != null && m ? r.reach / m : null;
-    const title = r.draft?.title ?? (r.kind === 'story' ? 'Story' : 'Posted by hand');
+    const title = r.draft?.title ?? (r.kind === 'story' ? (r.storyOf ? `Story with: ${r.storyOf.title}` : 'Story') : 'Posted by hand');
+    const pic = thumbOf(r.draft, r.id) || (r.storyOf ? storyStill(r.storyOf) : '');
     const sendRate = pct(r.shares, r.reach), watch = r.avg_watch_time_ms != null ? r.avg_watch_time_ms / 1000 : null;
     const link = r.draft ? `/review/d/${r.draft.id}` : r.permalink ?? '#';
     const extra = r.kind === 'story' ? [r.raw.replies != null ? `${r.raw.replies} replies` : '', r.raw.nav_tap_exit != null ? `${r.raw.nav_tap_exit} exits` : ''].filter(Boolean).join(' · ') : String(r.tags.series ?? '');
     const cell = (v: number | null, sort = v) => `<td data-v="${sort ?? -1}">${n0(v)}</td>`;
     return `<tr data-kind="${r.kind}">
       <td class="date" data-v="${h(r.timestamp)}">${when(r.timestamp)}</td>
-      <td class="post" data-v="${h(title.toLowerCase())}"><a href="${h(link)}">${still(r.draft) ? `<img src="${h(still(r.draft))}" alt="" loading="lazy">` : '<img alt="">'}<span>${h(title)}<small>${KIND_LABEL[r.kind]}${extra ? ' · ' + h(extra) : ''} · read at ${r.age_hours < 72 ? `${Math.round(r.age_hours)} h` : `${Math.round(r.age_hours / 24)} d`}</small></span></a></td>
+      <td class="post" data-v="${h(title.toLowerCase())}"><a href="${h(link)}">${pic ? `<img src="${h(pic)}" alt="" loading="lazy">` : '<i class="noimg"></i>'}<span>${h(title)}<small>${KIND_LABEL[r.kind]}${extra ? ' · ' + h(extra) : ''} · read at ${r.age_hours < 72 ? `${Math.round(r.age_hours)} h` : `${Math.round(r.age_hours / 24)} d`}</small></span></a></td>
       <td data-v="${r.reach ?? -1}" title="${ratio == null ? 'no median to compare with' : `${ratio.toFixed(2)}× the median ${KIND_LABEL[r.kind].toLowerCase()} (${fmtInt(Math.round(m!))}, ${med[r.kind].n} posts)`}"><div class="vs"><span>${n0(r.reach)}</span><i class="${ratio != null && ratio < 1 ? 'low' : ''}" style="width:${Math.round((90 * (r.reach ?? 0)) / maxReach)}px"></i><em>${ratio == null ? '' : ratio.toFixed(1) + '×'}</em></div></td>
       ${cell(r.views)}${cell(r.likes)}${cell(r.comments)}${cell(r.shares)}${cell(r.saved)}
       <td data-v="${sendRate ?? -1}">${p1(sendRate)}</td>${cell(r.follows)}

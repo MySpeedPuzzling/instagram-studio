@@ -5,7 +5,11 @@
 //
 // Per post the latest snapshot is what counts; the scheduler later pulls at +48 h, +7 d and +30 d.
 // Pre-business media return error subcode 2108006 and are stored without metrics.
+import { existsSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import sharp from 'sharp';
 import { igClient, IgError } from '../src/ig/api.ts';
+import { ROOT } from '../src/render/server.ts';
 import { openStore } from '../src/store/db.ts';
 
 const FEED = ['reach', 'views', 'likes', 'comments', 'shares', 'saved', 'total_interactions', 'follows', 'profile_visits'];
@@ -33,11 +37,26 @@ async function insightsFor(id: string, metrics: string[]): Promise<Record<string
   }
 }
 
+/** A small local thumbnail per post or Story (content/cache/ig-thumbs/<id>.jpg, gitignored) for the review app's
+ *  Insights page: Stories and posts made by hand have no draft to take a picture from, and a Story's media is gone
+ *  from the API after 24 h. */
+const THUMBS = join(ROOT, 'content/cache/ig-thumbs');
+async function thumb(id: string, src?: string) {
+  const file = join(THUMBS, `${id}.jpg`);
+  if (!src || existsSync(file)) return;
+  try {
+    mkdirSync(THUMBS, { recursive: true });
+    const res = await fetch(src);
+    if (!res.ok) return;
+    await sharp(Buffer.from(await res.arrayBuffer())).resize(240).jpeg({ quality: 80 }).toFile(file);
+  } catch { /* a thumbnail is a nicety, never a reason to fail the pull */ }
+}
+
 async function pull() {
   const me = await ig.get('me', { fields: 'followers_count,follows_count,media_count' });
   db.prepare('INSERT OR REPLACE INTO account_snapshot VALUES (?, ?, ?, ?)').run(now.toISOString(), me.followers_count, me.follows_count, me.media_count);
 
-  const media = await ig.all('me/media', { fields: 'id,timestamp,media_type,media_product_type,permalink,caption,children{id}', limit: 50 });
+  const media = await ig.all('me/media', { fields: 'id,timestamp,media_type,media_product_type,permalink,caption,children{id},media_url,thumbnail_url', limit: 50 });
   const upsert = db.prepare(`INSERT INTO media (id, timestamp, media_type, media_product_type, permalink, caption_chars, hashtags, children)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET caption_chars = excluded.caption_chars, hashtags = excluded.hashtags, children = excluded.children,
       media_type = excluded.media_type, media_product_type = excluded.media_product_type, permalink = coalesce(excluded.permalink, media.permalink)`);
@@ -48,6 +67,7 @@ async function pull() {
     const caption: string = m.caption ?? '';
     upsert.run(m.id, m.timestamp, m.media_type, m.media_product_type ?? null, m.permalink ?? null, [...caption].length,
       (caption.match(/#[\p{L}\d_]+/gu) ?? []).length, m.children?.data?.length ?? null);
+    await thumb(m.id, m.thumbnail_url ?? (m.media_type === 'VIDEO' ? undefined : m.media_url));
     const metrics = await insightsFor(m.id, m.media_product_type === 'REELS' ? REELS : FEED);
     if (!metrics) continue;
     withData++;
@@ -57,10 +77,11 @@ async function pull() {
       v('total_interactions'), v('follows'), v('profile_visits'), v('ig_reels_avg_watch_time'), JSON.stringify(metrics));
   }
 
-  const stories = (await ig.get('me/stories', { fields: 'id,timestamp,media_type,permalink' })).data ?? [];
+  const stories = (await ig.get('me/stories', { fields: 'id,timestamp,media_type,permalink,media_url,thumbnail_url' })).data ?? [];
   for (const s of stories) {
     db.prepare(`INSERT INTO media (id, timestamp, media_type, media_product_type, permalink) VALUES (?, ?, ?, 'STORY', ?)
       ON CONFLICT(id) DO NOTHING`).run(s.id, s.timestamp, s.media_type, s.permalink ?? null);
+    await thumb(s.id, s.thumbnail_url ?? (s.media_type === 'VIDEO' ? undefined : s.media_url));
     const metrics = await insightsFor(s.id, STORY);
     if (!metrics) continue;
     try { // exits, taps forward/back, next story: only as a breakdown of `navigation`

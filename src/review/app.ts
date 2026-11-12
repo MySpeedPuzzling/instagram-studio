@@ -1,7 +1,7 @@
 // Local review app: the owner's approve / refine / reject surface for drafts.
 // Feed, grid and Story mocks show each draft the way followers will meet it (Instagram-simulated previews).
 import { labNavLinks } from './nav.ts';
-import { INSIGHTS_CSS, draftInsightsPanel, insightsPage, reportPage } from './insights.ts';
+import { INSIGHTS_CSS, draftInsightsPanel, insightsPage, reportPage, thumbOf } from './insights.ts';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -91,7 +91,7 @@ ${script}
 /** A slide in the phone mock: MP4 Reels/Stories play (muted, looping, with controls; the poster is the render's
  *  frame-0 preview), stills are images. */
 const isVideo = (u: string) => /\.mp4($|\?)/i.test(u);
-const poster = (u: string) => u.replace(/\.mp4($|\?)/i, '-preview.jpg$1');
+const poster = (u: string) => { const p = u.replace(/\.mp4($|\?)/i, '-preview.jpg$1'); return existsSync(join(ROOT, p.replace(/^\//, ''))) ? p : thumbOf({ slides: [{ file: u.replace(/^\//, ''), alt: '' }] } as unknown as Draft) || p; };
 const media = (u: string) => isVideo(u)
   ? `<video src="${u}" poster="${poster(u)}" autoplay muted loop playsinline controls preload="auto" style="width:100%; display:block"></video>`
   : `<img src="${u}" alt="">`;
@@ -116,7 +116,7 @@ function indexPage() {
   const drafts = listDrafts();
   const groups = STATUS_ORDER.map(s => [s, drafts.filter(d => d.status === s)] as const).filter(([, ds]) => ds.length);
   const body = drafts.length ? groups.map(([s, ds]) => `<h2>${s.replace(/_/g, ' ')} (${ds.length})</h2><div class="cards">${ds.map(d => `
-    <a class="card" href="/review/d/${d.id}"><img src="${still(url(d.slides[0]?.preview ?? d.slides[0]?.file ?? ''))}" alt="">
+    <a class="card" href="/review/d/${d.id}"><img src="${thumbOf(d) || still(url(d.slides[0]?.preview ?? d.slides[0]?.file ?? ''))}" alt="">
     <div><b>${h(d.title)}</b><br><span class="pill">${h(d.format)}</span> <span class="pill">${h(d.pillar ?? '')}</span> <span class="pill">v${d.version}</span></div></a>`).join('')}</div>`).join('')
     : '<p>No drafts yet. Claude creates them under content/drafts/.</p>';
   return layout('Drafts', body);

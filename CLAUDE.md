@@ -77,6 +77,11 @@ automatically, never on request.
 - **`com.msp-instagram.insights-pull`**: every day at 08:10 and 20:10, `tools/scheduled/pull.sh` runs
   `node tools/insights.ts` (read-only API calls into `content/state.sqlite`: every post, Reel and live Story gets
   a snapshot). No Claude involved. Log: `var/scheduled/pull.log`.
+- **`com.msp-instagram.weekly-review`** (Mondays 07:20) and **`monthly-review`** (the 1st, 07:40): unattended Claude
+  reviews from `tools/scheduled/prompts/{weekly,monthly}.txt`; reports `content/reports/weekly-review-<date>.md` and
+  `monthly-review-<date>.md`, findings into `editorial/learnings.md`. Installed with `schedule.sh reviews`.
+- **Where to read it all:** the review app's Insights page (`/review/insights`, `src/review/insights.ts`): every post
+  against its format's median, medians by format, series and mechanic, and the reports.
 - **`com.msp-instagram.check-<name>`**: one-off unattended reviews. `tools/scheduled/run-check.sh` starts Claude Code
   headless (`claude -p`) on `var/scheduled/prompt-<name>.txt` with a narrow allowlist: read files, pull insights,
   list comments (`tools/comments.ts`), edit docs, `git add/commit`. It cannot publish, reply, push or run other

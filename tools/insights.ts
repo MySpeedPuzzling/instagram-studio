@@ -39,7 +39,8 @@ async function pull() {
 
   const media = await ig.all('me/media', { fields: 'id,timestamp,media_type,media_product_type,permalink,caption,children{id}', limit: 50 });
   const upsert = db.prepare(`INSERT INTO media (id, timestamp, media_type, media_product_type, permalink, caption_chars, hashtags, children)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET caption_chars = excluded.caption_chars, hashtags = excluded.hashtags, children = excluded.children`);
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET caption_chars = excluded.caption_chars, hashtags = excluded.hashtags, children = excluded.children,
+      media_type = excluded.media_type, media_product_type = excluded.media_product_type, permalink = coalesce(excluded.permalink, media.permalink)`);
   const snap = db.prepare(`INSERT OR REPLACE INTO media_insights (media_id, pulled_at, age_hours, views, reach, likes, comments, shares, saved,
     total_interactions, follows, profile_visits, avg_watch_time_ms, raw) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
   let withData = 0;

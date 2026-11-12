@@ -1,6 +1,7 @@
 // Local review app: the owner's approve / refine / reject surface for drafts.
 // Feed, grid and Story mocks show each draft the way followers will meet it (Instagram-simulated previews).
 import { labNavLinks } from './nav.ts';
+import { INSIGHTS_CSS, draftInsightsPanel, insightsPage, reportPage } from './insights.ts';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -72,8 +73,8 @@ button.primary { background: var(--accent); color: #fff; } button.secondary { ba
 `;
 
 const layout = (title: string, body: string, script = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"><title>${h(title)}</title><style>${CSS}</style></head>
-<body><header><b>MSP review</b><a href="/review">Drafts</a>${labNavLinks().replace('<a href="/review">Review app</a>', '')}</header><main>${body}</main>
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>${h(title)}</title><style>${CSS}${INSIGHTS_CSS}</style></head>
+<body><header><b>MSP review</b><a href="/review">Drafts</a><a href="/review/insights">Insights</a>${labNavLinks().replace('<a href="/review">Review app</a>', '')}</header><main>${body}</main>
 <script>
 async function post(path, data) {
   const r = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data || {}) });
@@ -140,6 +141,7 @@ function draftPage(d: Draft) {
       ${(() => { const a = factsAge(d.id); return a.ok
         ? `<div class="panel"><h3>Data</h3><p class="meta">${a.oldest ? `Queried ${h(a.oldest.slice(0, 16).replace('T', ' '))} UTC (fresh: under ${MAX_FACTS_AGE_HOURS} h).` : 'No data in this post.'}</p></div>`
         : `<div class="panel" style="border-color:#f04438"><h3 style="color:#b42318">Data is not fresh</h3><p class="meta" style="color:#b42318">${h(a.problem ?? '')}. Ask Claude to refresh this draft; it can't be published until then.</p></div>`; })()}
+      ${d.status === 'published' ? draftInsightsPanel(d.id) : ''}
       <div class="panel"><h3>Caption ${d.caption_author === 'human' ? '<span class="pill">edited by you</span>' : ''}</h3>
         <textarea class="caption" id="caption">${h(d.caption)}</textarea>
         <div class="meta"><span id="chars"></span><span id="tags"></span><span id="mentions"></span></div>
@@ -218,6 +220,9 @@ export function reviewHandler(hooks: ReviewHooks = {}): Handler {
     const p = u.pathname;
     try {
       if (req.method === 'GET' && (p === '/' || p === '/review' || p === '/review/')) return html(res, indexPage());
+      if (req.method === 'GET' && p === '/review/insights') { const pg = JSON.parse(insightsPage(u.searchParams)); return html(res, layout('Insights', pg.body, pg.script)); }
+      const rp = p.match(/^\/review\/report\/([\w.%-]+)$/);
+      if (req.method === 'GET' && rp) { const pg = reportPage(decodeURIComponent(rp[1])); if (pg) return html(res, layout('Report', pg)); }
       let m = p.match(/^\/review\/d\/([\w-]+)$/);
       if (req.method === 'GET' && m) return html(res, draftPage(loadDraft(m[1])));
       if (req.method !== 'POST') return false;

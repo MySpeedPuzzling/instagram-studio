@@ -24,10 +24,11 @@ import { CUBBIES, PLATE, WALL, type ReelShelfSpec } from '../posts/reel-shelf.ts
 const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0, CX = X0 + RW / 2;
 /** Seams of the navy band: tall under the splash, the reading band, short over the museum (its lamp must show). */
-const SEAM = { splash: 930, band: 700, museum: 590, poster: 1262 };
+// (owner 2026-11-12: the seam's knobs must keep clear of the text, so every seam sits ~60 px lower than first built)
+const SEAM = { splash: 990, band: 764, museum: 652, poster: 1262 };
 /** The shelf plate on the canvas: full width, its bottom on the canvas bottom. */
 const K = W / PLATE.w, PT = 1920 - PLATE.h * K;
-const SPLASH_DY = 150;
+const SPLASH_DY = 205;
 const X = (x: number) => x * K, Y = (y: number) => PT + y * K;
 /** The stops of the time-lapse: the day, the excuse, how old the shelf looks (0 = new, 1 = oldest). */
 const STOPS = [
@@ -43,7 +44,7 @@ export function times() {
   return { splashOut: 2.6, tl0, tlEnd, poster, posterOut, wall, wallB, mus, light, send, loop, end: loop + 1.0 };
 }
 /** The museum plate (lab SH1 m1-museum-212): scale and position; `canvas` = the grey canvas inside the gilt frame. */
-const MUS = { k: 1.4, left: -90, top: 400, canvas: { x0: 248, x1: 652, y0: 318, y1: 675 }, frameBottom: 735 };
+const MUS = { k: 1.4, left: -90, top: 458, canvas: { x0: 248, x1: 652, y0: 318, y1: 675 }, frameBottom: 735 };
 const C = { coral: '#ec726f', dark: '#1a202c', web: 'rgba(232,232,226,0.36)' };
 
 const rng = (seed: number) => () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -109,7 +110,7 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
   const cv = MUS.canvas, mx = (x: number) => MUS.left + x * MUS.k, my = (y: number) => MUS.top + y * MUS.k;
   const cw = (cv.x1 - cv.x0) * MUS.k, ch = (cv.y1 - cv.y0) * MUS.k;
   const artW = cw - 44, artH = Math.min(ch - 44, artW / hero.p.ar);
-  const plaqueTop = my(MUS.frameBottom) + 14;
+  const plaqueTop = my(MUS.frameBottom) + 6;
   const museum = `<div class="mo-scene" id="museum"><div id="mcam">
       <img src="${spec.plates.museum}" alt="" style="position:absolute; left:${MUS.left}px; top:${MUS.top}px; width:${f1(PLATE.w * MUS.k)}px; height:${f1(PLATE.h * MUS.k)}px">
       <div class="mo-mat" style="left:${f1(mx(cv.x0))}px; top:${f1(my(cv.y0))}px; width:${f1(cw)}px; height:${f1(ch)}px">
@@ -296,8 +297,9 @@ tl.set('#ptext', { autoAlpha: 1 }, T.poster + 0.3);
 countUp('#pn', D.pct, T.poster + 0.32, 1.3);
 riseIn('#ptext .h-lead', T.poster + 0.9, { dur: 0.35 });
 // under the poster: swap the shelf for the wall, zoomed in on its centre shelf
-tl.set('#shelf', { autoAlpha: 0 }, T.posterOut - 0.3);
-tl.set('#wall', { autoAlpha: 1 }, T.posterOut - 0.3);
+// (owner 2026-11-12: a hard cut under the poster 'blips'; the wall fades in over the old shelf instead)
+tl.to('#wall', { autoAlpha: 1, duration: 1.1, ease: 'sine.inOut' }, T.posterOut - 1.3);
+tl.set('#shelf', { autoAlpha: 0 }, T.posterOut - 0.15);
 tl.to('#ptext', { autoAlpha: 0, duration: 0.15 }, T.posterOut);
 tl.set(MAST, { autoAlpha: 1 }, T.posterOut + 0.15);
 tl.to('#poster', { y: -${SEAM.poster + 140}, duration: 0.38, ease: 'power2.in' }, T.posterOut + 0.1);
@@ -379,11 +381,11 @@ tl.fromTo('#splash > *', { y: -60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duratio
 ${logo.back(T.loop + 0.35)}
 tl.set({}, {}, ${DURATION});
 `;
-  const th240 = spec.wall.h / spec.wall.rows, w1 = W / WALL.cols, wallTop1 = 610, wallBottom = 1650;
+  const th240 = spec.wall.h / spec.wall.rows, w1 = W / WALL.cols, wallTop1 = 672, wallBottom = 1660;
   const data = {
     T, stops: STOPS, stage: STAGE, tick: TICK, old: !!spec.plates.old, splashDy: SPLASH_DY, drop: sp.drop,
     bandY: SEAM.band - SEAM.splash, bandMus: SEAM.museum - SEAM.splash, pct: pctN, big: s.big.unsolved,
-    wall: { tile: WALL.tile, start: WALL.start, rows: spec.wall.rows, th: th240, tileW: spec.wall.tileW, w0: W, w1, ax0: W / 2, ax1: (WALL.start + 0.5) * w1, top0: 560, top1: wallTop1,
+    wall: { tile: WALL.tile, start: WALL.start, rows: spec.wall.rows, th: th240, tileW: spec.wall.tileW, w0: W, w1, ax0: W / 2, ax1: (WALL.start + 0.5) * w1, top0: 620, top1: wallTop1,
       pan: spec.wall.rows * th240 * (w1 / WALL.tile) - (wallBottom - wallTop1) },
   };
   return {

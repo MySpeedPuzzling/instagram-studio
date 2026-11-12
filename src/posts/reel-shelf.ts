@@ -8,6 +8,8 @@ import { join } from 'node:path';
 import sharp from 'sharp';
 import { DRAFTS } from '../drafts/model.ts';
 import { ROOT } from '../render/server.ts';
+import { fetchBoxes } from '../data/boxes.ts';
+import { query } from '../data/db.ts';
 import { buildShelfSpec, type ShelfPuzzle, type ShelfSpec } from './pile-of-shame.ts';
 
 /** The shelf plates are 896 × 1120 (lab SH1/SH2). The 12 cubbies, row by row (plate pixels). */
@@ -38,43 +40,32 @@ export function inCubby(ar: number, s: { x: number; y: number; w: number; h: num
   const z = fit(ar, s.w - 20, s.h - 40);
   return { x: s.x + (s.w - z.w) / 2, y: s.y + s.h - z.h - 2, w: z.w, h: z.h };
 }
-const rng = (seed: number) => () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
 
 /** Bakes the wall of shelves (one box per unsolved puzzle of the biggest pile, the rest of the cubbies empty) and
  *  the centre shelf at full width, from the dusty plate and the box pictures. */
-async function bakeWall(dir: string, dusty: string, arts: ShelfPuzzle[], count: number) {
+async function bakeWall(dir: string, dusty: string, arts: Array<{ img: string; ar: number }>, count: number) {
+  if (arts.length < count) throw new Error(`reel-shelf: only ${arts.length} different box pictures for ${count} cubbies`);
   const k = WALL.tile / SHELF.w, th = Math.round(SHELF.h * k), n = WALL.cols, rows = Math.ceil(count / (CUBBIES.length * n));
   const shelf = sharp(join(ROOT, dusty)).extract({ left: SHELF.x, top: SHELF.y, width: SHELF.w, height: SHELF.h });
   const tileBuf = await shelf.clone().resize(WALL.tile, th).toBuffer();
   const K0 = 1080 / SHELF.w, t0h = Math.round(SHELF.h * K0);
   const tile0Buf = await shelf.clone().resize(1080, t0h).toBuffer();
-  // every art at both scales, a little dusty
-  const small = new Map<string, Buffer>(), big = new Map<string, Buffer>();
   const cub = CUBBIES.map(c => ({ ...c, x: c.x - SHELF.x, y: c.y - SHELF.y }));
-  const dustyBox = async (p: ShelfPuzzle, w: number, h: number) =>
+  const dustyBox = async (p: { img: string }, w: number, h: number) =>
     sharp(join(ROOT, p.img.slice(1))).resize(Math.max(2, Math.round(w)), Math.max(2, Math.round(h)), { fit: 'cover' }).modulate({ brightness: 0.93, saturation: 0.88 }).toBuffer();
-  const r = rng(929);
-  // filled shelf by shelf, row by row: the last shelf (bottom right) keeps the cubbies the pile doesn't need
+  // filled shelf by shelf, row by row, every cubby a different puzzle (owner 2026-11-12: no picture twice); the last
+  // shelf (bottom right) keeps the cubbies the pile doesn't need
   const comps: sharp.OverlayOptions[] = [], comps0: sharp.OverlayOptions[] = [];
-  let left = count;
+  let next = 0;
   for (let t = 0; t < n * rows; t++) comps.push({ input: tileBuf, left: (t % n) * WALL.tile, top: Math.floor(t / n) * th });
   for (let t = 0; t < n * rows; t++) {
-    const recent: string[] = [];
-    for (let i = 0; i < cub.length && left > 0; i++, left--) {
-      // never the same picture as one of the last three cubbies (= its neighbour to the left or above)
-      let p = arts[Math.floor(r() * arts.length)];
-      while (recent.includes(p.puzzle)) p = arts[(arts.indexOf(p) + 1) % arts.length];
-      recent.push(p.puzzle);
-      if (recent.length > 3) recent.shift();
-      const z = inCubby(p.ar, cub[i]), keyS = `${p.puzzle}:${i}`;
-      if (!small.has(keyS)) small.set(keyS, await dustyBox(p, z.w * k, z.h * k));
-      comps.push({ input: small.get(keyS)!, left: Math.round((t % n) * WALL.tile + z.x * k), top: Math.round(Math.floor(t / n) * th + z.y * k) });
-      if (t === WALL.start) {
-        if (!big.has(keyS)) big.set(keyS, await dustyBox(p, z.w * K0, z.h * K0));
-        comps0.push({ input: big.get(keyS)!, left: Math.round(z.x * K0), top: Math.round(z.y * K0) });
-      }
+    for (let i = 0; i < cub.length && next < count; i++, next++) {
+      const p = arts[next], z = inCubby(p.ar, cub[i]);
+      comps.push({ input: await dustyBox(p, z.w * k, z.h * k), left: Math.round((t % n) * WALL.tile + z.x * k), top: Math.round(Math.floor(t / n) * th + z.y * k) });
+      if (t === WALL.start) comps0.push({ input: await dustyBox(p, z.w * K0, z.h * K0), left: Math.round(z.x * K0), top: Math.round(z.y * K0) });
     }
   }
+  const left = count - next;
   const W = n * WALL.tile, H = rows * th;
   await sharp({ create: { width: W, height: H, channels: 3, background: '#222a38' } }).composite(comps).jpeg({ quality: 88 }).toFile(join(dir, 'wall.jpg'));
   await sharp(tile0Buf).composite(comps0).jpeg({ quality: 90 }).toFile(join(dir, 'wall-tile0.jpg'));
@@ -90,7 +81,14 @@ export async function reelShelfSpec(o: { fresh: boolean; draft: string }): Promi
   // hero in row 2 middle (cubby 4), the rest around it in rows 2 and 3
   const slots = [4, 3, 5, 6, 7, 8].map(i => CUBBIES[i]);
   const boxes = [s.hero, ...others].map((p, i) => ({ p, slot: inCubby(p.ar, slots[i]) }));
-  const arts = [...s.puzzles, s.share, s.giant].filter((p, i, a) => a.findIndex(q => q.puzzle === p.puzzle) === i);
+  // the wall: one different picture per cubby, the puzzles most often left unsolved in collections (an aggregate,
+  // never the biggest pile's own shelf)
+  const wq = query('shelf-shame-wall', { fresh: o.fresh });
+  (facts as Record<string, unknown>)['shelf-shame-wall'] = wq;
+  const rows = wq.rows.filter(r => +r.image_ratio > 0);
+  const imgs = await fetchBoxes(rows.map(r => r.image), 'puzzle_medium');
+  const seen = new Set<string>();
+  const arts = rows.flatMap(r => { const img = imgs.get(r.image); if (!img || seen.has(img)) return []; seen.add(img); return [{ img, ar: +r.image_ratio }]; });
   const wall = await bakeWall(dir, `content/drafts/${o.draft}/plates/dusty.png`, arts, s.big.unsolved);
   const tl = join(dir, 'timelapse');
   const frames = existsSync(tl) ? readdirSync(tl).filter(f => /^f\d+\.jpg$/.test(f)).sort().map(f => served(`timelapse/${f}`)) : [];

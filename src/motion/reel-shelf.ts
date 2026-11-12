@@ -1,6 +1,6 @@
-// Reel "I'll solve it this weekend" (the pile of shame as a time-lapse; idea in docs/ideas/reel-pile-of-shame.md).
+// Reel "I will solve it this weekend" (the pile of shame as a time-lapse; idea in docs/ideas/reel-pile-of-shame.md).
 // Same data as the carousel of 12 Nov 2026, a different experience: one shelf, one excuse after another, years of dust.
-//   0.0–2.6   splash, complete from frame 0: logo, myspeedpuzzling.com, the hook "I'll solve it this weekend." over a
+//   0.0–2.6   splash, complete from frame 0: logo, myspeedpuzzling.com, the hook "I will solve it this weekend." over a
 //             brand-new shelf of puzzle boxes, a NEW sticker on one of them
 //   2.6–3.1   the splash leaves (logo exit), the band lifts, the shelf moves up
 //   3.1–T.poster  the time-lapse: DAY 1 → 8 → 60 → 365 → 1460, one excuse per stop; days and nights flicker by, dust
@@ -124,7 +124,7 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
   const splash = `<div id="slogo">${logo.html}</div>
   <div id="splash">
     <p class="mo-site" style="top:506px">myspeedpuzzling.com</p>
-    <p class="mo-c mo-hook" style="top:574px">“I'll solve it</p>
+    <p class="mo-c mo-hook" style="top:574px">“I will solve it</p>
     <p class="mo-c mo-hook" style="top:682px">this weekend.”</p>
     <p class="mo-c mo-sub" style="top:806px">Every puzzle collector, ever</p>
   </div>`;
@@ -212,7 +212,8 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
 const D = DATA, T = D.T;
 const show = (sel, at, dur) => tl.to(sel, { autoAlpha: 1, duration: dur ?? 0.3 }, at);
 const hide = (sel, at, dur) => tl.to(sel, { autoAlpha: 0, duration: dur ?? 0.25 }, at);
-const MAST = '.hf > .h-head, .hf > .h-src';
+// (owner 2026-11-12: no site line under the masthead; the splash carries myspeedpuzzling.com)
+const MAST = '.hf > .h-head';
 const clamp = v => Math.max(0, Math.min(1, v));
 
 // ---- the age of the shelf: one number drives the plates (or the generated frames), the dust on the boxes, the webs
@@ -343,7 +344,6 @@ tl.set('#wall', { autoAlpha: 0 }, T.mus);
 tl.set('#museum', { autoAlpha: 1 }, T.mus);
 tl.to('#band', { y: D.bandMus, duration: 0.3, ease: 'power2.inOut' }, T.mus - 0.1);
 show('#mustext', T.mus, 0.01);
-hide('.hf > .h-src', T.mus - 0.1, 0.1);
 riseIn('#mq > *', T.mus + 0.1, { stagger: 0.12, dur: 0.35 });
 tl.fromTo('#mcam', { scale: 1 }, { scale: 1.06, duration: T.send - T.mus, ease: 'none', immediateRender: false }, T.mus);
 tl.to('#mdark', { opacity: 0.25, duration: 0.06 }, T.light);
@@ -364,7 +364,6 @@ tl.set('#shelf', { autoAlpha: 1 }, T.send);
 tl.set('#cam', { scale: 1.07 }, T.send);
 tl.to('#band', { y: D.bandY, duration: 0.3, ease: 'power2.inOut' }, T.send - 0.1);
 show('#send', T.send, 0.01);
-show('.hf > .h-src', T.send, 0.2);
 riseIn('#send > *', T.send + 0.05, { stagger: 0.5, dur: 0.35 });
 
 // ---- loop: time rewinds, the splash returns (= frame 0)

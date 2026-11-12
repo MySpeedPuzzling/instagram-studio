@@ -13,6 +13,13 @@ How to maintain it:
 
 ## Design
 
+- **Reels: no site line under the masthead** (kicker + logo only); myspeedpuzzling.com is on the splash, and a data
+  line belongs only on the beat that holds the number. (owner, 2026-11-12, pile-of-shame Reel; same note on the
+  missing-piece Reel, 2026-11-04)
+- **Text keeps clear of the jigsaw seam's knobs:** leave ~60 px between the last text line and the seam, so no knob or
+  picture edge touches a word. (owner, 2026-11-12, pile-of-shame Reel: "way too near the image")
+- **A scene swap is never a hard cut in view:** cross-fade (or cover it fully) when one picture replaces another; a
+  blip reads as a glitch. A crowd of boxes shows every puzzle once, no repeating pattern. (owner, 2026-11-12)
 - **No AI model credits on slides** ("Shelf: AI (FLUX.2 …)"): the source line names the data and box art only; the model
   stays in the lab's runs.jsonl. (owner, 2026-11-12, pile of shame)
 - **Two or three small numbers are big text, not a chart** ("Cats 41×, Dogs 11×"): bars for tiny counts look empty and

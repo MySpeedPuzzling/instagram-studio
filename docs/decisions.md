@@ -311,3 +311,13 @@ Docker and other unneeded apps turned off.
   (24 GB footprint, swapping): not for regular posts on this machine. Stills: ~3–4 min each.
 - Posting format stays a **Reel** (owner offered a post instead; Reels are the non-follower lever).
 
+
+## 2026-11-12: "pile of shame" funny fact (Thursday Did-you-know)
+
+- **Private collections may feed aggregates that name nobody** (owner: "if we do not present names we can work with
+  private collections"). Collections marked private still never appear as named or identifiable content; profiles
+  marked private (`player.is_private`) stay excluded from every query, aggregates included.
+- **Funny facts are funny in tone, not only in the fact**: headlines, asides and the caption joke along with the
+  numbers ("we did the math nobody asked for", "snacks not included"); the data stays exact.
+- The biggest pile gets an open question ("Who is this puzzle collector? Is it you?") without naming anyone.
+- Visual directions in lab **SH1**: A dusty AI1 shelf with real boxes (Claude's pick), B code-built heap of boxes.

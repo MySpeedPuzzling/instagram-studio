@@ -86,6 +86,8 @@ How to maintain it:
 
 ## Data
 
+- **Anonymous aggregates may include private collections** (never names, never anything that identifies one person's
+  private collection); private profiles stay out of everything. (owner, 2026-11-12, pile of shame)
 - **Medians follow MSP's own rule: each puzzler's best time on a puzzle counts once** (as `puzzle_statistics.median_time_solo`
   on every puzzle page), never every logged solve: repeat solvers skew an all-solves median by minutes (Winter Bunny 84.6
   vs the site's 81.4). A number shown next to a puzzle is that puzzle's number; an aggregate over many puzzles never
@@ -137,6 +139,10 @@ How to maintain it:
 
 ## Captions and voice
 
+- **Funny facts need a funny tone on every slide and in the caption**, not just a surprising number: playful headlines
+  and one-line asides next to the data ("we did the math nobody asked for", "snacks not included"), facts still exact.
+  An open question to the community ("Who is this puzzle collector? Is it you?") works without naming anyone.
+  (owner, 2026-11-12, pile of shame)
 - **Home of the world's fastest, welcoming to every pace.** Both are who we are: MSP is where the world's fastest
   speed puzzlers log and compete (celebrate them, records and competitions proudly), and a community that encourages
   everyone else, slow times included. Speed is something to admire and aim for, never a yardstick that makes a

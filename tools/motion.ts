@@ -14,6 +14,7 @@
 //   node tools/motion.ts month <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "October in 1000 puzzles" (lab MR1, A + owner's script)
 //   node tools/motion.ts month <monthly-report-id> --story   # the same as a Story with a link-sticker zone to the report
 //   node tools/motion.ts missing <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "WHERE IS IT?" (the missing piece)
+//   node tools/motion.ts shelf <draft-id> [--qa-only] [--fresh] [--snap=<dir>]    # Reel "I'll solve it this weekend" (pile of shame time-lapse)
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -107,6 +108,21 @@ if (kind === 'missing' && id) {
   const motion = reelMissingMotion(HOUSE, spec);
   activateVariant(undefined);
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-missing'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel missing` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 'shelf' && id) {
+  // Reel "I'll solve it this weekend" (the pile of shame as a time-lapse); facts.json = the carousel's queries
+  const { reelShelfSpec } = await import('../src/posts/reel-shelf.ts');
+  const { reelShelfMotion } = await import('../src/motion/reel-shelf.ts');
+  const { spec, facts } = await reelShelfSpec({ fresh: !!o.fresh, draft: id });
+  writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(facts, null, 1) + '\n');
+  console.log(`shelf: ${spec.s.pct}% of ${spec.s.collected} unsolved, biggest pile ${spec.s.big.unsolved} / ${spec.s.big.days} days, hero ${spec.s.hero.puzzle} ${spec.s.hero.unsolved}/${spec.s.hero.owners}, ${spec.frames.length} time-lapse frames, data ${spec.queriedAt}`);
+  activateVariant(HOUSE);
+  const motion = reelShelfMotion(HOUSE, spec);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-shelf'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel shelf` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);

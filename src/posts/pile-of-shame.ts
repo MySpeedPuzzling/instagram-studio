@@ -33,8 +33,9 @@ const SLOTS = [
   { x: 100, y: 390, w: 220, h: 190 }, { x: 340, y: 390, w: 212, h: 190 }, { x: 578, y: 390, w: 222, h: 190 },
   { x: 100, y: 598, w: 220, h: 192 }, { x: 578, y: 598, w: 222, h: 192 },
 ];
-/** Empty gallery wall with a rope barrier (AI1 E1, Z-Image Turbo). */
-export const MUSEUM_PLATE = 'content/labs/AI1/E1/museum-wall-s101.png';
+/** The old, forgotten museum wall (lab SH1, m1-museum-211): gilt frame with an empty grey canvas, cobwebs, a spider.
+ *  `canvas` = the flat grey area inside the frame in plate pixels (measured from the image). */
+export const MUSEUM = { plate: 'content/labs/SH1/stills/m1-museum-211.png', w: 896, h: 1120, canvas: { x0: 267, x1: 629, y0: 321, y1: 764 } };
 
 
 export type Direction = 'A' | 'B';
@@ -280,22 +281,28 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
   /** A museum exhibit (owner 2026-11-12): the real box framed on the gallery wall, a plaque that carries the joke. */
   const exhibit = (key: 'share' | 'reveal', b: ShelfPuzzle, o: { lead: string; no: number; line: string; plaque: string[] }) => {
     const x = ctx(key);
-    const stats = `<p class="h-abs" style="top:992px; width:${CW}px; font-size:34px; line-height:1.3; color:var(--g-ink)"><b>${b.unsolved} of its ${b.owners} owners</b> haven't solved it <span style="color:var(--c-hot); font-weight:800">(${pct(b.pct)})</span>. ${h(o.line)}</p>
+    const stats = `<p class="h-abs" style="top:1000px; width:${CW}px; font-size:34px; line-height:1.3; color:var(--g-ink)"><b>${b.unsolved} of its ${b.owners} owners</b> haven't solved it <span style="color:var(--c-hot); font-weight:800">(${pct(b.pct)})</span>. ${h(o.line)}</p>
       <p class="h-abs" style="top:1104px; width:${CW}px; font-size:30px; line-height:1.3; color:var(--g-soft)">Those who dared: median ${h(fmtDuration(b.medianS / 60))} solo.</p>`;
     const nameSize = b.puzzle.length > 16 ? 76 : 92;
     const head = `<p class="h-abs" style="top:${FEED.contentTop + 4}px; width:${CW}px; font-size:44px; font-weight:700; line-height:1.15; color:var(--g-ink)">${h(o.lead)}</p>
       <p class="h-abs" style="top:${FEED.contentTop + 70}px; width:${CW}px; font-size:${nameSize}px; font-weight:800; line-height:1.05; color:var(--c-hot); white-space:nowrap">${h(b.puzzle)}</p>`;
-    const P = { w: 1088, h: 1360 }, k = CW / P.w, cropY = 420, panelTop = 380, panelH = 580;
-    const panel = `<div style="position:absolute; left:${X0}px; top:${panelTop}px; width:${CW}px; height:${panelH}px; overflow:hidden; border-radius:8px">
-      <img src="${rel(MUSEUM_PLATE)}" alt="" style="position:absolute; left:0; top:${f1(-cropY * k)}px; width:${CW}px; height:${f1(P.h * k)}px"></div>`;
-    const z = fit(b.ar, 380, 270), fr = 20, mat = 24;
-    const fw = z.w + 2 * (fr + mat), fh = z.h + 2 * (fr + mat);
-    const fx = X0 + 70, fy = panelTop + 50;
-    const framed = `<div style="position:absolute; left:${f1(fx)}px; top:${f1(fy)}px; width:${f1(fw)}px; height:${f1(fh)}px; background:#1b1b1d; box-shadow:0 18px 30px rgba(20,20,20,.35)">
-        <div style="position:absolute; inset:${fr}px; background:#f7f5f0"></div>
-        <img src="${b.img}" alt="" style="position:absolute; left:${fr + mat}px; top:${fr + mat}px; width:${f1(z.w)}px; height:${f1(z.h)}px; object-fit:cover"></div>`;
-    const px = fx + fw + 44, pw = X0 + CW - 40 - px;
-    const plaque = `<div data-qa-bg="#ffffff" style="position:absolute; left:${f1(px)}px; top:${f1(fy + 30)}px; width:${f1(pw)}px; padding:16px 18px; background:#ffffff; color:#222a38; box-shadow:0 6px 14px rgba(20,20,20,.25); font-size:24px; line-height:1.3">
+    // The plate on the left (portrait frame), the real box art mounted on an aged mat inside its canvas, the plaque right.
+    const M = MUSEUM, cropY = 40, panelTop = 372, k = 0.6, pw0 = M.w * k, ph0 = (M.h - 60 - cropY) * k;
+    const panel = `<div style="position:absolute; left:${X0}px; top:${panelTop}px; width:${f1(pw0)}px; height:${f1(ph0)}px; overflow:hidden; border-radius:8px">
+      <img src="${rel(M.plate)}" alt="" style="position:absolute; left:0; top:${f1(-cropY * k)}px; width:${f1(M.w * k)}px; height:${f1(M.h * k)}px"></div>`;
+    const cv = { x: X0 + M.canvas.x0 * k, y: panelTop + (M.canvas.y0 - cropY) * k, w: (M.canvas.x1 - M.canvas.x0) * k, h: (M.canvas.y1 - M.canvas.y0) * k };
+    const z = fit(b.ar, cv.w - 14, cv.h - 14);
+    const web = (x0: number, y0: number, r: number) => {
+      const rays = [0, 22, 45, 68, 90].map(a => `<line x1="${f1(x0)}" y1="${f1(y0)}" x2="${f1(x0 + r * Math.cos(a * Math.PI / 180))}" y2="${f1(y0 + r * Math.sin(a * Math.PI / 180))}"/>`).join('');
+      const arcs = [0.3, 0.55, 0.8].map(t => `<path d="M ${f1(x0 + r * t)} ${f1(y0)} Q ${f1(x0 + r * t * 0.62)} ${f1(y0 + r * t * 0.62)} ${f1(x0)} ${f1(y0 + r * t)}" fill="none"/>`).join('');
+      return `<g stroke="rgba(255,255,255,.7)" stroke-width="1.6">${rays}${arcs}</g>`;
+    };
+    const framed = `<div style="position:absolute; left:${f1(cv.x)}px; top:${f1(cv.y)}px; width:${f1(cv.w)}px; height:${f1(cv.h)}px; background:#ddd3bb; box-shadow:inset 0 0 18px rgba(60,50,30,.45)">
+        <img src="${b.img}" alt="" style="position:absolute; left:${f1((cv.w - z.w) / 2)}px; top:${f1((cv.h - z.h) / 2)}px; width:${f1(z.w)}px; height:${f1(z.h)}px; object-fit:cover; filter:sepia(.3) saturate(.85) brightness(.95)">
+        <div style="position:absolute; inset:0; background:linear-gradient(160deg, rgba(190,185,170,.32), rgba(150,145,130,.12) 45%, rgba(190,185,170,.28))"></div>
+        <svg style="position:absolute; left:0; top:0" width="${f1(cv.w)}" height="${f1(cv.h)}">${web(0, 0, 70)}</svg></div>`;
+    const px = X0 + pw0 + 30, pw = X1 - px;
+    const plaque = `<div data-qa-bg="#f3ecd9" style="position:absolute; left:${f1(px)}px; top:${f1(panelTop + 150)}px; width:${f1(pw)}px; padding:16px 18px; background:#f3ecd9; color:#222a38; border:2px solid #b89a5a; box-shadow:0 6px 14px rgba(10,14,22,.4); font-size:24px; line-height:1.3">
         <p data-qa-small style="font-weight:800">No. ${o.no} · ${h(b.puzzle)}</p>
         <p data-qa-small>${h(b.brand)}, ${fmtInt(b.pieces)} pieces</p>
         ${o.plaque.map((l, i) => `<p data-qa-small style="margin-top:10px${i === o.plaque.length - 1 ? '; font-style:italic' : ''}">${h(l)}</p>`).join('')}</div>`;

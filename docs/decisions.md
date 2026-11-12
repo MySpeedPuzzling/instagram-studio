@@ -321,3 +321,13 @@ Docker and other unneeded apps turned off.
   numbers ("we did the math nobody asked for", "snacks not included"); the data stays exact.
 - The biggest pile gets an open question ("Who is this puzzle collector? Is it you?") without naming anyone.
 - Visual directions in lab **SH1**: A dusty AI1 shelf with real boxes (Claude's pick), B code-built heap of boxes.
+
+## 2026-11-12: pile-of-shame Reel (owner brief, autonomous night run)
+
+- Owner asked for a Reel on exactly the carousel's topic and data, **for non-followers (Trial Reel)**, with a free hand
+  on scenario and tools. Built: concept A "This weekend" time-lapse (`docs/ideas/reel-pile-of-shame.md`); awaiting
+  the owner's review, nothing posted.
+- Claude's choices, open to change: photoreal shelf (continuity with the carousel) instead of the paper-cut Reel
+  style; the day counter and excuses are jokes, the three numbers are data; giants and the pile ladder stay in the
+  carousel. Local first/last-frame video gave a usable time-lapse in 23 min at 576×720 (lab SH2): cheaper than the
+  34 min clip of 4 Nov and controllable, since it is played as frames by the timeline.

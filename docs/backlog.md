@@ -286,3 +286,6 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Optional: a "between" shelf with denser natural cobwebs if the subtle webs read too quietly on phones (SH1, ~8 min ComfyUI).
 - [ ] Optional Story follow-up: the mystery box ("??% unsolved") as a teaser pointing to the post.
 - [ ] Insights at +24/+48 h: sends and comments ("What's been waiting on your shelf the longest?").
+- [ ] **Reel "I'll solve it this weekend" (draft `2026-11-12-reel-shelf`, in_review):** owner review at http://127.0.0.1:4173/review/d/2026-11-12-reel-shelf (`node tools/review.ts`). If approved: post by hand as a **Trial Reel** (≥ 20 h after the carousel), add music in the app, tag @ravensburgerglobal, then `node tools/link-post.ts 2026-11-12-reel-shelf`. Posted after 13 Nov 03:00 Prague: re-render with `--fresh` first.
+- [ ] Reel open points for the owner: length 42.7 s (cut the "79 days" beat for ~38 s?), code cobwebs in front of the boxes (keep or drop), stills-only version available (delete `plates/timelapse/` and re-render).
+- [ ] Reel insights at +24/+48 h vs the missing-piece Reel: non-follower reach, skip rate, sends.

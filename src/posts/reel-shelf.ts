@@ -59,11 +59,13 @@ async function bakeWall(dir: string, dusty: string, arts: ShelfPuzzle[], count: 
   let left = count;
   for (let t = 0; t < n * rows; t++) comps.push({ input: tileBuf, left: (t % n) * WALL.tile, top: Math.floor(t / n) * th });
   for (let t = 0; t < n * rows; t++) {
-    let prev = '';
+    const recent: string[] = [];
     for (let i = 0; i < cub.length && left > 0; i++, left--) {
+      // never the same picture as one of the last three cubbies (= its neighbour to the left or above)
       let p = arts[Math.floor(r() * arts.length)];
-      if (p.puzzle === prev) p = arts[(arts.indexOf(p) + 1) % arts.length];
-      prev = p.puzzle;
+      while (recent.includes(p.puzzle)) p = arts[(arts.indexOf(p) + 1) % arts.length];
+      recent.push(p.puzzle);
+      if (recent.length > 3) recent.shift();
       const z = inCubby(p.ar, cub[i]), keyS = `${p.puzzle}:${i}`;
       if (!small.has(keyS)) small.set(keyS, await dustyBox(p, z.w * k, z.h * k));
       comps.push({ input: small.get(keyS)!, left: Math.round((t % n) * WALL.tile + z.x * k), top: Math.round(Math.floor(t / n) * th + z.y * k) });

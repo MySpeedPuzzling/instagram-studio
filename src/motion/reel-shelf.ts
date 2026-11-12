@@ -95,7 +95,7 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
   // the spider lowers itself in front of the hero box (from the top of its cubby)
   const sp = { x: X(hero.slot.x + hero.slot.w * 0.74), top: cub(4).y0, drop: (hero.slot.y - CUBBIES[4].y) * K + hero.slot.h * K * 0.42 };
   const spiderSvg = `<svg id="spwrap" width="80" height="${f1(sp.drop + 60)}" viewBox="-40 0 80 ${f1(sp.drop + 60)}" style="position:absolute; left:${f1(sp.x - 40)}px; top:${f1(sp.top)}px; overflow:hidden" aria-hidden="true">
-      <g id="spider"><line x1="0" y1="${-sp.drop - 60}" x2="0" y2="0" stroke="rgba(236,236,230,0.7)" stroke-width="1.2"/>${spider()}</g></svg>`;
+      <g id="spider"><g transform="scale(0.85)"><line x1="0" y1="${-sp.drop - 60}" x2="0" y2="0" stroke="rgba(236,236,230,0.7)" stroke-width="1.2"/>${spider()}</g></g></svg>`;
   const sticker = `<div id="sticker" data-qa-ignore style="left:${f1(X(hero.slot.x + hero.slot.w) - 62)}px; top:${f1(Y(hero.slot.y) - 52)}px"><span>NEW</span></div>`;
   const r = rng(7);
   const motes = [...Array(26)].map((_, i) => { const d = 3 + r() * 5; return `<i class="mo-mote" style="left:${f1(60 + r() * 700)}px; top:${f1(Y(40) + r() * 760)}px; width:${f1(d)}px; height:${f1(d)}px; opacity:${f1(0.35 + r() * 0.5)}" data-dx="${f1(30 + r() * 70)}" data-dy="${f1(-20 + r() * 70)}"></i>`; }).join('');
@@ -229,8 +229,10 @@ function applyAge() {
     gsap.set('#p-old', { opacity: clamp((a - 0.5) / 0.5) });
   } else gsap.set('#p-dusty', { opacity: clamp(a) });
   gsap.set('.mo-dust', { opacity: clamp(a * 1.05) });
+  // generated frames: the baked boxes drift a few pixels as the shelf ages; the crisp boxes grow with them
+  if (frames.length) gsap.set('.mo-bx', { scale: 1 + 0.05 * clamp((a - 0.3) / 0.7), transformOrigin: '0% 0%' });
   gsap.set('.mo-bx img', { filter: 'saturate(' + (1 - 0.34 * a).toFixed(3) + ') brightness(' + (1 - 0.16 * a).toFixed(3) + ')' });
-  gsap.set('#motes', { opacity: clamp((a - 0.1) * 1.4) });
+  gsap.set('#motes', { opacity: 0.55 * clamp((a - 0.1) * 1.4) });
   webPaths.forEach((ps, w) => {
     const g = clamp((a - 0.4 - w * 0.035) / 0.42);
     gsap.set(ps[0].parentNode, { opacity: g > 0 ? 1 : 0 });

@@ -465,7 +465,7 @@ export const SERIES_OF: Record<string, Series> = {
   'sep-wall': 'puzzles', 'sep-mosaic': 'puzzles', guess: 'puzzles', faster: 'puzzles',
   atlas: 'atlas', 'cats-dogs': 'atlas', 'tier-list': 'atlas', museum: 'atlas',
   'clocks-back': 'fun', 'night-owls': 'fun', 'missing-piece': 'fun',
-  'fun-minute-58': 'fun', 'fun-unboxed': 'fun', 'fun-1000': 'fun', 'fun-edges': 'fun', 'fun-sky': 'fun', 'fun-halloween': 'fun',
+  'fun-minute-58': 'fun', 'fun-unboxed': 'fun', 'fun-1000': 'fun', 'fun-edges': 'fun', 'fun-sky': 'fun', 'fun-halloween': 'fun', 'fun-shelf': 'fun',
   'story-chapters': 'data', 'story-quiz': 'puzzles',
   'reel-wall': 'data', 'reel-sep': 'puzzles', 'reel-counter': 'milestone', 'reel-xp': 'milestone',
 };

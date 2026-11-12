@@ -94,6 +94,12 @@ const fit = (ar: number, maxW: number, maxH: number) => (maxW / ar <= maxH ? { w
 const boxImg = (b: ShelfPuzzle, x: number, y: number, w: number, hh: number, rot = 0, extra = '') =>
   `<img src="${b.img}" alt="" style="position:absolute; left:${f1(x)}px; top:${f1(y)}px; width:${f1(w)}px; height:${f1(hh)}px; object-fit:cover; transform:rotate(${rot}deg); box-shadow:0 10px 22px rgba(10,14,22,.5); border-radius:3px${extra}">`;
 
+/** A shop-style shelf tag hanging from the board under a box: the unsolved share, big and fully inside the label. */
+function shelfTag(cx: number, top: number, value: number) {
+  return `<div data-qa-bg="#ec726f" style="position:absolute; left:${f1(cx)}px; top:${f1(top)}px; transform:translateX(-50%) rotate(-2deg); padding:6px 16px 8px; background:#ec726f; color:#222a38; border-radius:8px; box-shadow:0 6px 12px rgba(10,14,22,.45); text-align:center; white-space:nowrap">
+    <p style="font-size:40px; font-weight:800; line-height:1">${value}%</p><p data-qa-small style="font-size:24px; font-weight:700; line-height:1.1">unsolved</p></div>`;
+}
+
 /** A coral generator piece with a label on it (unsolved share, "?"). */
 function badge(cx: number, cy: number, px: number, label: string, fontPx: number, seed = 23) {
   const sp = singlePiece(60, seed);
@@ -148,7 +154,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
       // Slot 1 stays empty (the punchline is on slide 5), the next five most-avoided boxes fill the rest.
       const boxes = slots.slice(1).map((sl, i) => {
         const b = others[i], z = inSlot(b, sl);
-        return boxImg(b, z.x, z.y, z.w, z.h) + badge(z.x + z.w - 14, z.y + 4, 100, pct(b.pct), 30, 23 + i);
+        return boxImg(b, z.x, z.y, z.w, z.h) + shelfTag(z.x + z.w / 2, sl.y + sl.h - 6, b.pct);
       }).join('');
       const empty = slots[0];
       return posterCover(ctx('cover'), {

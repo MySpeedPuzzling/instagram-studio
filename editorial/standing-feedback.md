@@ -13,6 +13,8 @@ How to maintain it:
 
 ## Design
 
+- **No AI model credits on slides** ("Shelf: AI (FLUX.2 …)"): the source line names the data and box art only; the model
+  stays in the lab's runs.jsonl. (owner, 2026-11-12, pile of shame)
 - **Two or three small numbers are big text, not a chart** ("Cats 41×, Dogs 11×"): bars for tiny counts look empty and
   over-serious. The data source line goes on the slide or beat that holds the number, not on every frame. (owner,
   2026-11-05, missing-piece Reel)

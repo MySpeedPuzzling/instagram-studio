@@ -79,7 +79,10 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec, o: { story?: bo
   const story = !!o.story, key = story ? 'story-shelf' : 'reel-shelf';
   const s = spec.s, T0 = times(), T = story ? { ...T0, end: T0.tlEnd + 5.6 } : T0, DURATION = T.end;
   const navy = GROUNDS.navy, coral = GROUNDS.coral;
-  const logo = logoExit({ cx: CX, cy: 398, width: 200 });
+  // Story: the splash sits higher and tighter, so the Link sticker's place (y 806–910, the shelf's top row later on)
+  // is free on every frame, the splash included (owner 2026-11-12: the sticker overlapped the intro text)
+  const logo = logoExit(story ? { cx: CX, cy: 318, width: 176 } : { cx: CX, cy: 398, width: 200 });
+  const sy = story ? [414, 470, 570, 684] : [506, 574, 682, 806];
   const hero = spec.boxes[0];
   const useFrames = spec.frames.length > 8;
 
@@ -126,10 +129,10 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec, o: { story?: bo
   const band = `<svg id="band" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true"><path d="${posterTopPath(SEAM.splash)}" fill="${navy.bg}"/></svg>`;
   const splash = `<div id="slogo">${logo.html}</div>
   <div id="splash">
-    <p class="mo-site" style="top:506px">myspeedpuzzling.com</p>
-    <p class="mo-c mo-hook" style="top:574px">“I will solve it</p>
-    <p class="mo-c mo-hook" style="top:682px">this weekend.”</p>
-    <p class="mo-c mo-sub" style="top:806px">Every puzzle collector, ever</p>
+    <p class="mo-site" style="top:${sy[0]}px">myspeedpuzzling.com</p>
+    <p class="mo-c mo-hook" style="top:${sy[1]}px${story ? '; font-size:96px' : ''}">“I will solve it</p>
+    <p class="mo-c mo-hook" style="top:${sy[2]}px${story ? '; font-size:96px' : ''}">this weekend.”</p>
+    <p class="mo-c mo-sub" style="top:${sy[3]}px">Every puzzle collector, ever</p>
   </div>`;
   const lapse = `<div id="lapse">
     <p class="mo-day" style="top:438px">Day <span id="dayn">1</span></p>

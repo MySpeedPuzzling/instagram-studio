@@ -13,7 +13,7 @@
 //   send      back at the dusty shelf: "Send this to someone who said 'this weekend'."
 //   loop      time rewinds: the dust lifts, DAY 1, the splash returns (= frame 0)
 // Text only in the Reel safe area (x 60–960, y 220–1250); art may run to ~y 1560.
-import { GROUNDS, W, X0, f1, frame, groundVars, outlinedLogo, pieceMark, posterTopPath, siteLine, type Variant } from '../design/house.ts';
+import { GROUNDS, STICKER_STORY_SAFE, W, X0, f1, frame, groundVars, outlinedLogo, pieceMark, posterTopPath, siteLine, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtInt } from '../design/page.ts';
 import { FRAMES } from '../render/render.ts';
 import { composition } from './kit.ts';
@@ -72,9 +72,12 @@ function spider() {
     <ellipse cx="0" cy="9" rx="7.5" ry="9.5" fill="#17120e"/><circle cx="0" cy="21" r="4.6" fill="#17120e"/>`;
 }
 
-export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
-  const key = 'reel-shelf';
-  const s = spec.s, T = times(), DURATION = T.end;
+/** `story`: the teaser for followers (owner 2026-11-12: the Reel goes out as a Trial Reel, followers get the time-lapse
+ *  as a Story that points to the carousel): splash and time-lapse as in the Reel, then an end card on the old shelf with
+ *  a cue and room for a Link sticker in the empty top row; no numbers (they are in the post), no loop. */
+export function reelShelfMotion(v: Variant, spec: ReelShelfSpec, o: { story?: boolean } = {}): Motion {
+  const story = !!o.story, key = story ? 'story-shelf' : 'reel-shelf';
+  const s = spec.s, T0 = times(), T = story ? { ...T0, end: T0.tlEnd + 5.6 } : T0, DURATION = T.end;
   const navy = GROUNDS.navy, coral = GROUNDS.coral;
   const logo = logoExit({ cx: CX, cy: 398, width: 200 });
   const hero = spec.boxes[0];
@@ -158,14 +161,18 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
     </div>
   </div>`;
 
-  const body = `${shelf}${wall}${museum}${band}${splash}${lapse}${wallText}${musText}${send}${poster}`;
+  const cta = `<div id="cta">
+    <p class="mo-line" style="top:452px">How bad is your pile?</p>
+    <p class="mo-line hot" style="top:566px; font-size:60px">The numbers are in the post <span>↓</span></p>
+  </div>`;
+  const body = story ? `${shelf}${band}${splash}${lapse}${cta}` : `${shelf}${wall}${museum}${band}${splash}${lapse}${wallText}${musText}${send}${poster}`;
 
   const css = LOGO_CSS + `
-#wall, #museum, #lapse, #walltext, #wb, #mustext, #mr, #send, #poster, #ptext { visibility: hidden; opacity: 0; }
+#wall, #museum, #lapse, #walltext, #wb, #mustext, #mr, #send, #poster, #ptext, #cta { visibility: hidden; opacity: 0; }
 .hf > .h-head, .hf > .h-src { visibility: hidden; opacity: 0; z-index: 4; }
 .mo-scene { position: absolute; inset: 0; overflow: hidden; background: #141922; z-index: 1; }
 #band { position: absolute; left: 0; top: 0; z-index: 3; }
-#slogo, #splash, #lapse, #walltext, #mustext, #send { position: absolute; inset: 0; z-index: 4; }
+#slogo, #splash, #lapse, #walltext, #mustext, #send, #cta { position: absolute; inset: 0; z-index: 4; }
 #slogo { z-index: 5; }
 #cam, #mcam { position: absolute; inset: 0; transform-origin: 50% 70%; }
 .mo-plate { filter: saturate(1.14) brightness(1.06) contrast(1.03); position: absolute; left: 0; top: ${f1(PT)}px; width: ${W}px; height: ${f1(PLATE.h * K)}px; }
@@ -208,89 +215,7 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec): Motion {
 
   const frameHtml = frame({ ground: 'navy', kind: 'story', kicker: 'Did you know · the pile of shame', device: v.device, src: '', rows: { headTop: 296 }, masthead: true, body });
 
-  const script = `
-const D = DATA, T = D.T;
-const show = (sel, at, dur) => tl.to(sel, { autoAlpha: 1, duration: dur ?? 0.3 }, at);
-const hide = (sel, at, dur) => tl.to(sel, { autoAlpha: 0, duration: dur ?? 0.25 }, at);
-// (owner 2026-11-12: no site line under the masthead; the splash carries myspeedpuzzling.com)
-const MAST = '.hf > .h-head';
-const clamp = v => Math.max(0, Math.min(1, v));
-
-// ---- the age of the shelf: one number drives the plates (or the generated frames), the dust on the boxes, the webs
-const frames = [...document.querySelectorAll('.mo-fr')];
-const webPaths = [...document.querySelectorAll('.mo-web')].map(g => [...g.querySelectorAll('path')]);
-const age = { a: 0 };
-let shownFrame = 0;
-function applyAge() {
-  const a = age.a;
-  if (frames.length) {
-    const i = Math.round(a * (frames.length - 1));
-    if (i !== shownFrame) { frames[shownFrame].style.visibility = 'hidden'; frames[i].style.visibility = 'visible'; shownFrame = i; }
-  } else if (D.old) {
-    gsap.set('#p-dusty', { opacity: clamp(a / 0.6) });
-    gsap.set('#p-old', { opacity: clamp((a - 0.5) / 0.5) });
-  } else gsap.set('#p-dusty', { opacity: clamp(a) });
-  gsap.set('.mo-dust', { opacity: 0.7 * clamp(a * 1.05) });
-  // generated frames: the baked boxes drift a few pixels as the shelf ages; the crisp boxes grow with them
-  if (frames.length) gsap.set('.mo-bx', { scale: 1 + 0.05 * clamp((a - 0.3) / 0.7), transformOrigin: '0% 0%' });
-  // (owner 2026-11-12: the video looked faded) the shelf ages, the pictures keep most of their colour
-  gsap.set('.mo-bx img', { filter: 'saturate(' + (1 - 0.1 * a).toFixed(3) + ') brightness(' + (1 - 0.04 * a).toFixed(3) + ')' });
-  gsap.set('#motes', { opacity: 0.55 * clamp((a - 0.1) * 1.4) });
-  webPaths.forEach((ps, w) => {
-    const g = clamp((a - 0.4 - w * 0.035) / 0.42);
-    gsap.set(ps[0].parentNode, { opacity: g > 0 ? 1 : 0 });
-    ps.forEach((p, i) => p.style.strokeDashoffset = String(1 - clamp(g * 1.8 - (i / ps.length) * 0.8)));
-  });
-}
-applyAge();
-const ageTo = (to, at, dur, ease) => tl.to(age, { a: to, duration: dur, ease: ease || 'power1.inOut', onUpdate: applyAge }, at);
-const dayEl = document.getElementById('dayn');
-const day = { v: 1 };
-const showDay = () => { dayEl.textContent = fmtN(day.v); };
-const dayTo = (to, at, dur) => tl.to(day, { v: to, duration: dur, ease: 'power2.in', onUpdate: showDay, onComplete: showDay }, at);
-// days and nights flicker by while the counter runs
-const flicker = (at, dur, n) => tl.fromTo('#night', { opacity: 0 }, { opacity: 0.4, duration: dur / (2 * n), repeat: 2 * n - 1, yoyo: true, ease: 'sine.inOut', immediateRender: false }, at);
-
-// ---- frame 0: the splash over the new shelf (shelf lower, band tall)
-gsap.set('#cam', { y: D.splashDy });
-gsap.set('#spider', { y: -50 });
-tl.fromTo('#sticker', { scale: 1 }, { scale: 1.12, duration: 0.45, repeat: 3, yoyo: true, ease: 'sine.inOut', transformOrigin: '50% 50%' }, 0.3);
-
-// ---- the splash leaves: logo exit, lines lift, the band lifts, the shelf moves up
-${logo.out(T.splashOut)}
-tl.to('#splash > *', { y: -60, autoAlpha: 0, duration: 0.22, ease: 'power2.in', stagger: 0.03 }, T.splashOut + 0.05);
-tl.set('#splash', { autoAlpha: 0 }, T.splashOut + 0.5);
-tl.to('#band', { y: D.bandY, duration: 0.45, ease: 'power3.inOut' }, T.splashOut + 0.1);
-tl.to('#cam', { y: 0, duration: 0.45, ease: 'power3.inOut' }, T.splashOut + 0.1);
-show(MAST, T.splashOut + 0.55);
-show('#lapse', T.splashOut + 0.5, 0.01);
-riseIn('.mo-day', T.splashOut + 0.5, { dur: 0.3 });
-
-// ---- the time-lapse: a slow push-in over all of it; per stop: the counter runs, days flicker, the shelf ages, then the excuse
-tl.fromTo('#cam', { scale: 1 }, { scale: 1.07, duration: T.tlEnd - T.tl0, ease: 'none', immediateRender: false }, T.tl0);
-document.querySelectorAll('.mo-mote').forEach(m => tl.to(m, { x: Number(m.dataset.dx), y: Number(m.dataset.dy), duration: T.tlEnd - T.tl0 + 6, ease: 'none' }, T.tl0));
-D.stops.forEach((st, i) => {
-  const at = T.tl0 + i * D.stage;
-  if (i) hide('#ex' + (i - 1), at, 0.15);
-  dayTo(st.day, at + 0.05, D.tick);
-  flicker(at + 0.05, D.tick, 2);
-  ageTo(st.age, at + 0.05, D.tick + 0.25);
-  tl.set('#ex' + i, { visibility: 'visible' }, at + D.tick - 0.1);
-  riseIn('#ex' + i, at + D.tick - 0.1, { dur: 0.3 });
-});
-// DAY 60: the NEW sticker lets go
-const stickAt = T.tl0 + D.stage + 0.25;
-tl.to('#sticker', { rotation: -6, duration: 0.25, ease: 'sine.inOut' }, stickAt);
-tl.to('#sticker', { rotation: 24, duration: 0.25, ease: 'sine.inOut' }, stickAt + 0.25);
-tl.to('#sticker', { y: 560, x: -40, rotation: 130, duration: 0.8, ease: 'power2.in' }, stickAt + 0.5);
-tl.to('#sticker', { autoAlpha: 0, duration: 0.2 }, stickAt + 1.15);
-// DAY 1460: the spider moves in, and bobs on its thread
-const spAt = T.tl0 + 3 * D.stage + 0.5;
-tl.to('#spider', { y: D.drop, duration: 1.5, ease: 'power1.out' }, spAt);
-const bobs = 2 * Math.floor((T.loop - spAt - 1.5) / 2.2);
-tl.to('#spider', { y: D.drop - 16, duration: 1.1, repeat: bobs - 1, yoyo: true, ease: 'sine.inOut' }, spAt + 1.5);
-
-// ---- poster: the number (the dusty shelf stays under its seam)
+  const reelRest = `// ---- poster: the number (the dusty shelf stays under its seam)
 hide('#lapse', T.poster - 0.15, 0.15);
 tl.set('#poster', { autoAlpha: 1 }, T.poster);
 tl.fromTo('#poster', { y: -${SEAM.poster + 140} }, { y: 0, duration: 0.42, ease: 'power3.out', immediateRender: false }, T.poster);
@@ -379,6 +304,96 @@ tl.to('#cam', { y: D.splashDy, scale: 1, duration: 0.4, ease: 'power3.inOut' }, 
 tl.set('#splash', { autoAlpha: 1 }, T.loop + 0.3);
 tl.fromTo('#splash > *', { y: -60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.3, ease: 'power2.out', stagger: 0.05, immediateRender: false }, T.loop + 0.3);
 ${logo.back(T.loop + 0.35)}
+`;
+  const storyEnd = `// ---- the Story's end card: the old shelf stays, the cue points at the Link sticker (placed by hand in the top row)
+hide('#lapse', T.tlEnd - 0.15, 0.15);
+show('#cta', T.tlEnd, 0.01);
+riseIn('#cta > *', T.tlEnd + 0.05, { stagger: 0.7, dur: 0.35 });
+tl.fromTo('#cta span', { y: 0 }, { y: 10, duration: 0.45, repeat: 7, yoyo: true, ease: 'sine.inOut', immediateRender: false }, T.tlEnd + 1.3);
+`;
+  const script = `
+const D = DATA, T = D.T;
+const show = (sel, at, dur) => tl.to(sel, { autoAlpha: 1, duration: dur ?? 0.3 }, at);
+const hide = (sel, at, dur) => tl.to(sel, { autoAlpha: 0, duration: dur ?? 0.25 }, at);
+// (owner 2026-11-12: no site line under the masthead; the splash carries myspeedpuzzling.com)
+const MAST = '.hf > .h-head';
+const clamp = v => Math.max(0, Math.min(1, v));
+
+// ---- the age of the shelf: one number drives the plates (or the generated frames), the dust on the boxes, the webs
+const frames = [...document.querySelectorAll('.mo-fr')];
+const webPaths = [...document.querySelectorAll('.mo-web')].map(g => [...g.querySelectorAll('path')]);
+const age = { a: 0 };
+let shownFrame = 0;
+function applyAge() {
+  const a = age.a;
+  if (frames.length) {
+    const i = Math.round(a * (frames.length - 1));
+    if (i !== shownFrame) { frames[shownFrame].style.visibility = 'hidden'; frames[i].style.visibility = 'visible'; shownFrame = i; }
+  } else if (D.old) {
+    gsap.set('#p-dusty', { opacity: clamp(a / 0.6) });
+    gsap.set('#p-old', { opacity: clamp((a - 0.5) / 0.5) });
+  } else gsap.set('#p-dusty', { opacity: clamp(a) });
+  gsap.set('.mo-dust', { opacity: 0.7 * clamp(a * 1.05) });
+  // generated frames: the baked boxes drift a few pixels as the shelf ages; the crisp boxes grow with them
+  if (frames.length) gsap.set('.mo-bx', { scale: 1 + 0.05 * clamp((a - 0.3) / 0.7), transformOrigin: '0% 0%' });
+  // (owner 2026-11-12: the video looked faded) the shelf ages, the pictures keep most of their colour
+  gsap.set('.mo-bx img', { filter: 'saturate(' + (1 - 0.1 * a).toFixed(3) + ') brightness(' + (1 - 0.04 * a).toFixed(3) + ')' });
+  gsap.set('#motes', { opacity: 0.55 * clamp((a - 0.1) * 1.4) });
+  webPaths.forEach((ps, w) => {
+    const g = clamp((a - 0.4 - w * 0.035) / 0.42);
+    gsap.set(ps[0].parentNode, { opacity: g > 0 ? 1 : 0 });
+    ps.forEach((p, i) => p.style.strokeDashoffset = String(1 - clamp(g * 1.8 - (i / ps.length) * 0.8)));
+  });
+}
+applyAge();
+const ageTo = (to, at, dur, ease) => tl.to(age, { a: to, duration: dur, ease: ease || 'power1.inOut', onUpdate: applyAge }, at);
+const dayEl = document.getElementById('dayn');
+const day = { v: 1 };
+const showDay = () => { dayEl.textContent = fmtN(day.v); };
+const dayTo = (to, at, dur) => tl.to(day, { v: to, duration: dur, ease: 'power2.in', onUpdate: showDay, onComplete: showDay }, at);
+// days and nights flicker by while the counter runs
+const flicker = (at, dur, n) => tl.fromTo('#night', { opacity: 0 }, { opacity: 0.4, duration: dur / (2 * n), repeat: 2 * n - 1, yoyo: true, ease: 'sine.inOut', immediateRender: false }, at);
+
+// ---- frame 0: the splash over the new shelf (shelf lower, band tall)
+gsap.set('#cam', { y: D.splashDy });
+gsap.set('#spider', { y: -50 });
+tl.fromTo('#sticker', { scale: 1 }, { scale: 1.12, duration: 0.45, repeat: 3, yoyo: true, ease: 'sine.inOut', transformOrigin: '50% 50%' }, 0.3);
+
+// ---- the splash leaves: logo exit, lines lift, the band lifts, the shelf moves up
+${logo.out(T.splashOut)}
+tl.to('#splash > *', { y: -60, autoAlpha: 0, duration: 0.22, ease: 'power2.in', stagger: 0.03 }, T.splashOut + 0.05);
+tl.set('#splash', { autoAlpha: 0 }, T.splashOut + 0.5);
+tl.to('#band', { y: D.bandY, duration: 0.45, ease: 'power3.inOut' }, T.splashOut + 0.1);
+tl.to('#cam', { y: 0, duration: 0.45, ease: 'power3.inOut' }, T.splashOut + 0.1);
+show(MAST, T.splashOut + 0.55);
+show('#lapse', T.splashOut + 0.5, 0.01);
+riseIn('.mo-day', T.splashOut + 0.5, { dur: 0.3 });
+
+// ---- the time-lapse: a slow push-in over all of it; per stop: the counter runs, days flicker, the shelf ages, then the excuse
+tl.fromTo('#cam', { scale: 1 }, { scale: 1.07, duration: T.tlEnd - T.tl0, ease: 'none', immediateRender: false }, T.tl0);
+document.querySelectorAll('.mo-mote').forEach(m => tl.to(m, { x: Number(m.dataset.dx), y: Number(m.dataset.dy), duration: T.tlEnd - T.tl0 + 6, ease: 'none' }, T.tl0));
+D.stops.forEach((st, i) => {
+  const at = T.tl0 + i * D.stage;
+  if (i) hide('#ex' + (i - 1), at, 0.15);
+  dayTo(st.day, at + 0.05, D.tick);
+  flicker(at + 0.05, D.tick, 2);
+  ageTo(st.age, at + 0.05, D.tick + 0.25);
+  tl.set('#ex' + i, { visibility: 'visible' }, at + D.tick - 0.1);
+  riseIn('#ex' + i, at + D.tick - 0.1, { dur: 0.3 });
+});
+// DAY 60: the NEW sticker lets go
+const stickAt = T.tl0 + D.stage + 0.25;
+tl.to('#sticker', { rotation: -6, duration: 0.25, ease: 'sine.inOut' }, stickAt);
+tl.to('#sticker', { rotation: 24, duration: 0.25, ease: 'sine.inOut' }, stickAt + 0.25);
+tl.to('#sticker', { y: 560, x: -40, rotation: 130, duration: 0.8, ease: 'power2.in' }, stickAt + 0.5);
+tl.to('#sticker', { autoAlpha: 0, duration: 0.2 }, stickAt + 1.15);
+// DAY 1460: the spider moves in, and bobs on its thread
+const spAt = T.tl0 + 3 * D.stage + 0.5;
+tl.to('#spider', { y: D.drop, duration: 1.5, ease: 'power1.out' }, spAt);
+const bobs = 2 * Math.floor((T.loop - spAt - 1.5) / 2.2);
+tl.to('#spider', { y: D.drop - 16, duration: 1.1, repeat: bobs - 1, yoyo: true, ease: 'sine.inOut' }, spAt + 1.5);
+
+${story ? storyEnd : reelRest}
 tl.set({}, {}, ${DURATION});
 `;
   const th240 = spec.wall.h / spec.wall.rows, w1 = W / WALL.cols, wallTop1 = 672, wallBottom = 1660;
@@ -389,8 +404,8 @@ tl.set({}, {}, ${DURATION});
       pan: spec.wall.rows * th240 * (w1 / WALL.tile) - (wallBottom - wallTop1) },
   };
   return {
-    key, duration: DURATION, coverAt: 0.05, safe: SAFE,
-    qaAt: [0.05, 1.5, ...STOPS.map((_, i) => T.tl0 + i * STAGE + 1.9), T.tlEnd - 0.2, T.poster + 2.4, T.wall + 0.5, T.wall + 1.6, T.wall + 3.4, T.wall + 5.6, T.wallB + 2.5, T.mus + 1.5, T.light + 1.2, T.light + 3.5, T.send + 2.5, DURATION - 0.05],
-    html: composition({ key, title: 'Reel This weekend (pile of shame)', duration: DURATION, frameHtml, css, data, script }),
+    key, duration: DURATION, coverAt: story ? DURATION - 0.05 : 0.05, safe: story ? STICKER_STORY_SAFE : SAFE,
+    qaAt: story ? [0.05, 1.5, ...STOPS.map((_, i) => T.tl0 + i * STAGE + 1.9), T.tlEnd + 2.5, DURATION - 0.05] : [0.05, 1.5, ...STOPS.map((_, i) => T.tl0 + i * STAGE + 1.9), T.tlEnd - 0.2, T.poster + 2.4, T.wall + 0.5, T.wall + 1.6, T.wall + 3.4, T.wall + 5.6, T.wallB + 2.5, T.mus + 1.5, T.light + 1.2, T.light + 3.5, T.send + 2.5, DURATION - 0.05],
+    html: composition({ key, title: story ? 'Story This weekend (pile of shame teaser)' : 'Reel This weekend (pile of shame)', duration: DURATION, frameHtml, css, data, script }),
   };
 }

@@ -246,7 +246,7 @@ const day = { v: 1 };
 const showDay = () => { dayEl.textContent = fmtN(day.v); };
 const dayTo = (to, at, dur) => tl.to(day, { v: to, duration: dur, ease: 'power2.in', onUpdate: showDay, onComplete: showDay }, at);
 // days and nights flicker by while the counter runs
-const flicker = (at, dur, n) => tl.fromTo('#night', { opacity: 0 }, { opacity: 0.5, duration: dur / (2 * n), repeat: 2 * n - 1, yoyo: true, ease: 'sine.inOut', immediateRender: false }, at);
+const flicker = (at, dur, n) => tl.fromTo('#night', { opacity: 0 }, { opacity: 0.4, duration: dur / (2 * n), repeat: 2 * n - 1, yoyo: true, ease: 'sine.inOut', immediateRender: false }, at);
 
 // ---- frame 0: the splash over the new shelf (shelf lower, band tall)
 gsap.set('#cam', { y: D.splashDy });
@@ -270,7 +270,7 @@ D.stops.forEach((st, i) => {
   const at = T.tl0 + i * D.stage;
   if (i) hide('#ex' + (i - 1), at, 0.15);
   dayTo(st.day, at + 0.05, D.tick);
-  flicker(at + 0.05, D.tick, i < 2 ? 2 : 3);
+  flicker(at + 0.05, D.tick, 2);
   ageTo(st.age, at + 0.05, D.tick + 0.25);
   tl.set('#ex' + i, { visibility: 'visible' }, at + D.tick - 0.1);
   riseIn('#ex' + i, at + D.tick - 0.1, { dur: 0.3 });

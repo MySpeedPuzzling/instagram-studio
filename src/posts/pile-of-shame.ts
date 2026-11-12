@@ -30,6 +30,9 @@ const PLATE_GEN = { w: 1024, h: 1280 };
 /** Compartments in generation pixels (AI1 scaffold `shelf`, 2 × 3). */
 const SLOTS = [384, 672, 960].flatMap(y => [192, 544].map(x => ({ x, y, w: 288, h: 192 })));
 const AI_CREDIT = 'Shelf: AI (FLUX.2 klein 4B)';
+/** Empty gallery wall with a rope barrier (AI1 E1, Z-Image Turbo). */
+export const MUSEUM_PLATE = 'content/labs/AI1/E1/museum-wall-s102.png';
+const MUSEUM_CREDIT = 'Gallery: AI (Z-Image Turbo)';
 
 export type Direction = 'A' | 'B';
 export interface ShelfPuzzle { puzzle: string; brand: string; pieces: number; owners: number; unsolved: number; pct: number; medianS: number; img: string; ar: number }
@@ -225,24 +228,28 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
 
   const reveal = () => {
     const x = ctx('reveal'), b = s.hero;
-    const stats = `<p class="h-abs" style="top:970px; width:${CW}px; font-size:34px; line-height:1.3; color:var(--g-ink)"><b>${b.unsolved} of its ${b.owners} owners</b> haven't solved it <span style="color:var(--c-hot); font-weight:800">(${pct(b.pct)})</span>. The name is not a promise.</p>
-      <p class="h-abs" style="top:1080px; width:${CW}px; font-size:30px; line-height:1.3; color:var(--g-soft)">${h(b.brand)}, ${fmtInt(b.pieces)} pieces. Those who did: median ${h(fmtDuration(b.medianS / 60))} solo.</p>`;
+    const stats = `<p class="h-abs" style="top:992px; width:${CW}px; font-size:34px; line-height:1.3; color:var(--g-ink)"><b>${b.unsolved} of its ${b.owners} owners</b> haven't solved it <span style="color:var(--c-hot); font-weight:800">(${pct(b.pct)})</span>. The name is not a promise.</p>
+      <p class="h-abs" style="top:1104px; width:${CW}px; font-size:30px; line-height:1.3; color:var(--g-soft)">Those who dared: median ${h(fmtDuration(b.medianS / 60))} solo.</p>`;
     const head = `<p class="h-abs" style="top:${FEED.contentTop + 4}px; width:${CW}px; font-size:44px; font-weight:700; line-height:1.15; color:var(--g-ink)">The puzzle you avoid the most is called…</p>
       <p class="h-abs" style="top:${FEED.contentTop + 70}px; width:${CW}px; font-size:92px; font-weight:800; line-height:1.05; color:var(--c-hot)">Speed Puzzling</p>`;
-    if (dir === 'A') {
-      // One compartment of the dusty shelf, close up, with the box in it.
-      const sl = SLOTS[0], k = 1.8, cropX = sl.x - 60, cropY = sl.y - 90;
-      const left = X0 + (CW - (sl.w + 120) * k) / 2, top = 370;
-      const vw = (sl.w + 120) * k, vh = 540;
-      const photo = `<div style="position:absolute; left:${f1(left)}px; top:${top}px; width:${f1(vw)}px; height:${vh}px; overflow:hidden; border-radius:8px">
-        <img src="${rel(SHELF_PLATE)}" alt="" style="position:absolute; left:${f1(-cropX * k)}px; top:${f1(-cropY * k)}px; width:${f1(PLATE_GEN.w * k)}px; height:${f1(PLATE_GEN.h * k)}px"></div>`;
-      const slot = { x: left + 60 * k, y: top + 90 * k, w: sl.w * k, h: sl.h * k };
-      const z = inSlot(b, slot);
-      return slide(x, 'data', { kicker: KICKER, src: `Box art: ${b.brand} · ${AI_CREDIT}`, body: head + photo + boxImg(b, z.x, z.y, z.w, z.h) + badge(z.x + z.w - 20, z.y + 10, 130, pct(b.pct), 34, 23) + stats }).html;
-    }
-    const z = fit(b.ar, 740, 540);
-    const bx = X0 + (CW - z.w) / 2, by = 380 + (540 - z.h) / 2;
-    return slide(x, 'data', { kicker: KICKER, src: `${boxCredit} · data ${s.asOf}`, body: head + boxImg(b, bx, by, z.w, z.h, -2) + badge(bx + z.w - 30, by + 20, 150, pct(b.pct), 38, 23) + stats }).html;
+    // Museum exhibit (owner 2026-11-12): the real box framed on the AI1 gallery wall (E1 museum-wall-s102, rope barrier),
+    // with a museum plaque that carries the joke.
+    const P = { w: 1088, h: 1360 }, k = CW / P.w, cropY = 420, panelTop = 380, panelH = 580;
+    const panel = `<div style="position:absolute; left:${X0}px; top:${panelTop}px; width:${CW}px; height:${panelH}px; overflow:hidden; border-radius:8px">
+      <img src="${rel(MUSEUM_PLATE)}" alt="" style="position:absolute; left:0; top:${f1(-cropY * k)}px; width:${CW}px; height:${f1(P.h * k)}px"></div>`;
+    const z = fit(b.ar, 380, 270), fr = 20, mat = 24;
+    const fw = z.w + 2 * (fr + mat), fh = z.h + 2 * (fr + mat);
+    const fx = X0 + 70, fy = panelTop + 50;
+    const framed = `<div style="position:absolute; left:${f1(fx)}px; top:${f1(fy)}px; width:${f1(fw)}px; height:${f1(fh)}px; background:#1b1b1d; box-shadow:0 18px 30px rgba(20,20,20,.35)">
+        <div style="position:absolute; inset:${fr}px; background:#f7f5f0"></div>
+        <img src="${b.img}" alt="" style="position:absolute; left:${fr + mat}px; top:${fr + mat}px; width:${f1(z.w)}px; height:${f1(z.h)}px; object-fit:cover"></div>`;
+    const px = fx + fw + 44, pw = X0 + CW - 40 - px;
+    const plaque = `<div data-qa-bg="#ffffff" style="position:absolute; left:${f1(px)}px; top:${f1(fy + 40)}px; width:${f1(pw)}px; padding:16px 18px; background:#ffffff; color:#222a38; box-shadow:0 6px 14px rgba(20,20,20,.25); font-size:24px; line-height:1.3">
+        <p data-qa-small style="font-weight:800">${h(b.puzzle)}</p>
+        <p data-qa-small>${h(b.brand)}, ${fmtInt(b.pieces)} pieces</p>
+        <p data-qa-small style="margin-top:10px">Unsolved by ${b.unsolved} of its ${b.owners} owners.</p>
+        <p data-qa-small style="margin-top:10px; font-style:italic">Please do not touch. Nobody does.</p></div>`;
+    return slide(x, 'data', { kicker: 'The exhibit', src: `Box art: ${b.brand} · ${MUSEUM_CREDIT}`, body: head + panel + framed + plaque + stats }).html;
   };
 
   const rest = () => {

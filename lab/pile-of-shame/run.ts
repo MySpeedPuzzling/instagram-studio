@@ -20,7 +20,7 @@ const rel = (p: string) => '/' + p.slice(ROOT.length + 1);
 type Out = { key: string; label: string; html: string; story?: boolean };
 
 const { spec } = await buildShelfSpec({ fresh: process.argv.includes('--fresh') });
-const LABELS = ['cover', '37% waffle', 'plot twist: your pile in hours', 'the biggest pile', 'reveal: Speed Puzzling', 'also on the pile + question'];
+const LABELS = ['cover', '37% waffle', 'plot twist: your pile in hours', 'the biggest pile', 'exhibit 1: by share', 'exhibit 2: Speed Puzzling', 'also gathering dust + question'];
 activateVariant(HOUSE);
 const mk = (d: 'A' | 'B'): Out[] => shelfSlides(HOUSE, spec, d).map((html, i) => ({ key: `${d}-${i + 1}`, label: LABELS[i], html }));
 const groups: Array<{ id: string; title: string; note: string; slides: Out[] }> = [

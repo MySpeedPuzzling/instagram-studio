@@ -24,14 +24,14 @@ import { ROOT } from '../render/server.ts';
 export const POST = 'fun-shelf'; // funny fact: coral poster (standing feedback, poster colour by type)
 const KICKER = 'Did you know? · Collections';
 const SHADOW = 'rgba(16,22,34,.36)';
-/** The dusty wooden cube shelf (lab SH1, s1-empty-201): cobwebs, dust bunnies, a dangling spider. */
-export const SHELF_PLATE = 'content/labs/SH1/stills/s1-empty-201.png';
+/** The dusty wooden cube shelf (lab SH1, s4-natural-221, owner 2026-11-12: natural cobwebs): fine dust, wispy webs, spiders. */
+export const SHELF_PLATE = 'content/labs/SH1/stills/s4-natural-221.png';
 const PLATE_GEN = { w: 896, h: 1120 };
-/** Clear cubbies of the SH1 shelf plate (896 × 1120 px; top row and bottom corners are full of cobwebs). */
+/** Cubbies of the SH1 shelf plate (896 × 1120 px), rows 2 and 3; natural thin cobwebs stay visible above the boxes. */
 const SLOTS = [
-  { x: 340, y: 598, w: 212, h: 192 }, // row 3 middle, under the dangling spider: the "?" slot
-  { x: 100, y: 390, w: 220, h: 190 }, { x: 340, y: 390, w: 212, h: 190 }, { x: 578, y: 390, w: 222, h: 190 },
-  { x: 100, y: 598, w: 220, h: 192 }, { x: 578, y: 598, w: 222, h: 192 },
+  { x: 345, y: 340, w: 200, h: 222 }, // row 2 middle, under the dangling spider: the "?" slot
+  { x: 110, y: 340, w: 220, h: 222 }, { x: 572, y: 340, w: 208, h: 222 },
+  { x: 110, y: 582, w: 220, h: 218 }, { x: 345, y: 582, w: 200, h: 218 }, { x: 572, y: 582, w: 208, h: 218 },
 ];
 /** The old, forgotten museum wall (lab SH1, m1-museum-211): gilt frame with an empty grey canvas, cobwebs, a spider.
  *  `canvas` = the flat grey area inside the frame in plate pixels (measured from the image). */
@@ -153,7 +153,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
     const seam = 452;
     if (dir === 'A') {
       // Photo: generation y 300 sits at the seam; the compartments follow at scale k.
-      const k = 0.86, cropY = 150, left = (W - PLATE_GEN.w * k) / 2, photoTop = seam - 40;
+      const k = 0.97, cropY = 250, left = (W - PLATE_GEN.w * k) / 2, photoTop = seam - 40;
       const place = (sl: typeof SLOTS[number]) => ({ x: left + sl.x * k, y: photoTop + (sl.y - cropY) * k, w: sl.w * k, h: sl.h * k });
       const slots = SLOTS.map(place);
       // Slot 1 stays empty (the punchline is on slide 5), the next five most-avoided boxes fill the rest.
@@ -165,7 +165,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
       return posterCover(ctx('cover'), {
         title: 'The pile of shame is real', dek: coverDek, seam,
         underArt: shelfPhoto(left, photoTop, k, cropY, FEED.footRule - photoTop - 6),
-        body: boxes + badge(empty.x + empty.w / 2, empty.y + empty.h / 2 + 10, 116, '?', 64, 41),
+        body: boxes + badge(empty.x + empty.w * 0.36, empty.y + empty.h * 0.74, 104, '?', 64, 41),
         src: `${boxCredit} · data ${s.asOf}`,
       });
     }

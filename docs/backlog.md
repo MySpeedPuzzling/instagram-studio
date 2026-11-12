@@ -286,6 +286,6 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Optional: a "between" shelf with denser natural cobwebs if the subtle webs read too quietly on phones (SH1, ~8 min ComfyUI).
 - [ ] Optional Story follow-up: the mystery box ("??% unsolved") as a teaser pointing to the post.
 - [ ] Insights at +24/+48 h: sends and comments ("What's been waiting on your shelf the longest?").
-- [ ] **Reel "I will solve it this weekend" (draft `2026-11-12-reel-shelf` v3, owner: "perfect, let's make this reel"):** owner posts it by hand as a **Trial Reel** (music in the app, @ravensburgerglobal tagged), then `node tools/link-post.ts 2026-11-12-reel-shelf`. Posted after 13 Nov 03:00 Prague: re-render with `--fresh` first.
+- [x] Reel "I will solve it this weekend" published as a Trial Reel 12 Nov 12:22 Prague: https://www.instagram.com/reel/Dfo77FvN163/ (draft `2026-11-12-reel-shelf`, linked).
 - [ ] **Teaser Story for followers** (`stories/story-shelf.mp4`, 19.8 s: splash + time-lapse + "How bad is your pile? The numbers are in the post ↓"): owner posts it with a Link sticker "SEE THE NUMBERS" to the carousel (guide `stories/story-shelf-sticker-guide.jpg`), adds it to the "Did you know" highlight. Story insights (link taps) before it expires.
 - [ ] Reel insights at +24/+48 h vs the missing-piece Reel: non-follower reach, skip rate, sends.

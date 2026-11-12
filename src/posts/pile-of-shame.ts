@@ -336,7 +336,7 @@ export function shelfSlides(v: Variant, s: ShelfSpec, dir: Direction): string[] 
 export function shelfAlt(s: ShelfSpec, dir: Direction): string[] {
   const others = s.puzzles.slice(1).filter(p => p.puzzle !== s.share.puzzle).sort((a, b) => b.pct - a.pct);
   return [
-    `Cover: The pile of shame is real. ${pct(Math.round(s.pct))} of the puzzles in your collections have never been solved, and the one you avoid most has a very ironic name. ${dir === 'A' ? 'A dusty, cobwebbed wooden shelf holds five puzzle boxes, each with a coral puzzle piece showing the share of owners who haven\'t solved it; the sixth compartment is empty with a question mark.' : 'A heap of puzzle boxes with a coral question-mark piece on top.'} Boxes: ${others.slice(0, 5).map(p => `${p.puzzle} ${pct(p.pct)}`).join(', ')}.`,
+    `Cover: The pile of shame is real. ${pct(Math.round(s.pct))} of the puzzles in your collections have never been solved, and the one you avoid most has a very ironic name. ${dir === 'A' ? 'A dusty, cobwebbed wooden shelf holds five puzzle boxes, each with a coral shelf tag showing the share of owners who haven\'t solved it; the sixth compartment is empty with a coral question-mark piece.' : 'A heap of puzzle boxes with a coral question-mark piece on top.'} Boxes: ${others.slice(0, 5).map(p => `${p.puzzle} ${pct(p.pct)}`).join(', ')}.`,
     `${fmtInt(s.unsolved)} puzzles, still waiting: a 10 by 10 grid of puzzle pieces with ${Math.round(s.pct)} in coral. ${pct(s.pct)} of ${fmtInt(s.collected)} puzzles in ${fmtInt(s.collections)} MySpeedPuzzling collections were never logged as solved by their owner. ${millions(s.unsolvedPieces)} pieces are still in their boxes; ${fmtInt(s.piles)} collectors have a pile of unsolved puzzles.`,
     `Plot twist: how long would your pile take? The math nobody asked for, for all ${fmtInt(s.piles)} piles, with bars: 1 in 4 piles up to ${hrs(s.ladder.q1)} hours, a lazy Sunday afternoon. Half of all piles up to ${hrs(s.ladder.median)} hours, one rainy weekend. 1 in 4 piles over ${hrs(s.ladder.q3)} hours, a full week off. 1 in 10 piles over ${hrs(s.ladder.p90)} hours, 5 hours every evening for a month. Hours are each puzzle's median solo time from its page, added up per pile; untimed puzzles get the typical time for their piece count; your pace may vary.`,
     `And then there's this pile: ${fmtInt(s.big.unsolved)} puzzles, ${fmtInt(s.big.hours)} hours, shown as ${s.big.days} coral puzzle pieces, one per day: ${s.big.days} days and nights without a break. All ${fmtInt(s.piles)} piles together: ${fmtInt(s.hoursAll)} hours, over ${s.yearsAll} years non-stop. Who is this puzzle collector? Is it you?`,
@@ -348,18 +348,19 @@ export function shelfAlt(s: ShelfSpec, dir: Direction): string[] {
 }
 
 export function shelfCaption(s: ShelfSpec): string {
+  const giants = s.sizes[s.sizes.length - 1];
   return [
-    `${pct(Math.round(s.pct))} of the puzzles in your collections have never been solved. The pile of shame is real, and we have the numbers 📦`,
+    `${pct(Math.round(s.pct))} of the jigsaw puzzles in your collections have never been solved. The pile of shame is real 📦`,
     '',
-    `${fmtInt(s.unsolved)} puzzles on MySpeedPuzzling are waiting for "one day". Plot twist: we did the math nobody asked for and added up the median solo time of every puzzle on each pile. Half of all piles are done in ${hrs(s.ladder.median)} hours (one rainy weekend, no excuses), 1 in 10 needs over ${hrs(s.ladder.p90)}. The biggest one is ${fmtInt(s.big.hours)} hours, about ${s.big.days} days without sleep 😅 Who is this puzzle collector? Is it you? 👀`,
+    `We did the math nobody asked for: half of all piles would take up to ${hrs(s.ladder.median)} hours (one rainy weekend, no excuses). The biggest one: ${fmtInt(s.big.unsolved)} puzzles, ${fmtInt(s.big.hours)} hours. Who is this puzzle collector? 👀`,
     '',
-    `And the bigger the box, the braver you need to be: ${pct(s.sizes[0].pct)} of collected 500s are unsolved, ${pct(s.sizes[s.sizes.length - 1].pct)} of the 4000+ giants. We get it, a ${fmtInt(s.giant.pieces)}-piece ${s.giant.puzzle} is for owning, not for solving. Maybe one day 🫡`,
+    `The bigger the box, the braver you need to be: ${pct(giants.pct)} of the ${giants.label.replace(' and more', '+')} piece giants are still unsolved.`,
     '',
-    `Welcome to the museum of unsolved puzzles 🖼️ Exhibit No. 1: ${s.share.puzzle}, unsolved by ${pct(s.share.pct)} of its owners. Exhibit No. 2, the most avoided by number of owners, is called… Speed Puzzling. ${s.hero.unsolved} of its ${s.hero.owners} owners haven't solved it yet. @ravensburgerglobal, we need to talk.`,
+    `And the most avoided puzzle in your collections? It's called Speed Puzzling. ${s.hero.unsolved} of its ${s.hero.owners} owners haven't solved it yet. @ravensburgerglobal, we need to talk.`,
     '',
-    `Hours are each puzzle's median solo time from its page (untimed puzzles get the typical time for their piece count), so half of puzzlers are faster and your pace may vary. Solved one and never logged it? Then it's still on the pile, so go log it ⏱️`,
+    `Hours = each puzzle's median solo time, so your pace may vary. Solved one but never logged it? Go log it ⏱️`,
     '',
-    `What's been waiting on your shelf the longest? We won't judge. Much 👇`,
+    `What's been waiting on your shelf the longest? We won't judge. Much.`,
     '',
     '#speedpuzzling #jigsawpuzzle #puzzlecollection #ravensburger',
   ].join('\n');

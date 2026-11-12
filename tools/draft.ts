@@ -9,6 +9,7 @@
 //   node tools/draft.ts about                     # "Start here" explainer (third pinned post)
 //   node tools/draft.ts weekly-rc1 | weekly-rc2   # The Weekly Numbers, two release candidates (full / compact)
 //   node tools/draft.ts tier-list                 # Subject tier list + HELL tier (Krypt), weekend data carousel
+//   node tools/draft.ts pile-of-shame             # Funny fact: unsolved puzzles in collections, pile ladder, museum exhibits (SH1 A)
 //   node tools/draft.ts monthly                   # The monthly recap of the last full month (run on the 1st)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -27,6 +28,7 @@ import { monthlyAlt, monthlyCaption, monthlySlides } from '../src/posts/monthly.
 import { buildMonthlySpec } from '../src/posts/monthly-data.ts';
 import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
 import { buildTierSpec, tierAlt, tierCaption, tierSlides } from '../src/posts/tier-list.ts';
+import { buildShelfSpec, shelfAlt, shelfCaption, shelfSlides } from '../src/posts/pile-of-shame.ts';
 import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
@@ -160,6 +162,22 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       userTags: { [slides.length - 1]: [{ username: 'ravensburgerglobal', x: 0.5, y: 0.3 }] },
       facts, slides, alt: tierAlt(spec), caption: tierCaption(spec), captionPillar: 'carousel',
       searchPhrases: ['jigsaw puzzle', 'puzzle'], properNouns: ['Krypt', ...spec.hell.map(k => k.puzzle), ...spec.subjects.map(x => x.box.puzzle)],
+    };
+  },
+  // Funny fact (owner 2026-11-12, lab SH1 direction A): the pile of shame, three plot twists, two museum exhibits.
+  'pile-of-shame': async () => {
+    const { spec, facts } = await buildShelfSpec({ fresh: !process.argv.includes('--cached') });
+    activateVariant(HOUSE);
+    const slides = shelfSlides(HOUSE, spec, 'A');
+    activateVariant(undefined);
+    return {
+      id: `${new Date().toISOString().slice(0, 10)}-pile-of-shame`, title: 'The pile of shame (funny fact)', pillar: 'did-you-know', format: 'carousel',
+      tags: { series: 'funny-facts', slot: 'thursday-did-you-know', mechanic: 'humour+identity+send-a-friend', template: 'pile-of-shame', style: 'H4', lab: 'SH1/A' },
+      // Brand tag on the Speed Puzzling exhibit (second-to-last slide), never on the cover.
+      userTags: { [slides.length - 2]: [{ username: 'ravensburgerglobal', x: 0.4, y: 0.5 }] },
+      facts, slides, alt: shelfAlt(spec, 'A'), caption: shelfCaption(spec), captionPillar: 'carousel',
+      searchPhrases: ['jigsaw puzzles', 'puzzle collector'],
+      properNouns: [...new Set([spec.hero.puzzle, spec.share.puzzle, spec.giant.puzzle, ...spec.puzzles.map(p => p.puzzle)])],
     };
   },
   'faster-postcards': async () => {

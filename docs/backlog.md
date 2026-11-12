@@ -281,7 +281,8 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - `bs-theme-speed` / `boxes-subject-speed` count every solve: don't reuse their medians.
 
 ## 2026-11-12: pile of shame
-- [ ] Publish `2026-11-12-pile-of-shame` after the owner's approval (Thu ~19:00); re-query if it slips past 13 Nov 02:13 Prague.
+- [x] Published 12 Nov ~02:20 Prague: https://www.instagram.com/p/Dfn2uDhCG9G/
+- [ ] Pin verdict at +48 h (Sat 14 Nov ~02:20): swap a pin for it only if its reach and sends beat the account median.
 - [ ] Optional: a "between" shelf with denser natural cobwebs if the subtle webs read too quietly on phones (SH1, ~8 min ComfyUI).
 - [ ] Optional Story follow-up: the mystery box ("??% unsolved") as a teaser pointing to the post.
 - [ ] Insights at +24/+48 h: sends and comments ("What's been waiting on your shelf the longest?").

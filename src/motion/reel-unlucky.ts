@@ -82,10 +82,10 @@ export function reelUnluckyMotion(v: Variant, s: ReelUnluckySpec): Motion {
   <div id="splash">
     <p class="mo-site" style="top:528px">myspeedpuzzling.com</p>
     <p class="mo-c mo-hook xl" style="top:620px">Unlucky <span class="h13">13</span></p>
-    <p class="mo-c mo-sub" style="top:814px">Solo 500-piece puzzles</p>
+    <p class="mo-c mo-wink" style="top:806px">Yes, it's Friday the 13th.</p>
   </div>`;
   const clockEl = hero('59:48', { size: 170, baseline: 1020, center: true }).replace('<p class="h-big"', '<p class="h-big" id="clock"');
-  const credit = `<p class="h-abs h-credit mo-cc" id="bcredit" style="top:1058px; width:${RW}px">Puzzle: ${h(s.box.puzzle)} · ${h(s.box.brand)}</p>`;
+  const credit = `<p class="h-abs h-credit mo-cc" id="bcredit" style="top:1058px; width:${RW}px">Solo 500 pieces · ${h(s.box.puzzle)} · ${h(s.box.brand)}</p>`;
 
   const done = `<div id="done">
     <p class="mo-line" style="top:540px">Last piece in.</p>
@@ -152,6 +152,7 @@ export function reelUnluckyMotion(v: Variant, s: ReelUnluckySpec): Motion {
 .mo-hook.hot { color: var(--g-hot); }
 .mo-hook.xl { font-size: 140px; }
 .h13 { color: var(--g-hot); }
+.mo-wink { font-size: 46px; font-weight: 500; font-style: italic; letter-spacing: 0.01em; color: var(--g-accent); }
 .mo-sub { font-size: 44px; font-weight: 600; letter-spacing: 0; color: var(--g-soft); }
 .mo-line { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 80px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; color: var(--g-ink); white-space: nowrap; }
 .mo-line.s { font-size: 64px; }

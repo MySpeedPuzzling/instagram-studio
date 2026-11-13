@@ -13,6 +13,8 @@ How to maintain it:
 
 ## Design
 
+- **Hero numbers keep a margin on both sides:** size them with `heroFit()` to the safe width minus ~40 px, never a fixed
+  size that runs to the frame's edge. (owner, 2026-11-13, Unlucky 13 Reel: "more space from the right side" on 1722)
 - **"Old and dusty" never means washed-out pictures:** age the scene (dust, webs, light), keep box art and brand
   colours rich; desaturating or sepia-toning the pictures reads as low video quality. (owner, 2026-11-12,
   pile-of-shame Reel: "the overall video seems faded")

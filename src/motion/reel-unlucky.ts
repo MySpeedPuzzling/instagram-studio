@@ -12,7 +12,7 @@
 //   24.2–28.8 the ask: "Whatever your line is, what's your closest near miss?"
 //   28.8–29.8 loop: the clock rewinds to 59:47, the piece drops out again, the splash returns (= frame 0)
 // Text only in the Reel safe area (x 60–960, y 220–1250); the board may run to ~1460.
-import { GROUNDS, W, X0, f1, frame, groundVars, hero, outlinedLogo, pieceMark, posterTopPath, siteLine, type Variant } from '../design/house.ts';
+import { GROUNDS, W, X0, f1, frame, groundVars, hero, heroFit, outlinedLogo, pieceMark, posterTopPath, siteLine, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtInt } from '../design/page.ts';
 import { generateJigsaw } from '../pieces/jigsaw.ts';
 import { FRAMES } from '../render/render.ts';
@@ -98,7 +98,7 @@ export function reelUnluckyMotion(v: Variant, s: ReelUnluckySpec): Motion {
     <div id="ptext" style="${groundVars(coral)}" data-qa-bg="${coral.bg}">
       <header class="h-head" style="top:296px">${pieceMark('var(--g-device)')}<span class="h-kick">Friday the 13th · solo times</span><span style="margin-left:auto">${outlinedLogo(96).replace('.svg"', '.svg?poster"')}</span></header>
       <p class="h-src h-abs" style="top:388px">${siteLine(`Solo results · data ${date}`)}</p>
-      ${hero(fmtInt(s.missed), { size: 400, baseline: 860 })}
+      ${hero(fmtInt(s.missed), { size: heroFit(fmtInt(s.missed), 360, RW - 40), baseline: 860 })}
       <p class="h-abs h-lead" style="top:930px; width:${RW}px; font-size:52px">solo 500-piece puzzles finished between <b>1:00:00</b> and <b>1:00:13</b>.</p>
       <p class="h-abs h-lead" style="top:1120px; width:${RW}px; font-size:40px">By ${fmtInt(s.missedPuzzlers)} puzzlers. You're not alone.</p>
     </div>

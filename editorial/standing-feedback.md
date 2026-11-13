@@ -114,6 +114,9 @@ How to maintain it:
   "most solved" (results) and "most puzzlers" (distinct players) can disagree (London 5,802 solves vs New York 1,923
   puzzlers); a fastest time depends on excluding suspicious results. Re-query before replying, and match what the
   site shows publicly where the reader can check it. (owner, 2026-10-18, after wrong numbers in comment replies)
+- **Facts for comment replies:** MSP membership costs $6 a month; correct a wrong price politely when someone states
+  one. Importing a collection from a spreadsheet is a real offer: when someone tracks their puzzles elsewhere, invite
+  them to message us and we help import it. (owner, 2026-11-13, pile-of-shame comments)
 
 - **"Puzzlers" counts everyone who took part, registered teammates included** (the person who logged a pair or team
   result plus its registered members; guests without an account can't be counted). Counting only who logged a result

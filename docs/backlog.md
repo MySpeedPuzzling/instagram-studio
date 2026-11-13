@@ -7,6 +7,10 @@ Updated 2026-10-17.
 ## Now
 
 - [x] **Friday-13th Reel `2026-11-13-reel-unlucky` published 13 Nov 17:31 Prague** (https://www.instagram.com/reel/DfsDnm4NwIy/, linked, caption poll on near misses). Checks scheduled: `check-unlucky24` Sat 14 Nov 18:00 (also reads the 300M Story before it expires), `check-unlucky48` Sun 15 Nov 17:45 (pin verdict). Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.
+- [ ] **Story "We want your spreadsheets"** (draft `2026-11-13-story-spreadsheets`, approved 13 Nov): animated 8 s, B + A's siren
+      (lab SW1); owner posts by hand (POSTING.md). After it goes out: schedule a +24 h check (before it expires) and count
+      the spreadsheet samples received (DMs + e-mail) as its real result; hand them to the import work in the app repo.
+- [ ] Headers removed house-wide (13 Nov): on the next feed post, tighten the empty ~170 px top band left by the kicker.
 - [ ] **300M poll Story** (`stories/story-300m.jpg`): owner posts ~19:30 Prague 13 Nov; poll Mon 16 · Tue 17 · Wed 18 · Thu 19; check 1 reads it.
 - [ ] **300 million pieces milestone post** on the day it passes (ETA ~Tue 17 Nov, `bs-milestone-pace --fresh` daily from Sun); reveal the poll's winning day.
 - [ ] Ideas kept from the 13 Nov brainstorm: pile-of-shame Black Friday sequel (27 Nov), night owls, re-run the pile Trial Reel with the 929-box wall in frame 1, edges-first poll Story.

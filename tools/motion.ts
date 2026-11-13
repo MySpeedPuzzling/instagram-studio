@@ -16,6 +16,7 @@
 //   node tools/motion.ts missing <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "WHERE IS IT?" (the missing piece)
 //   node tools/motion.ts shelf <draft-id> --story                              # its teaser Story for followers (Link sticker to the carousel)
 //   node tools/motion.ts shelf <draft-id> [--qa-only] [--fresh] [--snap=<dir>]    # Reel "I'll solve it this weekend" (pile of shame time-lapse)
+//   node tools/motion.ts unlucky <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "The cruellest 13 seconds" + Story "300M: guess the day"
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -109,6 +110,31 @@ if (kind === 'missing' && id) {
   const motion = reelMissingMotion(HOUSE, spec);
   activateVariant(undefined);
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-missing'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel missing` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 'unlucky' && id) {
+  // Reel "The cruellest 13 seconds" (Friday the 13th) + its sticker Story "300 million pieces: guess the day";
+  // facts.json = every query either uses (cached unless --fresh)
+  const { reelUnluckySpec, millionFacts, millionStory } = await import('../src/posts/reel-unlucky.ts');
+  const { reelUnluckyMotion } = await import('../src/motion/reel-unlucky.ts');
+  const { spec, facts } = await reelUnluckySpec({ fresh: !!o.fresh, draft: id });
+  const m = millionFacts(!!o.fresh);
+  mkdirSync(join(DRAFTS, id), { recursive: true });
+  writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify({ ...facts, ...m.facts }, null, 1) + '\n');
+  console.log(`unlucky: ${spec.missed} missed (${spec.missedPuzzlers} puzzlers), ${spec.made} made, 59:xx ${spec.wall.find(w => w.minute === 59)?.results} vs 1:00:xx ${spec.wall.find(w => w.minute === 60)?.results}, board ${spec.box.puzzle}, pieces ${m.f.pieces}, data ${spec.queriedAt}`);
+  activateVariant(HOUSE);
+  const motion = reelUnluckyMotion(HOUSE, spec);
+  const storyHtml = page(millionStory(HOUSE, m.f), { frame: 'story', css: HOUSE_CSS, title: `${id} story 300M` });
+  activateVariant(undefined);
+  const r = await createRenderer(join(DRAFTS, id));
+  try {
+    const sr = await r.render({ id: 'stories/story-300m', html: storyHtml, frame: 'story', safe: STICKER_STORY_SAFE });
+    if (sr.qa.errors.length) throw new Error(`story QA:\n  ${sr.qa.errors.join('\n  ')}`);
+    for (const w of sr.qa.warnings ?? []) console.log(`  story warn ${w}`);
+  } finally { await r.close(); }
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-unlucky'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel unlucky` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);

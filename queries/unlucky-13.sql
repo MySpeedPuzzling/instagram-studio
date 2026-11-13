@@ -11,4 +11,4 @@ SELECT
   count(*) AS all_solo_500
 FROM puzzle_solving_time t JOIN player pl ON pl.id = t.player_id JOIN puzzle p ON p.id = t.puzzle_id
 WHERE NOT t.suspicious AND NOT pl.is_private AND t.puzzling_type = 'solo' AND p.pieces_count = 500
-  AND t.seconds_to_solve IS NOT NULL;
+  AND t.seconds_to_solve IS NOT NULL AND (p.hide_until IS NULL OR p.hide_until <= now());

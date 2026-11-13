@@ -6,7 +6,8 @@ Updated 2026-10-17.
 
 ## Now
 
-- [ ] **Friday-13th Reel `2026-11-13-reel-unlucky`** (in_review, MP4 rendered): owner posts by hand tonight ~19:30 Prague + the 300M poll Story ~30 min later (`POSTING.md` in the draft). Then `node tools/link-post.ts 2026-11-13-reel-unlucky`, schedule +24 h / +48 h checks, read the Story poll before Sat ~20:00. Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.
+- [x] **Friday-13th Reel `2026-11-13-reel-unlucky` published 13 Nov 17:31 Prague** (https://www.instagram.com/reel/DfsDnm4NwIy/, linked, caption poll on near misses). Checks scheduled: `check-unlucky24` Sat 14 Nov 18:00 (also reads the 300M Story before it expires), `check-unlucky48` Sun 15 Nov 17:45 (pin verdict). Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.
+- [ ] **300M poll Story** (`stories/story-300m.jpg`): owner posts ~19:30 Prague 13 Nov; poll Mon 16 · Tue 17 · Wed 18 · Thu 19; check 1 reads it.
 - [ ] **300 million pieces milestone post** on the day it passes (ETA ~Tue 17 Nov, `bs-milestone-pace --fresh` daily from Sun); reveal the poll's winning day.
 - [ ] Ideas kept from the 13 Nov brainstorm: pile-of-shame Black Friday sequel (27 Nov), night owls, re-run the pile Trial Reel with the 929-box wall in frame 1, edges-first poll Story.
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Story posted 2 Nov evening. Next: Story insights before Tue 3 Nov evening; post insights Wed 4 Nov ~20:00 (`node tools/insights.ts`).

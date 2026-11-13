@@ -331,3 +331,10 @@ Docker and other unneeded apps turned off.
   style; the day counter and excuses are jokes, the three numbers are data; giants and the pile ladder stay in the
   carousel. Local first/last-frame video gave a usable time-lapse in 23 min at 576×720 (lab SH2): cheaper than the
   34 min clip of 4 Nov and controllable, since it is played as frames by the timeline.
+
+## 2026-11-13: Friday the 13th Reel, countdown Stories
+
+- **Reel "The cruellest 13 seconds"** (owner pick from the brainstorm after the pile-of-shame hit): code-only Reel to
+  followers, the stopwatch ticks from frame 0, ends on a comment question. Builder `src/motion/reel-unlucky.ts`.
+- **Countdown teaser Stories may carry the running count** (exception to "Stories only point and add an action"):
+  the 300 million pieces "guess the day" poll Story; the milestone post on the day carries the numbers.

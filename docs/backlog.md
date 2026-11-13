@@ -6,6 +6,9 @@ Updated 2026-10-17.
 
 ## Now
 
+- [ ] **Friday-13th Reel `2026-11-13-reel-unlucky`** (in_review, MP4 rendered): owner posts by hand tonight ~19:30 Prague + the 300M poll Story ~30 min later (`POSTING.md` in the draft). Then `node tools/link-post.ts 2026-11-13-reel-unlucky`, schedule +24 h / +48 h checks, read the Story poll before Sat ~20:00. Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.
+- [ ] **300 million pieces milestone post** on the day it passes (ETA ~Tue 17 Nov, `bs-milestone-pace --fresh` daily from Sun); reveal the poll's winning day.
+- [ ] Ideas kept from the 13 Nov brainstorm: pile-of-shame Black Friday sequel (27 Nov), night owls, re-run the pile Trial Reel with the 929-box wall in frame 1, edges-first poll Story.
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Story posted 2 Nov evening. Next: Story insights before Tue 3 Nov evening; post insights Wed 4 Nov ~20:00 (`node tools/insights.ts`).
 - [ ] Monthly report: "puzzlers" counts only who logged a result (`monthly-totals`); switch to everyone who took part, like the weekly (2 Nov).
 - [ ] Weekly: week total (weekly-totals) and the day chart differ by ~3 solves (results logged before the week began but finished in it count in one, not the other); align the two filters.

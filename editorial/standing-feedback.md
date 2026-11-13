@@ -202,7 +202,8 @@ How to maintain it:
 - **Stories never hold information that isn't in a post or Reel:** a Story only points to a post or Reel and adds an
   action (poll, link sticker, "find yours"). Stories disappear after 24 h, so facts that would live only there (e.g.
   holder counts) go into the post, the Reel or the caption. A one-tap share of the post is a fine Story.
-  (owner, 2026-11-01)
+  (owner, 2026-11-01) **Exception: countdown teasers** ("guess the day we pass 300 million") may carry the running
+  count, because the milestone post on the day carries the full numbers. (owner, 2026-11-13)
 - **Followers must not miss a post's content:** no Trial Reels for content the followers should see, unless they get the same piece as a Story kept in a highlight (owner, 2026-11-01 evening: October Reel as Trial, its Story to everyone); a Reel on the same
   topic as a carousel is a different experience (the visual), not the slides animated. (owner, 2026-11-01)
 

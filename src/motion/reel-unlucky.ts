@@ -1,16 +1,16 @@
-// Reel "The cruellest 13 seconds" (Friday the 13th, 2026-11-13; owner pick after the pile-of-shame hit: shared pain +
+// Reel "Unlucky 13" (was "The cruellest 13 seconds") (Friday the 13th, 2026-11-13; owner pick after the pile-of-shame hit: shared pain +
 // humour, ends on a comment question). Drawn in code only. Followers' Reel; the lesson from two Trial Reels (≈80 %
 // gone in 3 s) is applied anyway: frame 0 is a finished title card AND it moves from the first frame on (the
 // stopwatch is already ticking, the last piece already rising).
-//   0.0–4.6   splash: logo, myspeedpuzzling.com, "The cruellest / 13 seconds", a big stopwatch at 59:48 that ticks
-//             (fast, then slow), a board of Black Cat and Raven with one empty slot; the last piece rises from below
-//             and lands as the clock shows 1:00:02 → coral flash
+//   0.0–4.6   splash: logo, myspeedpuzzling.com, "Unlucky 13" (owner 2026-11-13), a big stopwatch at 59:47 that ticks
+//             (fast, then slow), a board of Black Cat and Raven with one empty slot; the last piece rises, arrives the wrong way round,
+//             won't go in, is turned, and lands as the clock shows 1:00:02 → coral flash
 //   4.7–8.4   the splash lines leave (logo exit): "Last piece in." / "2 seconds over the hour."
 //   8.6–13.4  coral poster: N solo 500s finished between 1:00:00 and 1:00:13 · by M puzzlers
 //   13.8–18.6 Friday the 13th works both ways: Lucky 59:47–59:59 vs Unlucky 1:00:00–1:00:13 (two big numbers)
 //   18.8–24.0 the hour is a magic line: results per minute 50–69, the 59 bar coral, 59:xx vs 1:00:xx
 //   24.2–28.8 the ask: "Whatever your line is, what's your closest near miss?"
-//   28.8–29.8 loop: the clock rewinds to 59:48, the piece drops out again, the splash returns (= frame 0)
+//   28.8–29.8 loop: the clock rewinds to 59:47, the piece drops out again, the splash returns (= frame 0)
 // Text only in the Reel safe area (x 60–960, y 220–1250); the board may run to ~1460.
 import { GROUNDS, W, X0, f1, frame, groundVars, hero, outlinedLogo, pieceMark, posterTopPath, siteLine, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtInt } from '../design/page.ts';
@@ -23,7 +23,7 @@ import { CLOCK, type ReelUnluckySpec } from '../posts/reel-unlucky.ts';
 
 const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0, CX = X0 + RW / 2;
-const T = { tickSlow: 1.4, hour: 3.4, snap: 4.3, splashOut: 4.7, done: 5.0, poster: 8.6, posterOut: 13.4, luck: 13.8, wall: 18.8, ask: 24.2, loop: 28.8 } as const;
+const T = { tickSlow: 1.2, hour: 3.4, snap: 4.3, splashOut: 4.7, done: 5.0, poster: 8.6, posterOut: 13.4, luck: 13.8, wall: 18.8, ask: 24.2, loop: 28.8 } as const;
 const DURATION = 29.8;
 const SEAM = 1262;
 /** The board: 8×5 generator pieces of 80 px under the stopwatch; the slot at column 4, row 2. */
@@ -81,8 +81,7 @@ export function reelUnluckyMotion(v: Variant, s: ReelUnluckySpec): Motion {
   const splash = `<div id="slogo">${logo.html}</div>
   <div id="splash">
     <p class="mo-site" style="top:528px">myspeedpuzzling.com</p>
-    <p class="mo-c mo-hook" style="top:596px">The cruellest</p>
-    <p class="mo-c mo-hook hot" style="top:700px">13 seconds</p>
+    <p class="mo-c mo-hook xl" style="top:620px">Unlucky <span class="h13">13</span></p>
     <p class="mo-c mo-sub" style="top:814px">Solo 500-piece puzzles</p>
   </div>`;
   const clockEl = hero('59:48', { size: 170, baseline: 1020, center: true }).replace('<p class="h-big"', '<p class="h-big" id="clock"');
@@ -91,6 +90,7 @@ export function reelUnluckyMotion(v: Variant, s: ReelUnluckySpec): Motion {
   const done = `<div id="done">
     <p class="mo-line" style="top:540px">Last piece in.</p>
     <p class="mo-line hot s" style="top:648px">${over} seconds over the hour.</p>
+    <p class="mo-sub2" style="top:770px">Blame the black cat.</p>
   </div>`;
 
   const poster = `<div id="poster">
@@ -129,6 +129,7 @@ export function reelUnluckyMotion(v: Variant, s: ReelUnluckySpec): Motion {
     <p class="mo-line" style="top:620px">what's your closest</p>
     <p class="mo-line hot" style="top:720px">near miss?</p>
     <p class="mo-sub2" style="top:880px">Tell us in the comments.</p>
+    <p class="mo-sub2" style="top:950px">Bonus points if a cat was involved.</p>
   </div>`;
 
   const body = `${splash}${clockEl}${credit}${b.last}${b.svg}${done}${luck}${wall}${ask}${poster}`;
@@ -142,13 +143,15 @@ export function reelUnluckyMotion(v: Variant, s: ReelUnluckySpec): Motion {
 #board { z-index: 2; }
 #last { z-index: 3; }
 .mo-pc { stroke: rgba(18, 24, 36, 0.55); stroke-width: 1.4; stroke-linejoin: round; }
-.mo-last { stroke: rgba(18, 24, 36, 0.75); stroke-width: 2; }
+.mo-last { stroke: #ec726f; stroke-width: 5; }
 .mo-hole { fill: #1a202c; stroke: var(--g-hot); stroke-width: 4; stroke-linejoin: round; }
 .mo-cc { text-align: center; }
 .mo-site { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 32px; font-weight: 700; color: var(--g-ink); }
 .mo-c { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-weight: 700; line-height: 1; letter-spacing: -0.02em; white-space: nowrap; color: var(--g-ink); }
 .mo-hook { font-size: 96px; }
 .mo-hook.hot { color: var(--g-hot); }
+.mo-hook.xl { font-size: 140px; }
+.h13 { color: var(--g-hot); }
 .mo-sub { font-size: 44px; font-weight: 600; letter-spacing: 0; color: var(--g-soft); }
 .mo-line { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 80px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; color: var(--g-ink); white-space: nowrap; }
 .mo-line.s { font-size: 64px; }
@@ -196,7 +199,16 @@ tl.fromTo(clk, { v: 3600 }, { v: D.stop + 0.99, duration: T.snap - T.hour, ease:
 // ---- the empty slot pulses; the last piece rises from below and lands as the clock passes the hour
 tl.fromTo('#hole', { strokeOpacity: 1 }, { strokeOpacity: 0.35, duration: 0.45, repeat: 3, yoyo: true, ease: 'sine.inOut' }, 0.1);
 tl.set('#last', { x: D.start.dx, y: D.start.dy, rotation: D.start.rot, transformOrigin: D.origin }, 0);
-tl.to('#last', { x: 0, y: 0, rotation: 0, duration: T.snap - 1.2, ease: 'power2.inOut' }, 1.2);
+// the gag (owner 2026-11-13: "funnier"): it arrives the wrong way round at 59:58, won't go in, jiggles, gets turned
+// and only lands at 1:00:02
+tl.to('#last', { x: 0, y: -70, rotation: 90, scale: 1.4, duration: 1.6, ease: 'power2.inOut' }, 0.9);
+tl.to('#last', { y: 0, scale: 1.15, duration: 0.15, ease: 'power2.in' }, 2.55);
+tl.to('#last', { y: -80, scale: 1.4, duration: 0.18, ease: 'back.out(3)' }, 2.72);
+tl.to('#last', { x: 14, duration: 0.05, repeat: 5, yoyo: true, ease: 'none' }, 2.92);
+tl.to('#last', { rotation: 0, x: 0, duration: 0.55, ease: 'back.inOut(1.5)' }, 3.3);
+tl.to('#last', { y: 0, scale: 1, duration: 0.25, ease: 'power3.in' }, T.snap - 0.25);
+tl.to('#last .mo-last', { stroke: 'rgba(18, 24, 36, 0.75)', strokeWidth: 2, duration: 0.1 }, T.snap);
+tl.set('#last .mo-last', { stroke: '#ec726f', strokeWidth: 5 }, T.loop + 0.2);
 tl.to('#hole', { strokeOpacity: 0, duration: 0.05 }, T.snap - 0.02);
 flash('#clock', T.snap);
 tl.fromTo('#board, #last', { scale: 1 }, { scale: 1.03, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: '50% 50%', immediateRender: false }, T.snap);
@@ -261,7 +273,7 @@ tl.set({}, {}, ${DURATION});
   const data = { T, from: CLOCK.from, stop: stopAt, missed: s.missed, made: s.made, start: START, origin: b.origin };
   return {
     key, duration: DURATION, coverAt: 0.05, safe: SAFE,
-    qaAt: [0.05, 2.0, 3.9, T.snap + 0.2, T.done + 1.8, T.poster + 2.6, T.luck + 3.0, T.wall + 3.0, T.ask + 2.5, DURATION - 0.05],
-    html: composition({ key, title: 'Reel The cruellest 13 seconds', duration: DURATION, frameHtml, css, data, script }),
+    qaAt: [0.05, 2.0, 2.7, 3.0, 3.6, 3.9, T.snap + 0.2, T.done + 1.8, T.poster + 2.6, T.luck + 3.0, T.wall + 3.0, T.ask + 2.5, DURATION - 0.05],
+    html: composition({ key, title: 'Reel Unlucky 13', duration: DURATION, frameHtml, css, data, script }),
   };
 }

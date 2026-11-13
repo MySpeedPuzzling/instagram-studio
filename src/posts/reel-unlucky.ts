@@ -12,8 +12,8 @@ import { generateJigsaw } from '../pieces/jigsaw.ts';
 
 /** Owner-facing pick (2026-11-13): a black cat crossing your path, on Friday the 13th. */
 export const UNLUCKY_PUZZLE = 'Black Cat and Raven';
-/** The stopwatch drama on the splash: starts here (59:48) and stops when the last piece lands (1:00:02). */
-export const CLOCK = { from: 3588, to: 3602 } as const;
+/** The stopwatch drama on the splash: starts here (59:47: exactly 13 seconds left, owner 2026-11-13) and stops when the last piece lands (1:00:02). */
+export const CLOCK = { from: 3587, to: 3602 } as const;
 
 export interface ReelUnluckySpec {
   missed: number;        // solo 500s finished 1:00:00–1:00:13

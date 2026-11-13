@@ -288,7 +288,21 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Insights at +24/+48 h: sends and comments ("What's been waiting on your shelf the longest?").
 - [x] Reel "I will solve it this weekend" published as a Trial Reel 12 Nov 12:22 Prague: https://www.instagram.com/reel/Dfo77FvN163/ (draft `2026-11-12-reel-shelf`, linked).
 - [x] Teaser Story for followers posted by the owner 12 Nov ~12:34 Prague (link sticker "SEE THE NUMBERS" to the carousel, the Reel's music).
-- [ ] Story insights (reach, link taps) before it expires, Fri 13 Nov ~12:34 Prague; check it is in the "Did you know" highlight.
+- [x] Story insights read at +23 h by the unattended check (13 Nov): reach 401, views 506, 2 replies, 0 shares, 284 taps
+      forward, 129 exits (25 % of views), 11 back, 28 swipes to the next account.
+- [ ] Owner: read the Story's **link taps** in the app (archive → Insights; the API has no link-tap metric) and check
+      it is in the "Did you know" highlight; Claude adds both to `editorial/learnings.md`.
+- [x] +24 h check done 13 Nov 11:41 → `content/reports/pile-of-shame-check-24h.md`. Trial Reel at +23 h: reach 84,
+      avg watch 3.1 s of 42.7 s, skip rate 78 %, no likes/comments/sends/saves (API returns Trial stats; October Trial
+      lifetime: 167 reach, 81.5 % skip). Carousel at +33 h: reach 1282 (median 1280), 44 comments, 11 sends, 3 saves,
+      3 follows. No +24 h snapshots exist for older Reels (pulls were irregular before 12 Nov), so no same-age comparison.
+- [ ] **Trial Reels open too slowly for strangers** (2 of 2 lose ~80 % in the first 3 s vs 42–63 % on follower Reels; a
+      hunch at n = 2): next Trial opens on motion with the payoff in frame 1, no splash card; then run the outro test.
+- [ ] Carousel comments: ~8 unanswered top-level comments with proposed replies in the +24 h report (owner approves
+      and posts; no hint at whose pile is the biggest). One thread quotes an MSP membership price from memory: owner
+      to check it and correct it if it's wrong.
+- [ ] Learnings entry for the pile-of-shame set after the +48 h check (comments/sends standout, Trial opening, first
+      Story baseline).
 - [ ] **Automatic checks scheduled (launchd, see CLAUDE.md "Background jobs"):** `check-shelf24` Fri 13 Nov 11:41 (Story before it expires, Reel +24 h, carousel) → `content/reports/pile-of-shame-check-24h.md`; `check-shelf48` Sat 14 Nov 12:33 (Reel +48 h, carousel, pin verdict) → `content/reports/pile-of-shame-check-48h.md`. Read both at the next session and tell the owner.
 - [x] Regular evaluation (owner 12 Nov): twice-daily pull, weekly review (Mon 07:20), monthly review (1st 07:40) and the Insights page in the review app are installed. First weekly review Mon 16 Nov, first monthly Tue 1 Dec: read them with the owner.
 - [ ] Insights page follow-ups: tidy the tags on old drafts (series/mechanic spelt consistently) so the group tables are cleaner; a small growth chart per post once a few weeks of twice-daily snapshots exist.

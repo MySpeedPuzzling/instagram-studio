@@ -57,7 +57,7 @@ function sheet(o: { left: number; top: number; rows?: number; rotate?: number; s
 }
 
 /** A flat siren (poster shape, no AI): dome on a base, five rays. */
-function siren(cx: number, top: number, s: number, dome: string, glare: string, rays: string): string {
+function siren(cx: number, top: number, s: number, dome: string, glare: string, rays: string, base?: string, rayAngles = [180, 145, 90, 35, 0]): string {
   const w = 150 * s, dh = 130 * s, bw = 210 * s, bh = 42 * s, y0 = top + 70 * s;
   const domeD = `M${f1(cx - w / 2)} ${f1(y0 + dh)} V${f1(y0 + w / 2)} A${f1(w / 2)} ${f1(w / 2)} 0 0 1 ${f1(cx + w / 2)} ${f1(y0 + w / 2)} V${f1(y0 + dh)} Z`;
   const ray = (deg: number, r0: number, r1: number) => {
@@ -65,10 +65,10 @@ function siren(cx: number, top: number, s: number, dome: string, glare: string, 
     return `<line x1="${f1(cx + Math.cos(a) * r0)}" y1="${f1(cy - Math.sin(a) * r0)}" x2="${f1(cx + Math.cos(a) * r1)}" y2="${f1(cy - Math.sin(a) * r1)}" stroke="${rays}" stroke-width="${f1(16 * s)}" stroke-linecap="round"/>`;
   };
   return `<svg width="1080" height="${f1(y0 + dh + bh + 10)}" style="position:absolute; left:0; top:0; overflow:visible" aria-hidden="true">
-    ${[180, 145, 90, 35, 0].map(d => ray(d, 118 * s, 168 * s)).join('')}
-    <path d="${domeD}" fill="${dome}"/>
+    <g class="sw-rays">${rayAngles.map(d => ray(d, 118 * s, 168 * s)).join('')}</g>
+    <path class="sw-dome" d="${domeD}" fill="${dome}"/>
     <path d="M${f1(cx - w * 0.22)} ${f1(y0 + dh - 16 * s)} V${f1(y0 + w * 0.42)} A${f1(w * 0.2)} ${f1(w * 0.2)} 0 0 1 ${f1(cx - w * 0.02)} ${f1(y0 + w * 0.26)}" fill="none" stroke="${glare}" stroke-width="${f1(14 * s)}" stroke-linecap="round"/>
-    <rect x="${f1(cx - bw / 2)}" y="${f1(y0 + dh)}" width="${f1(bw)}" height="${f1(bh)}" rx="${f1(8 * s)}" fill="${dome}"/>
+    <rect x="${f1(cx - bw / 2)}" y="${f1(y0 + dh)}" width="${f1(bw)}" height="${f1(bh)}" rx="${f1(8 * s)}" fill="${base ?? dome}"/>
   </svg>`;
 }
 
@@ -76,10 +76,26 @@ function siren(cx: number, top: number, s: number, dome: string, glare: string, 
 function cta(top: number, email: string, ground: 'navy' | 'coral' | 'paper'): string {
   const navyBand = ground !== 'navy';
   const bg = navyBand ? '#222a38' : GROUNDS.coral.bg, ink = navyBand ? '#ffffff' : '#1d2433', soft = navyBand ? '#ffb0ab' : '#1d2433';
-  return `<div class="h-abs" data-qa-bg="${bg}" style="top:${top}px; background:${bg}; border-radius:14px; padding:30px 32px; box-sizing:border-box; text-align:center">
+  return `<div id="sw-cta" class="h-abs" data-qa-bg="${bg}" style="top:${top}px; background:${bg}; border-radius:14px; padding:30px 32px; box-sizing:border-box; text-align:center">
     <p style="margin:0; font-size:56px; font-weight:700; line-height:1.1; color:${ink}">DM us your file</p>
     <p style="margin:14px 0 0; font-size:38px; font-weight:500; line-height:1.25; color:${soft}">or e-mail <b style="color:${ink}">${h(email)}</b></p>
   </div>`;
+}
+
+/** B's siren (combined with A, owner 2026-11-13): dome centre, and the beacon's two light beams around it. */
+export const SIREN_B = { cx: 948, cy: 300 + 70 * 0.75 + 75 * 0.75 } as const;
+/** The beams' angle on frame 0 (the Story's preview): one beam across the headline, the other up and out of frame. */
+export const BEAM_START = 148;
+
+/** Two opposite coral light beams from the dome, fading out with distance; drawn behind the text (decoration). The
+ *  wrapper rotates around the dome in the animated Story. */
+function beacon(cx: number, cy: number, deg: number): string {
+  const L = 1500, half = 13 * Math.PI / 180;
+  const wedge = (a: number) => `M0 0 L${f1(Math.cos(a - half) * L)} ${f1(Math.sin(a - half) * L)} L${f1(Math.cos(a + half) * L)} ${f1(Math.sin(a + half) * L)} Z`;
+  return `<div id="sw-beam" style="position:absolute; left:${f1(cx)}px; top:${f1(cy)}px; width:0; height:0; transform:rotate(${deg}deg)" aria-hidden="true">
+    <svg width="${2 * L}" height="${2 * L}" viewBox="${-L} ${-L} ${2 * L} ${2 * L}" style="position:absolute; left:${-L}px; top:${-L}px; overflow:visible">
+      <defs><radialGradient id="swb" cx="0" cy="0" r="${L * 0.75}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${GROUNDS.coral.bg}" stop-opacity="0.5"/><stop offset="0.55" stop-color="${GROUNDS.coral.bg}" stop-opacity="0.12"/><stop offset="1" stop-color="${GROUNDS.coral.bg}" stop-opacity="0"/></radialGradient></defs>
+      <path d="${wedge(0)}" fill="url(#swb)"/><path d="${wedge(Math.PI)}" fill="url(#swb)"/></svg></div>`;
 }
 
 export function spreadsheetStory(v: Variant, c: SheetConcept, email = contactEmail()): string {
@@ -98,11 +114,11 @@ export function spreadsheetStory(v: Variant, c: SheetConcept, email = contactEma
   }
   if (c === 'B') {
     const g = GROUNDS.navyDeep;
-    return `<style>${SHEET_CSS}
-      .sw-caret { position:absolute; width:10px; background:${g.hot}; animation:none; }</style>` + frame({
+    return `<style>${SHEET_CSS}</style>` + frame({
       ground: 'navyDeep', kind: 'story', kicker: 'Calling all spreadsheet keepers', device: v.device, src: 'We\'re building import',
-      body: `<h1 class="h-title" style="top:330px; font-size:150px; line-height:1; font-weight:800; letter-spacing:-0.01em">WE WANT</h1>
-        <p class="h-abs" style="top:470px; margin:0; font-size:290px; font-weight:800; line-height:1; letter-spacing:-0.03em; color:${g.ink}">YOU<span style="color:${g.hot}">R</span><span class="sw-caret" style="display:inline-block; position:relative; width:12px; height:230px; margin-left:8px; vertical-align:-14px; background:${g.hot}"></span></p>
+      body: `${beacon(SIREN_B.cx, SIREN_B.cy, BEAM_START)}${siren(SIREN_B.cx, 300, 0.75, g.hot, '#ffb0ab', g.hot, '#5a6479', [145, 90, 35, 0])}
+        <h1 class="h-title" style="top:330px; font-size:150px; line-height:1; font-weight:800; letter-spacing:-0.01em">WE WANT</h1>
+        <p class="h-abs" style="top:470px; margin:0; font-size:290px; font-weight:800; line-height:1; letter-spacing:-0.03em; color:${g.ink}">YOU<span style="color:${g.hot}">R</span><span id="sw-caret" style="display:inline-block; position:relative; width:12px; height:230px; margin-left:8px; vertical-align:-14px; background:${g.hot}"></span></p>
         <p class="h-abs" style="top:770px; margin:0; font-size:110px; font-weight:800; line-height:1; letter-spacing:-0.02em; color:${g.hot}">SPREADSHEETS</p>
         <p class="h-abs h-lead" style="top:918px; margin:0; font-size:40px; color:${g.soft}">Times or a collection in Excel, Google Sheets or Numbers? We're building import, and every real sheet makes it better.</p>
         ${sheet({ left: sheetLeft, top: 1100, rows: 2, rotate: 0, sel: [2, 2] })}

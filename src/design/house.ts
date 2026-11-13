@@ -223,6 +223,8 @@ body { font-variant-numeric: tabular-nums lining-nums slashed-zero; background: 
 .hf.story { height: ${STORY_H}px; }
 .hf > .h-depth { position: absolute; inset: 0; background: var(--g-depth); }
 .hf svg text { font-family: Rubik; font-variant-numeric: tabular-nums lining-nums slashed-zero; }
+/* Owner 2026-11-13: no kicker headers on posts, Stories or Reels (piece mark + kicker + rule); logos and footers stay. */
+.h-head .h-dev, .h-head .h-kick { display: none; }
 .h-head { position: absolute; left: ${X0}px; width: ${CW}px; height: 72px; display: flex; align-items: center; gap: 20px; }
 .h-dev { display: block; flex: none; }
 .h-kick { min-width: 0; font-size: 30px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g-accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -317,6 +319,10 @@ export const siteLine = (src: string) => {
   return /myspeedpuzzling\.com/i.test(src) ? h(src).replace(/myspeedpuzzling\.com/gi, site) : src.trim() ? `${site} · ${h(src)}` : site;
 };
 
+/** Owner 2026-11-13: "remove these kind of headers above each post/story/reel": no piece mark, kicker, carousel index
+ *  or header rule. The kicker stays in FrameOptions (alt text and lab labels still use it); the masthead keeps its logo. */
+export const NO_HEADER = true;
+
 export function frame(o: FrameOptions): string {
   const g = GROUNDS[o.ground];
   const kind = o.kind ?? 'feed';
@@ -340,8 +346,8 @@ export function frame(o: FrameOptions): string {
   return `<div class="hf ${kind === 'story' ? 'story' : ''} v-${ACTIVE?.id ?? 'none'}" style="${groundVars(g)}">
   <div class="h-depth"></div>
   ${o.under ?? ''}
-  <header class="h-head"${headAttr}>${device}<span class="h-kick">${h(o.kicker)}</span>${idxHtml}</header>
-  ${o.noRule ? '' : `<div class="h-rule" style="top:${r.ruleTop}px"></div>`}
+  ${NO_HEADER ? '' : `<header class="h-head"${headAttr}>${device}<span class="h-kick">${h(o.kicker)}</span>${idxHtml}</header>
+  ${o.noRule ? '' : `<div class="h-rule" style="top:${r.ruleTop}px"></div>`}`}
   ${o.body}
   <div class="h-rule" style="top:${r.footRule}px"></div>
   <footer class="h-foot" style="top:${r.footTop - 20}px"><span class="h-src">${siteLine(o.src)}</span>${outlinedLogo()}</footer>

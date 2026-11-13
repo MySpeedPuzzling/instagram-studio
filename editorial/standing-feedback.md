@@ -13,6 +13,10 @@ How to maintain it:
 
 ## Design
 
+- **No kicker headers on posts, Stories or Reels:** no piece mark + uppercase kicker + rule at the top of the frame
+  (and no carousel index there). `frame()` drops them (`NO_HEADER` in `src/design/house.ts`) and HOUSE_CSS hides the
+  piece mark and kicker in Reel mastheads; logos, source lines and footers stay. Say what the post is in the title or
+  the art instead. (owner, 2026-11-13, spreadsheets Story: "remove these kind of headers above each post/story/reel")
 - **Hero numbers keep a margin on both sides:** size them with `heroFit()` to the safe width minus ~40 px, never a fixed
   size that runs to the frame's edge. (owner, 2026-11-13, Unlucky 13 Reel: "more space from the right side" on 1722)
 - **"Old and dusty" never means washed-out pictures:** age the scene (dust, webs, light), keep box art and brand
@@ -206,6 +210,8 @@ How to maintain it:
   holder counts) go into the post, the Reel or the caption. A one-tap share of the post is a fine Story.
   (owner, 2026-11-01) **Exception: countdown teasers** ("guess the day we pass 300 million") may carry the running
   count, because the milestone post on the day carries the full numbers. (owner, 2026-11-13)
+  **Exception: calls to action that ask the community for something** ("DM us your spreadsheet"): the ask is the
+  action, there is no post to point to. (owner, 2026-11-13, spreadsheets Story)
 - **Followers must not miss a post's content:** no Trial Reels for content the followers should see, unless they get the same piece as a Story kept in a highlight (owner, 2026-11-01 evening: October Reel as Trial, its Story to everyone); a Reel on the same
   topic as a carousel is a different experience (the visual), not the slides animated. (owner, 2026-11-01)
 

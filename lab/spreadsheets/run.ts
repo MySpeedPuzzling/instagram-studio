@@ -54,3 +54,15 @@ document.querySelectorAll('.rate').forEach(box=>{box.querySelectorAll('button').
 fetch('/api/feedback'+(location.search?location.search+'&':'?')+'lab=${LAB}').then(r=>r.ok?r.json():[]).then(rows=>{const l={};rows.forEach(r=>{if(r.target)l[r.target]=r;});document.querySelectorAll('.rate').forEach(box=>{const r=l[box.dataset.target];if(!r)return;if(r.rating)box.querySelector('button[data-r="'+r.rating+'"]')?.classList.add('on');box.querySelector('textarea').value=r.note||'';});});
 </script></body></html>`);
 console.log(`${LAB}: ${slides.length} slides, ${[...out.values()].reduce((s, o) => s + o.errors.length, 0)} QA errors → node tools/review.ts → /content/labs/${LAB}/`);
+
+if (process.argv.includes('--video')) {
+  // The animated B (siren beacon behind the headline): node lab/spreadsheets/run.ts --video
+  const { spreadsheetsStoryMotion } = await import('../../src/motion/story-spreadsheets.ts');
+  const { renderMotion } = await import('../../src/motion/render.ts');
+  activateVariant(HOUSE);
+  const motion = spreadsheetsStoryMotion(HOUSE);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DIR, 'video', 'story-spreadsheets'), { qaOnly: process.argv.includes('--qa-only'), snap: process.argv.find(a => a.startsWith('--snap='))?.slice(7), label: `${LAB} story video` });
+  for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+}

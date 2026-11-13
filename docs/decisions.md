@@ -338,3 +338,13 @@ Docker and other unneeded apps turned off.
   followers, the stopwatch ticks from frame 0, ends on a comment question. Builder `src/motion/reel-unlucky.ts`.
 - **Countdown teaser Stories may carry the running count** (exception to "Stories only point and add an action"):
   the 300 million pieces "guess the day" poll Story; the milestone post on the day carries the numbers.
+
+## 2026-11-13: "Your spreadsheets, wanted" Story (import samples)
+
+- MSP is building import for times and collections kept in spreadsheets; a Story asks spreadsheet keepers to **DM the
+  file or e-mail it** (owner: Instagram DMs do carry XLSX). The address comes from gitignored `content/contact.json`.
+- Owner picked **concept B "WE WANT YOU(R SPREADSHEETS)"** from lab SW1, **combined with A's siren**: an animated
+  8 s Story (coral beacon beams sweeping behind the headline, blinking siren and cursor; `src/motion/story-spreadsheets.ts`,
+  `node lab/spreadsheets/run.ts --video`). Format: Story only (no feed post).
+- **Kicker headers removed from every post, Story and Reel** (see standing feedback).
+

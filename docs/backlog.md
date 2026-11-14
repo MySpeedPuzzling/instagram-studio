@@ -10,8 +10,14 @@ Updated 2026-10-17.
 - [x] **Story "We want your spreadsheets" published 13 Nov ~19:44 Prague** (draft `2026-11-13-story-spreadsheets`, lab SW1,
       animated B + A's siren, music + Story caption). Check `check-sheets24` Sat 14 Nov 18:20 →
       `content/reports/spreadsheets-story-check-24h.md`.
-- [ ] Count the spreadsheet samples received (DMs + e-mail) as the Story's real result; hand them to the import work in
-      the app repo; keep the files out of this repo (member data).
+- [x] Spreadsheets Story check done 14 Nov 18:20 (+22.6 h, last API read before it expires): reach 489 (teaser 401 at
+      +23 h), views 694, 1 reply, 4 shares, 5 profile visits, 0 follows, 117 exits (24 % of reach vs the teaser's 32 %).
+      The API can't show DM contents, files or e-mails.
+- [ ] Owner: **count the spreadsheet samples received by hand** (Instagram DMs since 13 Nov 19:44 + e-mail, incl. the
+      pile-of-shame puzzler's promised to-do sheet) and tell the next session the totals; hand them to the import work
+      in the app repo; keep the files out of this repo (member data).
+- [ ] If the count is too low for the import: second ask with a question sticker (one-tap first step) or as a Reel
+      (`caption.txt` in the draft is ready). Decide only after the hand count.
 - [ ] Headers removed house-wide (13 Nov): on the next feed post, tighten the empty ~170 px top band left by the kicker.
 - [x] +24 h check done 14 Nov 18:00 → `content/reports/unlucky13-check-24h.md`. Reel at +24.5 h: reach 576 (Reel
       median 766), views 957, avg watch 10.3 s of 29.8 s, skip 48.6 %, 33 likes, 1 comment, 2 sends, 0 saves. Pile

@@ -6,14 +6,26 @@ Updated 2026-10-17.
 
 ## Now
 
-- [x] **Friday-13th Reel `2026-11-13-reel-unlucky` published 13 Nov 17:31 Prague** (https://www.instagram.com/reel/DfsDnm4NwIy/, linked, caption poll on near misses). Checks scheduled: `check-unlucky24` Sat 14 Nov 18:00 (also reads the 300M Story before it expires), `check-unlucky48` Sun 15 Nov 17:45 (pin verdict). Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.
+- [x] **Friday-13th Reel `2026-11-13-reel-unlucky` published 13 Nov 17:31 Prague** (https://www.instagram.com/reel/DfsDnm4NwIy/, linked, caption poll on near misses). Checks scheduled: `check-unlucky24` Sat 14 Nov 18:00 (done, see below), `check-unlucky48` Sun 15 Nov 17:45 (pin verdict). Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.
 - [x] **Story "We want your spreadsheets" published 13 Nov ~19:44 Prague** (draft `2026-11-13-story-spreadsheets`, lab SW1,
       animated B + A's siren, music + Story caption). Check `check-sheets24` Sat 14 Nov 18:20 →
       `content/reports/spreadsheets-story-check-24h.md`.
 - [ ] Count the spreadsheet samples received (DMs + e-mail) as the Story's real result; hand them to the import work in
       the app repo; keep the files out of this repo (member data).
 - [ ] Headers removed house-wide (13 Nov): on the next feed post, tighten the empty ~170 px top band left by the kicker.
-- [ ] **300M poll Story** (`stories/story-300m.jpg`): owner posts ~19:30 Prague 13 Nov; poll Mon 16 · Tue 17 · Wed 18 · Thu 19; check 1 reads it.
+- [x] +24 h check done 14 Nov 18:00 → `content/reports/unlucky13-check-24h.md`. Reel at +24.5 h: reach 576 (Reel
+      median 766), views 957, avg watch 10.3 s of 29.8 s, skip 48.6 %, 33 likes, 1 comment, 2 sends, 0 saves. Pile
+      carousel at the same age: ~40 comments, ~9 sends. Caption-poll votes are not in the API.
+- [ ] Owner: read the Unlucky 13 **caption-poll vote count** in the app (ends ~Mon 16 Nov 17:30) and tell the next
+      session (many votes with 1 comment would mean the poll soaked up the answers); approve the proposed reply to the
+      one comment (`content/reports/unlucky13-check-24h.md`).
+- [ ] Future polls with a "tell us" question: add a catch-all option (the only Unlucky 13 comment, a near miss of
+      under a minute, fit no option); try the poll alone or the question alone to see which draws people in.
+- [ ] Hunch to watch (n = 3): the last three follower Reels (achievements, missing piece, Unlucky 13) sit at ~750
+      reach vs 1661–2392 for the first four. Check at the weekly review whether non-follower reach dropped.
+- [ ] **300M poll Story** (`stories/story-300m.jpg`): **not found in the API on 14 Nov 18:00** (only the spreadsheets
+      Story from 13 Nov is live). Owner: post it by Sun 15 Nov morning (poll Mon 16 · Tue 17 · Wed 18 · Thu 19) or drop
+      it and do only the milestone post.
 - [ ] **300 million pieces milestone post** on the day it passes (ETA ~Tue 17 Nov, `bs-milestone-pace --fresh` daily from Sun); reveal the poll's winning day.
 - [ ] Ideas kept from the 13 Nov brainstorm: pile-of-shame Black Friday sequel (27 Nov), night owls, re-run the pile Trial Reel with the 929-box wall in frame 1, edges-first poll Story.
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Story posted 2 Nov evening. Next: Story insights before Tue 3 Nov evening; post insights Wed 4 Nov ~20:00 (`node tools/insights.ts`).

@@ -292,7 +292,9 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 
 ## 2026-11-12: pile of shame
 - [x] Published 12 Nov ~02:20 Prague: https://www.instagram.com/p/Dfn2uDhCG9G/
-- [ ] Pin verdict at +48 h (Sat 14 Nov ~02:20): swap a pin for it only if its reach and sends beat the account median.
+- [x] Pin verdict (+48 h check, 14 Nov): **keep all three pins** (Start here, postcard quiz, WJPC). The carousel beats the
+      median (reach 1725 vs 1280, sends 18 vs 7) but carries exact, drifting numbers (evergreen rule) and converts
+      poorly (4 follows vs 32–69 on the pins). No app steps needed.
 - [ ] Optional: a "between" shelf with denser natural cobwebs if the subtle webs read too quietly on phones (SH1, ~8 min ComfyUI).
 - [ ] Optional Story follow-up: the mystery box ("??% unsolved") as a teaser pointing to the post.
 - [ ] Insights at +24/+48 h: sends and comments ("What's been waiting on your shelf the longest?").
@@ -308,11 +310,14 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
       3 follows. No +24 h snapshots exist for older Reels (pulls were irregular before 12 Nov), so no same-age comparison.
 - [ ] **Trial Reels open too slowly for strangers** (2 of 2 lose ~80 % in the first 3 s vs 42–63 % on follower Reels; a
       hunch at n = 2): next Trial opens on motion with the payoff in frame 1, no splash card; then run the outro test.
-- [ ] Carousel comments: ~8 unanswered top-level comments with proposed replies in the +24 h report (owner approves
-      and posts; no hint at whose pile is the biggest). One thread quotes an MSP membership price from memory: owner
-      to check it and correct it if it's wrong.
-- [ ] Learnings entry for the pile-of-shame set after the +48 h check (comments/sends standout, Trial opening, first
-      Story baseline).
-- [ ] **Automatic checks scheduled (launchd, see CLAUDE.md "Background jobs"):** `check-shelf24` Fri 13 Nov 11:41 (Story before it expires, Reel +24 h, carousel) → `content/reports/pile-of-shame-check-24h.md`; `check-shelf48` Sat 14 Nov 12:33 (Reel +48 h, carousel, pin verdict) → `content/reports/pile-of-shame-check-48h.md`. Read both at the next session and tell the owner.
+- [x] Carousel comments from the +24 h report: answered by the owner 13 Nov ~13:00 (incl. the $6/month price note).
+- [ ] 4 newer comments (13 Nov evening) with proposed replies in `content/reports/pile-of-shame-check-48h.md`: owner
+      approves and posts. One puzzler promised to send their to-do spreadsheet by DM (count it for the spreadsheets
+      Story; never confirm or compare whose pile is biggest).
+- [x] +48 h check done 14 Nov 12:33 → `content/reports/pile-of-shame-check-48h.md`. Carousel at +58 h: reach 1725
+      (1.35× median, +35 % on day 3 after the batch of replies), 60 comments, 18 sends (1.04 % of reach), 4 saves,
+      4 follows. Trial Reel at +48 h: reach 89, skip 78.4 %, avg 3.0 s, no interactions: finished.
+- [x] Learnings entry for the pile-of-shame set written (14 Nov).
+- [x] **Automatic checks ran (both reports in `content/reports/`; tell the owner at the next session):** `check-shelf24` Fri 13 Nov 11:41 (Story before it expires, Reel +24 h, carousel) → `content/reports/pile-of-shame-check-24h.md`; `check-shelf48` Sat 14 Nov 12:33 (Reel +48 h, carousel, pin verdict) → `content/reports/pile-of-shame-check-48h.md`. Read both at the next session and tell the owner.
 - [x] Regular evaluation (owner 12 Nov): twice-daily pull, weekly review (Mon 07:20), monthly review (1st 07:40) and the Insights page in the review app are installed. First weekly review Mon 16 Nov, first monthly Tue 1 Dec: read them with the owner.
 - [ ] Insights page follow-ups: tidy the tags on old drafts (series/mechanic spelt consistently) so the group tables are cleaner; a small growth chart per post once a few weeks of twice-daily snapshots exist.

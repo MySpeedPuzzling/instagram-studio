@@ -2,6 +2,24 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Pile-of-shame set (2026-11-12: carousel + Trial Reel + teaser Story; checks 13 and 14 Nov)
+- **A funny fact with a "what's yours?" question is a comment-and-send post, not a follower magnet.** Carousel at
+  +58 h: reach 1725 (1.35× the 2026 carousel median of 1280), 60 comments (~35 from puzzlers, the rest our replies),
+  18 sends (1.04 % of reach, 2.6× the median, the best share rate of any pipeline post), 4 saves, 4 follows. One post:
+  a hunch, but it fits the 1000-vs-500 Reel (a claim people want to forward also got the most sends).
+- **Reach grew 35 % on day 3** (1282 at +33 h → 1725 at +58 h, sends 11 → 18) after a batch of 12 replies to comments
+  on day 2. Possible cause: fresh comment activity pushing it back into feeds. Unproven (the API gives no per-day source),
+  one post. Worth testing: answer comments in a batch on day 2 and watch the next pull.
+- **Trial Reels: two out of two stalled below 170 accounts.** Pile Trial at +48 h: reach 89 (+5 on day 2), skip rate
+  78 %, average watch 3.0 s of 42.7 s, no interactions; the October Trial: 167, 81.5 %. Follower Reels skip 46–62 %.
+  Hunch (n = 2): strangers decide in the first 1–3 s and a title splash loses them. The next Trial opens on motion with
+  the payoff in frame 1.
+- **First Story baseline with navigation numbers** (teaser to followers, video with a link sticker, read at +23 h):
+  reach 401 (~15 % of followers), views 506, taps forward 56 % of views, exits 25 %, 11 re-watches, 2 replies. Link taps
+  aren't in the API (app archive only).
+- **Pin rule in practice:** beating the median on reach and sends isn't enough. A post with exact, drifting numbers stays
+  unpinned (evergreen rule), and a pin also has to convert. The current pins brought 32–69 follows each, against 4 here.
+
 ## First 12 days of the pipeline (pulled 2026-10-29)
 Baseline: median reach of the 12 posts before 17 Oct = ~1220. Since then 4 carousels + 4 Reels (+ the 29 Oct Reel, too
 young). Posts are 2–12 days old, so the youngest will still grow. n = 4 per format: **hunches, not findings.**

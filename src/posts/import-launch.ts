@@ -248,6 +248,8 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
         <p class="h-abs" style="top:822px; font-size:32px; line-height:1.3; color:var(--g-soft)">Free for every account. The guide walks you through it.</p>
         <p class="h-abs" style="top:960px; font-size:46px; font-weight:800; line-height:1.15; color:var(--g-ink)">Know someone with a <span style="color:var(--c-hot)">legendary</span> puzzle spreadsheet? Send them this.</p>`,
       src: 'myspeedpuzzling.com/en/import-your-spreadsheet',
+      // Owner 2026-11-15: the guide's address on one line (it needs /en; the address without it is a 404).
+      css: '.h-foot .h-src { white-space: nowrap; letter-spacing: -0.01em; } .h-foot .h-site { font-size: 1em; }',
     });
   };
 

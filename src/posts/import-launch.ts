@@ -9,7 +9,7 @@
 //              PiecesReaderTest 13x99 (multipack, choices));
 //   4 why      results typed in by hand in the last 12 months (`import-backdated`), 1 in 11 as a strip of 11 pieces;
 //   5 code     75 000+ lines of code, 46 000 of tests, 30 updates (1 piece each), 6 languages (GitHub PRs, `github-import-prs`);
-//   6 sandbox  first version, it will trip; a piece with a plaster; DM us "SANDBOX";
+//   6 sandbox  first version, it will trip; a piece with a plaster; comment "SANDBOX" and we DM you (owner 2026-11-15);
 //   7 cta      tell us everything: DM or e-mail; where to find it; send it to the spreadsheet friend.
 // Facts the app session confirmed (2026-11-15): free for everyone; .xlsx, .csv, .tsv or a Google Sheets link (not .xls,
 // .ods or Numbers); results solo/pair/team, owned puzzles, wish list; Undo per row, adding or import; never added twice.
@@ -228,8 +228,8 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
         <p class="h-abs" style="top:${TOP + 166}px; font-size:38px; line-height:1.3; color:var(--g-ink)">That’s where you come in: throw your weirdest spreadsheet at it.</p>
         <p class="h-abs" style="left:${tx}px; top:${top - 20}px; width:${X1 - tx}px; font-size:34px; line-height:1.3; color:var(--g-soft)">Want to go all in? Our <b style="color:var(--g-ink)">sandbox</b> is a test copy of MySpeedPuzzling. Nothing there touches your real profile.</p>
         <p class="h-abs" style="top:${top + pw + 130}px; font-size:64px; font-weight:800; line-height:1.1; color:var(--c-hot)">Break it there. Gently.</p>
-        <p class="h-abs" style="top:${top + pw + 226}px; font-size:40px; line-height:1.25; color:var(--g-ink)">DM us <b>SANDBOX</b> and we’ll set you up.</p>`,
-      src: 'Sandbox access by DM',
+        <p class="h-abs" style="top:${top + pw + 226}px; font-size:40px; line-height:1.25; color:var(--g-ink)">Comment <b>SANDBOX</b> and we’ll DM you.</p>`,
+      src: '',
     });
   };
 
@@ -262,7 +262,7 @@ export function importAlt(s: ImportSpec): string[] {
     `Made for real spreadsheets, not tidy ones. What you typed and what the import reads: 8min reads as 8:00; 1h23 as 1:23:00; 1:40ish gets one question: hours or minutes?; Sept 2020 as September 2020; 13x99 asks you first. A puzzle that isn't in the catalogue stays yours, just for you, until it's matched. Dates with only a month or a year stay that way. We've seen things.`,
     `Why we built it: ${fmtInt(s.backdated)} results were typed in by hand in the last 12 months, one by one, months or years after the solve. A strip of ${s.oneIn} puzzle pieces with one in coral: 1 in ${s.oneIn} of all results added on MSP. By ${fmtInt(s.puzzlers)} puzzlers; ${s.p100} of them typed in over 100. Your fingers deserve a break.`,
     `Looks like one menu item. It's ${thousandsDown(c.code)}+ lines of code, built and shipped in 3 days in ${c.prs} updates, shown as ${c.prs} coral puzzle pieces, one per update. ${thousandsNear(c.tests)} lines of tests, so it doesn't break your data. ${c.languages} languages from day one.`,
-    `It's a first version. It will trip somewhere. That's where you come in: throw your weirdest spreadsheet at it. A puzzle piece with a coral sticking plaster across it. Want to go all in? Our sandbox is a test copy of MySpeedPuzzling; nothing there touches your real profile. Break it there. Gently. DM us SANDBOX and we'll set you up.`,
+    `It's a first version. It will trip somewhere. That's where you come in: throw your weirdest spreadsheet at it. A puzzle piece with a coral sticking plaster across it. Want to go all in? Our sandbox is a test copy of MySpeedPuzzling; nothing there touches your real profile. Break it there. Gently. Comment SANDBOX and we'll DM you.`,
     `Tried it? Tell us everything: what broke, what confused you, what you wish it did. Every note makes version 2 better. DM us or e-mail ${s.email}. Find it on myspeedpuzzling.com: Menu, Import a spreadsheet. Free for every account; the guide walks you through it. Know someone with a legendary puzzle spreadsheet? Send them this.`,
   ];
 }
@@ -274,7 +274,7 @@ export function importCaption(s: ImportSpec): string {
     '',
     'Upload Excel or CSV, or paste a Google Sheets link. We read your columns, match your rows to puzzles in the catalogue, and you add what you want: solo, pair and team puzzle times, your puzzle collection, your wish list. Never twice, with Undo.',
     '',
-    `It's a first version (${thousandsDown(c.code)}+ lines of code, built in 3 days), so it will trip over some sheets. Break it. Gently 🙏 Want to test it hard? DM us "sandbox" for our test copy of MSP.`,
+    `It's a first version (${thousandsDown(c.code)}+ lines of code, built in 3 days), so it will trip over some sheets. Break it. Gently 🙏 Want to test it hard? Comment "sandbox" and we'll DM you access to our test copy of MSP.`,
     '',
     `Found a bug? DM us or e-mail ${s.email}. Free for every account: Menu → Import a spreadsheet.`,
     '',

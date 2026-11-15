@@ -163,6 +163,9 @@ How to maintain it:
 
 ## Captions and voice
 
+- **A keyword comment is fine when it triggers a real service** ("Comment SANDBOX and we'll DM you" access): the
+  playbook's "no fixed-token asks" is about engagement bait, not this. We DM only people who asked by commenting.
+  (owner, 2026-11-15, import launch)
 - **Funny facts need a funny tone on every slide and in the caption**, not just a surprising number: playful headlines
   and one-line asides next to the data ("we did the math nobody asked for", "snacks not included"), facts still exact.
   An open question to the community ("Who is this puzzle collector? Is it you?") works without naming anyone.

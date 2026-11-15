@@ -30,7 +30,7 @@ const ROWS: string[][] = [
   ['Tea shop', '', '', 'unsolved'],
 ];
 
-const SHEET_CSS = `
+export const SHEET_CSS = `
 .sw-sheet { position: absolute; background: #fff; border-radius: 10px; box-shadow: 0 22px 48px -14px rgba(16,22,34,.5); overflow: hidden; }
 .sw-sheet table { border-collapse: collapse; font-size: 30px; color: #2b3445; table-layout: fixed; }
 .sw-sheet td, .sw-sheet th { border: 1.5px solid #d5dce6; height: 58px; padding: 0 12px; white-space: nowrap; overflow: hidden; text-overflow: clip; text-align: left; }
@@ -43,7 +43,7 @@ const SHEET_CSS = `
 .sw-sheet td.date { color: #aa383a; font-weight: 500; }
 `;
 
-function sheet(o: { left: number; top: number; rows?: number; rotate?: number; sel?: [number, number] }): string {
+export function sheet(o: { left: number; top: number; rows?: number; rotate?: number; sel?: [number, number] }): string {
   const rows = ROWS.slice(0, o.rows ?? ROWS.length);
   const width = 56 + COLS.reduce((s, c) => s + c.w, 0);
   const colgroup = `<colgroup><col style="width:56px">${COLS.map(c => `<col style="width:${c.w}px">`).join('')}</colgroup>`;
@@ -57,7 +57,7 @@ function sheet(o: { left: number; top: number; rows?: number; rotate?: number; s
 }
 
 /** A flat siren (poster shape, no AI): dome on a base, five rays. */
-function siren(cx: number, top: number, s: number, dome: string, glare: string, rays: string, base?: string, rayAngles = [180, 145, 90, 35, 0]): string {
+export function siren(cx: number, top: number, s: number, dome: string, glare: string, rays: string, base?: string, rayAngles = [180, 145, 90, 35, 0]): string {
   const w = 150 * s, dh = 130 * s, bw = 210 * s, bh = 42 * s, y0 = top + 70 * s;
   const domeD = `M${f1(cx - w / 2)} ${f1(y0 + dh)} V${f1(y0 + w / 2)} A${f1(w / 2)} ${f1(w / 2)} 0 0 1 ${f1(cx + w / 2)} ${f1(y0 + w / 2)} V${f1(y0 + dh)} Z`;
   const ray = (deg: number, r0: number, r1: number) => {

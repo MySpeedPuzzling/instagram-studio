@@ -348,3 +348,18 @@ Docker and other unneeded apps turned off.
   `node lab/spreadsheets/run.ts --video`). Format: Story only (no feed post).
 - **Kicker headers removed from every post, Story and Reel** (see standing feedback).
 
+
+## 2026-11-15: import launch carousel ("Break it. (Gently.)")
+
+- Spreadsheet import went live on MSP on 15 Nov (free for every account). Launch = a **carousel** (owner's hunch,
+  Claude agreed: the audience is followers who keep spreadsheets, the post needs reading, and recent carousels beat
+  follower Reels on reach), published the same evening. A Reel of the flow can follow later as a Trial Reel.
+- Owner picks: cover **"Break it. (Gently.)"** (over "WE WANT YOU(R HELP)"); the build size as **"75 000+ lines of
+  code" + "46 000 lines of tests"** (verified on GitHub: PRs #344–#374 without #349 add 76 846 lines of app code,
+  45 931 of tests, 11 837 of translations, 7272 of docs; translations and docs are not counted as code); the
+  **sandbox only by DM** (no address on the slides; the owner copies a tester's login over by hand).
+- Claims stay within what the app session confirmed: .xlsx, .csv, .tsv or a Google Sheets link (**not** Numbers,
+  .xls or .ods); results solo/pair/team, owned puzzles, wish list; never added twice; Undo. Nothing is claimed as
+  "tested by players". Steps drawn in code (no screenshots: the flow changed five times on launch day).
+- New query `import-backdated` (results added through the form with a solve date over 30 days earlier, last 12
+  months); code numbers come from `gh` into the `github-import-prs` fact (cached in content/cache).

@@ -10,6 +10,7 @@
 //   node tools/draft.ts weekly-rc1 | weekly-rc2   # The Weekly Numbers, two release candidates (full / compact)
 //   node tools/draft.ts tier-list                 # Subject tier list + HELL tier (Krypt), weekend data carousel
 //   node tools/draft.ts pile-of-shame             # Funny fact: unsolved puzzles in collections, pile ladder, museum exhibits (SH1 A)
+//   node tools/draft.ts import-launch             # Import launch: "Break it. (Gently.)", call for testers + sandbox by DM
 //   node tools/draft.ts monthly                   # The monthly recap of the last full month (run on the 1st)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -29,6 +30,7 @@ import { buildMonthlySpec } from '../src/posts/monthly-data.ts';
 import { fasterAlt, fasterSlides, fasterStories, type Contender, type FasterSpec } from '../src/posts/faster.ts';
 import { buildTierSpec, tierAlt, tierCaption, tierSlides } from '../src/posts/tier-list.ts';
 import { buildShelfSpec, shelfAlt, shelfCaption, shelfSlides } from '../src/posts/pile-of-shame.ts';
+import { buildImportSpec, importAlt, importCaption, importSlides } from '../src/posts/import-launch.ts';
 import { metered } from '../src/render/meter.ts';
 import { createRenderer } from '../src/render/render.ts';
 import { ROOT } from '../src/render/server.ts';
@@ -178,6 +180,19 @@ const BUILDERS: Record<string, () => Promise<Built>> = {
       facts, slides, alt: shelfAlt(spec, 'A'), caption: shelfCaption(spec), captionPillar: 'carousel',
       searchPhrases: ['jigsaw puzzles', 'puzzle collector'],
       properNouns: [...new Set([spec.hero.puzzle, spec.share.puzzle, spec.giant.puzzle, ...spec.puzzles.map(p => p.puzzle)])],
+    };
+  },
+  // Import launch (owner 2026-11-15): spreadsheet import is live, a first version; call for testers, sandbox by DM.
+  'import-launch': async () => {
+    const { spec, facts } = await buildImportSpec({ fresh: !process.argv.includes('--cached') });
+    activateVariant(HOUSE);
+    const slides = importSlides(HOUSE, spec);
+    activateVariant(undefined);
+    return {
+      id: `${new Date().toISOString().slice(0, 10)}-import-launch`, title: 'Import launch: Break it. (Gently.)', pillar: 'community', format: 'carousel',
+      tags: { series: 'feature-launch', slot: 'sunday-launch', mechanic: 'call-to-action+humour+send-a-friend', template: 'import-launch', style: 'H4', follows: '2026-11-13-story-spreadsheets' },
+      facts, slides, alt: importAlt(spec), caption: importCaption(spec), captionPillar: 'carousel',
+      searchPhrases: ['spreadsheet import', 'puzzle collection'], properNouns: ['MySpeedPuzzling', 'Google Sheets', 'Excel', 'MSP', 'SANDBOX'],
     };
   },
   'faster-postcards': async () => {

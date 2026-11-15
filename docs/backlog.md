@@ -6,6 +6,12 @@ Updated 2026-10-17.
 
 ## Now
 
+- [ ] **Import launch carousel `2026-11-15-import-launch`** (7 slides, "Break it. (Gently.)", in review 15 Nov evening):
+      owner approves in the review app → publish; then share to Story, schedule +24 h / +48 h checks (sends, DMs
+      saying "sandbox", comments), pins advice. Owner copies sandbox logins by hand for whoever DMs. Note: the
+      13 Nov spreadsheets Story named Numbers, which the import does **not** read (only .xlsx, .csv, .tsv, Google Sheets).
+- [ ] Optional follow-up: a Trial Reel of the real import flow (screen recording on the sandbox with a made-up account)
+      once the screens settle.
 - [x] **Friday-13th Reel `2026-11-13-reel-unlucky` published 13 Nov 17:31 Prague** (https://www.instagram.com/reel/DfsDnm4NwIy/, linked, caption poll on near misses). Checks scheduled: `check-unlucky24` Sat 14 Nov 18:00 (done, see below), `check-unlucky48` Sun 15 Nov 17:45 (pin verdict). Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.
 - [x] **Story "We want your spreadsheets" published 13 Nov ~19:44 Prague** (draft `2026-11-13-story-spreadsheets`, lab SW1,
       animated B + A's siren, music + Story caption). Check `check-sheets24` Sat 14 Nov 18:20 →

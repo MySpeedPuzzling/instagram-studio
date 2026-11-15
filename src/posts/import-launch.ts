@@ -151,7 +151,7 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
     return board(v, x, {
       title: 'Years of puzzles in a spreadsheet? Bring them in.',
       body: svg(art) + html + `<p class="h-abs" style="top:${top + rows.length * ph + 34}px; font-size:32px; line-height:1.25; color:var(--g-ink)">Times (solo, pair, team), your collection and your wish list. <b style="color:var(--c-hot)">Never added twice.</b></p>`,
-      src: 'Menu → Import a spreadsheet',
+      src: 'Your profile → Import a spreadsheet',
     });
   };
 
@@ -244,7 +244,7 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
           <p style="margin:0; font-size:60px; font-weight:800; line-height:1.1; color:${NAVY}">DM us</p>
           <p style="margin:12px 0 0; font-size:38px; font-weight:500; line-height:1.25; color:${NAVY}">or e-mail <b>${h(s.email)}</b></p></div>
         <p class="h-abs" style="top:720px; font-size:30px; line-height:1.2; color:var(--g-soft)">Find it on myspeedpuzzling.com</p>
-        <p class="h-abs" style="top:762px; font-size:40px; font-weight:700; line-height:1.2; color:var(--g-ink)">Menu → Import a spreadsheet</p>
+        <p class="h-abs" style="top:762px; font-size:40px; font-weight:700; line-height:1.2; color:var(--g-ink)">Your profile → Import a spreadsheet</p>
         <p class="h-abs" style="top:822px; font-size:32px; line-height:1.3; color:var(--g-soft)">Free for every account. The guide walks you through it.</p>
         <p class="h-abs" style="top:960px; font-size:46px; font-weight:800; line-height:1.15; color:var(--g-ink)">Know someone with a <span style="color:var(--c-hot)">legendary</span> puzzle spreadsheet? Send them this.</p>`,
       src: 'myspeedpuzzling.com/en/import-your-spreadsheet',
@@ -258,12 +258,12 @@ export function importAlt(s: ImportSpec): string[] {
   const c = s.code;
   return [
     `Cover on a coral and navy puzzle poster: Break it. (Gently.) Spreadsheet import is live on MySpeedPuzzling. It's brand new, and we want you to test it. Below, a small spreadsheet with columns Puzzle, Time, Date and Notes, its dates written in different ways, wrapped in coral parcel tape that says FRAGILE, HANDLE WITH CARE, and a coral siren.`,
-    `Years of puzzles in a spreadsheet? Bring them in. Five steps as a column of five interlocking puzzle pieces: 1 File: Excel (.xlsx), CSV, or a Google Sheets link. 2 Check: we read your columns and ask only what's unclear. 3 People: pair and team partners become players. 4 Puzzles: your rows matched to the MSP catalogue. 5 Add: you pick what goes in; changed your mind? Undo. Times (solo, pair, team), your collection and your wish list. Never added twice. Menu, Import a spreadsheet.`,
+    `Years of puzzles in a spreadsheet? Bring them in. Five steps as a column of five interlocking puzzle pieces: 1 File: Excel (.xlsx), CSV, or a Google Sheets link. 2 Check: we read your columns and ask only what's unclear. 3 People: pair and team partners become players. 4 Puzzles: your rows matched to the MSP catalogue. 5 Add: you pick what goes in; changed your mind? Undo. Times (solo, pair, team), your collection and your wish list. Never added twice. Your profile, Import a spreadsheet.`,
     `Made for real spreadsheets, not tidy ones. What you typed and what the import reads: 8min reads as 8:00; 1h23 as 1:23:00; 1:40ish gets one question: hours or minutes?; Sept 2020 as September 2020; 13x99 asks you first. A puzzle that isn't in the catalogue stays yours, just for you, until it's matched. Dates with only a month or a year stay that way. We've seen things.`,
     `Why we built it: ${fmtInt(s.backdated)} results were typed in by hand in the last 12 months, one by one, months or years after the solve. A strip of ${s.oneIn} puzzle pieces with one in coral: 1 in ${s.oneIn} of all results added on MSP. By ${fmtInt(s.puzzlers)} puzzlers; ${s.p100} of them typed in over 100. Your fingers deserve a break.`,
     `Looks like one menu item. It's ${thousandsDown(c.code)}+ lines of code, built and shipped in 3 days in ${c.prs} updates, shown as ${c.prs} coral puzzle pieces, one per update. ${thousandsNear(c.tests)} lines of tests, so it doesn't break your data. ${c.languages} languages from day one.`,
     `It's a first version. It will trip somewhere. That's where you come in: throw your weirdest spreadsheet at it. A puzzle piece with a coral sticking plaster across it. Want to go all in? Our sandbox is a test copy of MySpeedPuzzling; nothing there touches your real profile. Break it there. Gently. Comment SANDBOX and we'll DM you.`,
-    `Tried it? Tell us everything: what broke, what confused you, what you wish it did. Every note makes version 2 better. DM us or e-mail ${s.email}. Find it on myspeedpuzzling.com: Menu, Import a spreadsheet. Free for every account; the guide walks you through it. Know someone with a legendary puzzle spreadsheet? Send them this.`,
+    `Tried it? Tell us everything: what broke, what confused you, what you wish it did. Every note makes version 2 better. DM us or e-mail ${s.email}. Find it on myspeedpuzzling.com: Your profile, Import a spreadsheet. Free for every account; the guide walks you through it. Know someone with a legendary puzzle spreadsheet? Send them this.`,
   ];
 }
 
@@ -276,7 +276,7 @@ export function importCaption(s: ImportSpec): string {
     '',
     `It's a first version (${thousandsDown(c.code)}+ lines of code, built in 3 days), so it will trip over some sheets. Break it. Gently 🙏 Want to test it hard? Comment "sandbox" and we'll DM you access to our test copy of MSP.`,
     '',
-    `Found a bug? DM us or e-mail ${s.email}. Free for every account: Menu → Import a spreadsheet.`,
+    `Found a bug? DM us or e-mail ${s.email}. It's free: Your profile → Import a spreadsheet.`,
     '',
     'Know someone with a legendary puzzle spreadsheet? Send them this.',
     '',

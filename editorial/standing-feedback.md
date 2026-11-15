@@ -163,6 +163,9 @@ How to maintain it:
 
 ## Captions and voice
 
+- **Paths in the app are named exactly where people click:** "Your profile → Import a spreadsheet" (the avatar
+  dropdown), never "Menu → …": MSP also has a hamburger menu, so "menu" misleads. Check the label in the app's EN
+  translations. (owner, 2026-11-15, import launch)
 - **A keyword comment is fine when it triggers a real service** ("Comment SANDBOX and we'll DM you" access): the
   playbook's "no fixed-token asks" is about engagement bait, not this. We DM only people who asked by commenting.
   (owner, 2026-11-15, import launch)

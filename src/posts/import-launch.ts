@@ -113,18 +113,21 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
 
   const cover = () => {
     // Owner 2026-11-15: the dek touched a seam knob. The seam follows the text: dek bottom + 60 px + the knobs' upward reach.
-    const x = ctx('cover'), dekTop = TOP + 300, dekBottom = dekTop + 2 * Math.ceil(38 * 1.3), seam = Math.ceil(dekBottom + 60 + seamReach().up);
+    // Owner 2026-11-15: "Import?" as the first line, "Break it." slightly smaller. Lines stack from TOP; the seam follows the dek.
+    const L1 = TOP - 8, L2 = L1 + 92, L3 = L2 + 142, dekTop = L3 + 118;
+    const x = ctx('cover'), dekBottom = dekTop + 2 * Math.ceil(38 * 1.3), seam = Math.ceil(dekBottom + 60 + seamReach().up);
     const topG = GROUNDS[v.ground(slotOf(x, 'cover'))], base = GROUNDS[v.posterBase ?? 'navyDeep'];
     const head = `<div style="${groundVars(topG)}" data-qa-bg="${topG.bg}">
-        <h1 class="h-title" style="top:${TOP - 6}px; font-size:168px; line-height:.98; letter-spacing:-0.03em; font-weight:800">Break it.</h1>
-        <p class="h-abs" style="top:${TOP + 166}px; font-size:110px; line-height:1; letter-spacing:-0.02em; font-weight:800; color:${topG.ink}">(Gently.)</p>
+        <p class="h-abs" style="top:${L1}px; font-size:84px; line-height:1; letter-spacing:-0.02em; font-weight:800; color:${topG.ink}">Import?</p>
+        <h1 class="h-title" style="top:${L2}px; font-size:144px; line-height:.98; letter-spacing:-0.03em; font-weight:800">Break it.</h1>
+        <p class="h-abs" style="top:${L3}px; font-size:100px; line-height:1; letter-spacing:-0.02em; font-weight:800; color:${topG.ink}">(Gently.)</p>
         <p class="h-dek h-abs" style="top:${dekTop}px; width:${CW - 20}px; font-size:38px; color:${topG.ink}">Spreadsheet import is live on MySpeedPuzzling. It’s brand new, and we want you to test it.</p></div>`;
     const under = `<svg class="h-poster-top" width="${W}" height="${FEED_H}" viewBox="0 0 ${W} ${FEED_H}" aria-hidden="true"><path d="${posterTopPath(seam)}" fill="${topG.bg}"/></svg>${head}`;
     const sheetW = 56 + 280 + 140 + 212 + 200, left = (W - sheetW) / 2 - 30;
     const body = `<style>${SHEET_CSS}</style>
-      <div data-qa-bleed data-qa-overlap-ok>${sheet({ left, top: seam + 200, rows: 3, rotate: -3, sel: [3, 2] })}</div>
-      ${tape(W / 2 - 20, seam + 360, 1240, -9)}
-      ${siren(940, seam + 30, 0.62, CORAL, '#ffb0ab', CORAL, '#5a6479', [145, 90, 35])}`;
+      <div data-qa-bleed data-qa-overlap-ok>${sheet({ left, top: seam + 175, rows: 3, rotate: -3, sel: [3, 2] })}</div>
+      ${tape(W / 2 - 20, seam + 335, 1240, -9)}
+      ${siren(940, seam + 8, 0.56, CORAL, '#ffb0ab', CORAL, '#5a6479', [145, 90, 35])}`;
     return frame({ ground: base.key, kicker: 'Import', device: v.device, body, src: 'Spreadsheet import · free for every MSP account', under, noRule: true, headGround: topG.key });
   };
 
@@ -259,7 +262,7 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
 export function importAlt(s: ImportSpec): string[] {
   const c = s.code;
   return [
-    `Cover on a coral and navy puzzle poster: Break it. (Gently.) Spreadsheet import is live on MySpeedPuzzling. It's brand new, and we want you to test it. Below, a small spreadsheet with columns Puzzle, Time, Date and Notes, its dates written in different ways, wrapped in coral parcel tape that says FRAGILE, HANDLE WITH CARE, and a coral siren.`,
+    `Cover on a coral and navy puzzle poster: Import? Break it. (Gently.) Spreadsheet import is live on MySpeedPuzzling. It's brand new, and we want you to test it. Below, a small spreadsheet with columns Puzzle, Time, Date and Notes, its dates written in different ways, wrapped in coral parcel tape that says FRAGILE, HANDLE WITH CARE, and a coral siren.`,
     `Years of puzzles in a spreadsheet? Bring them in. Five steps as a column of five interlocking puzzle pieces: 1 File: Excel (.xlsx), CSV, or a Google Sheets link. 2 Check: we read your columns and ask only what's unclear. 3 People: pair and team partners become players. 4 Puzzles: your rows matched to the MSP catalogue. 5 Add: you pick what goes in; changed your mind? Undo. Times (solo, pair, team), your collection and your wish list. Never added twice. Your profile, Import a spreadsheet.`,
     `Made for real spreadsheets, not tidy ones. What you typed and what the import reads: 8min reads as 8:00; 1h23 as 1:23:00; 1:40ish gets one question: hours or minutes?; Sept 2020 as September 2020; 13x99 asks you first. A puzzle that isn't in the catalogue stays yours, just for you, until it's matched. Dates with only a month or a year stay that way. We've seen things.`,
     `Why we built it: ${fmtInt(s.backdated)} old results were backfilled by hand in the last 12 months: puzzlers typing in their whole history, one result at a time. A strip of ${s.oneIn} puzzle pieces with one in coral: 1 in ${s.oneIn} of all results added on MSP. By ${fmtInt(s.puzzlers)} puzzlers; ${s.p100} of them backfilled over 100. Your fingers deserve a break.`,

@@ -17,7 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { query, type QueryResult } from '../data/db.ts';
-import { CW, FEED, FEED_H, GROUNDS, W, X0, X1, f1, frame, groundVars, heroFit, posterTopPath, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
+import { CW, FEED, FEED_H, GROUNDS, W, X0, X1, f1, frame, groundVars, heroFit, posterTopPath, seamReach, slotOf, type SlideCtx, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtInt } from '../design/page.ts';
 import { generateJigsaw } from '../pieces/jigsaw.ts';
 import { ROOT } from '../render/server.ts';
@@ -112,18 +112,19 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
   const src = `Data: myspeedpuzzling.com · ${s.asOf}`;
 
   const cover = () => {
-    const x = ctx('cover'), seam = 560;
+    // Owner 2026-11-15: the dek touched a seam knob. The seam follows the text: dek bottom + 60 px + the knobs' upward reach.
+    const x = ctx('cover'), dekTop = TOP + 300, dekBottom = dekTop + 2 * Math.ceil(38 * 1.3), seam = Math.ceil(dekBottom + 60 + seamReach().up);
     const topG = GROUNDS[v.ground(slotOf(x, 'cover'))], base = GROUNDS[v.posterBase ?? 'navyDeep'];
     const head = `<div style="${groundVars(topG)}" data-qa-bg="${topG.bg}">
         <h1 class="h-title" style="top:${TOP - 6}px; font-size:168px; line-height:.98; letter-spacing:-0.03em; font-weight:800">Break it.</h1>
         <p class="h-abs" style="top:${TOP + 166}px; font-size:110px; line-height:1; letter-spacing:-0.02em; font-weight:800; color:${topG.ink}">(Gently.)</p>
-        <p class="h-dek h-abs" style="top:${TOP + 300}px; width:${CW - 20}px; font-size:38px; color:${topG.ink}">Spreadsheet import is live on MySpeedPuzzling. It’s brand new, and we want you to test it.</p></div>`;
+        <p class="h-dek h-abs" style="top:${dekTop}px; width:${CW - 20}px; font-size:38px; color:${topG.ink}">Spreadsheet import is live on MySpeedPuzzling. It’s brand new, and we want you to test it.</p></div>`;
     const under = `<svg class="h-poster-top" width="${W}" height="${FEED_H}" viewBox="0 0 ${W} ${FEED_H}" aria-hidden="true"><path d="${posterTopPath(seam)}" fill="${topG.bg}"/></svg>${head}`;
     const sheetW = 56 + 280 + 140 + 212 + 200, left = (W - sheetW) / 2 - 30;
     const body = `<style>${SHEET_CSS}</style>
-      <div data-qa-bleed data-qa-overlap-ok>${sheet({ left, top: 760, rows: 4, rotate: -3, sel: [3, 2] })}</div>
-      ${tape(W / 2 - 20, 930, 1240, -9)}
-      ${siren(940, 600, 0.62, CORAL, '#ffb0ab', CORAL, '#5a6479', [145, 90, 35])}`;
+      <div data-qa-bleed data-qa-overlap-ok>${sheet({ left, top: seam + 200, rows: 3, rotate: -3, sel: [3, 2] })}</div>
+      ${tape(W / 2 - 20, seam + 360, 1240, -9)}
+      ${siren(940, seam + 30, 0.62, CORAL, '#ffb0ab', CORAL, '#5a6479', [145, 90, 35])}`;
     return frame({ ground: base.key, kicker: 'Import', device: v.device, body, src: 'Spreadsheet import · free for every MSP account', under, noRule: true, headGround: topG.key });
   };
 

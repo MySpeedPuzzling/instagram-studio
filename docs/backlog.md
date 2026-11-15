@@ -10,6 +10,7 @@ Updated 2026-10-17.
       owner approves in the review app → publish; then share to Story, schedule +24 h / +48 h checks (sends, DMs
       saying "sandbox", comments), pins advice. Owner copies sandbox logins by hand for whoever DMs. Note: the
       13 Nov spreadsheets Story named Numbers, which the import does **not** read (only .xlsx, .csv, .tsv, Google Sheets).
+- [ ] QA: flag text closer than ~60 px to a poster seam's knobs (the rule was broken twice: pile-of-shame Reel 12 Nov, import cover 15 Nov); today it's only a manual check.
 - [ ] Optional follow-up: a Trial Reel of the real import flow (screen recording on the sandbox with a made-up account)
       once the screens settle.
 - [x] **Friday-13th Reel `2026-11-13-reel-unlucky` published 13 Nov 17:31 Prague** (https://www.instagram.com/reel/DfsDnm4NwIy/, linked, caption poll on near misses). Checks scheduled: `check-unlucky24` Sat 14 Nov 18:00 (done, see below), `check-unlucky48` Sun 15 Nov 17:45 (pin verdict). Judge on comments and sends per reach vs the pile-of-shame carousel and the other Reels.

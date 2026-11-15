@@ -18,8 +18,8 @@ How to maintain it:
   piece mark and kicker in Reel mastheads; logos, source lines and footers stay. Say what the post is in the title or
   the art instead. (owner, 2026-11-13, spreadsheets Story: "remove these kind of headers above each post/story/reel")
 - **A label on a puzzle piece is centred in the piece's visible body, not its grid cell:** when a neighbour's knob
-  bites into the piece, centre between the bottom of that knob and the piece's far edge (optical centre; the cell
-  centre looks too high). (owner, 2026-11-15, import-launch steps column: "1 is good but 2-5 … need to be moved down")
+  bites into the piece, move the label down by about a third of that knob's depth (the cell centre looks too high, half the
+  depth too low). (owner, 2026-11-15, import-launch steps column: "1 is good but 2-5 … need to be moved down")
 - **Hero numbers keep a margin on both sides:** size them with `heroFit()` to the safe width minus ~40 px, never a fixed
   size that runs to the frame's edge. (owner, 2026-11-13, Unlucky 13 Reel: "more space from the right side" on 1722)
 - **"Old and dusty" never means washed-out pictures:** age the scene (dust, webs, light), keep box art and brand

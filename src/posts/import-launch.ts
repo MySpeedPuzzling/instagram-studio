@@ -142,10 +142,10 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
     const art = jig.pieces.map((p, i) => `<path d="${p.d}" fill="${i === rows.length - 1 ? 'var(--c-hot)' : 'var(--c-base)'}" stroke="var(--g-bg)" stroke-width="4" stroke-linejoin="round"/>`).join('');
     const tx = X0 + pw + 50;
     // Owner 2026-11-15: centre each number in the piece's visible body. The knob of the piece above bites into pieces
-    // 2–5, so their number sits in the middle of [bottom of that knob, the cell's bottom], not of the whole cell.
+    // 2–5, so their number moves down by about a third of that knob's depth (owner: half was "too much").
     const bite = (i: number) => (i === 0 ? 0 : Math.max(0, Math.max(...jig.pieces[i - 1].outline.map(([, y]) => y)) - (top + i * ph)));
     const html = rows.map(([k, t], i) => `
-      <span data-qa-bg="${i === rows.length - 1 ? CORAL : '#5a6479'}" style="position:absolute; left:${X0}px; top:${f1(top + i * ph + (bite(i) + ph) / 2 - 30)}px; width:${pw}px; text-align:center; font-size:56px; font-weight:800; line-height:60px; color:${i === rows.length - 1 ? NAVY : '#ffffff'}">${i + 1}</span>
+      <span data-qa-bg="${i === rows.length - 1 ? CORAL : '#5a6479'}" style="position:absolute; left:${X0}px; top:${f1(top + i * ph + ph / 2 + bite(i) * 0.35 - 30)}px; width:${pw}px; text-align:center; font-size:56px; font-weight:800; line-height:60px; color:${i === rows.length - 1 ? NAVY : '#ffffff'}">${i + 1}</span>
       <p class="h-abs" style="left:${tx}px; top:${top + i * ph + 24}px; width:${X1 - tx}px; font-size:44px; font-weight:800; line-height:1.05; color:var(--g-ink)">${k}</p>
       <p class="h-abs" style="left:${tx}px; top:${top + i * ph + 80}px; width:${X1 - tx}px; font-size:32px; line-height:1.2; color:var(--g-soft)">${h(t)}</p>`).join('');
     return board(v, x, {

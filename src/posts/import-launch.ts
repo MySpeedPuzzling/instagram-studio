@@ -4,7 +4,9 @@
 // "Break it. (Gently.)", "75 000 lines of code + 46 000 lines of tests", sandbox by DM only, out tonight.
 //   1 cover    coral poster "Break it. (Gently.)" over the Story's sheet with FRAGILE tape and the siren;
 //   2 steps    the five steps as a column of five interlocking pieces (File, Check, People, Puzzles, Add);
-//   3 chaos    real-spreadsheet values and how the import reads them (value-readers.md, app docs);
+//   3 chaos    real-spreadsheet values and how the import reads them (checked against the app's parser tests 2026-11-15:
+//              DurationReaderTest 8min/1h23/1:40ish (two readings, asked per column), ImportDateReaderTest Sept 2020 (month),
+//              PiecesReaderTest 13x99 (multipack, choices));
 //   4 why      results typed in by hand in the last 12 months (`import-backdated`), 1 in 11 as a strip of 11 pieces;
 //   5 code     75 000+ lines of code, 46 000 of tests, 30 updates (1 piece each), 6 languages (GitHub PRs, `github-import-prs`);
 //   6 sandbox  first version, it will trip; a piece with a plaster; DM us "SANDBOX";
@@ -154,7 +156,7 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
     const rows: Array<[string, string, boolean?]> = [
       ['8min', '8:00'],
       ['1h23', '1:23:00'],
-      ['1:40ish', '1:40:00, if you say yes', true],
+      ['1:40ish', 'hours or minutes?\nIt asks once.', true],
       ['Sept 2020', 'September 2020'],
       ['13x99', 'asks you first', true],
     ];
@@ -162,7 +164,7 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
     const html = rows.map(([a, b, ask], i) => `
       <div class="sw-cell" data-qa-bg="#ffffff" style="position:absolute; left:${X0}px; top:${top + i * rh}px; width:${cellW}px; height:96px; background:#fff; border:2px solid #d5dce6; border-radius:6px; box-sizing:border-box; padding:0 22px; display:flex; align-items:center; font-size:44px; font-weight:500; color:#aa383a; font-variant-numeric:tabular-nums; ${i === 2 ? 'outline:5px solid #ec726f; outline-offset:-4px;' : ''}">${h(a)}</div>
       <span style="position:absolute; left:${ax}px; top:${top + i * rh + 14}px; font-size:56px; font-weight:800; line-height:1; color:var(--c-hot)">→</span>
-      <p class="h-abs" style="left:${rx}px; top:${top + i * rh + 22}px; width:${X1 - rx}px; font-size:40px; font-weight:${ask ? 600 : 800}; line-height:1.1; color:${ask ? 'var(--g-soft)' : 'var(--g-ink)'}">${h(b)}</p>`).join('');
+      <p class="h-abs" style="left:${rx}px; top:${top + i * rh + 22}px; width:${X1 - rx}px; font-size:40px; font-weight:${ask ? 600 : 800}; line-height:1.1; color:${ask ? 'var(--g-soft)' : 'var(--g-ink)'}">${h(b).replace('\n', '<br>')}</p>`).join('');
     return board(v, x, {
       title: 'Made for real spreadsheets, not tidy ones',
       body: `<p class="h-abs" style="top:${TOP + 150}px; width:${CW}px; font-size:30px; line-height:1.2; color:var(--g-soft)">You typed it · we read it</p>${html}
@@ -253,7 +255,7 @@ export function importAlt(s: ImportSpec): string[] {
   return [
     `Cover on a coral and navy puzzle poster: Break it. (Gently.) Spreadsheet import is live on MySpeedPuzzling. It's brand new, and we want you to test it. Below, a small spreadsheet with columns Puzzle, Time, Date and Notes, its dates written in different ways, wrapped in coral parcel tape that says FRAGILE, HANDLE WITH CARE, and a coral siren.`,
     `Years of puzzles in a spreadsheet? Bring them in. Five steps as a column of five interlocking puzzle pieces: 1 File: Excel (.xlsx), CSV, or a Google Sheets link. 2 Check: we read your columns and ask only what's unclear. 3 People: pair and team partners become players. 4 Puzzles: your rows matched to the MSP catalogue. 5 Add: you pick what goes in; changed your mind? Undo. Times (solo, pair, team), your collection and your wish list. Never added twice. Menu, Import a spreadsheet.`,
-    `Made for real spreadsheets, not tidy ones. What you typed and what the import reads: 8min reads as 8:00; 1h23 as 1:23:00; 1:40ish as 1:40:00 if you say yes; Sept 2020 as September 2020; 13x99 asks you first. A puzzle that isn't in the catalogue stays yours, just for you, until it's matched. Dates with only a month or a year stay that way. We've seen things.`,
+    `Made for real spreadsheets, not tidy ones. What you typed and what the import reads: 8min reads as 8:00; 1h23 as 1:23:00; 1:40ish gets one question: hours or minutes?; Sept 2020 as September 2020; 13x99 asks you first. A puzzle that isn't in the catalogue stays yours, just for you, until it's matched. Dates with only a month or a year stay that way. We've seen things.`,
     `Why we built it: ${fmtInt(s.backdated)} results were typed in by hand in the last 12 months, one by one, months or years after the solve. A strip of ${s.oneIn} puzzle pieces with one in coral: 1 in ${s.oneIn} of all results added on MSP. By ${fmtInt(s.puzzlers)} puzzlers; ${s.p100} of them typed in over 100. Your fingers deserve a break.`,
     `Looks like one menu item. It's ${thousandsDown(c.code)}+ lines of code, built and shipped in 3 days in ${c.prs} updates, shown as ${c.prs} coral puzzle pieces, one per update. ${thousandsNear(c.tests)} lines of tests, so it doesn't break your data. ${c.languages} languages from day one.`,
     `It's a first version. It will trip somewhere. That's where you come in: throw your weirdest spreadsheet at it. A puzzle piece with a coral sticking plaster across it. Want to go all in? Our sandbox is a test copy of MySpeedPuzzling; nothing there touches your real profile. Break it there. Gently. DM us SANDBOX and we'll set you up.`,

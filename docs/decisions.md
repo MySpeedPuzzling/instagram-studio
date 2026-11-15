@@ -363,3 +363,7 @@ Docker and other unneeded apps turned off.
   "tested by players". Steps drawn in code (no screenshots: the flow changed five times on launch day).
 - New query `import-backdated` (results added through the form with a solve date over 30 days earlier, last 12
   months); code numbers come from `gh` into the `github-import-prs` fact (cached in content/cache).
+- Value examples on slide 3 checked against the app's parser tests (app session's caveat): `8min`, `1h23`, `Sept 2020`
+  and `13x99` read as shown; `1:40ish` has **two readings** (1 h 40 min or 1 min 40 s, asked once per column), so the
+  slide says "hours or minutes? It asks once." instead of "1:40:00". Feature examples on slides come from the app's
+  tests or guide, never from design docs alone.

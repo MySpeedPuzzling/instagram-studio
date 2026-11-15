@@ -2,6 +2,18 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Friday-the-13th set (2026-11-13: "Unlucky 13" follower Reel with a caption poll; checks 14 and 15 Nov)
+- **A caption poll plus a "tell us" question on a Reel drew almost no comments.** At +48 h: reach 631 (0.82× the 2026
+  Reel median of 772), 1 comment, 2 sends (0.32 % of reach), 0 saves; the pile-of-shame carousel at a similar age had
+  ~58 comments and 12–18 sends. Vote counts aren't in the API, so it's open whether the poll absorbed the answers or
+  the topic (a near miss at the hour, which only some puzzlers have) invited fewer. One post: a hunch. Next time ask
+  in one place only, add a catch-all poll option, and pick a question everyone can answer.
+- **Good hook, low reach.** Skip rate 47.9 % (4th of 7 follower Reels, level with 1000 vs 500), average watch 35 % of
+  the Reel; reach still stalled (+55 on day 2). The opening isn't the bottleneck for these Reels.
+- **Follower Reels since 29 Oct reach less:** the last three (achievements, missing piece, Unlucky 13) ended at
+  631–772 vs 1666–2392 for the first four (21–27 Oct). n = 3: a hunch. The API gives no per-post non-follower split;
+  check the account-level non-follower reach in the weekly review.
+
 ## Pile-of-shame set (2026-11-12: carousel + Trial Reel + teaser Story; checks 13 and 14 Nov)
 - **A funny fact with a "what's yours?" question is a comment-and-send post, not a follower magnet.** Carousel at
   +58 h: reach 1725 (1.35× the 2026 carousel median of 1280), 60 comments (~35 from puzzlers, the rest our replies),

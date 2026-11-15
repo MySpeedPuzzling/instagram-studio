@@ -29,10 +29,15 @@ Updated 2026-10-17.
       under a minute, fit no option); try the poll alone or the question alone to see which draws people in.
 - [ ] Hunch to watch (n = 3): the last three follower Reels (achievements, missing piece, Unlucky 13) sit at ~750
       reach vs 1661–2392 for the first four. Check at the weekly review whether non-follower reach dropped.
-- [ ] **300M poll Story** (`stories/story-300m.jpg`): **not found in the API on 14 Nov 18:00** (only the spreadsheets
-      Story from 13 Nov is live). Owner: post it by Sun 15 Nov morning (poll Mon 16 · Tue 17 · Wed 18 · Thu 19) or drop
-      it and do only the milestone post.
-- [ ] **300 million pieces milestone post** on the day it passes (ETA ~Tue 17 Nov, `bs-milestone-pace --fresh` daily from Sun); reveal the poll's winning day.
+- [x] +48 h check done 15 Nov 17:45 → `content/reports/unlucky13-check-48h.md`. Reel at +48.2 h: reach 631 (0.82× the
+      Reel median 772, finished), 1 comment, 2 sends, 0 saves, skip 47.9 %. Comment question didn't work. **Pins kept**
+      (Start here, quiz, WJPC); no app steps.
+- [ ] Owner: answer or skip the 5 open comments (1 on Unlucky 13, 4 on the pile-of-shame carousel); replies proposed in
+      `content/reports/unlucky13-check-48h.md` §4.
+- [ ] **300M poll Story** (`stories/story-300m.jpg`): **never posted** (no Story in the API from 14 Nov 18:00 to 15 Nov
+      17:45). Recommendation (15 Nov check): drop the guessing poll (too late for the Mon 16 option); optional Monday
+      countdown Story instead. Owner to confirm.
+- [ ] **300 million pieces milestone post** on the day it passes (ETA ~Tue 17 Nov, `bs-milestone-pace --fresh` daily from Sun); no poll to reveal unless the owner posts one.
 - [ ] Ideas kept from the 13 Nov brainstorm: pile-of-shame Black Friday sequel (27 Nov), night owls, re-run the pile Trial Reel with the 929-box wall in frame 1, edges-first poll Story.
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Story posted 2 Nov evening. Next: Story insights before Tue 3 Nov evening; post insights Wed 4 Nov ~20:00 (`node tools/insights.ts`).
 - [ ] Monthly report: "puzzlers" counts only who logged a result (`monthly-totals`); switch to everyone who took part, like the weekly (2 Nov).

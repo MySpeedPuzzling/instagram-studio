@@ -6,10 +6,13 @@ Updated 2026-10-17.
 
 ## Now
 
-- [ ] **Import launch carousel `2026-11-15-import-launch`** (7 slides, "Break it. (Gently.)", in review 15 Nov evening):
-      owner approves in the review app → publish; then share to Story, schedule +24 h / +48 h checks (sends, DMs
-      saying "sandbox", comments), pins advice. Owner copies sandbox logins by hand for whoever DMs. Note: the
-      13 Nov spreadsheets Story named Numbers, which the import does **not** read (only .xlsx, .csv, .tsv, Google Sheets).
+- [x] **Import launch carousel PUBLISHED Sun 15 Nov 19:50 Prague** (https://www.instagram.com/p/DfxduLajYkP/, draft
+      `2026-11-15-import-launch`, 7 slides, "Import? Break it. (Gently.)", 31 542 backfilled results queried fresh 19:48).
+      Checks scheduled: `check-import24` Mon 16 Nov 20:00, `check-import48` Tue 17 Nov 20:00 (pin verdict) →
+      `content/reports/import-launch-check-*.md`, each with the list of "sandbox" commenters.
+- [ ] Owner: one-tap share of the carousel to Story; for every "sandbox" comment copy the tester's MSP login to the
+      sandbox and DM them, then reply "Check your DMs 📬" under the comment (DMs to non-followers land in requests).
+      The 13 Nov spreadsheets Story named Numbers, which the import does **not** read (only .xlsx, .csv, .tsv, Google Sheets).
 - [ ] QA: flag text closer than ~60 px to a poster seam's knobs (the rule was broken twice: pile-of-shame Reel 12 Nov, import cover 15 Nov); today it's only a manual check.
 - [ ] Optional follow-up: a Trial Reel of the real import flow (screen recording on the sandbox with a made-up account)
       once the screens settle.

@@ -8,7 +8,7 @@
 //              DurationReaderTest 8min/1h23/1:40ish (two readings, asked per column), ImportDateReaderTest Sept 2020 (month),
 //              PiecesReaderTest 13x99 (multipack, choices));
 //   4 why      results typed in by hand in the last 12 months (`import-backdated`), 1 in 11 as a strip of 11 pieces;
-//   5 code     75 000+ lines of code, 46 000 of tests, 30 updates (1 piece each), 6 languages (GitHub PRs, `github-import-prs`);
+//   5 code     75 000+ lines of code, 46 000 of tests, 30 updates (1 piece each) (GitHub PRs, `github-import-prs`); no languages line (owner: useless);
 //   6 sandbox  first version, it will trip; a piece with a plaster; comment "SANDBOX" and we DM you (owner 2026-11-15);
 //   7 cta      tell us everything: DM or e-mail; where to find it; send it to the spreadsheet friend.
 // Facts the app session confirmed (2026-11-15): free for everyone; .xlsx, .csv, .tsv or a Google Sheets link (not .xls,
@@ -210,7 +210,7 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
         <p class="h-abs" style="top:${TOP + 82}px; font-size:76px; font-weight:800; line-height:1.05; letter-spacing:-0.02em; color:var(--g-ink)">It’s <span style="color:var(--c-hot)">${thousandsDown(c.code)}+</span> lines of code.</p>
         <p class="h-abs" style="top:${TOP + 270}px; font-size:34px; line-height:1.3; color:var(--g-soft)">Built and shipped in 3 days, in ${c.prs} updates:</p>
         <p class="h-abs" data-qa-small style="top:${top - 44}px; font-size:26px; color:var(--g-soft)">1 piece = 1 update</p>
-        <div class="h-abs" style="top:${yS}px; display:flex; gap:36px">${stat(thousandsNear(c.tests), 'lines of tests, so it doesn’t break your data')}${stat(String(c.languages), 'languages, from day one')}</div>`,
+        <div class="h-abs" style="top:${yS}px; display:flex; gap:36px">${stat(thousandsNear(c.tests), 'lines of tests, so it doesn’t break your data')}</div>`,
       src: `Code: GitHub, pull requests #${IMPORT_PRS[0]}–#${IMPORT_PRS[IMPORT_PRS.length - 1]}`,
     });
   };
@@ -261,7 +261,7 @@ export function importAlt(s: ImportSpec): string[] {
     `Years of puzzles in a spreadsheet? Bring them in. Five steps as a column of five interlocking puzzle pieces: 1 File: Excel (.xlsx), CSV, or a Google Sheets link. 2 Check: we read your columns and ask only what's unclear. 3 People: pair and team partners become players. 4 Puzzles: your rows matched to the MSP catalogue. 5 Add: you pick what goes in; changed your mind? Undo. Times (solo, pair, team), your collection and your wish list. Never added twice. Your profile, Import a spreadsheet.`,
     `Made for real spreadsheets, not tidy ones. What you typed and what the import reads: 8min reads as 8:00; 1h23 as 1:23:00; 1:40ish gets one question: hours or minutes?; Sept 2020 as September 2020; 13x99 asks you first. A puzzle that isn't in the catalogue stays yours, just for you, until it's matched. Dates with only a month or a year stay that way. We've seen things.`,
     `Why we built it: ${fmtInt(s.backdated)} results were typed in by hand in the last 12 months, one by one, months or years after the solve. A strip of ${s.oneIn} puzzle pieces with one in coral: 1 in ${s.oneIn} of all results added on MSP. By ${fmtInt(s.puzzlers)} puzzlers; ${s.p100} of them typed in over 100. Your fingers deserve a break.`,
-    `Looks like one menu item. It's ${thousandsDown(c.code)}+ lines of code, built and shipped in 3 days in ${c.prs} updates, shown as ${c.prs} coral puzzle pieces, one per update. ${thousandsNear(c.tests)} lines of tests, so it doesn't break your data. ${c.languages} languages from day one.`,
+    `Looks like one menu item. It's ${thousandsDown(c.code)}+ lines of code, built and shipped in 3 days in ${c.prs} updates, shown as ${c.prs} coral puzzle pieces, one per update. ${thousandsNear(c.tests)} lines of tests, so it doesn't break your data.`,
     `It's a first version. It will trip somewhere. That's where you come in: throw your weirdest spreadsheet at it. A puzzle piece with a coral sticking plaster across it. Want to go all in? Our sandbox is a test copy of MySpeedPuzzling; nothing there touches your real profile. Break it there. Gently. Comment SANDBOX and we'll DM you.`,
     `Tried it? Tell us everything: what broke, what confused you, what you wish it did. Every note makes version 2 better. DM us or e-mail ${s.email}. Find it on myspeedpuzzling.com: Your profile, Import a spreadsheet. Free for every account; the guide walks you through it. Know someone with a legendary puzzle spreadsheet? Send them this.`,
   ];

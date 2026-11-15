@@ -188,9 +188,9 @@ export function importSlides(v: Variant, s: ImportSpec): string[] {
       title: 'Why we built it',
       body: svg(art) + `
         <p class="h-abs" style="top:${TOP + 120}px; font-size:${size}px; font-weight:800; line-height:1; letter-spacing:-0.02em; color:var(--c-hot); font-variant-numeric:tabular-nums">${v0}</p>
-        <p class="h-abs h-lead" style="top:${TOP + 140 + size}px; font-size:42px">results typed in by hand in the last 12 months, one by one, months or years after the solve.</p>
+        <p class="h-abs h-lead" style="top:${TOP + 140 + size}px; font-size:42px">old results backfilled by hand in the last 12 months: puzzlers typing in their whole history, one result at a time.</p>
         <p class="h-abs" data-qa-small style="top:${top - 46}px; font-size:26px; color:var(--g-soft)">1 in ${n} of all results added on MSP</p>
-        <p class="h-abs" style="top:${f1(top + pw + 40)}px; font-size:34px; line-height:1.3; color:var(--g-ink)">By ${fmtInt(s.puzzlers)} puzzlers. ${s.p100} of them typed in over 100.</p>
+        <p class="h-abs" style="top:${f1(top + pw + 40)}px; font-size:34px; line-height:1.3; color:var(--g-ink)">By ${fmtInt(s.puzzlers)} puzzlers. ${s.p100} of them backfilled over 100.</p>
         <p class="h-abs" style="top:${f1(top + pw + 108)}px; font-size:44px; font-weight:700; line-height:1.15; color:var(--c-hot)">Your fingers deserve a break.</p>
         <p class="h-abs" data-qa-small style="top:${f1(top + pw + 200)}px; font-size:24px; line-height:1.3; color:var(--g-soft)">Counted: results added since ${s.since} whose solve date was over 30 days earlier. Private profiles left out.</p>`,
       src,
@@ -262,7 +262,7 @@ export function importAlt(s: ImportSpec): string[] {
     `Cover on a coral and navy puzzle poster: Break it. (Gently.) Spreadsheet import is live on MySpeedPuzzling. It's brand new, and we want you to test it. Below, a small spreadsheet with columns Puzzle, Time, Date and Notes, its dates written in different ways, wrapped in coral parcel tape that says FRAGILE, HANDLE WITH CARE, and a coral siren.`,
     `Years of puzzles in a spreadsheet? Bring them in. Five steps as a column of five interlocking puzzle pieces: 1 File: Excel (.xlsx), CSV, or a Google Sheets link. 2 Check: we read your columns and ask only what's unclear. 3 People: pair and team partners become players. 4 Puzzles: your rows matched to the MSP catalogue. 5 Add: you pick what goes in; changed your mind? Undo. Times (solo, pair, team), your collection and your wish list. Never added twice. Your profile, Import a spreadsheet.`,
     `Made for real spreadsheets, not tidy ones. What you typed and what the import reads: 8min reads as 8:00; 1h23 as 1:23:00; 1:40ish gets one question: hours or minutes?; Sept 2020 as September 2020; 13x99 asks you first. A puzzle that isn't in the catalogue stays yours, just for you, until it's matched. Dates with only a month or a year stay that way. We've seen things.`,
-    `Why we built it: ${fmtInt(s.backdated)} results were typed in by hand in the last 12 months, one by one, months or years after the solve. A strip of ${s.oneIn} puzzle pieces with one in coral: 1 in ${s.oneIn} of all results added on MSP. By ${fmtInt(s.puzzlers)} puzzlers; ${s.p100} of them typed in over 100. Your fingers deserve a break.`,
+    `Why we built it: ${fmtInt(s.backdated)} old results were backfilled by hand in the last 12 months: puzzlers typing in their whole history, one result at a time. A strip of ${s.oneIn} puzzle pieces with one in coral: 1 in ${s.oneIn} of all results added on MSP. By ${fmtInt(s.puzzlers)} puzzlers; ${s.p100} of them backfilled over 100. Your fingers deserve a break.`,
     `Looks like one menu item. It's ${thousandsDown(c.code)}+ lines of code, built and shipped in 3 days in ${c.prs} updates, shown as ${c.prs} coral puzzle pieces, one per update. ${thousandsNear(c.tests)} lines of tests, so it doesn't break your data.`,
     `It's a first version. It will trip somewhere. That's where you come in: throw your weirdest spreadsheet at it. A puzzle piece with a coral sticking plaster across it. Want to go all in? Our sandbox is a test copy of MySpeedPuzzling; nothing there touches your real profile. Break it there. Gently. Comment SANDBOX and we'll DM you.`,
     `Tried it? Tell us everything: what broke, what confused you, what you wish it did. Every note makes version 2 better. DM us or e-mail ${s.email}. Find it on myspeedpuzzling.com: Your profile, Import a spreadsheet. Free for every account; the guide walks you through it. Know someone with a legendary puzzle spreadsheet? Send them this.`,
@@ -272,7 +272,7 @@ export function importAlt(s: ImportSpec): string[] {
 export function importCaption(s: ImportSpec): string {
   const c = s.code;
   return [
-    `${fmtInt(s.backdated)} results typed in by hand in 12 months. Never again: spreadsheet import is live on MySpeedPuzzling 🧩`,
+    `${fmtInt(s.backdated)} old results backfilled by hand in 12 months. Never again: spreadsheet import is live on MySpeedPuzzling 🧩`,
     '',
     'Upload Excel or CSV, or paste a Google Sheets link. We read your columns, match your rows to puzzles in the catalogue, and you add what you want: solo, pair and team puzzle times, your puzzle collection, your wish list. Never twice, with Undo.',
     '',

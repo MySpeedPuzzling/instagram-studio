@@ -2,7 +2,12 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-11-16 ~20:05 by the unattended **+24 h import launch check**
+`docs/backlog.md` (what to do next). **Latest (16 Nov ~23:05): audio for automated Reels/Stories researched**
+(`reports/Automated Reels and Stories audio.md`, `reports/Local audio models and practice.md`); owner decisions:
+baked-in audio by default, no credit anywhere (Stable Audio out), ACE-Step 1.5 XL as the generator (Magenta RT 2
+acceptable), free library first. Lab **MU1** (34 beds, owner ratings; `lab/music/`). **Week-46 Story posted by hand
+22:59 with our own music** (`MU1-data-xl-turbo-s202-fit2`, drop fitted to the video by hand), check `check-story46`
+Tue 17 Nov 21:30. Instagram serves Stories at 720p / 0.37 Mbit/s. Next: automate the bed fit (backlog). Earlier: Updated 2026-11-16 ~20:05 by the unattended **+24 h import launch check**
 (report `content/reports/import-launch-check-24h.md`): carousel at +24.2 h reach **667** (0.63× the 2026 carousel
 median 1051, ~0.57× the pile of shame at the same age), views 1867, 60 likes, 5 comments (3 puzzlers), **47 sends
 (7.0 % of reach), all in the first 11.5 h and none since**, 2 saves, 0 follows, 5 profile visits; the sends didn't

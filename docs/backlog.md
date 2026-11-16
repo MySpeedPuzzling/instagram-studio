@@ -241,6 +241,10 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] Reels publishing in `src/publish` (`media_type=REELS`, `video_url` on R2, `cover_url`, `share_to_feed`,
       optional `trial_params`); preflight for video specs (ffprobe). Stories stay manual (stickers).
 - [ ] Reels audio decision and pipeline (silent / SFX from Freesound CC0 / royalty-free bed; licence ledger).
+      **Researched 16 Nov:** `reports/Automated Reels and Stories audio.md` (no-credit rule in decisions 2026-11-16).
+      Path: API Reels with baked-in, fitted and mastered audio; music library of Meta Sound Collection tracks; ACE-Step
+      1.5 test night (needs the owner's go-ahead); Story stickers stay manual; Unified Login app only if our own
+      baked-vs-app-music comparison says so. Owner decisions listed at the end of the report.
 - [ ] Scheduled publishing: launchd LaunchAgent running `node src/publish/publish.ts --due` every 15 min
       (approve-now already works); max 6 h lateness → `needs_reschedule`.
 - [ ] Insights schedule: launchd job for `tools/insights.ts` (+48 h, +7 d, +30 d per post; account metrics weekly);

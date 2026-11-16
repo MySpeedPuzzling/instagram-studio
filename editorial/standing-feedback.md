@@ -313,3 +313,15 @@ How to maintain it:
   Decision on logo motion is open (LM1). (research 2026-10-16, owner to confirm)
 - **Box images:** credit the brand on every slide that shows one; quiz clues say "Mystery puzzle · Brand". No player
   photos. (owner, 2026-10-13)
+
+## Music beds (owner, MU1 lab, 16 Nov 2026)
+
+- **Baked-in audio by default**, no credit anywhere (decisions 2026-11-16). Generated beds: ACE-Step **XL** (clearly
+  better than the 2B turbo; turbo only for quick drafts).
+- **The music has to hit the video:** the bed's drop lands on the video's key moment (e.g. the poster drop in the
+  weekly Story) and the song's own ending lands on the last frame, no plain fade-out. This was the note on almost
+  every clip, more than the sound itself.
+- **Style per post type:** weekly recap / data → clean "data" electronic, cozy lo-fi or playful (pizzicato/marimba)
+  are candidates; **celebratory pop: no-go**; ticking/stopwatch beds are good but don't fit a recap (keep them for
+  countdown/tension posts). Watch the first seconds for bad drums/claps (XL celebrate s202, playful s202 ~1.5 s).
+- Mastering: two-pass loudnorm −14 LUFS + a true-peak limiter (AAC pushes peaks above 0 dBFS without one).

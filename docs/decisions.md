@@ -376,3 +376,10 @@ Docker and other unneeded apps turned off.
   tracks or sounds (Freesound: CC0 only), Incompetech's free tier. Still in: ACE-Step 1.5/XL (MIT), own SFX,
   Freesound CC0, Pixabay (tracks without the Content ID shield), Mixkit, Meta Sound Collection, Epidemic Sound
   Business (paid). Research: `reports/Automated Reels and Stories audio.md`.
+- **Audio is mixed into the video by default** (owner, 16 Nov): Reels and video Stories get a fitted, mastered
+  music bed (+ SFX) inside the MP4, so they can be published by the API with no app step. Instagram music added in
+  the app only for an occasional trend-driven Reel. Story stickers stay manual.
+- **ACE-Step 1.5 test night approved for 16 Nov** (heavy-job rule: the owner calms the Mac and gives the go first);
+  ~20 clips (cozy, playful, ticking clock, celebratory), results in a lab gallery for Works / Unsure / No-go.
+- **First library: free.** 30–50 tracks from Meta Sound Collection + Pixabay (no Content ID shield) + Mixkit,
+  tagged locally, each approved by ear. Epidemic Sound not now.

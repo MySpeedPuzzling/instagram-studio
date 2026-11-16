@@ -383,3 +383,7 @@ Docker and other unneeded apps turned off.
   ~20 clips (cozy, playful, ticking clock, celebratory), results in a lab gallery for Works / Unsure / No-go.
 - **First library: free.** 30–50 tracks from Meta Sound Collection + Pixabay (no Content ID shield) + Mixkit,
   tagged locally, each approved by ear. Epidemic Sound not now.
+- **Magenta RealTime 2 is acceptable** (owner, 16 Nov): its weights are CC-BY-4.0 but Google claims no rights in the
+  outputs, so the music it makes needs no credit. Never commit or redistribute its weights (the repo is public).
+  Second candidate after ACE-Step; it's a live-jam model (text/audio/MIDI steering), not a fixed-length generator.
+  Research: `reports/Local audio models and practice.md`.

@@ -166,6 +166,12 @@ const CSS = `<style>
 .wk-who .wk-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>`;
 
+/** "· 7 solves" after brand and kind, only when the line still fits (puzzle, brand, kind and time always stay). */
+const shoutCount = (x: Shout): string => {
+  const extra = ` · ${fmtInt(x.results)} solves`;
+  return x.results > 1 && cut(x.brand, 16).length + 3 + KIND_ONE[x.kind].length + extra.length <= 30 ? extra : '';
+};
+
 export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
   const n = s.segments.length;
   const ctx = (seg: Segment): SlideCtx => ({ v, post: s.key, slide: s.segments.indexOf(seg) + 1, of: n });
@@ -182,9 +188,9 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
         // Owner 2026-11-01 (monthly): a report cover leads with its most striking visual, the numbers stay small.
         ? { extraHeight: 410, extra: `${CSS}
             <p class="wk-note" style="margin-bottom:22px">The week's most-solved puzzles</p>
-            <div style="display:flex; gap:30px">${s.top.slice(0, 3).map((p, i) => `<div style="width:${Math.floor((CW - 60) / 3)}px">
+            <div style="display:flex; gap:24px">${s.top.slice(0, 3).map((p, i) => `<div style="width:${Math.floor((CW - 48) / 3)}px">
               <span class="wk-thumb" style="display:block; width:100%; height:228px; margin:0; box-sizing:border-box"><img src="${p.img}" alt=""></span>
-              <p class="wk-note" style="margin-top:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${i === 0 ? '<b style="color:var(--g-hot)">' : '<b>'}${fmtInt(p.solvers)}</b> · ${h(cut(p.brand, 18))}</p></div>`).join('')}</div>
+              <p class="wk-note" style="margin-top:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${i === 0 ? '<b style="color:var(--g-hot)">' : '<b>'}${fmtInt(p.solvers)}</b>\u2009·\u2009${h(cut(p.brand, 18))}</p></div>`).join('')}</div>
             <p class="wk-note" style="margin-top:20px">${fmtInt(s.results)} solves · ${fmtInt(s.participants)} puzzlers · ${fmtSignedPct(wow)} week on week</p>` }
         : { stats: [['Solves', fmtInt(s.results)], ['Puzzlers', fmtInt(s.participants)], ['Week on week', fmtSignedPct(wow)]] as Array<[string, string]> }),
     }),
@@ -228,7 +234,7 @@ export function weeklySlides(v: Variant, s: WeeklySpec): string[] {
           <div class="wk-who" style="flex:1; min-width:0; overflow:hidden; padding-right:20px">
             <p style="font-size:44px; font-weight:700; line-height:1.15; color:var(--g-ink); overflow-wrap:anywhere">${flag(x.person)}${h(cut(x.person.name, 30))}</p>
             <p class="wk-note" style="margin-top:6px; color:var(--g-ink)">${h(cut(x.puzzle, 29))}</p>
-            <p class="wk-note">${h(cut(x.brand, 16))} · ${KIND_ONE[x.kind]}${x.results > 1 ? ` · ${fmtInt(x.results)} solves` : ''}</p>
+            <p class="wk-note">${h(cut(x.brand, 16))} · ${KIND_ONE[x.kind]}${shoutCount(x)}</p>
           </div>
           <div style="flex:none; width:230px; text-align:right">
             ${x.seconds ? `<span class="wk-time" style="display:block; width:auto">${clock(sec(x.seconds))}</span>` : ''}

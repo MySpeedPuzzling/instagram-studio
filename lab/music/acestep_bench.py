@@ -28,7 +28,7 @@ BRIEFS = [
 
 def swap_mb() -> float:
     out = subprocess.run(["sysctl", "-n", "vm.swapusage"], capture_output=True, text=True).stdout
-    return float(out.split("used =")[1].split("M")[0]) if "used =" in out else -1.0
+    return float(out.split("used =")[1].split("M")[0].replace(",", ".")) if "used =" in out else -1.0  # cs locale: 1504,81M
 
 
 def other_apps() -> list[str]:
@@ -78,7 +78,8 @@ def main() -> None:
                 clip_id = f"MU1-{key}-{mkey}-s{seed}"
                 params = GenerationParams(caption=caption, instrumental=True, lyrics="[Instrumental]", bpm=bpm,
                                           keyscale=scale, duration=a.duration, seed=seed,
-                                          thinking=True, use_cot_caption=False, use_cot_metas=False)
+                                          thinking=True, use_cot_caption=False, use_cot_metas=False,
+                                          shift=3.0 if "turbo" in mkey else 1.0, infer_method="ode")  # official turbo setting
                 cfg = GenerationConfig(batch_size=1, use_random_seed=False, seeds=[seed], audio_format="flac")
                 tmp = OUT / "_tmp"
                 tmp.mkdir(exist_ok=True)
@@ -91,7 +92,7 @@ def main() -> None:
                     continue
                 dst = OUT / f"{clip_id}.flac"
                 shutil.move(res.audios[0]["path"], dst)
-                item = {"id": clip_id, "brief": key, "model": MODELS[mkey], "lm": LM, "caption": caption, "bpm": bpm,
+                item = {"id": clip_id, "brief": key, "model": MODELS[mkey], "lm": LM, "caption": caption, "bpm": bpm, "shift": params.shift,
                         "key": scale, "duration_s": a.duration, "seed": seed, "gen_s": secs,
                         "file": f"/content/labs/MU1/{dst.name}", "created": time.strftime("%Y-%m-%d %H:%M")}
                 clips = [c for c in clips if c["id"] != clip_id] + [item]

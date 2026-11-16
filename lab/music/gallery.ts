@@ -15,12 +15,12 @@ const clips: Clip[] = JSON.parse(readFileSync(clipsFile, 'utf8'));
 const briefs = [...new Set(clips.map(c => c.brief))];
 
 const tile = (c: Clip) => `<div class="tile"><p class="code"><b>${h(c.id)}</b><br>${h(c.model.replace('acestep-v15-', ''))} · seed ${c.seed} · ${c.gen_s} s to make</p>
-<audio controls preload="none" src="${h(c.file)}"></audio>
+${existsSync(join(DIR, 'story', c.id + '.mp4')) ? `<video controls playsinline preload="metadata" src="/content/labs/${LAB}/story/${h(c.id)}.mp4"></video><p class="code">In the weekly Story (trimmed, fade-out, −14 LUFS)</p>` : ''}<audio controls preload="none" src="${h(c.file)}"></audio>
 <div class="rate" data-target="${h(c.id)}"><button data-r="works">Works</button><button data-r="unsure">Unsure</button><button data-r="no-go">No-go</button><textarea rows="2" placeholder="Why? (optional)"></textarea><span class="saved"></span></div></div>`;
 
 writeFileSync(join(DIR, 'index.html'), `<!doctype html><html><head><meta charset="utf-8"><title>${LAB} Music beds (ACE-Step)</title>
 <style>body{font:15px/1.45 system-ui,sans-serif;margin:0;background:#f4f5f7;color:#1d2433}header{position:sticky;top:0;z-index:2;background:#fff;padding:10px 24px;border-bottom:1px solid #e3e6eb;display:flex;flex-wrap:wrap;gap:14px;align-items:center}${LAB_NAV_CSS}
-main{padding:24px;max-width:1700px}.row{display:flex;flex-wrap:wrap;gap:16px;padding-bottom:10px}.tile{flex:none;width:300px;background:#fff;border-radius:10px;padding:10px}audio{width:100%}
+main{padding:24px;max-width:1700px}.row{display:flex;flex-wrap:wrap;gap:16px;padding-bottom:10px}.tile{flex:none;width:300px;background:#fff;border-radius:10px;padding:10px}audio{width:100%}video{width:100%;border-radius:6px;background:#000}
 .code{margin:0 0 6px;font-size:14px}.rate button{margin-right:4px;padding:3px 8px;border:1px solid #c9ced8;background:#fff;border-radius:6px;cursor:pointer}.rate button.on{background:#1d2433;color:#fff}.rate textarea{width:100%;margin-top:6px;box-sizing:border-box}.saved{color:#2a7;font-size:12px}h2{font-size:17px;margin:22px 0 4px}.brief{color:#556;margin:0 0 10px}</style></head><body>
 <header>${labNav(LAB)}<h1 style="font-size:20px;margin:0">${LAB} · Music beds made on this Mac (ACE-Step 1.5)</h1></header>
 <main><p>30 s instrumental beds, one row per mood. Listen on the phone speaker too: that's how most people hear Reels. Rate each; codes like "MU1-cozy-turbo-s11" work in the chat.</p>

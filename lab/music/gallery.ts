@@ -18,7 +18,8 @@ const fitDir = join(DIR, 'fit');
 const fits = existsSync(fitDir) ? readdirSync(fitDir).filter(f => f.endsWith('.mp4')).sort() : [];
 const FIT_NOTES: Record<string, string> = {
   'MU1-data-xl-turbo-s202-fit': 'Drop (8.0 s) lands on the poster drop (3.25 s); joins the song\'s own outro on a bar line as the cue appears (13.2 s).',
-  'MU1-data-xl-turbo-s202-fit2': 'FINAL for week 46 (owner pick): 18.1 s, last frame held 2 s for the sticker; drop (8.15 s) on the poster landing (3.57 s), outro joined on the downbeat (15.84 s), natural ending.',
+  'MU1-data-xl-turbo-s202-fit3': 'NEW: fit2 with a calmer ending: from the outro (15.84 s) the highs fade away and four soft notes step down on the beat (A, F#, D, low D: the bed is in D major), the low D rings out.',
+  'MU1-data-xl-turbo-s202-fit2': 'Owner pick: 18.1 s, last frame held 2 s for the sticker; drop (8.15 s) on the poster landing (3.57 s), outro joined on the downbeat (15.84 s), natural ending.',
   'MU1-data-arc-xl-turbo-s101-fit': 'The whole build-up spans the Story; its peak and final hit land on the last frame (no fade).',
 };
 const fitTile = (f: string) => { const id = f.replace(/\.mp4$/, ''); return `<div class="tile"><p class="code"><b>${h(id)}</b><br>${h(FIT_NOTES[id] ?? '')}</p>

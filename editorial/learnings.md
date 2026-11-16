@@ -10,7 +10,9 @@ Aggregate evidence only; no member names. Newest first. Each belief states the e
 - **Instagram serves Stories far below our upload:** the API's copy right after posting was 720×1280 at 0.37 Mbit/s
   video + HE-AAC 82 kbps (we uploaded 1080×1920 at 3.3 Mbit/s + AAC 128 kbps), the same pattern as the first Reel
   (720p, 0.6 Mbit/s). The owner sees it softer in the app than in Photos. The app may stream a better rendition than
-  the API copy; the check re-downloads it.
+  the API copy; the check re-downloads it. Every video so far was posted **by hand in the app** (for the music) with
+  "Upload at highest quality" on, and all came out like this, so the loss is Instagram's re-encode, not the API:
+  publishing videos by API should not make quality worse (to confirm on the first API-published Reel).
 
 ## Weekly review 2026-11-16 (week 9–15 Nov; report `content/reports/weekly-review-2026-11-16.md`)
 - **A specific "send this to…" line looks like the strongest send lever we have.** Import launch carousel: 47 sends in

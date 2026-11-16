@@ -10,6 +10,11 @@ Updated 2026-10-17.
       `2026-11-15-import-launch`, 7 slides, "Import? Break it. (Gently.)", 31 542 backfilled results queried fresh 19:48).
       Checks scheduled: `check-import24` Mon 16 Nov 20:00, `check-import48` Tue 17 Nov 20:00 (pin verdict) →
       `content/reports/import-launch-check-*.md`, each with the list of "sandbox" commenters.
+- [x] `check-import24` done Mon 16 Nov ~20:05 (+24.2 h): reach 667 (0.63× carousel median), 47 sends (7.0 %, all in
+      the first 11.5 h, none since), 60 likes, 2 saves, 0 follows, 5 profile visits; 2 testing requests, both already
+      answered with a DM by the owner, none new; 1 comment ("🙌😍") unanswered, reply proposed in the report.
+- [ ] Live session: count imports made on MSP since Sun 15 Nov 19:50 (read-only query) to judge the launch on its
+      purpose, not on reach; and decide whether the sends-without-reach pattern changes the send-line suggestion.
 - [ ] Owner: one-tap share of the carousel to Story; for every "sandbox" comment copy the tester's MSP login to the
       sandbox and DM them, then reply "Check your DMs 📬" under the comment (DMs to non-followers land in requests).
       The 13 Nov spreadsheets Story named Numbers, which the import does **not** read (only .xlsx, .csv, .tsv, Google Sheets).

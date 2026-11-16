@@ -2,7 +2,13 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). Updated 2026-11-16 ~15:05: **Weekly Numbers ep. 5 PUBLISHED 15:11 Prague** (https://www.instagram.com/p/Dfzio69jjl8/, `2026-11-16-weekly-rc1`, week 46, 8 slides, approved by the owner in chat; checks `check-weekly5-24` Tue 17 Nov 14:30 and `check-weekly5-48` Wed 18 Nov 15:15; Story to be posted by hand; layout fix in `src/posts/weekly.ts`: full brand under the cover boxes, shoutout solve count only when it fits). Before that 2026-11-16 07:20 by the unattended **weekly review** (week 9–15 Nov,
+`docs/backlog.md` (what to do next). Updated 2026-11-16 ~20:05 by the unattended **+24 h import launch check**
+(report `content/reports/import-launch-check-24h.md`): carousel at +24.2 h reach **667** (0.63× the 2026 carousel
+median 1051, ~0.57× the pile of shame at the same age), views 1867, 60 likes, 5 comments (3 puzzlers), **47 sends
+(7.0 % of reach), all in the first 11.5 h and none since**, 2 saves, 0 follows, 5 profile visits; the sends didn't
+turn into reach (+124 in the last 12 h); **2 sandbox/testing requests, both already answered by the owner** (no new
+ones; one has no MSP account yet); 1 comment unanswered; no live Story in the API (share to Story not seen); import
+counts on MSP itself not checked (live session). Before that ~15:05: **Weekly Numbers ep. 5 PUBLISHED 15:11 Prague** (https://www.instagram.com/p/Dfzio69jjl8/, `2026-11-16-weekly-rc1`, week 46, 8 slides, approved by the owner in chat; checks `check-weekly5-24` Tue 17 Nov 14:30 and `check-weekly5-48` Wed 18 Nov 15:15; Story to be posted by hand; layout fix in `src/posts/weekly.ts`: full brand under the cover boxes, shoutout solve count only when it fits). Before that 2026-11-16 07:20 by the unattended **weekly review** (week 9–15 Nov,
 report `content/reports/weekly-review-2026-11-16.md`): pile-of-shame carousel best of the week (1941 reach = 1.52×
 median, 60 comments, 18 sends); **import launch 47 sends at +11.5 h** (9 % of reach 525, a record; the specific "send
 them this" line); Unlucky 13 Reel 0.84×, Trial Reel 89; Weekly Numbers below the carousel median 4 of 4; followers

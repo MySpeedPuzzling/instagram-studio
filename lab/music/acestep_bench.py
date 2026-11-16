@@ -23,6 +23,11 @@ BRIEFS = [
     ("ticking", "tense ticking clock, minimal electronic, pulsing synth bass, staccato strings, countdown suspense, instrumental", 120, "A minor"),
     ("celebrate", "bright celebratory pop, synth brass stabs, punchy drums, triumphant finale, instrumental", 124, "D major"),
     ("data", "clean modern electronic, light plucked synths, steady four-on-the-floor beat, optimistic, instrumental", 118, "G major"),
+    # Owner 16 Nov: data beds best but generic and flat. Need an MSP identity and a build-up with a payoff.
+    ("data-arc", "clean modern electronic, light plucked synths, starts sparse and quiet, builds steadily layer by layer, "
+     "rising energy, ends on one bright final hit, optimistic, instrumental", 118, "G major"),
+    ("data-stopwatch", "modern electronic with a ticking stopwatch as the rhythm, dry wooden clicks like puzzle pieces "
+     "snapping in, light plucked synths, starts sparse, builds steadily, ends on one bright final hit, instrumental", 120, "G major"),
 ]
 
 

@@ -2,6 +2,20 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Weekly review 2026-11-16 (week 9–15 Nov; report `content/reports/weekly-review-2026-11-16.md`)
+- **A specific "send this to…" line looks like the strongest send lever we have.** Import launch carousel: 47 sends in
+  its first 11.5 h (9 % of reach 525; no earlier post exceeded 21 lifetime), caption and last slide ending "Know
+  someone with a legendary puzzle spreadsheet? Send them this." Pile of shame (a pile everyone recognises): 18. The
+  `send-a-friend` tag alone predicts nothing (5 posts: 6, 0, 18, 0, 47 sends); the two high ones name who to send it
+  to and why. Hunch (n = 2; the import count may include the owner's own DM sends to testers). Recheck at +24/+48 h.
+- **Humour alone doesn't get sends:** 5 posts tagged humour, median 0 sends; only the one paired with identity on a
+  carousel (pile) got them.
+- **Weekly Numbers sits below the carousel median every week** (4 of 4: reach 1282 / 1048 / 782 / 1034 vs 1280) and
+  sends per reach slipped from ~0.65 % (ep. 1–2) to ~0.50 % (ep. 3–4). Hunch (n = 4); the fatigue rule needs 8 episodes.
+- **Follower growth slowed to ~9 a day** (2639 on 12 Nov 13:15 → 2672 on 16 Nov 07:20) from ~15 a day in the first
+  12 days of the pipeline. The import launch brought 0 follows at +11.5 h (it speaks to existing users).
+- **Carousels keep growing past day 3:** pile of shame 1725 (+58 h) → 1917 (+88 h) → 1941 (+101 h).
+
 ## Friday-the-13th set (2026-11-13: "Unlucky 13" follower Reel with a caption poll; checks 14 and 15 Nov)
 - **A caption poll plus a "tell us" question on a Reel drew almost no comments.** At +48 h: reach 631 (0.82× the 2026
   Reel median of 772), 1 comment, 2 sends (0.32 % of reach), 0 saves; the pile-of-shame carousel at a similar age had

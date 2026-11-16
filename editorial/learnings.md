@@ -2,6 +2,16 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Baked-in music, first Story (2026-11-16, lab MU1; check `content/reports/story46-check.md` Tue 17 Nov)
+- **First Story with our own music in the file** (week 46 recap, posted by hand 22:59 Prague with the link sticker,
+  no app music): ACE-Step XL bed, drop placed on the poster landing, the song's own outro on a downbeat, last frame
+  held 2 s. Owner's listening verdict across 34 clips: XL clearly better than the 2B turbo; what matters most is
+  that the drop and ending hit the video (see standing-feedback "Music beds"). Reach effect: unknown until the check.
+- **Instagram serves Stories far below our upload:** the API's copy right after posting was 720×1280 at 0.37 Mbit/s
+  video + HE-AAC 82 kbps (we uploaded 1080×1920 at 3.3 Mbit/s + AAC 128 kbps), the same pattern as the first Reel
+  (720p, 0.6 Mbit/s). The owner sees it softer in the app than in Photos. The app may stream a better rendition than
+  the API copy; the check re-downloads it.
+
 ## Weekly review 2026-11-16 (week 9–15 Nov; report `content/reports/weekly-review-2026-11-16.md`)
 - **A specific "send this to…" line looks like the strongest send lever we have.** Import launch carousel: 47 sends in
   its first 11.5 h (9 % of reach 525; no earlier post exceeded 21 lifetime), caption and last slide ending "Know

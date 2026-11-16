@@ -240,6 +240,16 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
       Rubik metrics for hero numbers, month formatting, flag guard for empty country codes, box crops).
 - [ ] Reels publishing in `src/publish` (`media_type=REELS`, `video_url` on R2, `cover_url`, `share_to_feed`,
       optional `trial_params`); preflight for video specs (ffprobe). Stories stay manual (stickers).
+- [ ] **Week-46 Story with baked-in music POSTED 16 Nov 22:59** (`MU1-data-xl-turbo-s202-fit2`, 18.1 s); check
+      `check-story46` Tue 17 Nov 21:30 (reach/exits/taps vs app-music Stories; served quality re-download).
+- [ ] **Automate the bed fit** (owner 16 Nov: the music must hit the video): find a bed's drop and downbeats
+      (beat_this / librosa onset), land the drop on the video's key moment from the motion timeline, join the song's
+      own outro on a downbeat, two-pass loudnorm −14 + true-peak limiter; hold the last frame for the sticker.
+      Done by hand for week 46 (lab/music, `fit2`). Then: overnight XL batches into an approved bed library.
+- [ ] Owner to describe the "calmer ending, a few tones going lower" (fit3 with added plucks missed it); next try:
+      have ACE-Step generate the ending itself (repaint/extend; watch the loudness-jump bug).
+- [ ] Story/Reel quality on Instagram: test the app's "Upload at highest quality" setting; compare encodes tuned for
+      recompression (see STATUS note 16 Nov).
 - [ ] Reels audio decision and pipeline (silent / SFX from Freesound CC0 / royalty-free bed; licence ledger).
       **Researched 16 Nov:** `reports/Automated Reels and Stories audio.md` (no-credit rule in decisions 2026-11-16).
       Path: API Reels with baked-in, fitted and mastered audio; music library of Meta Sound Collection tracks; ACE-Step

@@ -367,3 +367,12 @@ Docker and other unneeded apps turned off.
   and `13x99` read as shown; `1:40ish` has **two readings** (1 h 40 min or 1 min 40 s, asked once per column), so the
   slide says "hours or minutes? It asks once." instead of "1:40:00". Feature examples on slides come from the app's
   tests or guide, never from design docs alone.
+
+## 2026-11-16: audio for automated Reels and Stories
+
+- **No credit or attribution, anywhere** (owner): MSP is run as open source, not for revenue, but no post, caption or
+  profile carries a "Powered by …" or track credit. So any source whose licence requires a credit is out:
+  **Stable Audio 3 / Stable Audio Open** (Stability Community Licence asks for "Powered by Stability AI"), CC BY
+  tracks or sounds (Freesound: CC0 only), Incompetech's free tier. Still in: ACE-Step 1.5/XL (MIT), own SFX,
+  Freesound CC0, Pixabay (tracks without the Content ID shield), Mixkit, Meta Sound Collection, Epidemic Sound
+  Business (paid). Research: `reports/Automated Reels and Stories audio.md`.

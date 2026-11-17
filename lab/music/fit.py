@@ -57,7 +57,15 @@ def analyse(path: str) -> dict:
     falls = [(mean_db(d - 2, d) - mean_db(d, d + 2), d) for d in downbeats if lo <= d <= end_t - 1.5]
     good = [d for f, d in falls if f >= 3]
     outro = float(good[0]) if good else None
-    return {"path": path, "duration": dur, "tempo": tempo, "beat": beat, "bar": 4 * beat, "downbeats": downbeats.tolist(),
+    # key (Krumhansl profiles on the whole bed): the signature is built in it
+    names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    maj = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
+    mnr = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
+    chroma = librosa.feature.chroma_cqt(y=y, sr=sr).mean(1)
+    sc = [(np.corrcoef(np.roll(maj, i), chroma)[0, 1], names[i], "major") for i in range(12)] + \
+         [(np.corrcoef(np.roll(mnr, i), chroma)[0, 1], names[(i + 3) % 12], "minor→relative major") for i in range(12)]
+    _, tonic, mode = max(sc)
+    return {"path": path, "key": tonic, "key_mode": mode, "duration": dur, "tempo": tempo, "beat": beat, "bar": 4 * beat, "downbeats": downbeats.tolist(),
             "drop": float(drop), "drop_rise_db": round(drop_rise, 1), "outro": outro, "end": end_t}
 
 
@@ -233,15 +241,27 @@ def main() -> None:
     ap.add_argument("--cues", help="default: <video without .mp4>.cues.json")
     ap.add_argument("--hold", type=float, default=2.0)
     ap.add_argument("--sfx", help="SFX plan JSON (lab/sfx/plan.py)")
+    ap.add_argument("--signature", help="signature id (lab/sfx/signature.py MOTIFS), built in the bed's key, at the outro cue")
     a = ap.parse_args()
     cues = json.load(open(a.cues or a.video[:-4] + ".cues.json"))
     an = analyse(a.bed)
     p = plan(an, cues, a.hold)
     audio = render_audio(a.bed, an, p, a.sfx)
+    if a.signature:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sfx"))
+        from signature import MOTIFS, build
+        sig = build(MOTIFS[a.signature], an["key"], an["tempo"])
+        at = next((c["t"] for c in cues["cues"] if c["kind"] == "outro"), p["total"] - 2.5)
+        if p["mode"] == "drop":
+            at = p["splice"]                         # where the song's own outro starts (a downbeat)
+        s0 = int(at * SR)
+        seg = sig[: audio.shape[1] - s0] * 10 ** (-5 / 20)
+        audio[:, s0: s0 + len(seg)] += seg
+        p["signature"] = {"id": a.signature, "key": an["key"], "at": round(at, 3)}
     m = master_and_mux(audio, a.video, a.out, a.hold, p["total"])
     issues = qa(a.out, m, p["total"])
     rep = {"qa": issues or "ok", "bed": os.path.basename(a.bed), "tempo": round(an["tempo"], 1), "drop": round(an["drop"], 3),
-           "drop_rise_db": an["drop_rise_db"], "bed_outro": an["outro"], **p, **m, "sfx": a.sfx}
+           "drop_rise_db": an["drop_rise_db"], "bed_outro": an["outro"], "bed_key": f'{an["key"]} ({an["key_mode"]})', **p, **m, "sfx": a.sfx}
     json.dump(rep, open(a.out[:-4] + ".fit.json", "w"), indent=1)
     print(json.dumps(rep))
 

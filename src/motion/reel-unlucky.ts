@@ -196,6 +196,12 @@ showClk();
 tl.fromTo(clk, { v: D.from }, { v: D.from + 7, duration: T.tickSlow, ease: 'none', onUpdate: showClk }, 0);
 tl.fromTo(clk, { v: D.from + 7 }, { v: 3600, duration: T.hour - T.tickSlow, ease: 'none', onUpdate: showClk, immediateRender: false }, T.tickSlow);
 tl.fromTo(clk, { v: 3600 }, { v: D.stop + 0.99, duration: T.snap - T.hour, ease: 'none', onUpdate: showClk, immediateRender: false }, T.hour);
+// sound cues: one per clock second (the three linear segments above, inverted), the hour passing
+{
+  const seg = [[0, T.tickSlow, D.from, D.from + 7], [T.tickSlow, T.hour, D.from + 7, 3600], [T.hour, T.snap, 3600, D.stop + 0.99]];
+  for (const [t0, t1, v0, v1] of seg) for (let v = Math.floor(v0) + 1; v <= v1; v++) cue('clock-tick', t0 + (v - v0) / (v1 - v0) * (t1 - t0), { v });
+  cue('hour', T.hour, { what: 'the clock passes 1:00:00' });
+}
 
 // ---- the empty slot pulses; the last piece rises from below and lands as the clock passes the hour
 tl.fromTo('#hole', { strokeOpacity: 1 }, { strokeOpacity: 0.35, duration: 0.45, repeat: 3, yoyo: true, ease: 'sine.inOut' }, 0.1);
@@ -205,13 +211,17 @@ tl.set('#last', { x: D.start.dx, y: D.start.dy, rotation: D.start.rot, transform
 tl.to('#last', { x: 0, y: -70, rotation: 90, scale: 1.4, duration: 1.6, ease: 'power2.inOut' }, 0.9);
 tl.to('#last', { y: 0, scale: 1.15, duration: 0.15, ease: 'power2.in' }, 2.55);
 tl.to('#last', { y: -80, scale: 1.4, duration: 0.18, ease: 'back.out(3)' }, 2.72);
+cue('bonk', 2.7, { what: 'the piece hits the board the wrong way round' });
 tl.to('#last', { x: 14, duration: 0.05, repeat: 5, yoyo: true, ease: 'none' }, 2.92);
+cue('jiggle', 2.92, { dur: 0.3 });
 tl.to('#last', { rotation: 0, x: 0, duration: 0.55, ease: 'back.inOut(1.5)' }, 3.3);
+cue('turn', 3.3, { dur: 0.55 });
 tl.to('#last', { y: 0, scale: 1, duration: 0.25, ease: 'power3.in' }, T.snap - 0.25);
 tl.to('#last .mo-last', { stroke: 'rgba(18, 24, 36, 0.75)', strokeWidth: 2, duration: 0.1 }, T.snap);
 tl.set('#last .mo-last', { stroke: '#ec726f', strokeWidth: 5 }, T.loop + 0.2);
 tl.to('#hole', { strokeOpacity: 0, duration: 0.05 }, T.snap - 0.02);
 flash('#clock', T.snap);
+cue('snap', T.snap, { what: 'last piece in, 2 s too late' });
 tl.fromTo('#board, #last', { scale: 1 }, { scale: 1.03, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: '50% 50%', immediateRender: false }, T.snap);
 
 // ---- the splash lines leave (logo exit); the verdict
@@ -221,11 +231,13 @@ tl.set('#splash', { autoAlpha: 0 }, T.splashOut + 0.5);
 show(MAST, T.splashOut + 0.68);
 show('#done', T.done, 0.01);
 riseIn('#done > *', T.done, { stagger: 0.5, dur: 0.35 });
+cue('fail', T.done + 0.5, { what: '2 seconds over the hour' });
 hide(['#done', '#clock', '#bcredit', '#board', '#last'], T.poster - 0.2, 0.15);
 
 // ---- poster: the unlucky number
 tl.set('#poster', { autoAlpha: 1 }, T.poster);
 tl.fromTo('#poster', { y: -${SEAM + 140} }, { y: 0, duration: 0.42, ease: 'power3.out', immediateRender: false }, T.poster);
+cue('key', T.poster + 0.42 * 0.54, { what: 'the number' });
 tl.set(MAST, { autoAlpha: 0 }, T.poster + 0.28);
 tl.set('#ptext', { autoAlpha: 1 }, T.poster + 0.3);
 countUp('#ptext .h-big', D.missed, T.poster + 0.32, 1.2);
@@ -261,6 +273,8 @@ riseIn('#ask > *', T.ask, { stagger: 0.45, dur: 0.35 });
 
 // ---- loop: the clock rewinds to the start, the piece drops back down, the splash returns (= frame 0)
 hide(['#ask', MAST], T.loop, 0.25);
+cue('rewind', T.loop + 0.2, { dur: 0.6 });
+cue('outro', T.ask, { what: 'the question' });
 tl.set(['#clock', '#bcredit', '#board'], { autoAlpha: 1 }, T.loop + 0.2);
 tl.fromTo(['#clock', '#bcredit', '#board'], { opacity: 0 }, { opacity: 1, duration: 0.25, immediateRender: false }, T.loop + 0.2);
 tl.fromTo(clk, { v: D.stop + 0.99 }, { v: D.from, duration: 0.6, ease: 'power2.inOut', onUpdate: showClk, immediateRender: false }, T.loop + 0.2);

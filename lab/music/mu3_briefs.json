@@ -1,0 +1,196 @@
+{
+ "note": "MU3 trend flavours (research: trending_reels_music_styles.md, recipes R1-R12). Tags include the ending.",
+ "directions": {
+  "R4-caught": {
+   "caption": "sneaky comedic orchestral, pizzicato strings, bassoon, tiptoe staccato, muted trumpet hits, woodblock, light snare brushes, mischievous, guilty, playful, cartoon tension, instrumental",
+   "bpm": 106,
+   "key": "D minor",
+   "tags": [
+    "[Intro - tiptoe pizzicato]",
+    "[Verse - sneaky]",
+    "[Build - tension]",
+    "[Drop - comic hit]",
+    "[Outro - descending, sheepish]"
+   ],
+   "duration": 46,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "pile of shame / confessions (shelf Reel 42.7 s)"
+  },
+  "R7-epic": {
+   "caption": "epic cinematic orchestral, trailer build, deep braams, taiko drums, rising strings, choir pads, timpani rolls, heroic brass, dramatic, suspenseful, triumphant, instrumental",
+   "bpm": 86,
+   "key": "C minor",
+   "tags": [
+    "[Intro - low drone]",
+    "[Build - rising strings, taiko]",
+    "[Silence]",
+    "[Drop - massive hit]",
+    "[Outro - ringing out]"
+   ],
+   "duration": 32,
+   "seeds": [
+    202
+   ],
+   "use": "ironic dramatic reveal (Unlucky 13)"
+  },
+  "R8-fine": {
+   "caption": "bossa nova lounge, nylon string guitar, soft brushed drums, upright bass, vibraphone melody, light flute, warm, relaxed, ironic calm, elevator music, instrumental",
+   "bpm": 128,
+   "key": "F major",
+   "tags": [
+    "[Intro - guitar]",
+    "[Verse - vibraphone]",
+    "[Chorus - light]",
+    "[Outro - gentle, descending]"
+   ],
+   "duration": 32,
+   "seeds": [
+    202
+   ],
+   "use": "ironic calm (Unlucky 13)"
+  },
+  "R5-bouncy": {
+   "caption": "silly cartoon music, bouncy oom-pah tuba bass, marimba melody, pizzicato strings, kazoo accents, clarinet, playful percussion, swing, goofy, cheerful, light, instrumental",
+   "bpm": 118,
+   "key": "G major",
+   "tags": [
+    "[Intro - oom-pah]",
+    "[Verse - marimba]",
+    "[Chorus - full band]",
+    "[Breakdown - kazoo]",
+    "[Outro - descending]"
+   ],
+   "duration": 32,
+   "seeds": [
+    202
+   ],
+   "use": "relatable meme chaos"
+  },
+  "R1-disco": {
+   "caption": "nu disco, synth funk, slap bass groove, funky clean guitar chops, four on the floor, string stabs, soft pluck synth, bright, groovy, confident, polished modern mix, instrumental",
+   "bpm": 120,
+   "key": "D major",
+   "tags": [
+    "[Intro - bass and hats]",
+    "[Build - filter rising]",
+    "[Drop - full groove]",
+    "[Breakdown - bass only]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "weekly recap flavour (trend)"
+  },
+  "R2-house": {
+   "caption": "melodic house, deep house groove, warm sub bass, plucked synth riff, felt piano chords, crisp claps, shaker, woodblock accent, uplifting, smooth, loopable, instrumental",
+   "bpm": 122,
+   "key": "A minor",
+   "tags": [
+    "[Intro - plucks]",
+    "[Build]",
+    "[Drop]",
+    "[Breakdown - light]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "rankings / data Reels"
+  },
+  "R3-phonk": {
+   "caption": "soft phonk, brazilian funk rhythm, punchy 808 bass slides, crisp hi-hats, marimba hook, plucked synth, energetic, determined, playful edge, clean modern mix, instrumental",
+   "bpm": 130,
+   "key": "F minor",
+   "tags": [
+    "[Intro - marimba hook]",
+    "[Build - hats rolling]",
+    "[Drop - 808 and funk drums]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "speed records (trend)"
+  },
+  "R9-lofi": {
+   "caption": "lo-fi jazz hop, felt piano, soft rhodes, mellow upright bass, dusty brushed drums, gentle vinyl texture, sparse, cozy, focused, calm, warm tape, instrumental",
+   "bpm": 80,
+   "key": "F major",
+   "tags": [
+    "[Intro - felt piano]",
+    "[Verse - sparse]",
+    "[Verse - slightly fuller]",
+    "[Outro - slowing, descending]",
+    "[Fade Out]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "satisfying time-lapse / process"
+  },
+  "R10-liftoff": {
+   "caption": "future bass, supersaw chords, plucked synth arpeggio, snare roll riser, punchy kick, sub bass, ticking hi-hats, glassy bells, euphoric, anticipation, bright, wide modern mix, instrumental",
+   "bpm": 145,
+   "key": "E major",
+   "tags": [
+    "[Intro - ticking]",
+    "[Build - snare roll riser]",
+    "[Drop - supersaw chords]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "countdowns / launches"
+  },
+  "R11-afro": {
+   "caption": "afro house, log drum bass, shakers, congas, kalimba melody, marimba, warm pads, airy plucks, joyful, warm, global, smooth groove, instrumental",
+   "bpm": 115,
+   "key": "A major",
+   "tags": [
+    "[Intro - kalimba]",
+    "[Build - percussion]",
+    "[Drop - log drum groove]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "community / international"
+  },
+  "R12-chiptune": {
+   "caption": "chiptune, 8-bit square wave lead, arpeggiated triangle bass, noise percussion, soft modern sub, bright plucks, upbeat, playful, nostalgic, retro game, crisp, instrumental",
+   "bpm": 140,
+   "key": "C major",
+   "tags": [
+    "[Intro - 8-bit arpeggio]",
+    "[Build]",
+    "[Drop - full chiptune]",
+    "[Outro - descending coin-like]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "leaderboards / badges"
+  }
+ },
+ "endings": {
+  "own": []
+ },
+ "seeds": [
+  202
+ ],
+ "duration": 24
+}

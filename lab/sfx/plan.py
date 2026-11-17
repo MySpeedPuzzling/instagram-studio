@@ -48,6 +48,7 @@ def main() -> None:
         return os.path.join(a.kit, pool[i])
 
     hits = []
+    gaps = []  # windows where the music steps back (silence before / under a punchline)
 
     def hit(t, name, gain, pitch=0.0, lead=0.0):
         hits.append({"t": round(t, 3), "file": take(name), "gain_db": round(gain + rnd.uniform(-1.5, 1.5), 1),
@@ -101,6 +102,20 @@ def main() -> None:
             hit(c["t"], "boom", S["impact"])
         elif kd == "rewind":
             hit(c["t"], "rewind", S["whoosh"])
+        elif kd == "clock-tick":                                           # tick-tock: alternate two pitches
+            hit(c["t"], "tick", S["count"] + 6, pitch=0 if c.get("v", 0) % 2 else -5)
+        elif kd == "bonk":
+            hit(c["t"], "bonk", S["impact"])
+        elif kd == "jiggle":
+            hit(c["t"], "rattle", S["land"])
+        elif kd == "turn":
+            hit(c["t"], "squeak", S["land"])
+        elif kd == "hour":                                                 # silence before the punchline
+            gaps.append({"t": c["t"], "dur": 0.95, "db": 14})
+        elif kd == "snap":
+            hit(c["t"], "click", S["impact"] + 2, pitch=-2); hit(c["t"], "thud", S["impact_soft"])
+        elif kd == "fail":
+            hit(c["t"], "sad-trombone", S["impact"]); gaps.append({"t": c["t"] - 0.1, "dur": 2.4, "db": 12})
     counts = [c for c in cues if c["kind"] == "count" and not str(c.get("sel", "")).startswith("#fast")]
     if counts:                                          # several count-ups at once: one tick track, from the first
         c = counts[0]
@@ -115,7 +130,7 @@ def main() -> None:
                 kept[-1] = h
             continue
         kept.append(h)
-    plan = {"style": a.style, "music_gain_db": S["music_gain_db"], "duck_db": S["duck_db"], "hits": kept}
+    plan = {"style": a.style, "music_gain_db": S["music_gain_db"], "duck_db": S["duck_db"], "hits": kept, "gaps": gaps}
     json.dump(plan, open(a.out, "w"), indent=1)
     from collections import Counter
     print(a.style, len(kept), dict(Counter(h["kind"] for h in kept)))

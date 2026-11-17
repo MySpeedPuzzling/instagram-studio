@@ -138,6 +138,15 @@ def mix_sfx(music: np.ndarray, plan: dict) -> np.ndarray:
         d = int(min(0.35, x.shape[1] / SR) * SR)       # dip the music under the hit, recover over 350 ms
         e = min(n, s0 + d)
         duck[s0:e] = np.minimum(duck[s0:e], 1 - (1 - 10 ** (-plan.get("duck_db", 4) / 20)) * np.linspace(1, 0, e - s0))
+    for g in plan.get("gaps", []):                     # the music steps back (fast 60 ms dip, 250 ms recovery)
+        a0, a1 = int(g["t"] * SR), int((g["t"] + g["dur"]) * SR)
+        lo = 10 ** (-g["db"] / 20)
+        r_in, r_out = int(0.06 * SR), int(0.25 * SR)
+        for i0, i1, v0, v1 in [(a0 - r_in, a0, 1, lo), (a0, a1, lo, lo), (a1, a1 + r_out, lo, 1)]:
+            i0c, i1c = max(0, i0), min(n, i1)
+            if i1c > i0c:
+                seg = np.linspace(v0, v1, i1 - i0)[i0c - i0: i1c - i0]
+                duck[i0c:i1c] = np.minimum(duck[i0c:i1c], seg)
     return music * 10 ** (plan.get("music_gain_db", 0) / 20) * duck + sfx
 
 

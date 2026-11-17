@@ -196,11 +196,58 @@ def boop(v):
     return norm(np.sin(2 * np.pi * np.cumsum(f) / SR) * env(d, 0.003, 0.12), -6)
 
 
+def bonk(v):
+    """A cartoon wooden bonk (something that won't fit): a knock whose pitch drops."""
+    d = 0.4
+    t = t_(d)
+    f = 520 * (1 + 0.04 * v) * np.exp(-t * 9) + 160
+    body = np.sin(2 * np.pi * np.cumsum(f) / SR) * env(d, 0.001, 0.09)
+    knock = bp(rng.standard_normal(len(t)), 600, 3000) * env(d, 0.0005, 0.01)
+    return norm(np.tanh(1.8 * (body + 0.5 * knock)), -3)
+
+
+def rattle(v):
+    """A piece jiggling against the board: 6 quick small clicks."""
+    out = np.zeros(int(0.32 * SR))
+    for k in range(6):
+        c = click(v + k) * (0.8 if k % 2 else 1.0)
+        s0 = int(k * 0.05 * SR)
+        out[s0: s0 + len(c)] += c[: len(out) - s0]
+    return norm(out, -6)
+
+
+def squeak(v):
+    """Cardboard turning: a short rubbery squeak up then down."""
+    d = 0.5
+    t = t_(d)
+    f = 900 + 500 * np.sin(np.pi * t / d) + 40 * v
+    x = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.3 + np.sin(2 * np.pi * np.cumsum(f) / SR)
+    return norm(lp(x, 5000) * np.sin(np.pi * t / d) ** 2, -10)
+
+
+def sad_trombone(v):
+    """Wah, wah, wah, waaah: four falling notes (the generic idiom; synthesised brassy tone, vibrato on the last)."""
+    notes = [(0, 0.38), (-1, 0.38), (-2, 0.38), (-3, 1.3)]
+    base = 233.08  # B-flat 3
+    out = []
+    for k, (semi, d) in enumerate(notes):
+        t = t_(d)
+        f = base * 2 ** (semi / 12) * (1 + (0.025 * np.sin(2 * np.pi * 6 * t) * np.minimum(t / 0.3, 1) if k == 3 else 0))
+        f = f * (1 - 0.03 * np.exp(-t / 0.05))          # each note slides into place (a "wah")
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        tone = sum(np.sin(h * ph) / h ** 0.8 for h in range(1, 9))
+        a = np.minimum(t / 0.04, 1) * np.minimum(1, (d - t) / 0.06)
+        wah = 0.55 + 0.45 * np.minimum(t / 0.18, 1)        # mute opening: darker at the start of each note
+        out.append(lp(tone, 900 + 2200 * np.mean(wah)) * a)
+    return norm(np.concatenate(out), -4)
+
+
 KIT = {"tick": (tick, 6), "click": (click, 8), "pop": (pop, 4), "whoosh-up": (lambda v: whoosh(v, True), 3),
        "whoosh-down": (lambda v: whoosh(v, False), 3), "thud": (thud, 6), "ding": (ding, 2), "slot": (slot, 4),
        "stopwatch": (stopwatch, 4),
        "slide-down": (slide_down, 2), "fastforward": (fastforward, 3), "zip": (zip_, 2), "buzz": (buzz, 1), "boom": (boom, 2),
-       "rewind": (rewind, 2), "boop": (boop, 4)}
+       "rewind": (rewind, 2), "boop": (boop, 4),
+       "bonk": (bonk, 2), "rattle": (rattle, 2), "squeak": (squeak, 2), "sad-trombone": (sad_trombone, 1)}
 
 
 def main() -> None:

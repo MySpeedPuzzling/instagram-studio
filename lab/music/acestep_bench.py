@@ -64,11 +64,12 @@ def main() -> None:
     clips_path = OUT / "clips.json"
     clips = json.loads(clips_path.read_text()) if clips_path.exists() else []
     # rows: (key, caption, bpm, key/scale, lyrics)
-    briefs = [(k, c, b, sc, "[Instrumental]") for k, c, b, sc in BRIEFS if not a.only or k in a.only.split(",")]
+    briefs = [(k, c, b, sc, "[Instrumental]", None, None) for k, c, b, sc in BRIEFS if not a.only or k in a.only.split(",")]
     seeds = [int(s) for s in a.seeds.split(",")]
     if a.grid:
         g = json.loads(Path(a.grid).read_text())
-        briefs = [(f"{dk}-{ek}", d["caption"], d["bpm"], d["key"], "\n\n".join(d["tags"] + e))
+        one = len(g["endings"]) == 1
+        briefs = [(dk if one else f"{dk}-{ek}", d["caption"], d["bpm"], d["key"], "\n\n".join(d["tags"] + e), d.get("duration"), d.get("seeds"))
                   for dk, d in g["directions"].items() for ek, e in g["endings"].items()]
         briefs = [b for b in briefs if not a.only or b[0] in a.only.split(",")]
         seeds, a.duration = g["seeds"], float(g["duration"])
@@ -89,11 +90,11 @@ def main() -> None:
             print(f"init failed for {mkey}: {status}")
             continue
         run[f"{mkey}_load_s"] = round(time.time() - t0, 1)
-        for key, caption, bpm, scale, lyrics in briefs:
-            for seed in seeds:
+        for key, caption, bpm, scale, lyrics, bdur, bseeds in briefs:
+            for seed in (bseeds or seeds):
                 clip_id = f"{a.lab}-{key}-{mkey}-s{seed}"
                 params = GenerationParams(caption=caption, instrumental=True, lyrics=lyrics, bpm=bpm,
-                                          keyscale=scale, duration=a.duration, seed=seed,
+                                          keyscale=scale, duration=bdur or a.duration, seed=seed,
                                           thinking=True, use_cot_caption=False, use_cot_metas=False,
                                           shift=3.0 if "turbo" in mkey else 1.0, infer_method="ode")  # official turbo setting
                 cfg = GenerationConfig(batch_size=1, use_random_seed=False, seeds=[seed], audio_format="flac")
@@ -109,7 +110,7 @@ def main() -> None:
                 dst = OUT / f"{clip_id}.flac"
                 shutil.move(res.audios[0]["path"], dst)
                 item = {"id": clip_id, "brief": key, "model": MODELS[mkey], "lm": LM, "caption": caption, "bpm": bpm, "shift": params.shift,
-                        "key": scale, "duration_s": a.duration, "seed": seed, "gen_s": secs,
+                        "key": scale, "duration_s": bdur or a.duration, "seed": seed, "gen_s": secs,
                         "file": f"/content/labs/{a.lab}/{dst.name}", "lyrics": lyrics, "created": time.strftime("%Y-%m-%d %H:%M")}
                 clips = [c for c in clips if c["id"] != clip_id] + [item]
                 clips_path.write_text(json.dumps(clips, indent=1))

@@ -197,6 +197,36 @@ def master_and_mux(audio: np.ndarray, video: str, out: str, hold: float, total: 
     return {"lufs": get("I:"), "true_peak_db": get("Peak:")}
 
 
+def qa(out: str, m: dict, total: float) -> list[str]:
+    """Problems a listener would notice (empty = pass). Thresholds are our proposals (research: no standard)."""
+    with tempfile.TemporaryDirectory() as tmp:          # librosa can't read MP4: decode the final audio first
+        w = os.path.join(tmp, "qa.wav")
+        ffmpeg("-i", out, "-vn", "-ac", "1", "-ar", "16000", w)
+        y, sr = librosa.load(w, sr=16000, mono=True)
+    hop = int(0.05 * sr)
+    db = 20 * np.log10(librosa.feature.rms(y=y, frame_length=hop, hop_length=hop)[0] + 1e-9)
+    t = np.arange(len(db)) * 0.05
+    issues = []
+    if db[t < 0.15].max() < -40:
+        issues.append("silent start: no sound in the first 0.15 s (research: sound from frame 1)")
+    mid = (t > 0.3) & (t < total - 1.5)
+    quiet = db[mid] < -45
+    run = longest = 0
+    for q in quiet:
+        run = run + 1 if q else 0
+        longest = max(longest, run)
+    if longest * 0.05 >= 0.3:
+        issues.append(f"dropout: {longest * 0.05:.2f} s of near-silence inside the music")
+    tail = db[t > total - 0.3]
+    if len(tail) and tail.max() > -18 and db[(t > total - 1.2) & (t < total - 0.6)].mean() - tail.mean() < 2:
+        issues.append("abrupt end: still loud in the last 0.3 s (no ending)")
+    if m["true_peak_db"] > -0.3:
+        issues.append(f"true peak {m['true_peak_db']} dB (aim ≤ −1)")
+    if abs(m["lufs"] + 14) > 1:
+        issues.append(f"loudness {m['lufs']} LUFS (aim −14 ± 1)")
+    return issues
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("bed"); ap.add_argument("video"); ap.add_argument("out")
@@ -209,7 +239,8 @@ def main() -> None:
     p = plan(an, cues, a.hold)
     audio = render_audio(a.bed, an, p, a.sfx)
     m = master_and_mux(audio, a.video, a.out, a.hold, p["total"])
-    rep = {"bed": os.path.basename(a.bed), "tempo": round(an["tempo"], 1), "drop": round(an["drop"], 3),
+    issues = qa(a.out, m, p["total"])
+    rep = {"qa": issues or "ok", "bed": os.path.basename(a.bed), "tempo": round(an["tempo"], 1), "drop": round(an["drop"], 3),
            "drop_rise_db": an["drop_rise_db"], "bed_outro": an["outro"], **p, **m, "sfx": a.sfx}
     json.dump(rep, open(a.out[:-4] + ".fit.json", "w"), indent=1)
     print(json.dumps(rep))

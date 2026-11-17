@@ -38,7 +38,7 @@ def run(lab: str) -> None:
                 print(f"{c['id']} → {name}: FAILED {r.stderr[-300:]}")
                 continue
             rep = json.loads(r.stdout.strip().splitlines()[-1])
-            print(f"{c['id']} → {name}: drop {rep['drop']}s (+{rep['drop_rise_db']} dB) on {rep['key']}s, {rep['mode']}, {rep['lufs']} LUFS, TP {rep['true_peak_db']}")
+            print(f"{c['id']} → {name}: drop {rep['drop']}s (+{rep['drop_rise_db']} dB) on {rep['key']}s, {rep['mode']}, {rep['lufs']} LUFS, TP {rep['true_peak_db']}, QA {rep['qa']}")
 
 
 if __name__ == "__main__":

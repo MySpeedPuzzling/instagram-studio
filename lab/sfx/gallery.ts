@@ -19,7 +19,7 @@ const used = new Set<string>();
 const tile = (f: string) => {
   const id = f.replace(/\.[^.]+$/, ''), src = `/content/labs/${LAB}/out/${f}`;
   const fit = existsSync(join(DIR, 'out', id + '.fit.json')) ? JSON.parse(readFileSync(join(DIR, 'out', id + '.fit.json'), 'utf8')) : null;
-  const meta = fit ? `${fit.tempo} BPM · drop ${fit.drop}s → ${fit.key}s · ${fit.mode} · ${fit.lufs} LUFS` : '';
+  const meta = fit ? `${fit.tempo} BPM · drop ${fit.drop}s → ${fit.key}s · ${fit.mode} · ${fit.lufs} LUFS${Array.isArray(fit.qa) ? ' · QA: ' + fit.qa.join('; ') : ''}` : '';
   return `<div class="tile"><p class="code"><b>${h(id)}</b>${notes.notes?.[id] ? `<br>${h(notes.notes[id])}` : ''}${meta ? `<br><span class="meta">${h(meta)}</span>` : ''}</p>
 ${f.endsWith('.mp4') ? `<video controls playsinline preload="metadata" src="${h(src)}"></video>` : `<audio controls preload="none" src="${h(src)}"></audio>`}
 <div class="rate" data-target="${h(id)}"><button data-r="works">Works</button><button data-r="unsure">Unsure</button><button data-r="no-go">No-go</button><textarea rows="2" placeholder="Why? (optional)"></textarea><span class="saved"></span></div></div>`;

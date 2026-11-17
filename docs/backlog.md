@@ -60,6 +60,11 @@ Updated 2026-10-17.
 - [x] Weekly ep. 4 published 9 Nov ~20:25 (https://www.instagram.com/p/DfiE1_1ERhA/), owner picked the boxes cover (B).
 - [x] Boxes cover is the weekly default (`weekly-rc1`, 9 Nov).
 - [x] Weekly ep. 5 (week 46) PUBLISHED Mon 16 Nov 15:11 Prague (https://www.instagram.com/p/Dfzio69jjl8/, `2026-11-16-weekly-rc1`, 8 slides, all 11 photo tags ok). Checks: `check-weekly5-24` Tue 17 Nov 14:30 (also reads the Story), `check-weekly5-48` Wed 18 Nov 15:15 (pin verdict). Owner: post the animated Story with the "Full report" link sticker bottom right, add it to Recaps and remove the oldest week (5th week).
+  - [x] +24 h check done Tue 17 Nov 14:30 (`content/reports/weekly5-check-24h.md`): reach 763 (0.71× median), **9 sends
+    (series record)**, 2 follows; Story 305 reach at +15.5 h, 0 replies. Earlier slot: no visible harm, n = 1.
+  - [ ] Owner: reply to the 2 ep. 5 comments (proposals in the report); note the Story's link taps from the app/archive.
+  - [ ] From ep. 6: compare each episode at +24 h (snapshots now exist from publish on); try 15:00 for a few more Mondays
+    if the owner wants to test the time (one post can't separate time from content).
 - [ ] Ep. 4 insights at +48 h (Wed 11 Nov ~20:30); Story insights before it expires (Tue 10 Nov evening). Compare reach with eps. 1–3 (first boxes cover).
 - [x] Tag pre-check: `tools/check-tags.ts` (2 Nov).
 

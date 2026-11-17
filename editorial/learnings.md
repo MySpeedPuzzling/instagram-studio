@@ -2,6 +2,17 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Weekly Numbers ep. 5 at +23 h (2026-11-17; report `content/reports/weekly5-check-24h.md`)
+- **Most sends the series has had, and early:** 9 sends at +23 h (1.2 % of reach 763), 7 of them within 5 h. Eps. 2–4
+  ended their life with 4–5 each (0.4–0.5 %). Reach is the usual series level (0.71× the carousel median of 1073;
+  eps. 2–4 lifetime 783–1073), 2 follows, 0 saves. It went out at 15:11 Prague instead of ~20:00. One post: can't
+  separate the time from the week's content or the 11 photo tags. Hunch only; needs more Mondays at 15:00.
+- **No same-age baseline for the series yet:** snapshots started 12 Nov, so eps. 1–4 have nothing before +64 h.
+  From ep. 6 on, compare at +24 h.
+- **Week-46 Story (own music) at +15.5 h:** reach 305 (~11 % of followers), 0 replies, taps forward 54 % and exits
+  23 % of views, about the same as the teaser Story (56 % / 25 %), so the music didn't make people leave faster.
+  Final numbers in `check-story46`.
+
 ## Baked-in music, first Story (2026-11-16, lab MU1; check `content/reports/story46-check.md` Tue 17 Nov)
 - **First Story with our own music in the file** (week 46 recap, posted by hand 22:59 Prague with the link sticker,
   no app music): ACE-Step XL bed, drop placed on the poster landing, the song's own outro on a downbeat, last frame

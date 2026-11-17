@@ -2,7 +2,12 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). **Latest (16 Nov ~23:05): audio for automated Reels/Stories researched**
+`docs/backlog.md` (what to do next). **Newest (17 Nov ~14:30, unattended +24 h check of Weekly Numbers ep. 5,
+`content/reports/weekly5-check-24h.md`):** reach 763 at +23 h (0.71× the carousel median 1073, usual series level),
+**9 sends (1.2 %, a series record; eps. 2–4 ended with 4–5)**, 2 follows, 0 saves; posted 15:11 instead of ~20:00:
+no visible harm, n = 1. Week-46 Story at +15.5 h: reach 305, 0 replies, exits 23 % (same as the teaser). 2 new
+comments unanswered (replies proposed). Next: `check-story46` tonight 21:30, `check-weekly5-48` Wed 15:15.
+**Earlier (16 Nov ~23:05): audio for automated Reels/Stories researched**
 (`reports/Automated Reels and Stories audio.md`, `reports/Local audio models and practice.md`); owner decisions:
 baked-in audio by default, no credit anywhere (Stable Audio out), ACE-Step 1.5 XL as the generator (Magenta RT 2
 acceptable), free library first. Lab **MU1** (34 beds, owner ratings; `lab/music/`). **Week-46 Story posted by hand

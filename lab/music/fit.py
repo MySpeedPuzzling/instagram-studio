@@ -51,36 +51,50 @@ def analyse(path: str) -> dict:
     cands = [d for d in downbeats if 1.5 <= d <= end_t - 6]
     rises = [(mean_db(d, d + 2) - mean_db(d - 2, d), d) for d in cands]
     drop_rise, drop = max(rises) if rises else (0.0, float(downbeats[0]))
-    # outro: the last downbeat after the drop with a sustained fall (next 2 s at least 3 dB below the previous 2 s)
-    falls = [(mean_db(d - 2, d) - mean_db(d, d + 2), d) for d in downbeats if drop + 4 <= d <= end_t - 1.5]
+    # outro: the last downbeat (in the second half, after the drop when there is one) with a sustained fall:
+    # the next 2 s at least 3 dB below the previous 2 s
+    lo = max(dur * 0.4, drop + 2 if drop_rise >= 4 else 0)
+    falls = [(mean_db(d - 2, d) - mean_db(d, d + 2), d) for d in downbeats if lo <= d <= end_t - 1.5]
     good = [d for f, d in falls if f >= 3]
-    outro = float(good[-1]) if good else None
+    outro = float(good[0]) if good else None
     return {"path": path, "duration": dur, "tempo": tempo, "beat": beat, "bar": 4 * beat, "downbeats": downbeats.tolist(),
             "drop": float(drop), "drop_rise_db": round(drop_rise, 1), "outro": outro, "end": end_t}
 
 
 def plan(a: dict, cues: dict, hold: float) -> dict:
+    """Pick how the bed meets the video. Three strategies, best first:
+    drop  — a strong drop (≥ 4 dB rise) lands on the key cue; the song's own outro is joined on a downbeat near the end;
+    end   — the bed's natural ending lands on the last frame, shifted (< 1 bar) so a downbeat sits on the key cue;
+    fade  — the bed is too short or has neither: start at its beginning, a downbeat on the key, fade over the last 2 bars."""
     key = next((c["t"] for c in cues["cues"] if c["kind"] == "key"), 0.0)
     outro_cue = next((c["t"] for c in cues["cues"] if c["kind"] == "outro"), cues["duration"] - 2.5)
     total = cues["duration"] + hold
-    offset = a["drop"] - key                      # bed time = video time + offset
-    if offset < 0:                                # drop earlier than the key: start on a later downbeat drop
-        later = [d for d in a["downbeats"] if d - key >= 0]
-        offset = (later[0] - key) if later else 0.0
-    bar = a["bar"]
-    p = {"key": key, "outro_cue": outro_cue, "total": round(total, 3), "offset": round(offset, 3)}
-    if a["outro"]:
+    bar, db = a["bar"], np.array(a["downbeats"])
+    p = {"key": key, "outro_cue": outro_cue, "total": round(total, 3)}
+
+    def splice_plan(offset):
         tail = a["end"] - a["outro"]
-        # splice points: video times where the bed is on a downbeat (key + k bars); the latest one that still leaves
-        # room for the song's outro tail, but not before the outro cue minus one bar
-        # (the tail may run past the end by up to 60 % of a bar: its last part is quiet and gets a short soft fade)
         ks = [key + k * bar for k in range(0, 64) if key + k * bar <= total - min(tail, total - key) + 0.6 * bar]
         ok = [s for s in ks if s >= outro_cue - bar] or ks[-1:]
         splice = ok[-1] if ok else total - tail
-        p.update({"mode": "own-outro", "splice": round(splice, 3), "outro_from": round(a["outro"], 3),
-                  "tail": round(tail, 3), "ends_at": round(min(total, splice + tail), 3)})
-    else:
-        p.update({"mode": "fade", "fade_from": round(total - 2 * bar, 3)})
+        return {"mode": "drop", "offset": round(offset, 3), "splice": round(splice, 3), "outro_from": round(a["outro"], 3),
+                "tail": round(tail, 3), "ends_at": round(min(total, splice + tail), 3)}
+
+    off = a["drop"] - key
+    if a["drop_rise_db"] >= 4 and off >= 0:
+        if a["outro"] and a["outro"] > a["drop"]:
+            p.update(splice_plan(off)); return p
+        if off + total <= a["end"] + 0.25:
+            p.update({"mode": "drop-fade", "offset": round(off, 3), "fade_from": round(total - 2 * bar, 3)}); return p
+    natural = a["end"] - total
+    if natural >= 0:
+        cand = db[(db - key >= 0)]
+        if len(cand):
+            off = float(cand[np.argmin(np.abs((cand - key) - natural))] - key)
+            if abs(off - natural) <= 0.6 * bar:
+                p.update({"mode": "end", "offset": round(off, 3), "ends_at": round(a["end"] - off, 3)}); return p
+    off = float(db[db - key >= 0][0] - key) if (db - key >= 0).any() else 0.0
+    p.update({"mode": "fade", "offset": round(max(off, 0.0), 3), "fade_from": round(total - 2 * bar, 3)})
     return p
 
 
@@ -91,7 +105,7 @@ def render_audio(bed: str, a: dict, p: dict, sfx_plan: str | None) -> np.ndarray
     n = int(p["total"] * SR)
     out = np.zeros((2, n))
     off = int(p["offset"] * SR)
-    if p["mode"] == "own-outro":
+    if p["mode"] == "drop":
         sv = int(p["splice"] * SR)
         xf = int(0.08 * SR)
         main = y[:, off: off + sv + xf]
@@ -109,8 +123,12 @@ def render_audio(bed: str, a: dict, p: dict, sfx_plan: str | None) -> np.ndarray
     else:
         seg = y[:, off: off + n]
         out[:, : seg.shape[1]] += seg
-        f0 = int(p["fade_from"] * SR)
-        out[:, f0:] *= np.linspace(1, 0, n - f0) ** 1.5
+        if p["mode"] in ("fade", "drop-fade"):
+            f0 = int(p["fade_from"] * SR)
+            out[:, f0:] *= np.linspace(1, 0, n - f0) ** 1.5
+        else:                                       # end: the bed's own ending; just guard the last 60 ms
+            k = int(0.06 * SR)
+            out[:, -k:] *= np.linspace(1, 0, k)
     out[:, : int(0.02 * SR)] *= np.linspace(0, 1, int(0.02 * SR))
     if sfx_plan:
         out = mix_sfx(out, json.load(open(sfx_plan)))

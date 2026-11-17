@@ -15,11 +15,14 @@ const notes: Notes = existsSync(join(DIR, 'notes.json')) ? JSON.parse(readFileSy
 const files = readdirSync(join(DIR, 'out')).filter(f => /\.(mp4|wav|flac|m4a)$/.test(f)).sort();
 const groups = notes.groups?.length ? notes.groups : [{ title: 'All', prefix: '' }];
 const used = new Set<string>();
+const vocals: Record<string, { vocal_db: number; flag: boolean }> = existsSync(join(DIR, 'vocals.json')) ? JSON.parse(readFileSync(join(DIR, 'vocals.json'), 'utf8')) : {};
 
 const tile = (f: string) => {
   const id = f.replace(/\.[^.]+$/, ''), src = `/content/labs/${LAB}/out/${f}`;
   const fit = existsSync(join(DIR, 'out', id + '.fit.json')) ? JSON.parse(readFileSync(join(DIR, 'out', id + '.fit.json'), 'utf8')) : null;
-  const meta = fit ? `${fit.tempo} BPM · drop ${fit.drop}s → ${fit.key}s · ${fit.mode} · ${fit.lufs} LUFS${Array.isArray(fit.qa) ? ' · QA: ' + fit.qa.join('; ') : ''}` : '';
+  const bedId = Object.keys(vocals).find(k => id.startsWith(k));
+  const voc = bedId ? ` · vocals ${vocals[bedId].vocal_db} dB${vocals[bedId].flag ? ' ⚠ listen' : ''}` : '';
+  const meta = fit ? `${fit.tempo} BPM · drop ${fit.drop}s → ${fit.key}s · ${fit.mode} · ${fit.lufs} LUFS${Array.isArray(fit.qa) ? ' · QA: ' + fit.qa.join('; ') : ''}${voc}` : '';
   return `<div class="tile"><p class="code"><b>${h(id)}</b>${notes.notes?.[id] ? `<br>${h(notes.notes[id])}` : ''}${meta ? `<br><span class="meta">${h(meta)}</span>` : ''}</p>
 ${f.endsWith('.mp4') ? `<video controls playsinline preload="metadata" src="${h(src)}"></video>` : `<audio controls preload="none" src="${h(src)}"></audio>`}
 <div class="rate" data-target="${h(id)}"><button data-r="works">Works</button><button data-r="unsure">Unsure</button><button data-r="no-go">No-go</button><textarea rows="2" placeholder="Why? (optional)"></textarea><span class="saved"></span></div></div>`;

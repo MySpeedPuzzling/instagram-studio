@@ -249,8 +249,14 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
       Rubik metrics for hero numbers, month formatting, flag guard for empty country codes, box crops).
 - [ ] Reels publishing in `src/publish` (`media_type=REELS`, `video_url` on R2, `cover_url`, `share_to_feed`,
       optional `trial_params`); preflight for video specs (ffprobe). Stories stay manual (stickers).
-- [ ] **Week-46 Story with baked-in music POSTED 16 Nov 22:59** (`MU1-data-xl-turbo-s202-fit2`, 18.1 s); check
-      `check-story46` Tue 17 Nov 21:30 (reach/exits/taps vs app-music Stories; served quality re-download).
+- [x] **Week-46 Story with baked-in music POSTED 16 Nov 22:59** (`MU1-data-xl-turbo-s202-fit2`, 18.1 s); checked
+      17 Nov 21:30 (`content/reports/story46-check.md`): reach 371, exits 21.6 %, taps forward 55 %: no warning sign
+      vs app-music Stories; lower reach likely the late hour. n = 1.
+- [ ] Owner: note the week-46 Story's link taps ("Full report" sticker) from the archive (not in the API).
+- [ ] Week-47 Story (Mon 23 Nov): own music again, at the usual evening time, to separate "late hour" from "own
+      music"; compare at +24 h with the table in `story46-check.md`.
+- [ ] Served-quality re-check of a Story/Reel (ffprobe of `media_url`): do it in a live session while it's live, or
+      make `tools/insights.ts` keep `media_url` for live Stories so unattended checks can download it to /tmp.
 - [ ] **Automate the bed fit** (owner 16 Nov: the music must hit the video): find a bed's drop and downbeats
       (beat_this / librosa onset), land the drop on the video's key moment from the motion timeline, join the song's
       own outro on a downbeat, two-pass loudnorm −14 + true-peak limiter; hold the last frame for the sticker.

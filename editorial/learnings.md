@@ -2,6 +2,16 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Week-46 Story, final read (2026-11-17, +22.5 h; report `content/reports/story46-check.md`)
+- **Baked-in music did no visible harm.** First Story with our own bed instead of app music: exits 21.6 % of views and
+  taps forward 55 % of views, between the two earlier app-music Stories (teaser 25.5 % / 56 %, spreadsheets 16.9 % /
+  48 %). Reach was the lowest of the three (371, ~14 % of followers, vs 401 and 489), most likely because it went out
+  at 22:59 (215 at +9 h, overnight). 0 replies, 0 shares (a recap asks nothing). n = 1 with a different posting time:
+  a hunch at most. Next weekly Story: own music again, at the usual evening time, to separate the two.
+- **No same-age baseline for weekly Stories with app music** (weeks 42–45 expired before snapshots began on 12 Nov).
+  Unattended checks can't re-download a Story's served file (`media_url` isn't stored), so the quality re-check
+  has to happen in a live session or after adding `media_url` to the pull.
+
 ## Import launch at +48 h (2026-11-17; report `content/reports/import-launch-check-48h.md`)
 - **Sends without reach.** 47 sends (still the account's best per reach, 6.2 % of 756), all within the first 11.5 h
   and none in the next 36 h; reach ended day 2 at 756 (0.70× the carousel median of 1074, about half the pile of
@@ -22,7 +32,7 @@ Aggregate evidence only; no member names. Newest first. Each belief states the e
   From ep. 6 on, compare at +24 h.
 - **Week-46 Story (own music) at +15.5 h:** reach 305 (~11 % of followers), 0 replies, taps forward 54 % and exits
   23 % of views, about the same as the teaser Story (56 % / 25 %), so the music didn't make people leave faster.
-  Final numbers in `check-story46`.
+  Final numbers: see "Week-46 Story, final read" above.
 
 ## Baked-in music, first Story (2026-11-16, lab MU1; check `content/reports/story46-check.md` Tue 17 Nov)
 - **First Story with our own music in the file** (week 46 recap, posted by hand 22:59 Prague with the link sticker,

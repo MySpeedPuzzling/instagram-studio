@@ -2,7 +2,13 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). **Newest (17 Nov ~20:05, unattended +48 h import launch check,
+`docs/backlog.md` (what to do next). **Newest (17 Nov 21:30, unattended final check of the week-46 Story, the first
+with our own music, `content/reports/story46-check.md`):** at +22.5 h reach **371** (~14 % of followers; teaser 401,
+spreadsheets Story 489), views 476, 0 replies, 0 shares; **exits 21.6 % and taps forward 55 % of views, between the two
+app-music Stories (25.5 %/56 % and 16.9 %/48 %): no warning sign for the music.** Lower reach most likely from the
+22:59 posting time (215 at +9 h). n = 1: a hunch. No same-age weekly Story with app music exists (wks 42–45 expired
+before snapshots). Served-quality re-download not done (unattended run can't call the API; `media_url` isn't stored).
+Link taps only in the app archive (owner). **Earlier (17 Nov ~20:05, unattended +48 h import launch check,
 `content/reports/import-launch-check-48h.md`):** carousel at +48.2 h reach **756** (0.70× the carousel median 1074,
 ~half the pile of shame at the same age), views 2128, 67 likes, 5 comments, **47 sends unchanged since +11.5 h**,
 2 saves, 1 follow; no new comments, no new sandbox requests (still 2, both answered); "🙌😍" still unanswered (reply

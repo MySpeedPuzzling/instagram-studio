@@ -19,7 +19,7 @@ def ratio(v: np.ndarray, r: np.ndarray, sr: int) -> tuple[float, float]:
     overall = db(v) - db(r)
     w = sr
     worst = max(db(v[i:i + w]) - db(r[i:i + w]) for i in range(0, max(1, len(v) - w), w // 2))
-    return round(overall, 1), round(worst, 1)
+    return float(round(overall, 1)), float(round(worst, 1))
 
 
 def main() -> None:
@@ -36,7 +36,7 @@ def main() -> None:
             stem = os.path.join(tmp, "htdemucs", os.path.splitext(os.path.basename(bed))[0])
             v, sr = sf.read(os.path.join(stem, "vocals.wav")); r, _ = sf.read(os.path.join(stem, "no_vocals.wav"))
         o, w = ratio(v.mean(1) if v.ndim > 1 else v, r.mean(1) if r.ndim > 1 else r, sr)
-        res[c["id"]] = {"vocal_db": o, "worst_second_db": w, "flag": o > -25}
+        res[c["id"]] = {"vocal_db": o, "worst_second_db": w, "flag": bool(o > -25)}
         json.dump(res, open(out_path, "w"), indent=1)
         print(f"{c['id']}: vocals {o} dB overall, {w} dB in the loudest second{'  ← LISTEN' if o > -25 else ''}", flush=True)
 

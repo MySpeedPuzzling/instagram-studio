@@ -2,7 +2,12 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). **Newest (17 Nov ~14:30, unattended +24 h check of Weekly Numbers ep. 5,
+`docs/backlog.md` (what to do next). **Newest (17 Nov ~20:05, unattended +48 h import launch check,
+`content/reports/import-launch-check-48h.md`):** carousel at +48.2 h reach **756** (0.70× the carousel median 1074,
+~half the pile of shame at the same age), views 2128, 67 likes, 5 comments, **47 sends unchanged since +11.5 h**,
+2 saves, 1 follow; no new comments, no new sandbox requests (still 2, both answered); "🙌😍" still unanswered (reply
+proposed); **pins kept** (fails on reach, not evergreen). Followers 2680. No more checks for this post; imports on MSP
+still to count in a live session. **Earlier (17 Nov ~14:30, unattended +24 h check of Weekly Numbers ep. 5,
 `content/reports/weekly5-check-24h.md`):** reach 763 at +23 h (0.71× the carousel median 1073, usual series level),
 **9 sends (1.2 %, a series record; eps. 2–4 ended with 4–5)**, 2 follows, 0 saves; posted 15:11 instead of ~20:00:
 no visible harm, n = 1. Week-46 Story at +15.5 h: reach 305, 0 replies, exits 23 % (same as the teaser). 2 new

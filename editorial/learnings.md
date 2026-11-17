@@ -2,6 +2,17 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Import launch at +48 h (2026-11-17; report `content/reports/import-launch-check-48h.md`)
+- **Sends without reach.** 47 sends (still the account's best per reach, 6.2 % of 756), all within the first 11.5 h
+  and none in the next 36 h; reach ended day 2 at 756 (0.70× the carousel median of 1074, about half the pile of
+  shame at the same age), +89 on day 2, no bump after the send burst. A send count alone doesn't predict reach; keep
+  the specific "send it to …" line but judge posts on reach too. One post (and some sends may be our own): a hunch.
+- **A "comment X to get Y" ask on a niche feature drew only the already-keen:** 3 puzzler comments, 2 testing offers,
+  nothing after the first 3 h. Comment asks don't open a conversation the way a "what's yours?" question does (pile of
+  shame ~35 puzzler comments). n = 1.
+- **Feature launches don't bring followers:** 1 follow at +48 h. Judge launches on use in the app (imports), not on
+  Instagram reach or follows.
+
 ## Weekly Numbers ep. 5 at +23 h (2026-11-17; report `content/reports/weekly5-check-24h.md`)
 - **Most sends the series has had, and early:** 9 sends at +23 h (1.2 % of reach 763), 7 of them within 5 h. Eps. 2–4
   ended their life with 4–5 each (0.4–0.5 %). Reach is the usual series level (0.71× the carousel median of 1073;

@@ -13,6 +13,10 @@ Updated 2026-10-17.
 - [x] `check-import24` done Mon 16 Nov ~20:05 (+24.2 h): reach 667 (0.63× carousel median), 47 sends (7.0 %, all in
       the first 11.5 h, none since), 60 likes, 2 saves, 0 follows, 5 profile visits; 2 testing requests, both already
       answered with a DM by the owner, none new; 1 comment ("🙌😍") unanswered, reply proposed in the report.
+- [x] `check-import48` done Tue 17 Nov ~20:05 (+48.2 h): reach 756 (0.70× median 1074), 47 sends (none since +11.5 h),
+      67 likes, 1 follow, no new comments or sandbox requests; **pin verdict: keep all three** (no app steps).
+- [ ] Owner: reply to "🙌😍" on the import post (text in `content/reports/import-launch-check-48h.md`); report the
+      sandbox DM / file / e-mail counts to the next session.
 - [ ] Live session: count imports made on MSP since Sun 15 Nov 19:50 (read-only query) to judge the launch on its
       purpose, not on reach; and decide whether the sends-without-reach pattern changes the send-line suggestion.
 - [ ] Owner: one-tap share of the carousel to Story; for every "sandbox" comment copy the tester's MSP login to the

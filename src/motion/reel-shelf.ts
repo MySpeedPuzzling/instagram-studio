@@ -222,6 +222,7 @@ export function reelShelfMotion(v: Variant, spec: ReelShelfSpec, o: { story?: bo
 hide('#lapse', T.poster - 0.15, 0.15);
 tl.set('#poster', { autoAlpha: 1 }, T.poster);
 tl.fromTo('#poster', { y: -${SEAM.poster + 140} }, { y: 0, duration: 0.42, ease: 'power3.out', immediateRender: false }, T.poster);
+cue('key', T.poster + 0.42 * 0.54, { what: 'the number' });
 tl.set(MAST, { autoAlpha: 0 }, T.poster + 0.28);
 tl.set('#ptext', { autoAlpha: 1 }, T.poster + 0.3);
 countUp('#pn', D.pct, T.poster + 0.32, 1.3);
@@ -276,6 +277,7 @@ show('#mustext', T.mus, 0.01);
 riseIn('#mq > *', T.mus + 0.1, { stagger: 0.12, dur: 0.35 });
 tl.fromTo('#mcam', { scale: 1 }, { scale: 1.06, duration: T.send - T.mus, ease: 'none', immediateRender: false }, T.mus);
 tl.to('#mdark', { opacity: 0.25, duration: 0.06 }, T.light);
+cue('flicker', T.light, { times: [0, 0.1, 0.26, 0.36, 0.5] });
 tl.to('#mdark', { opacity: 0.8, duration: 0.06 }, T.light + 0.1);
 tl.to('#mdark', { opacity: 0.2, duration: 0.06 }, T.light + 0.26);
 tl.to('#mdark', { opacity: 0.7, duration: 0.05 }, T.light + 0.36);
@@ -283,12 +285,14 @@ tl.to('#mdark', { opacity: 0, duration: 0.25 }, T.light + 0.5);
 tl.to('#mglow', { opacity: 1, duration: 0.25 }, T.light + 0.5);
 hide('#mq', T.light + 0.35, 0.2);
 tl.set('#mr', { autoAlpha: 1 }, T.light + 0.6);
+cue('reveal', T.light + 0.6, { what: 'Speed Puzzling: the punchline' });
 tl.fromTo('#mname', { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2)', immediateRender: true }, T.light + 0.6);
 tl.fromTo('#msub', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: 'power3.out', immediateRender: true }, T.light + 1.9);
 
 // ---- send: back at the old shelf
 hide('#mustext', T.send - 0.2, 0.2);
 tl.set('#museum', { autoAlpha: 0 }, T.send);
+cue('outro', T.send, { what: 'send line' });
 tl.set('#shelf', { autoAlpha: 1 }, T.send);
 tl.set('#cam', { scale: 1.07 }, T.send);
 tl.to('#band', { y: D.bandY, duration: 0.3, ease: 'power2.inOut' }, T.send - 0.1);
@@ -300,6 +304,7 @@ hide(['#send', MAST], T.loop, 0.2);
 ageTo(0, T.loop + 0.05, 0.6, 'power2.inOut');
 flicker(T.loop + 0.05, 0.6, 2);
 tl.to('#spider', { y: -50, duration: 0.35, ease: 'power2.in' }, T.loop + 0.05);
+cue('rewind', T.loop, { dur: 0.6 });
 tl.set('#sticker', { x: 0, y: 0, rotation: 12 }, T.loop + 0.4);
 tl.fromTo('#sticker', { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, T.loop + 0.45);
 tl.to('#band', { y: 0, duration: 0.4, ease: 'power3.inOut' }, T.loop + 0.2);
@@ -383,16 +388,21 @@ D.stops.forEach((st, i) => {
   ageTo(st.age, at + 0.05, D.tick + 0.25);
   tl.set('#ex' + i, { visibility: 'visible' }, at + D.tick - 0.1);
   riseIn('#ex' + i, at + D.tick - 0.1, { dur: 0.3 });
+  cue('timelapse', at + 0.05, { dur: D.tick, i });
+  cue('punch', at + D.tick - 0.1, { i, what: 'the excuse' });
 });
 // DAY 60: the NEW sticker lets go
 const stickAt = T.tl0 + D.stage + 0.25;
 tl.to('#sticker', { rotation: -6, duration: 0.25, ease: 'sine.inOut' }, stickAt);
+cue('wobble', stickAt, { dur: 0.5 });
+cue('peel', stickAt + 0.5, { dur: 0.8, what: 'NEW sticker falls off' });
 tl.to('#sticker', { rotation: 24, duration: 0.25, ease: 'sine.inOut' }, stickAt + 0.25);
 tl.to('#sticker', { y: 560, x: -40, rotation: 130, duration: 0.8, ease: 'power2.in' }, stickAt + 0.5);
 tl.to('#sticker', { autoAlpha: 0, duration: 0.2 }, stickAt + 1.15);
 // DAY 1460: the spider moves in, and bobs on its thread
 const spAt = T.tl0 + 3 * D.stage + 0.5;
 tl.to('#spider', { y: D.drop, duration: 1.5, ease: 'power1.out' }, spAt);
+cue('spider', spAt, { dur: 1.5 });
 const bobs = 2 * Math.floor((T.loop - spAt - 1.5) / 2.2);
 tl.to('#spider', { y: D.drop - 16, duration: 1.1, repeat: bobs - 1, yoyo: true, ease: 'sine.inOut' }, spAt + 1.5);
 

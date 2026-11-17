@@ -77,11 +77,30 @@ def main() -> None:
             hit(c["t"], "pop", S["pop"], pitch=-4 if kd == "pop-out" else 0)
         elif kd == "slot-stop":
             hit(c["t"], "slot", S["slot"], pitch=c.get("i", 0) * 2)   # three columns: rising thirds-ish
+        elif kd == "key" and a.style == "comic":
+            hit(c["t"], "thud", S["impact"])
         elif kd == "stopwatch":
             for t in ease_power3_out_times(c["t"], c.get("dur", 1.75), 14):
                 hit(t, "stopwatch", S["stopwatch"])
         elif kd == "flash":
             hit(c["t"], "ding", S["flash"])
+        # comic cues (builders log them for humour clips)
+        elif kd == "timelapse":
+            hit(c["t"], "fastforward", S["whoosh"] + 2, pitch=c.get("i", 0) * 1.5)   # each jump a bit higher: time speeds up
+        elif kd == "punch":
+            hit(c["t"], "boop", S["accent"] - 2, pitch=-c.get("i", 0) * 1.0)           # each excuse a step lower: deadpan
+        elif kd == "wobble":
+            hit(c["t"], "click", S["settle"], pitch=5); hit(c["t"] + 0.25, "click", S["settle"], pitch=3)
+        elif kd == "peel":
+            hit(c["t"], "slide-down", S["fall"] + 6)
+        elif kd == "spider":
+            hit(c["t"], "zip", S["whoosh"])
+        elif kd == "flicker":
+            hit(c["t"], "buzz", S["whoosh"])
+        elif kd == "reveal":
+            hit(c["t"], "boom", S["impact"])
+        elif kd == "rewind":
+            hit(c["t"], "rewind", S["whoosh"])
     counts = [c for c in cues if c["kind"] == "count" and not str(c.get("sel", "")).startswith("#fast")]
     if counts:                                          # several count-ups at once: one tick track, from the first
         c = counts[0]

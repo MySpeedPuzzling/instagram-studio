@@ -48,6 +48,8 @@ def main() -> None:
     ap.add_argument("--seeds", default="11,42")
     ap.add_argument("--duration", type=float, default=30.0)
     ap.add_argument("--only", default="", help="comma list of brief keys")
+    ap.add_argument("--grid", help="JSON grid (lab/music/mu2_briefs.json): directions x endings x seeds, lyrics = section tags")
+    ap.add_argument("--lab", default="MU1")
     a = ap.parse_args()
     sys.path.insert(0, str(ACE))
     os.chdir(ACE)
@@ -56,12 +58,21 @@ def main() -> None:
     from acestep.llm_inference import LLMHandler
     from acestep.inference import GenerationConfig, GenerationParams, generate_music
 
+    global OUT
+    OUT = ROOT / "content/labs" / a.lab
     OUT.mkdir(parents=True, exist_ok=True)
     clips_path = OUT / "clips.json"
     clips = json.loads(clips_path.read_text()) if clips_path.exists() else []
-    briefs = [b for b in BRIEFS if not a.only or b[0] in a.only.split(",")]
+    # rows: (key, caption, bpm, key/scale, lyrics)
+    briefs = [(k, c, b, sc, "[Instrumental]") for k, c, b, sc in BRIEFS if not a.only or k in a.only.split(",")]
     seeds = [int(s) for s in a.seeds.split(",")]
-    run = {"lab": "MU1", "run_id": f"MU1-{int(time.time())}", "engine": "ACE-Step 1.5 (MLX/MPS)",
+    if a.grid:
+        g = json.loads(Path(a.grid).read_text())
+        briefs = [(f"{dk}-{ek}", d["caption"], d["bpm"], d["key"], "\n\n".join(d["tags"] + e))
+                  for dk, d in g["directions"].items() for ek, e in g["endings"].items()]
+        briefs = [b for b in briefs if not a.only or b[0] in a.only.split(",")]
+        seeds, a.duration = g["seeds"], float(g["duration"])
+    run = {"lab": a.lab, "run_id": f"{a.lab}-{int(time.time())}", "engine": "ACE-Step 1.5 (MLX/MPS)",
            "machine": platform.machine(), "other_apps": other_apps(), "swap_mb_before": swap_mb(), "items": []}
     t_run = time.time()
 
@@ -78,10 +89,10 @@ def main() -> None:
             print(f"init failed for {mkey}: {status}")
             continue
         run[f"{mkey}_load_s"] = round(time.time() - t0, 1)
-        for key, caption, bpm, scale in briefs:
+        for key, caption, bpm, scale, lyrics in briefs:
             for seed in seeds:
-                clip_id = f"MU1-{key}-{mkey}-s{seed}"
-                params = GenerationParams(caption=caption, instrumental=True, lyrics="[Instrumental]", bpm=bpm,
+                clip_id = f"{a.lab}-{key}-{mkey}-s{seed}"
+                params = GenerationParams(caption=caption, instrumental=True, lyrics=lyrics, bpm=bpm,
                                           keyscale=scale, duration=a.duration, seed=seed,
                                           thinking=True, use_cot_caption=False, use_cot_metas=False,
                                           shift=3.0 if "turbo" in mkey else 1.0, infer_method="ode")  # official turbo setting
@@ -99,7 +110,7 @@ def main() -> None:
                 shutil.move(res.audios[0]["path"], dst)
                 item = {"id": clip_id, "brief": key, "model": MODELS[mkey], "lm": LM, "caption": caption, "bpm": bpm, "shift": params.shift,
                         "key": scale, "duration_s": a.duration, "seed": seed, "gen_s": secs,
-                        "file": f"/content/labs/MU1/{dst.name}", "created": time.strftime("%Y-%m-%d %H:%M")}
+                        "file": f"/content/labs/{a.lab}/{dst.name}", "lyrics": lyrics, "created": time.strftime("%Y-%m-%d %H:%M")}
                 clips = [c for c in clips if c["id"] != clip_id] + [item]
                 clips_path.write_text(json.dumps(clips, indent=1))
                 run["items"].append({"id": clip_id, "ok": True, "s": secs})

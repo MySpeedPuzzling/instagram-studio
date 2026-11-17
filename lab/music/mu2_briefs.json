@@ -1,0 +1,14 @@
+{
+ "note": "MU2 house-sound grid (research: house_sound_and_ace_prompting.md). Shared house instruments: soft pluck, felt piano, woodblock. Lyrics field = section tags only.",
+ "directions": {
+  "A-data": {"caption": "minimal electronic, clean modern, plucked synth arpeggio, felt piano chords, woodblock percussion, soft sub bass, steady beat, optimistic, precise, bright, crisp production, instrumental", "bpm": 118, "key": "D major",
+             "tags": ["[Intro - soft plucks]", "[Build]", "[Drop]", "[Breakdown - light]"]},
+  "B-cozy": {"caption": "lo-fi chillhop, felt piano, warm soft plucks, brushed drums, mellow upright bass, woodblock, cozy, warm, relaxed, intimate, soft tape texture, instrumental", "bpm": 86, "key": "F major",
+             "tags": ["[Intro - felt piano]", "[Verse]", "[Chorus - warm]"]},
+  "C-playful": {"caption": "playful orchestral pop, marimba, pizzicato strings, glockenspiel, woodblock, soft plucks, light bass, bouncy, cheeky, cheerful, quirky, clean mix, instrumental", "bpm": 108, "key": "C major",
+             "tags": ["[Intro - marimba]", "[Verse - pizzicato]", "[Build]", "[Drop]"]}
+ },
+ "endings": {"desc": ["[Outro - calm, descending]", "[Fade Out]"], "fade": ["[Outro - fade out]", "[Fade Out]"]},
+ "seeds": [202, 303],
+ "duration": 24
+}

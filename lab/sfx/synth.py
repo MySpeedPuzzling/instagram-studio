@@ -124,9 +124,83 @@ def stopwatch(v):
     return norm(x, -9)
 
 
+# ---- comic sounds (style "comic"): classic cartoon gestures, all synthesised here
+
+def slide_down(v):
+    """Slide whistle falling (a sticker / hope dropping): a breathy sine gliding down with vibrato."""
+    d = 0.9
+    t = t_(d)
+    f = 1500 * (1 + 0.04 * v) * np.exp(-t * 1.6) + 260
+    vib = 1 + 0.012 * np.sin(2 * np.pi * 7 * t)
+    tone = np.sin(2 * np.pi * np.cumsum(f * vib) / SR)
+    breath = bp(rng.standard_normal(len(t)), 800, 4000) * 0.08
+    return norm((tone + breath) * env(d, 0.02, 0.6) * np.minimum(1, (d - t) / 0.08), -6)
+
+
+def fastforward(v):
+    """Time-lapse whirr: a tape/reel spinning up (rising buzzy chirps)."""
+    d = 0.85
+    t = t_(d)
+    rate = 18 + 40 * (t / d) ** 1.5
+    chirps = (np.sin(2 * np.pi * np.cumsum(rate) / SR) > 0.6).astype(float)
+    f = 300 + 900 * (t / d)
+    tone = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.25
+    x = lp(chirps * bp(rng.standard_normal(len(t)), 1500, 6000) + tone, 7000)
+    return norm(x * np.sin(np.pi * np.clip(t / d, 0, 1)) ** 0.7, -9)
+
+
+def zip_(v):
+    """A spider zipping down its thread: a quick falling squeak."""
+    d = 0.5
+    t = t_(d)
+    f = 2400 * np.exp(-t * 4) + 500 + 30 * v
+    return norm(np.sin(2 * np.pi * np.cumsum(f) / SR) * env(d, 0.005, 0.18), -9)
+
+
+def buzz(v):
+    """Electric flicker of an old picture light: 100 Hz buzz bursts."""
+    d = 0.6
+    t = t_(d)
+    x = np.sign(np.sin(2 * np.pi * 100 * t)) * 0.6 + bp(rng.standard_normal(len(t)), 2000, 6000) * 0.3
+    gate = np.zeros_like(t)
+    for a, b in [(0, 0.06), (0.1, 0.16), (0.26, 0.32), (0.36, 0.41), (0.5, 0.6)]:
+        gate[int(a * SR): int(b * SR)] = 1
+    return norm(lp(x, 4000) * gate, -10)
+
+
+def boom(v):
+    """The deadpan punchline hit: a deep, round sub boom with a soft attack and a long tail (no meme sample)."""
+    d = 1.6
+    t = t_(d)
+    f = 70 * np.exp(-t * 2.2) + 38
+    body = np.sin(2 * np.pi * np.cumsum(f) / SR) * env(d, 0.004, 0.55)
+    knock = lp(rng.standard_normal(len(t)), 900) * env(d, 0.001, 0.02)
+    sat = np.tanh(2.2 * (body + 0.3 * knock))
+    return norm(sat, -2)
+
+
+def rewind(v):
+    """Tape rewind: a fast warbling chirp sweep, high and squeaky."""
+    d = 0.65
+    t = t_(d)
+    f = 900 + 2600 * (t / d) + 300 * np.sin(2 * np.pi * 23 * t)
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.7 + bp(rng.standard_normal(len(t)), 3000, 9000) * 0.25
+    return norm(x * np.sin(np.pi * np.clip(t / d, 0, 1)) ** 0.5, -10)
+
+
+def boop(v):
+    """A short soft bass 'boop' under a deadpan line."""
+    d = 0.35
+    t = t_(d)
+    f = 180 * (1 + 0.05 * v) * np.exp(-t * 1.5)
+    return norm(np.sin(2 * np.pi * np.cumsum(f) / SR) * env(d, 0.003, 0.12), -6)
+
+
 KIT = {"tick": (tick, 6), "click": (click, 8), "pop": (pop, 4), "whoosh-up": (lambda v: whoosh(v, True), 3),
        "whoosh-down": (lambda v: whoosh(v, False), 3), "thud": (thud, 6), "ding": (ding, 2), "slot": (slot, 4),
-       "stopwatch": (stopwatch, 4)}
+       "stopwatch": (stopwatch, 4),
+       "slide-down": (slide_down, 2), "fastforward": (fastforward, 3), "zip": (zip_, 2), "buzz": (buzz, 1), "boom": (boom, 2),
+       "rewind": (rewind, 2), "boop": (boop, 4)}
 
 
 def main() -> None:

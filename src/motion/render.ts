@@ -123,6 +123,9 @@ async function qaAndCover(m: Motion, outBase: string, snapDir?: string) {
       await document.fonts.ready;
       await Promise.all([...document.images].map(i => i.decode().catch(() => undefined)));
     });
+    // Sound cues logged by the kit helpers (and the builder's own cue() calls) while the timeline was built.
+    const cues = await page.evaluate(() => (window as unknown as { __cues?: Array<{ t: number }> }).__cues ?? []);
+    writeFileSync(`${outBase}.cues.json`, JSON.stringify({ key: m.key, duration: m.duration, cues: [...cues].sort((a, b) => a.t - b.t) }, null, 1));
     const seek = (t: number) => page.evaluate(([t, id]) => {
       const tl = (window as unknown as { __timelines: Record<string, { pause(): void; totalTime(t: number, s: boolean): void }> }).__timelines[id];
       tl.pause();

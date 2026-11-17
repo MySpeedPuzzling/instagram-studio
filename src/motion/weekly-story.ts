@@ -137,6 +137,7 @@ const D = DATA, O = D.O;
 
 // intro: the title card holds (it is the preview), then slides up out of the frame, seam first
 tl.to(['#cposter', '#ctext', '#cfan'], { y: -1920, duration: 0.55, ease: 'power3.in' }, 0.75);
+cue('whoosh', 0.75, { dir: 'up', dur: 0.55 });
 tl.set(['#cposter', '#ctext', '#cfan'], { autoAlpha: 0 }, 1.31);
 tl.to('#ghost', { opacity: 1, duration: 0.3 }, O - 0.1);
 
@@ -145,13 +146,17 @@ flyIn(D.pieces.map(p => ({ sel: '#' + p.id, dx: p.dx, dy: p.dy, rot: p.rot, ease
 riseIn('.mo-day', O + 0.5, { stagger: 0.12, dur: 0.35 });
 tl.fromTo('#' + D.busiest, { scale: 1 }, { scale: 1.12, duration: 0.12, transformOrigin: '50% 50%', immediateRender: false }, O + 1.25);
 tl.to('#' + D.busiest, { scale: 1, duration: 0.4, ease: 'back.out(3)' }, O + 1.37);
+cue('accent', O + 1.25, { what: 'busiest day' });
 
 // 2.1–3.1 the pieces rise into the poster (after the 0.3 s pause)
 tl.to('#days path', { y: -520, opacity: 0, duration: 0.5, ease: 'power3.in', stagger: 0.03 }, O + ${1.8 + HOLD});
+cue('whoosh', O + ${1.8 + HOLD}, { dir: 'up', dur: 0.5 });
 tl.to('.mo-day', { opacity: 0, duration: 0.25 }, O + ${1.8 + HOLD});
 tl.to('#ghost', { opacity: 0, duration: 0.3 }, O + ${1.8 + HOLD});
 tl.set('#poster', { autoAlpha: 1 }, O + ${1.95 + HOLD});
 tl.fromTo('#poster', { y: -${SEAM + 140} }, { y: 0, duration: 0.55, ease: 'power3.out', immediateRender: false }, O + ${1.95 + HOLD});
+// the key moment of the Story: the music's drop lands here
+cue('key', O + ${1.95 + HOLD} + 0.55 * 0.54, { what: 'poster lands' });
 tl.set('#ptext', { autoAlpha: 1 }, O + ${2.35 + HOLD});
 riseIn('#pcap', O + ${2.35 + HOLD}, { dur: 0.3 });
 popIn('#phero', O + ${2.45 + HOLD}, { from: '0% 80%', scale: 0.7 });
@@ -183,6 +188,8 @@ if (D.solo) {
   flash('#fast-t', D.T.watch + 1.9);
   // the settled logo leaves as one piece (the wrapper), after the time has landed
   tl.to('#ring', { scale: 0, duration: 0.3, ease: 'back.in(2)', transformOrigin: '50% 50%' }, D.T.watch + 2.2);
+  cue('stopwatch', D.T.watch + 0.1, { dur: 1.75 });
+  cue('pop-out', D.T.watch + 2.2 + 0.25);
   tl.set('#ring', { autoAlpha: 0 }, D.T.watch + 2.5);
 }
 
@@ -194,6 +201,7 @@ tl.to('#shout', { autoAlpha: 0, duration: 0.3 }, D.T.cue - 0.25);
 
 // 10.6–12 the cue
 tl.set('#cue', { autoAlpha: 1 }, D.T.cue);
+cue('outro', D.T.cue, { what: 'cue to the full report; the music resolves from here' });
 riseIn('#cue', D.T.cue, { dur: 0.45 });
 ${watch.script}
 tl.set({}, {}, ${DURATION});

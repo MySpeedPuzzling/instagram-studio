@@ -15,6 +15,8 @@
 //   slotLand(sel, at, o?)         a slot-machine column rolls and lands on its last row (names without blur frames of
 //                                 other people: the rolling rows are blank bars)
 //   flash(sel, at)                a quick coral highlight pulse on text
+//   cue(kind, t, o?)              logs a sound cue (the helpers above log their own: the frame where something lands,
+//                                 bounces, stops or starts); render.ts saves them as <video>.cues.json for the SFX layer
 // The final frame of every builder equals its still (so stickers placed on the still fit the video too).
 // The first frame is a finished title card (it is the Story's preview in Instagram); it then slides or moves away.
 import { page } from '../design/page.ts';
@@ -22,6 +24,12 @@ import { HOUSE_CSS } from '../design/house.ts';
 import { FPS } from './render.ts';
 
 export const KIT_JS = `
+// Sound cues: the moments the SFX layer can hit (times on the timeline, seconds). The visuals never read them.
+window.__cues = [];
+function cue(kind, t, o) { window.__cues.push(Object.assign({ kind, t: Math.round(t * 1000) / 1000 }, o || {})); }
+// When an eased move visually arrives (fraction of its duration): where the motion is ~90 % done.
+const ARRIVE = { 'expo.out': 0.33, 'power3.out': 0.54, 'power4.out': 0.6, 'power2.out': 0.68, 'power3.inOut': 0.85, 'power2.in': 1, 'power3.in': 1 };
+const arrive = (ease, dur) => { if (/^back\.out/.test(ease)) return dur * 0.4; return dur * (ARRIVE[ease] ?? 0.6); };
 const fmtN = n => { const s = String(Math.round(Math.abs(n))); return (n < 0 ? '\\u2212' : '') + (s.length < 5 ? s : s.replace(/\\B(?=(\\d{3})+$)/g, '\\u202F')); };
 const fmtT = sec => { sec = Math.round(sec); const hh = Math.floor(sec / 3600), mm = Math.floor((sec % 3600) / 60), ss = sec % 60, p = v => String(v).padStart(2, '0'); return hh ? hh + ':' + p(mm) + ':' + p(ss) : mm + ':' + p(ss); };
 function countUp(sel, to, at, dur, fmt) {
@@ -29,14 +37,18 @@ function countUp(sel, to, at, dur, fmt) {
   const show = () => { for (const e of els) e.textContent = f(o.v); };
   show();
   tl.fromTo(o, { v: 0 }, { v: to, duration: dur, ease: 'power3.out', onUpdate: show, onComplete: show }, at);
+  cue('count', at, { dur, to, ease: 'power3.out', sel });
 }
 function riseIn(sel, at, o) {
   o = o || {};
   tl.fromTo(sel, { y: o.y ?? 40, opacity: 0 }, { y: 0, opacity: 1, duration: o.dur ?? 0.5, ease: o.ease ?? 'power3.out', stagger: o.stagger ?? 0 }, at);
+  const n = typeof sel === 'string' ? document.querySelectorAll(sel).length : 1;
+  cue('rise', at, { n, stagger: o.stagger ?? 0, sel: String(sel) });
 }
 function popIn(sel, at, o) {
   o = o || {};
   tl.fromTo(sel, { scale: o.scale ?? 0.6, opacity: 0, transformOrigin: o.from ?? '50% 50%' }, { scale: 1, opacity: 1, duration: o.dur ?? 0.45, ease: 'back.out(2)', stagger: o.stagger ?? 0 }, at);
+  cue('pop', at + arrive('back.out', o.dur ?? 0.45), { sel: String(sel) });
 }
 function flyIn(items, at, o) {
   o = o || {};
@@ -44,27 +56,40 @@ function flyIn(items, at, o) {
   const op = o.fade === false ? 1 : 0;
   items.forEach((it, i) => tl.fromTo(it.sel, { x: it.dx, y: it.dy, rotation: it.rot || 0, opacity: op, transformOrigin: '50% 50%' },
     { x: 0, y: 0, rotation: 0, opacity: 1, duration: it.dur ?? o.dur ?? 0.55, ease: it.ease || o.ease || 'expo.out' }, at + i * (o.stagger ?? 0.1)));
+  items.forEach((it, i) => {
+    const t0 = at + i * (o.stagger ?? 0.1), dur = it.dur ?? o.dur ?? 0.55, ease = it.ease || o.ease || 'expo.out';
+    // bounce.out hits the floor at 1/2.75, 2/2.75, 2.5/2.75 and 1 of its duration, each softer
+    if (ease === 'bounce.out') [[0.364, 1], [0.727, 0.45], [0.909, 0.2]].forEach(([f, s]) => cue('impact', t0 + dur * f, { strength: s, i, sel: it.sel }));
+    else cue('land', t0 + arrive(ease, dur), { i, sel: it.sel, ease });
+  });
 }
 function dropOut(sel, at, o) {
   o = o || {};
   tl.to(sel, { y: o.y ?? 1100, rotation: (i) => (i % 2 ? 1 : -1) * (25 + i * 9), duration: o.dur ?? 0.6, ease: 'power2.in', stagger: o.stagger ?? 0.05 }, at);
   tl.set(sel, { autoAlpha: 0 }, at + (o.dur ?? 0.6) + (o.stagger ?? 0.05) * 6);
+  cue('fall', at, { dur: o.dur ?? 0.6, sel: String(sel) });
 }
 function moveTo(sel, from, to, at, dur) {
   // Transform-only FLIP (layout properties stutter under frame-by-frame capture): translate + scale from box to box.
   tl.to(sel, { x: to.x - from.x, y: to.y - from.y, scaleX: to.w / from.w, scaleY: to.h / from.h, rotation: 0, transformOrigin: '0% 0%',
     duration: dur ?? 0.6, ease: 'power3.inOut' }, at);
+  cue('move', at, { dur: dur ?? 0.6, sel: String(sel) });
+  cue('settle', at + (dur ?? 0.6), { sel: String(sel) });
 }
 function slotLand(sel, at, o) {
   o = o || {};
   document.querySelectorAll(sel).forEach((col, i) => {
     const rows = col.children.length, rowH = col.children[0].offsetHeight;
-    tl.fromTo(col, { y: 0 }, { y: -(rows - 1) * rowH, duration: (o.dur ?? 1.0) + i * (o.stagger ?? 0.25), ease: 'power4.out' }, at);
+    const d = (o.dur ?? 1.0) + i * (o.stagger ?? 0.25);
+    tl.fromTo(col, { y: 0 }, { y: -(rows - 1) * rowH, duration: d, ease: 'power4.out' }, at);
+    cue('slot-stop', at + arrive('power4.out', d), { i });
   });
+  cue('slot-spin', at, { n: document.querySelectorAll(sel).length });
 }
 function flash(sel, at) {
   tl.fromTo(sel, { scale: 1 }, { scale: 1.12, duration: 0.1, ease: 'power1.out', immediateRender: false }, at);
   tl.to(sel, { scale: 1, duration: 0.45, ease: 'back.out(3)' }, at + 0.1);
+  cue('flash', at, { sel: String(sel) });
 }
 `;
 

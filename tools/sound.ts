@@ -14,6 +14,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { ROOT } from '../src/render/server.ts';
+import { loadDraft, saveDraft } from '../src/drafts/model.ts';
 
 const { values: o, positionals } = parseArgs({ allowPositionals: true, options: {
   series: { type: 'string' }, sfx: { type: 'string' }, hold: { type: 'string' }, bed: { type: 'string' }, signature: { type: 'string' },
@@ -52,6 +53,13 @@ if (o.series) {
   lib.used = lib.used ?? {};
   lib.used[o.series] = [...(lib.used[o.series] ?? []), bed!].slice(-12);
   writeFileSync(LIB, JSON.stringify(lib, null, 1));
+}
+// a draft's video: record what it sounds like, so insights can compare music recipes and SFX styles later
+const m = /content\/drafts\/([^/]+)\//.exec(out);
+if (m && !Array.isArray(res.qa)) {
+  const d = loadDraft(m[1]);
+  d.tags = { ...(d.tags ?? {}), audio: (bed!.split('/').pop() ?? '').replace(/\.flac$/, ''), sfx_style: sfx };
+  saveDraft(d);
 }
 console.log(`${out}\n  bed ${bed} · ${res.mode} · ${res.lufs} LUFS · TP ${res.true_peak_db} · QA ${Array.isArray(res.qa) ? res.qa.join('; ') : res.qa}`);
 if (Array.isArray(res.qa)) process.exit(1);

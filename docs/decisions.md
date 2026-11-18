@@ -397,3 +397,6 @@ Docker and other unneeded apps turned off.
   Advent, …) follow the same rule. Recurring formats (weekly recap) keep a familiar base, adapted to the week.
 - **Generation runs only after the owner's go, each time** (owner): the brief comes with the draft; Claude asks
   before every generation run (heavy job, ~10–15 min GPU per post; Docker off). No nightly automation.
+- **Audiobox Aesthetics (CC-BY-4.0) allowed as an internal ranking tie-breaker** (owner, 18 Nov): its attribution
+  sits only in a repo licence notice, never in a post; its weights are never committed; nothing of it goes into the
+  music. Per-post generation for the three report briefs approved for 18 Nov night (Docker off, one at a time).

@@ -324,6 +324,9 @@ How to maintain it:
 - **Style per post type:** weekly recap / data → clean "data" electronic, cozy lo-fi or playful (pizzicato/marimba)
   are candidates; **celebratory pop: no-go**; ticking/stopwatch beds are good but don't fit a recap (keep them for
   countdown/tension posts). Watch the first seconds for bad drums/claps (XL celebrate s202, playful s202 ~1.5 s).
+- **Music is written for each post** (owner 18 Nov): the bed matches that Reel/Story's story and aura; every draft
+  carries a music brief from its storyboard and 3–4 fitted candidates (generated after the owner's go). The
+  signature, the reactive SFX and a house touch stay constant.
 - **Themed posts get custom themed music** (owner 18 Nov): Halloween, Advent/Christmas, New Year etc. get their own
   beds (recipes `lab/music/themes.json`), still with the MSP signature and no recognisable song.
 - Mastering: two-pass loudnorm −14 LUFS + a true-peak limiter (AAC pushes peaks above 0 dBFS without one).

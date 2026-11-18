@@ -28,6 +28,15 @@ Built in the 18 Nov lab night: the cue recorder (`src/motion/kit.ts`, `render.ts
 and Unlucky 13 Reels, `lab/sfx/{synth,plan,signature,moss_gen,cues-for,gallery}`, `lab/music/fit.py`, the MU2/MU3
 grids. Labs: **FX1** (sound effects, signatures, comic), **MU2** (house sound), **MU3** (trend flavours).
 
+## Music per post (owner, 18 Nov: always tailored to the Reel/Story)
+
+The default is **composed for this post**, not picked from a library: with each draft Claude writes a music brief
+from the storyboard (the builder's header comments, the cues, the visuals): the story arc, mood and aura, which
+instruments carry it, BPM feel, section tags shaped to the video's moments (intro under the hook, drop on `key`,
+calm ending under the CTA), length = video + 20–30 %. After the owner's go (each time) the run makes 3–4 XL
+candidates, `fit_batch`-style fits them to the video with SFX + signature, runs QA + the vocal check, and shows them
+in the draft's review page; the owner picks by ear. Libraries remain for recurring formats and as a fallback.
+
 ## Themed music (owner, 18 Nov)
 
 Themed posts get their own music: Halloween, Advent/Christmas, New Year, Valentine's, spring/Easter, summer, Friday

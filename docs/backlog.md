@@ -263,6 +263,9 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] **Owner go needed:** restart the GPU queue that was stopped for low memory: the rest of MU3 (11 beds:
       `--grid lab/music/mu3_briefs.json --only R7-epic,R8-fine,R5-bouncy,R1-disco,R2-house,R3-phonk,R9-lofi,R10-liftoff,R11-afro,R12-chiptune`)
       and the MOSS puzzle-foley test (`lab/sfx/moss_gen.py`); one at a time, Docker off, nothing else heavy.
+- [ ] **Per-post music brief** (owner 18 Nov): add `sound.brief` to drafts (caption + section tags + BPM from the
+      storyboard), a `tools/sound.ts --generate` path (3–4 XL candidates → fit → QA → review page), always after the
+      owner's go. Brief-writing checklist in the ig-draft skill.
 - [ ] **Themed music** (owner 18 Nov): first the **Advent** pool (doors from 30 Nov): `lab/music/themes.json` T-advent,
       3–4 beds, approve by ear before 26 Nov; Halloween etc. two weeks ahead of each theme (needs GPU go, Docker off).
 - [ ] fit.py **loop mode for Reels** (Reels loop: the music should flow back into its start; MU3-R4-s303 flagged

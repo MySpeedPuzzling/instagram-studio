@@ -387,3 +387,13 @@ Docker and other unneeded apps turned off.
   outputs, so the music it makes needs no credit. Never commit or redistribute its weights (the repo is public).
   Second candidate after ACE-Step; it's a live-jam model (text/audio/MIDI steering), not a fixed-length generator.
   Research: `reports/Local audio models and practice.md`.
+
+## 2026-11-18: music tailored to every post
+
+- **The music always matches the Reel/Story** (owner): its story and its background/aura, not a generic bed. Every
+  Reel and Story gets its own music brief written from its storyboard (story, mood, visual aura, key moments,
+  length) → 3–4 ACE-Step XL candidates fitted to its cues; the owner picks by ear with the draft. Kept across posts:
+  the MSP signature, the reactive SFX, a house touch (woodblock / soft pluck) where it fits. Themed posts (Halloween,
+  Advent, …) follow the same rule. Recurring formats (weekly recap) keep a familiar base, adapted to the week.
+- **Generation runs only after the owner's go, each time** (owner): the brief comes with the draft; Claude asks
+  before every generation run (heavy job, ~10–15 min GPU per post; Docker off). No nightly automation.

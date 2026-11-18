@@ -205,7 +205,7 @@ def master_and_mux(audio: np.ndarray, video: str, out: str, hold: float, total: 
     return {"lufs": get("I:"), "true_peak_db": get("Peak:")}
 
 
-def qa(out: str, m: dict, total: float) -> list[str]:
+def qa(out: str, m: dict, total: float, gaps: list | None = None) -> list[str]:
     """Problems a listener would notice (empty = pass). Thresholds are our proposals (research: no standard)."""
     with tempfile.TemporaryDirectory() as tmp:          # librosa can't read MP4: decode the final audio first
         w = os.path.join(tmp, "qa.wav")
@@ -218,6 +218,8 @@ def qa(out: str, m: dict, total: float) -> list[str]:
     if db[t < 0.15].max() < -40:
         issues.append("silent start: no sound in the first 0.15 s (research: sound from frame 1)")
     mid = (t > 0.3) & (t < total - 1.5)
+    for g in gaps or []:                                  # planned silences (before a punchline) are not dropouts
+        mid &= ~((t >= g["t"] - 0.1) & (t <= g["t"] + g["dur"] + 0.3))
     quiet = db[mid] < -45
     run = longest = 0
     for q in quiet:
@@ -275,7 +277,7 @@ def main() -> None:
         audio[:, s0: s0 + len(seg)] += seg
         p["signature"] = {"id": a.signature, "key": an["key"], "at": round(at, 3)}
     m = master_and_mux(audio, a.video, a.out, a.hold, p["total"])
-    issues = qa(a.out, m, p["total"])
+    issues = qa(a.out, m, p["total"], json.load(open(a.sfx)).get("gaps", []) if a.sfx else [])
     if stretch and not stretch["ok"]:
         issues.append(f"tempo off: bed {stretch['measured_bpm']} BPM vs brief {stretch['target_bpm']} (> 4 %)")
     # how far each anchor cue sits from the bar grid in the video (main part; the outro is joined on a downbeat)

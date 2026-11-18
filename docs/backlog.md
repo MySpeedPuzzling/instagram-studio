@@ -263,6 +263,8 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
 - [ ] **Owner go needed:** restart the GPU queue that was stopped for low memory: the rest of MU3 (11 beds:
       `--grid lab/music/mu3_briefs.json --only R7-epic,R8-fine,R5-bouncy,R1-disco,R2-house,R3-phonk,R9-lofi,R10-liftoff,R11-afro,R12-chiptune`)
       and the MOSS puzzle-foley test (`lab/sfx/moss_gen.py`); one at a time, Docker off, nothing else heavy.
+- [ ] **Owner: rate BR1** (18 Nov, music written per post from the three report briefs; ranked; top: shelf s404,
+      unlucky s303, weekly cozy s303 / data s303). Then wire brief → generate → rank into the draft flow.
 - [ ] **Per-post music brief** (owner 18 Nov): add `sound.brief` to drafts (caption + section tags + BPM from the
       storyboard), a `tools/sound.ts --generate` path (3–4 XL candidates → fit → QA → review page), always after the
       owner's go. Brief-writing checklist in the ig-draft skill.

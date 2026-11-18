@@ -8,10 +8,10 @@
 //   15.4–19.4 "We never imagined this." while the monthly bars shoot up (and knock the lonely piece away)
 //   19.4      KEY (music drop): the counter flies 174 → 300 000 000, confetti burst, "pieces later.", lines of code
 //   25.4–33.1 laid edge to edge: London Postcard → chain of pieces → New York Postcard, km counter
-//   33.2–41.9 coral poster: 77 years of puzzling, non-stop (start in 1949, finish about now)
-//   42.4–49.1 thank you, N puzzlers in M countries. We love you. (beating heart)
-//   49.4–54.0 spread the puzzle love: send this to a puzzler you love (confetti)
-//   54.0–55.0 loop back to the splash (= frame 0)
+//   33.2–42.9 coral poster: 77 years of puzzling, non-stop (start in 1949, finish about now)
+//   43.4–51.1 thank you, N puzzlers in M countries. We love you. (beating heart)
+//   51.4–56.0 spread the puzzle love: send this to a puzzler you love (confetti)
+//   56.0–57.0 loop back to the splash (= frame 0)
 // Owner v2 (18 Nov): every beat was too fast; each now holds 2–4 s longer.
 // Text only in the Reel safe area (x 60–960, y 220–1250).
 import { GROUNDS, W, X0, f1, frame, groundVars, hero, heroFit, posterTopPath, siteLine, type Variant } from '../design/house.ts';
@@ -25,9 +25,9 @@ import { PIECE_CM, LON_NYC_KM, LINES_OF_CODE, type Reel300mSpec } from '../posts
 
 const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0;
-// On a 120 BPM grid (1 bar = 2 s) from the drop at 19.4: proud 11.4, chain 25.4, poster lands 33.4, thanks 42.4, send 49.4.
-const T = { splashOut: 3.4, rewind: 3.8, rewindDur: 3.0, origin: 7.4, month: 9.4, proud: 11.4, imagine: 15.4, drop: 19.4, chain: 25.4, poster: 33.17, posterOut: 41.6, thanks: 42.4, send: 49.4, loop: 54.0 } as const;
-const DURATION = 55.0;
+// On a 120 BPM grid (1 bar = 2 s) from the drop at 19.4: proud 11.4, chain 25.4, poster lands 33.4, thanks 43.4, send 51.4.
+const T = { splashOut: 3.4, rewind: 3.8, rewindDur: 3.0, origin: 7.4, month: 9.4, proud: 11.4, imagine: 15.4, drop: 19.4, chain: 25.4, poster: 33.17, posterOut: 42.6, thanks: 43.4, send: 51.4, loop: 56.0 } as const;
+const DURATION = 57.0;
 const SEAM = 1262;
 const COUNT_BASE = 760;
 const COLORS = [GROUNDS.coral.bg, '#ffb0ab', GROUNDS.sky.bg, GROUNDS.indigo.bg];

@@ -1,0 +1,57 @@
+{
+ "note": "BR3: BR2 again at 66 s for the slower 55 s cut (owner 18 Nov: 'too fast, stay longer'; 'All 4 again'). Grid 120 BPM, bar = 2 s: tiny intro under the 3 s rewind and the flashback (0-15.4), build 15.4-19.4, drop 19.4, then chain, 77 years, thank you, send (outro from 49.4).",
+ "directions": {
+  "A-origin": {
+   "caption": "celebratory orchestral pop, starts with a lone music box and felt piano, small and tender, strings rise with a soft snare roll, then a joyful drop with brass stabs, hand claps, bright strings, glockenspiel and woodblock, playful bouncy middle, warm heartfelt swelling finale, instrumental",
+   "bpm": 120,
+   "key": "D major",
+   "tags": [
+    "[Intro - music box, tiny, tender, long]",
+    "[Verse - felt piano, small]",
+    "[Build - strings rising]",
+    "[Drop - celebration, brass, claps]",
+    "[Verse - bouncy, playful]",
+    "[Chorus - joyful]",
+    "[Bridge - warm]",
+    "[Outro - heartfelt, swelling]",
+    "[Fade Out]"
+   ],
+   "duration": 66,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "300M Reel v3 55.0 s"
+  },
+  "B-party": {
+   "caption": "feel-good indie pop celebration, plucked ukulele and felt piano intro, drums build up, euphoric drop with bright synth brass, hand claps, glockenspiel, woodblock, groovy bass, joyful, warm and thankful ending, instrumental",
+   "bpm": 120,
+   "key": "C major",
+   "tags": [
+    "[Intro - ukulele, felt piano, soft, long]",
+    "[Verse - gentle]",
+    "[Build]",
+    "[Drop - euphoric, claps]",
+    "[Verse - groovy]",
+    "[Chorus - joyful]",
+    "[Bridge - warm]",
+    "[Outro - thankful, bright]",
+    "[Fade Out]"
+   ],
+   "duration": 66,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "300M Reel v3 55.0 s"
+  }
+ },
+ "endings": {
+  "own": []
+ },
+ "seeds": [
+  202,
+  303
+ ],
+ "duration": 66
+}

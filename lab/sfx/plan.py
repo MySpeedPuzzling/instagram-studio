@@ -110,7 +110,7 @@ def main() -> None:
                 n = max(2, round(d / 0.55))                                # each a bit higher, the music steps back under it
                 for k in range(n):
                     hit(c["t"] + k * d / n, "rewind", S["whoosh"] + 3, pitch=k * 1.2)
-                gaps.append({"t": c["t"], "dur": d, "db": 14})
+                gaps.append({"t": c["t"], "dur": d, "db": 6})
         elif kd == "clock-tick":                                           # tick-tock: alternate two pitches
             hit(c["t"], "tick", S["count"] + 6, pitch=0 if c.get("v", 0) % 2 else -5)
         elif kd == "bonk":

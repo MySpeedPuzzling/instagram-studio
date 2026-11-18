@@ -89,6 +89,15 @@ def plan(a: dict, cues: dict, hold: float) -> dict:
                 "tail": round(tail, 3), "ends_at": round(min(total, splice + tail), 3)}
 
     off = a["drop"] - key
+    rw = next((c for c in cues["cues"] if c["kind"] == "rewind" and c.get("dur", 0) > 1), None)
+    if a["drop_rise_db"] >= 4 and off < 0 and rw and -off >= rw["t"] + rw["dur"] - 0.05:
+        # rewind: the song's drop comes earlier than the key cue, but the video rewinds before it. Frame 0 plays the
+        # celebration (from the drop), the rewind plays it backwards like tape, then the song restarts from its first
+        # bar so its own drop lands on the key cue (owner 18 Nov: slower rewind, with sound).
+        rew = {"rewind_at": round(rw["t"], 3), "rewind_dur": round(rw["dur"], 3), "pre": round(-off, 3)}
+        if a["outro"] and a["outro"] > a["drop"]:
+            p.update(splice_plan(off)); p["mode"] = "rewind"; p.update(rew); return p
+        p.update({"mode": "rewind", "offset": round(off, 3), "fade_from": round(total - 2 * bar, 3), **rew}); return p
     if a["drop_rise_db"] >= 4 and off >= 0:
         if a["outro"] and a["outro"] > a["drop"]:
             p.update(splice_plan(off)); return p
@@ -112,13 +121,16 @@ def render_audio(bed: str, a: dict, p: dict, sfx_plan: str | None) -> np.ndarray
         y = np.stack([y, y])
     n = int(p["total"] * SR)
     out = np.zeros((2, n))
-    off = int(p["offset"] * SR)
-    if p["mode"] == "drop":
+    y0 = y
+    if p["mode"] == "rewind":                       # the song starts at `pre` s into the video (silence before it)
+        y = np.concatenate([np.zeros((2, int(p["pre"] * SR))), y], axis=1)
+    off = int(max(p["offset"], 0) * SR)
+    if p["mode"] == "drop" or (p["mode"] == "rewind" and "splice" in p):
         sv = int(p["splice"] * SR)
         xf = int(0.08 * SR)
         main = y[:, off: off + sv + xf]
         out[:, : main.shape[1]] += main[:, : n]
-        o0 = int(p["outro_from"] * SR)
+        o0 = int((p["outro_from"] + (p["pre"] if p["mode"] == "rewind" else 0)) * SR)
         tail = y[:, o0: o0 + (n - sv)]
         ramp = np.linspace(0, 1, xf)
         out[:, sv: sv + xf] *= 1 - ramp            # crossfade: main fades out over 80 ms around the downbeat …
@@ -131,12 +143,24 @@ def render_audio(bed: str, a: dict, p: dict, sfx_plan: str | None) -> np.ndarray
     else:
         seg = y[:, off: off + n]
         out[:, : seg.shape[1]] += seg
-        if p["mode"] in ("fade", "drop-fade"):
+        if p["mode"] in ("fade", "drop-fade", "rewind"):
             f0 = int(p["fade_from"] * SR)
             out[:, f0:] *= np.linspace(1, 0, n - f0) ** 1.5
         else:                                       # end: the bed's own ending; just guard the last 60 ms
             k = int(0.06 * SR)
             out[:, -k:] *= np.linspace(1, 0, k)
+    if p["mode"] == "rewind":
+        d0, ra, rd = int(a["drop"] * SR), int(p["rewind_at"] * SR), int(p["rewind_dur"] * SR)
+        cele = y0[:, d0: d0 + ra].copy()            # frame 0: the celebration, already playing
+        k = int(0.12 * SR)
+        cele[:, -k:] *= np.linspace(1, 0, k)
+        out[:, : cele.shape[1]] += cele
+        src = y0[:, d0: d0 + ra][:, ::-1]           # the rewind: the same music backwards, squeezed into the rewind
+        idx = np.linspace(0, src.shape[1] - 1, rd)
+        rev = np.stack([np.interp(idx, np.arange(src.shape[1]), ch) for ch in src])
+        env = np.minimum(1, np.minimum(np.arange(rd), rd - np.arange(rd)) / (0.15 * SR))
+        rev *= env * 10 ** (-4 / 20) * (1 - 0.35 * np.linspace(0, 1, rd))
+        out[:, ra: ra + rd] += rev[:, : n - ra]
     out[:, : int(0.02 * SR)] *= np.linspace(0, 1, int(0.02 * SR))
     if sfx_plan:
         out = mix_sfx(out, json.load(open(sfx_plan)))
@@ -270,14 +294,17 @@ def main() -> None:
         from signature import MOTIFS, build
         sig = build(MOTIFS[a.signature], an["key"], an["tempo"])
         at = next((c["t"] for c in cues["cues"] if c["kind"] == "outro"), p["total"] - 2.5)
-        if p["mode"] == "drop":
+        if "splice" in p:
             at = p["splice"]                         # where the song's own outro starts (a downbeat)
         s0 = int(at * SR)
         seg = sig[: audio.shape[1] - s0] * 10 ** (-5 / 20)
         audio[:, s0: s0 + len(seg)] += seg
         p["signature"] = {"id": a.signature, "key": an["key"], "at": round(at, 3)}
     m = master_and_mux(audio, a.video, a.out, a.hold, p["total"])
-    issues = qa(a.out, m, p["total"], json.load(open(a.sfx)).get("gaps", []) if a.sfx else [])
+    gaps = json.load(open(a.sfx)).get("gaps", []) if a.sfx else []
+    if p["mode"] == "rewind":                        # the planned hush between the rewind and the song's first bar
+        gaps = gaps + [{"t": p["rewind_at"], "dur": p["pre"] - p["rewind_at"] + 0.3}]
+    issues = qa(a.out, m, p["total"], gaps)
     if stretch and not stretch["ok"]:
         issues.append(f"tempo off: bed {stretch['measured_bpm']} BPM vs brief {stretch['target_bpm']} (> 4 %)")
     # how far each anchor cue sits from the bar grid in the video (main part; the outro is joined on a downbeat)

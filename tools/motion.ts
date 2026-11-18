@@ -17,6 +17,7 @@
 //   node tools/motion.ts shelf <draft-id> --story                              # its teaser Story for followers (Link sticker to the carousel)
 //   node tools/motion.ts shelf <draft-id> [--qa-only] [--fresh] [--snap=<dir>]    # Reel "I'll solve it this weekend" (pile of shame time-lapse)
 //   node tools/motion.ts unlucky <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "The cruellest 13 seconds" + Story "300M: guess the day"
+//   node tools/motion.ts m300 <draft-id> [--qa-only] [--fresh] [--snap=<dir>]     # Reel "300 million pieces" (origin story)
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -111,6 +112,22 @@ if (kind === 'missing' && id) {
   activateVariant(undefined);
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-missing'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel missing` });
   for (const w of res.warnings.slice(0, 6)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 'm300' && id) {
+  // Reel "300 million pieces" (owner 2026-11-18: concept 1 "Origin story"); facts.json = every query it uses
+  const { reel300mSpec } = await import('../src/posts/reel-300m.ts');
+  const { reel300mMotion } = await import('../src/motion/reel-300m.ts');
+  const { spec, facts } = await reel300mSpec({ fresh: !!o.fresh });
+  mkdirSync(join(DRAFTS, id), { recursive: true });
+  writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(facts, null, 1) + '\n');
+  console.log(`300m: ${spec.pieces} pieces, crossed ${spec.crossedOn}, ${spec.years} years, ${spec.puzzlers} puzzlers / ${spec.countries} countries, Nov 2023 ${spec.originResults}, chain ${spec.chainKm} km, start ${spec.startYear}, data ${spec.queriedAt}`);
+  activateVariant(HOUSE);
+  const motion = reel300mMotion(HOUSE, spec);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-300m'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel 300m` });
+  for (const w of res.warnings.slice(0, 8)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);
 }

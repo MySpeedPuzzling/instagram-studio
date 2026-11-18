@@ -1,0 +1,26 @@
+{
+ "note": "BR2: the 300 million pieces Reel (owner go 18 Nov, 'go after the cut'). Story arc: tiny start (music box) -> 'we never imagined' build -> celebration drop on the 300M counter at 13.4 s (grid 120 BPM, bar = 2 s) -> bouncy jokes -> warm thank-you, we love you -> spread the love outro.",
+ "directions": {
+  "A-origin": {
+   "caption": "celebratory orchestral pop, starts with a lone music box and felt piano, small and tender, strings rise with a soft snare roll, then a joyful drop with brass stabs, hand claps, bright strings, glockenspiel and woodblock, playful bouncy middle, warm heartfelt swelling finale, instrumental",
+   "bpm": 120,
+   "key": "D major",
+   "tags": ["[Intro - music box, tiny]", "[Build - strings rising]", "[Drop - celebration, brass, claps]", "[Verse - bouncy, playful]", "[Bridge - warm]", "[Outro - heartfelt, swelling]", "[Fade Out]"],
+   "duration": 50,
+   "seeds": [202, 303],
+   "use": "300M Reel 39.0 s"
+  },
+  "B-party": {
+   "caption": "feel-good indie pop celebration, plucked ukulele and felt piano intro, drums build up, euphoric drop with bright synth brass, hand claps, glockenspiel, woodblock, groovy bass, joyful, warm and thankful ending, instrumental",
+   "bpm": 120,
+   "key": "C major",
+   "tags": ["[Intro - ukulele, felt piano]", "[Build]", "[Drop - euphoric, claps]", "[Verse - groovy]", "[Bridge - warm]", "[Outro - thankful, bright]", "[Fade Out]"],
+   "duration": 50,
+   "seeds": [202, 303],
+   "use": "300M Reel 39.0 s"
+  }
+ },
+ "endings": {"own": []},
+ "seeds": [202, 303],
+ "duration": 50
+}

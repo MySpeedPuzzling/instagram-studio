@@ -241,10 +241,26 @@ def main() -> None:
     ap.add_argument("--cues", help="default: <video without .mp4>.cues.json")
     ap.add_argument("--hold", type=float, default=2.0)
     ap.add_argument("--sfx", help="SFX plan JSON (lab/sfx/plan.py)")
+    ap.add_argument("--target-bpm", type=float, help="the brief's BPM: measure the bed's real tempo and stretch to it (≤ 4 %%)")
+    ap.add_argument("--anchors", default="key,reveal,outro", help="cue kinds whose distance to the bar grid is logged")
     ap.add_argument("--signature", help="signature id (lab/sfx/signature.py MOTIFS), built in the bed's key, at the outro cue")
     a = ap.parse_args()
     cues = json.load(open(a.cues or a.video[:-4] + ".cues.json"))
     an = analyse(a.bed)
+    stretch = None
+    tmpdir = tempfile.mkdtemp()
+    if a.target_bpm:
+        measured = an["tempo"]
+        cands = [measured, measured * 2, measured / 2]          # beat trackers can lock to half or double time
+        measured = min(cands, key=lambda m: abs(a.target_bpm / m - 1))
+        ratio = a.target_bpm / measured
+        stretch = {"measured_bpm": round(measured, 2), "target_bpm": a.target_bpm, "ratio": round(ratio, 4),
+                   "ok": abs(ratio - 1) <= 0.04}
+        if stretch["ok"] and abs(ratio - 1) > 0.002:
+            st = os.path.join(tmpdir, "stretched.wav")
+            ffmpeg("-i", a.bed, "-af", f"atempo={ratio:.5f}", "-ar", str(SR), "-c:a", "pcm_f32le", st)
+            a.bed = st
+            an = analyse(st)
     p = plan(an, cues, a.hold)
     audio = render_audio(a.bed, an, p, a.sfx)
     if a.signature:
@@ -260,6 +276,16 @@ def main() -> None:
         p["signature"] = {"id": a.signature, "key": an["key"], "at": round(at, 3)}
     m = master_and_mux(audio, a.video, a.out, a.hold, p["total"])
     issues = qa(a.out, m, p["total"])
+    if stretch and not stretch["ok"]:
+        issues.append(f"tempo off: bed {stretch['measured_bpm']} BPM vs brief {stretch['target_bpm']} (> 4 %)")
+    # how far each anchor cue sits from the bar grid in the video (main part; the outro is joined on a downbeat)
+    grid = [d - p["offset"] for d in an["downbeats"]]
+    hits = {}
+    for c in cues["cues"]:
+        if c["kind"] in a.anchors.split(",") and grid:
+            hits[c["kind"]] = round(min(abs(c["t"] - g) for g in grid) * 1000)
+    p["hits_ms"] = hits
+    p["stretch"] = stretch
     rep = {"qa": issues or "ok", "bed": os.path.basename(a.bed), "tempo": round(an["tempo"], 1), "drop": round(an["drop"], 3),
            "drop_rise_db": an["drop_rise_db"], "bed_outro": an["outro"], "bed_key": f'{an["key"]} ({an["key_mode"]})', **p, **m, "sfx": a.sfx}
     json.dump(rep, open(a.out[:-4] + ".fit.json", "w"), indent=1)

@@ -1,0 +1,93 @@
+{
+ "note": "BR1: per-post briefs from reports/Music tailored to each video.md (owner go 18 Nov). Tags include the ending.",
+ "directions": {
+  "A-shelf": {
+   "caption": "lo-fi chamber pop, felt piano, pizzicato strings, music box, soft brushed drums, upright bass, cozy, wistful, deadpan, dusty vinyl texture, warm intimate mix, instrumental",
+   "bpm": 104,
+   "key": "D major",
+   "tags": [
+    "[Intro - felt piano]",
+    "[Verse - pizzicato]",
+    "[Build]",
+    "[Drop - warm]",
+    "[Breakdown - sparse]",
+    "[Bridge - solemn]",
+    "[Outro - calm, descending]",
+    "[Fade Out]"
+   ],
+   "duration": 54,
+   "seeds": [
+    202,
+    303,
+    404
+   ],
+   "use": "pile-of-shame Reel 42.7 s"
+  },
+  "B-unlucky": {
+   "caption": "cinematic tension pop, ticking clock pulse, pizzicato strings, marimba, muted trumpet, soft synth bass, light percussion, suspenseful, playful, wry, clean modern mix, instrumental",
+   "bpm": 121,
+   "key": "C major",
+   "tags": [
+    "[Intro - tense ticking]",
+    "[Build]",
+    "[Verse - light]",
+    "[Drop]",
+    "[Bridge]",
+    "[Outro - calm, descending]",
+    "[Fade Out]"
+   ],
+   "duration": 38,
+   "seeds": [
+    202,
+    303,
+    404
+   ],
+   "use": "Unlucky 13 Reel 29.8 s"
+  },
+  "C-weekly-data": {
+   "caption": "minimal electronic, clean modern, plucked synth arpeggio, felt piano chords, woodblock percussion, soft sub bass, optimistic, bright, precise, crisp production, instrumental",
+   "bpm": 124,
+   "key": "D major",
+   "tags": [
+    "[Intro - soft plucks]",
+    "[Build]",
+    "[Drop]",
+    "[Breakdown - light]",
+    "[Outro - calm, descending]",
+    "[Fade Out]"
+   ],
+   "duration": 23,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "weekly recap Story (data)"
+  },
+  "C-weekly-cozy": {
+   "caption": "lo-fi chillhop, felt piano, warm soft plucks, brushed drums, mellow upright bass, woodblock, cozy, warm, upbeat, soft tape texture, instrumental",
+   "bpm": 99,
+   "key": "F major",
+   "tags": [
+    "[Intro - soft plucks]",
+    "[Build]",
+    "[Drop]",
+    "[Breakdown - light]",
+    "[Outro - calm, descending]",
+    "[Fade Out]"
+   ],
+   "duration": 23,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "weekly recap Story (cozy)"
+  }
+ },
+ "endings": {
+  "own": []
+ },
+ "seeds": [
+  202
+ ],
+ "duration": 24
+}

@@ -28,6 +28,15 @@ Built in the 18 Nov lab night: the cue recorder (`src/motion/kit.ts`, `render.ts
 and Unlucky 13 Reels, `lab/sfx/{synth,plan,signature,moss_gen,cues-for,gallery}`, `lab/music/fit.py`, the MU2/MU3
 grids. Labs: **FX1** (sound effects, signatures, comic), **MU2** (house sound), **MU3** (trend flavours).
 
+## Themed music (owner, 18 Nov)
+
+Themed posts get their own music: Halloween, Advent/Christmas, New Year, Valentine's, spring/Easter, summer, Friday
+the 13th. Recipes in `lab/music/themes.json` (run like a lab grid: `acestep_bench.py --lab TH1 --grid …/themes.json`).
+Each theme keeps the house signature (in the bed's key) and the reactive SFX, and adds its own colour (celesta and
+sleigh bells; harpsichord and eerie lead; …). Make a pool of 3–4 per theme about two weeks ahead, approve by ear,
+then `tools/sound.ts --series advent` rotates them. No recognisable song, not even a public-domain carol melody
+quoted; style only. **First due: Advent of Puzzle** (launch 26 Nov, doors from 30 Nov).
+
 ## What's still needed for autonomous deliveries
 
 1. **Owner picks** (labs): one house direction per post type (MU2), which trend flavours to keep (MU3), the

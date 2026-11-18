@@ -1,0 +1,113 @@
+{
+ "note": "Themed beds (owner 18 Nov: themed posts get custom music, e.g. Halloween). Same house instruments where they fit, plus the theme's signature colours; never a recognisable song (public-domain carols only as a style, not quoted). Generate a pool of 3-4 per theme ~2 weeks before it.",
+ "directions": {
+  "T-advent": {
+   "caption": "cozy festive, celesta, music box, sleigh bells, soft pizzicato strings, felt piano, warm pads, woodblock, gentle, magical, wintry, instrumental",
+   "bpm": 96,
+   "key": "G major",
+   "tags": [
+    "[Intro - music box]",
+    "[Verse - celesta]",
+    "[Chorus - warm, sleigh bells]",
+    "[Outro - calm, descending]",
+    "[Fade Out]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "Advent of Puzzle doors (30 Nov\u201324 Dec), Christmas posts"
+  },
+  "T-halloween": {
+   "caption": "spooky playful halloween, harpsichord, pizzicato strings, bassoon, eerie theremin-like synth lead, celesta, woodblock, creepy but cute, mischievous, instrumental",
+   "bpm": 104,
+   "key": "D minor",
+   "tags": [
+    "[Intro - harpsichord]",
+    "[Verse - spooky pizzicato]",
+    "[Build]",
+    "[Drop - comic hit]",
+    "[Outro - descending, eerie]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202,
+    303
+   ],
+   "use": "Halloween, Friday the 13th, 'pile of shame'-style spooky humour"
+  },
+  "T-newyear": {
+   "caption": "sparkling celebratory electronic, glockenspiel, bright plucks, felt piano, soft claps, warm sub bass, countdown ticking hi-hats, hopeful, festive, instrumental",
+   "bpm": 120,
+   "key": "E major",
+   "tags": [
+    "[Intro - ticking]",
+    "[Build - rising]",
+    "[Drop - sparkling]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "Year in puzzles recap, New Year countdown"
+  },
+  "T-valentine": {
+   "caption": "sweet romantic lo-fi, felt piano, soft rhodes, warm plucks, brushed drums, gentle strings, tender, warm, playful, instrumental",
+   "bpm": 84,
+   "key": "F major",
+   "tags": [
+    "[Intro - felt piano]",
+    "[Verse]",
+    "[Chorus - warm]",
+    "[Outro - slowing, descending]",
+    "[Fade Out]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "pairs/team puzzling, Valentine's"
+  },
+  "T-spring": {
+   "caption": "fresh bright spring acoustic, ukulele, marimba, glockenspiel, light hand claps, soft plucks, birdsong-like flute, cheerful, light, instrumental",
+   "bpm": 110,
+   "key": "C major",
+   "tags": [
+    "[Intro - ukulele]",
+    "[Verse - marimba]",
+    "[Chorus - bright]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "Easter, spring events"
+  },
+  "T-summer": {
+   "caption": "sunny tropical house, steel drums, marimba, kalimba, warm plucks, shakers, light four on the floor, breezy, carefree, instrumental",
+   "bpm": 116,
+   "key": "A major",
+   "tags": [
+    "[Intro - steel drums]",
+    "[Build]",
+    "[Drop - breezy groove]",
+    "[Outro - calm, descending]"
+   ],
+   "duration": 24,
+   "seeds": [
+    202
+   ],
+   "use": "summer events, holidays puzzling"
+  }
+ },
+ "endings": {
+  "own": []
+ },
+ "seeds": [
+  202
+ ],
+ "duration": 24
+}

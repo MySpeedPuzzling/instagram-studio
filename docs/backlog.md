@@ -53,10 +53,12 @@ Updated 2026-10-17.
       (Start here, quiz, WJPC); no app steps.
 - [ ] Owner: answer or skip the 5 open comments (1 on Unlucky 13, 4 on the pile-of-shame carousel); replies proposed in
       `content/reports/unlucky13-check-48h.md` §4.
-- [ ] **300M poll Story** (`stories/story-300m.jpg`): **never posted** (no Story in the API from 14 Nov 18:00 to 15 Nov
+- [x] **300M poll Story** (`stories/story-300m.jpg`): **never posted** (no Story in the API from 14 Nov 18:00 to 15 Nov Superseded 18 Nov by the 300M Reel.
       17:45). Recommendation (15 Nov check): drop the guessing poll (too late for the Mon 16 option); optional Monday
       countdown Story instead. Owner to confirm.
-- [ ] **300 million pieces milestone post** on the day it passes (ETA ~Tue 17 Nov, `bs-milestone-pace --fresh` daily from Sun); no poll to reveal unless the owner posts one.
+- [x] **300M Reel `2026-11-18-reel-300m` PUBLISHED Wed 18 Nov ~18:45 Prague** through the API (https://www.instagram.com/reel/Df5EbHYih3E/; first Reel published by `src/publish/publish.ts`). 57 s origin story, bed BR3-A-origin-xl-turbo-s202 (fit mode "rewind"). Checks: `check-reel300m-24` Thu 19 Nov 18:50, `check-reel300m-48` Fri 20 Nov 18:50 (pin verdict) → `content/reports/reel300m-check-*.md`.
+- [ ] **Story `2026-11-18-story-300m`** ("LET'S CELEBRATE 300 000 000 PIECES PLACED TOGETHER!", 12 s with music): owner posts by hand with a sticker to the Reel in the free space at the bottom; then schedule its check (≥ 1 h before it expires). Story publishing by API is not built (it can't place stickers).
+- [ ] BR3 into `src/review/nav.ts` LABS; Reel watch-time at 57 s vs earlier 30–40 s Reels → learnings after the checks.
 - [ ] Ideas kept from the 13 Nov brainstorm: pile-of-shame Black Friday sequel (27 Nov), night owls, re-run the pile Trial Reel with the 929-box wall in frame 1, edges-first poll Story.
 - [x] Weekly Numbers ep. 3 published 2 Nov 19:59 (https://www.instagram.com/p/DfQAZ3yCMhw/). Story posted 2 Nov evening. Next: Story insights before Tue 3 Nov evening; post insights Wed 4 Nov ~20:00 (`node tools/insights.ts`).
 - [ ] Monthly report: "puzzlers" counts only who logged a result (`monthly-totals`); switch to everyone who took part, like the weekly (2 Nov).

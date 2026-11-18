@@ -54,6 +54,11 @@ proposed. Before that 2026-11-15 ~19:55: **import launch carousel PUBLISHED 19:5
 
 ## Where we are
 
+**18 Nov 2026:** the 300M Reel ("origin story", 57 s, music BR3 with the new fit mode "rewind") went out at ~18:45
+Prague, **the first Reel published through the API** (`publish.ts` now handles Reels: MP4 via R2, ffprobe preflight,
+cover by `thumb_offset`). Checks at +24 h / +48 h are scheduled. The matching Story `2026-11-18-story-300m` is ready
+for the owner to post by hand with a sticker to the Reel.
+
 Phase: **live.** The first pipeline post went out on **Sat 17 Oct 2026**: "Which is faster? The postcard trio"
 (https://www.instagram.com/p/Del3tI6jfM0/), a 4-slide carousel in the house style with fresh data, a Ravensburger photo
 tag and a poll Story follow-up. House style **H4** is decided (`HOUSE` in `src/design/house.ts`). Labs DL1–DL4, LM1

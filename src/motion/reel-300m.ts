@@ -33,10 +33,10 @@ const COUNT_BASE = 760;
 const COLORS = [GROUNDS.coral.bg, '#ffb0ab', GROUNDS.sky.bg, GROUNDS.indigo.bg];
 
 /** Deterministic pseudo-random (the render must be repeatable). */
-function rng(seed: number) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32); }
+export function rng(seed: number) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32); }
 
 /** Confetti: generator pieces in the brand colours, each in its own little SVG. */
-function confetti(prefix: string, n: number, seed: number, size: number) {
+export function confetti(prefix: string, n: number, seed: number, size: number) {
   const cols = 6, rows = Math.ceil(n / cols);
   const jig = generateJigsaw({ cols, rows, width: cols * size, height: rows * size, seed, tabSize: 0.26, jitter: 0.05 });
   const r = rng(seed);
@@ -92,7 +92,7 @@ function growth(s: Reel300mSpec) {
 }
 
 /** A heart cut into generator pieces (brand colours), for "We love you.": a smooth heart outline clips the grid. */
-function heart(cx: number, top: number, cols: number, rows: number, pc: number) {
+export function heart(cx: number, top: number, cols: number, rows: number, pc: number) {
   const w = cols * pc, hh = rows * pc;
   const jig = generateJigsaw({ cols, rows, width: w, height: hh, seed: 1424, tabSize: 0.24, jitter: 0.04 });
   const X = (f: number) => f1(f * w), Y = (f: number) => f1(f * hh);

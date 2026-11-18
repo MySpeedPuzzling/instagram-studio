@@ -18,6 +18,7 @@
 //   node tools/motion.ts shelf <draft-id> [--qa-only] [--fresh] [--snap=<dir>]    # Reel "I'll solve it this weekend" (pile of shame time-lapse)
 //   node tools/motion.ts unlucky <draft-id> [--qa-only] [--fresh] [--snap=<dir>]  # Reel "The cruellest 13 seconds" + Story "300M: guess the day"
 //   node tools/motion.ts m300 <draft-id> [--qa-only] [--fresh] [--snap=<dir>]     # Reel "300 million pieces" (origin story)
+//   node tools/motion.ts s300 <draft-id> [--qa-only] [--fresh] [--snap=<dir>]     # Story "LET'S CELEBRATE 300 000 000"
 //   node tools/motion.ts clock <draft-id> --look A|B|C [--qa-only] [--fresh] [--snap=<dir>]  # Reel "Your extra hour" (clocks go back)
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -127,6 +128,21 @@ if (kind === 'm300' && id) {
   const motion = reel300mMotion(HOUSE, spec);
   activateVariant(undefined);
   const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'reel-300m'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} reel 300m` });
+  for (const w of res.warnings.slice(0, 8)) console.log(`  warn ${w}`);
+  console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
+  process.exit(0);
+}
+if (kind === 's300' && id) {
+  // Story "LET'S CELEBRATE 300 000 000 PIECES PLACED TOGETHER!" (owner 2026-11-18); same data as the m300 Reel
+  const { reel300mSpec } = await import('../src/posts/reel-300m.ts');
+  const { story300mMotion } = await import('../src/motion/story-300m.ts');
+  const { spec, facts } = await reel300mSpec({ fresh: !!o.fresh });
+  mkdirSync(join(DRAFTS, id), { recursive: true });
+  writeFileSync(join(DRAFTS, id, 'facts.json'), JSON.stringify(facts, null, 1) + '\n');
+  activateVariant(HOUSE);
+  const motion = story300mMotion(HOUSE, spec);
+  activateVariant(undefined);
+  const res = await renderMotion(motion, join(DRAFTS, id, 'reels', 'story-300m'), { qaOnly: o['qa-only'], snap: o.snap, label: `${id} story 300m` });
   for (const w of res.warnings.slice(0, 8)) console.log(`  warn ${w}`);
   console.log(res.video ? `video: ${res.video} (${res.renderS?.toFixed(1)} s render, peak ${res.peakGb?.toFixed(2)} GB, ${((res.bytes ?? 0) / 1e6).toFixed(1)} MB)` : 'QA ok (no video)');
   process.exit(0);

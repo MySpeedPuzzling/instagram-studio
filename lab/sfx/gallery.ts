@@ -12,7 +12,11 @@ if (!LAB) throw new Error('usage: node lab/sfx/gallery.ts <LAB>');
 const DIR = join(ROOT, 'content/labs', LAB);
 type Notes = { title: string; intro?: string; groups?: Array<{ title: string; note?: string; prefix: string }>; notes?: Record<string, string> };
 const notes: Notes = existsSync(join(DIR, 'notes.json')) ? JSON.parse(readFileSync(join(DIR, 'notes.json'), 'utf8')) : { title: LAB };
-const files = readdirSync(join(DIR, 'out')).filter(f => /\.(mp4|wav|flac|m4a)$/.test(f)).sort();
+const rank: Record<string, Array<{ id: string; score: number; fails: string[] }>> = existsSync(join(DIR, 'rank.json')) ? JSON.parse(readFileSync(join(DIR, 'rank.json'), 'utf8')) : {};
+const pos = new Map<string, { n: number; score: number; fails: string[] }>();
+for (const g of Object.values(rank)) g.forEach((r, i) => pos.set(r.id, { n: i + 1, score: r.score, fails: r.fails }));
+const files = readdirSync(join(DIR, 'out')).filter(f => /\.(mp4|wav|flac|m4a)$/.test(f))
+  .sort((a, b) => (pos.get(a.replace(/\.[^.]+$/, ''))?.n ?? 99) - (pos.get(b.replace(/\.[^.]+$/, ''))?.n ?? 99) || a.localeCompare(b));
 const groups = notes.groups?.length ? notes.groups : [{ title: 'All', prefix: '' }];
 const used = new Set<string>();
 const vocals: Record<string, { vocal_db: number; flag: boolean }> = existsSync(join(DIR, 'vocals.json')) ? JSON.parse(readFileSync(join(DIR, 'vocals.json'), 'utf8')) : {};
@@ -22,8 +26,10 @@ const tile = (f: string) => {
   const fit = existsSync(join(DIR, 'out', id + '.fit.json')) ? JSON.parse(readFileSync(join(DIR, 'out', id + '.fit.json'), 'utf8')) : null;
   const bedId = Object.keys(vocals).find(k => id.startsWith(k));
   const voc = bedId ? ` · vocals ${vocals[bedId].vocal_db} dB${vocals[bedId].flag ? ' ⚠ listen' : ''}` : '';
-  const meta = fit ? `${fit.tempo} BPM · drop ${fit.drop}s → ${fit.key}s · ${fit.mode} · ${fit.lufs} LUFS${Array.isArray(fit.qa) ? ' · QA: ' + fit.qa.join('; ') : ''}${voc}` : '';
-  return `<div class="tile"><p class="code"><b>${h(id)}</b>${notes.notes?.[id] ? `<br>${h(notes.notes[id])}` : ''}${meta ? `<br><span class="meta">${h(meta)}</span>` : ''}</p>
+  const hitsTxt = fit?.hits_ms ? ' · hits ' + Object.entries(fit.hits_ms).map(([k, v]) => `${k} ${v} ms`).join(', ') : '';
+  const meta = fit ? `${fit.tempo} BPM · drop ${fit.drop}s → ${fit.key}s · ${fit.mode} · ${fit.lufs} LUFS${Array.isArray(fit.qa) ? ' · QA: ' + fit.qa.join('; ') : ''}${voc}${hitsTxt}` : '';
+  const rk = pos.get(id);
+  return `<div class="tile"><p class="code">${rk ? `<b>#${rk.n}</b> (score ${rk.score}${rk.fails.length ? `, ⚠ ${h(rk.fails.join('; '))}` : ''})<br>` : ''}<b>${h(id)}</b>${notes.notes?.[id] ? `<br>${h(notes.notes[id])}` : ''}${meta ? `<br><span class="meta">${h(meta)}</span>` : ''}</p>
 ${f.endsWith('.mp4') ? `<video controls playsinline preload="metadata" src="${h(src)}"></video>` : `<audio controls preload="none" src="${h(src)}"></audio>`}
 <div class="rate" data-target="${h(id)}"><button data-r="works">Works</button><button data-r="unsure">Unsure</button><button data-r="no-go">No-go</button><textarea rows="2" placeholder="Why? (optional)"></textarea><span class="saved"></span></div></div>`;
 };

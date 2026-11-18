@@ -1,6 +1,7 @@
 // The lab list shared by the review app header and every lab gallery, so each page links to all the others.
 // Add a lab here once and every navbar picks it up (galleries after their next rebuild).
 export const LABS: Array<{ id: string; label: string }> = [
+  { id: 'BR1', label: 'Music per post (BR1)' },
   { id: 'MU2', label: 'House sound (MU2)' },
   { id: 'MU3', label: 'Trend flavours (MU3)' },
   { id: 'FX1', label: 'Sound effects (FX1)' },

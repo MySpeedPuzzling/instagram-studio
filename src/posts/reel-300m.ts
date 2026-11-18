@@ -13,6 +13,9 @@ export const LON_NYC_KM = 5570;
 export const ORIGIN_MONTH = '2023-11-01';
 /** MSP's birthday: the first commit of the app repo (LICENSE, 24 Oct 2023 21:34; owner 2026-11-18). */
 export const FIRST_COMMIT = '2023-10-24';
+/** Lines of app code in the app repo today (owner idea 2026-11-18): src, templates, assets, tools, config at HEAD
+ *  22a01bab6 (17 Nov 2026), counted 18 Nov with git ls-files + wc -l; tests (434 808) and translations left out. */
+export const LINES_OF_CODE = { lines: 771_286, tests: 434_808, head: '22a01bab6', counted: '2026-11-18' } as const;
 
 export interface Reel300mSpec {
   pieces: number;            // all logged pieces now
@@ -24,6 +27,7 @@ export interface Reel300mSpec {
   puzzlers: number;
   countries: number;
   chainKm: number;           // 300M pieces × PIECE_CM, rounded to 100 km
+  months: Array<{ month: string; results: number }>; // Nov 2023 → last full month
   startYear: number;         // the year a non-stop solve of `years` would have started
   london: { puzzle: string; brand: string; img: string; aspect: number };
   nyc: { puzzle: string; brand: string; img: string; aspect: number };
@@ -39,6 +43,7 @@ export async function reel300mSpec(o: { fresh: boolean }): Promise<{ spec: Reel3
   const p = pace.rows[0], s = story.rows[0];
   const crossed = day.rows.find(r => Number(r.total_at_day_end) >= 300_000_000);
   if (!crossed) throw new Error('300M not crossed in milestone-300m-day');
+  const monthRows = months.rows.map(r => ({ month: String(r.month).slice(0, 7), results: Number(r.results) }));
   const origin = months.rows.find(r => String(r.month).slice(0, 10) === ORIGIN_MONTH);
   if (!origin) throw new Error(`no ${ORIGIN_MONTH} row in msp-story-months`);
   const find = (re: RegExp) => { const r = pc.rows.find(x => re.test(String(x.puzzle))); if (!r) throw new Error(`postcard ${re} missing`); return r; };
@@ -57,9 +62,10 @@ export async function reel300mSpec(o: { fresh: boolean }): Promise<{ spec: Reel3
     pieces: Number(p.pieces), hours: Number(p.hours), years, resultsPerDay: Number(p.results_per_day),
     crossedOn: String(crossed.day).slice(0, 10), originResults: Number(origin.results),
     puzzlers: Number(s.puzzlers), countries: Number(s.countries),
+    months: monthRows,
     chainKm: Math.round((300_000_000 * PIECE_CM) / 1e5 / 100) * 100,
     startYear: Math.round(Number(queriedAt.slice(0, 4)) + (Number(queriedAt.slice(5, 7)) - 1) / 12 - years),
     london: await box(lon), nyc: await box(ny), queriedAt,
   };
-  return { spec, facts: { 'bs-milestone-pace': pace, 'milestone-300m-day': day, 'msp-story': story, 'msp-story-months': months, 'quiz-postcards': pc } };
+  return { spec, facts: { 'bs-milestone-pace': pace, 'milestone-300m-day': day, 'msp-story': story, 'msp-story-months': months, 'quiz-postcards': pc, 'app-lines-of-code': { ...LINES_OF_CODE } } };
 }

@@ -19,7 +19,7 @@ import { FRAMES } from '../render/render.ts';
 import { composition } from './kit.ts';
 import { LOGO_CSS, logoExit } from './logo.ts';
 import type { Motion } from './render.ts';
-import { PIECE_CM, LON_NYC_KM, type Reel300mSpec } from '../posts/reel-300m.ts';
+import { PIECE_CM, LON_NYC_KM, LINES_OF_CODE, type Reel300mSpec } from '../posts/reel-300m.ts';
 
 const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0;
@@ -66,6 +66,42 @@ function chain(p0: number[], c1: number[], c2: number[], p3: number[], pc: numbe
   return { svg: `<svg id="chain" width="${W}" height="1920" viewBox="0 0 ${W} 1920" aria-hidden="true">${g}</svg>`, n };
 }
 
+/** Growth chart: results per month since Nov 2023 (the first bar is the 174 of the flashback). */
+const GC = { x: X0 + 8, w: RW - 16, base: 1170, h: 200 };
+function growth(s: Reel300mSpec) {
+  const n = s.months.length, slot = GC.w / n, bw = Math.max(6, Math.round(slot * 0.72));
+  const max = Math.max(...s.months.map(m => m.results));
+  const bars = s.months.map((m, i) => {
+    const hh = Math.max(3, (m.results / max) * GC.h);
+    const cls = i === 0 ? 'first' : i === n - 1 ? 'last' : '';
+    return `<rect class="gb ${cls}" x="${f1(i * slot)}" y="${f1(GC.h - hh)}" width="${bw}" height="${f1(hh)}" rx="3"/>`;
+  }).join('');
+  const lab = (m: string) => new Date(m + '-15T12:00:00Z').toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const last = s.months[n - 1];
+  return `<div id="grow">
+    <svg id="gbars" width="${f1(GC.w)}" height="${GC.h}" viewBox="0 0 ${f1(GC.w)} ${GC.h}" style="position:absolute; left:${GC.x}px; top:${GC.base - GC.h}px; overflow:visible" aria-hidden="true">${bars}</svg>
+    <div class="g-axis" style="left:${GC.x}px; top:${GC.base}px; width:${f1(GC.w)}px"></div>
+    <p class="g-note" id="g-first" style="left:${GC.x - 4}px; top:${GC.base - 56}px">174</p>
+    <p class="g-note hot" id="g-last" style="left:${f1(GC.x + GC.w - 240)}px; width:240px; text-align:right; top:${GC.base - GC.h - 52}px">${fmtInt(last.results)}</p>
+    <p class="g-lab" style="left:${GC.x}px; top:${GC.base + 14}px">${lab(s.months[0].month)}</p>
+    <p class="g-lab" style="left:${f1(GC.x + GC.w - 160)}px; width:160px; text-align:right; top:${GC.base + 14}px">${lab(last.month)}</p>
+    <p class="g-lab" style="left:${GC.x + 160}px; width:${f1(GC.w - 320)}px; text-align:center; top:${GC.base + 14}px">results a month · ${s.queriedAt.slice(0, 10)}</p>
+  </div>`;
+}
+
+/** A heart cut into generator pieces (brand colours), for "We love you.": a smooth heart outline clips the grid. */
+function heart(cx: number, top: number, cols: number, rows: number, pc: number) {
+  const w = cols * pc, hh = rows * pc;
+  const jig = generateJigsaw({ cols, rows, width: w, height: hh, seed: 1424, tabSize: 0.24, jitter: 0.04 });
+  const X = (f: number) => f1(f * w), Y = (f: number) => f1(f * hh);
+  const shape = `M${X(0.5)} ${Y(0.26)} C${X(0.5)} ${Y(0.06)} ${X(0.02)} ${Y(-0.02)} ${X(0.02)} ${Y(0.3)} C${X(0.02)} ${Y(0.6)} ${X(0.42)} ${Y(0.76)} ${X(0.5)} ${Y(0.98)} C${X(0.58)} ${Y(0.76)} ${X(0.98)} ${Y(0.6)} ${X(0.98)} ${Y(0.3)} C${X(0.98)} ${Y(-0.02)} ${X(0.5)} ${Y(0.06)} ${X(0.5)} ${Y(0.26)}Z`;
+  const r = rng(77);
+  const paths = jig.pieces.map(p => `<path class="hp" d="${p.d}" fill="${r() < 0.7 ? GROUNDS.coral.bg : '#ffb0ab'}" stroke="#1d2431" stroke-width="2.5" stroke-linejoin="round"/>`)
+    .sort(() => r() - 0.5).join('');
+  return `<svg id="heart" width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}" style="position:absolute; left:${f1(cx - w / 2)}px; top:${top}px; overflow:visible" aria-hidden="true">
+    <defs><clipPath id="hclip"><path d="${shape}"/></clipPath></defs><g clip-path="url(#hclip)">${paths}</g></svg>`;
+}
+
 export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
   const key = 'reel-300m';
   const coral = GROUNDS.coral;
@@ -84,18 +120,20 @@ export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
     <p class="h-abs h-credit mo-cc" style="top:1150px; width:${RW}px">All logged results · passed on ${h(dayName(s.crossedOn))}</p>
   </div>`;
 
-  const rewind = `<div id="rewind"><p class="mo-line s" style="top:880px">Wait. How did we get here?</p></div>`;
+  const rewind = `<div id="rewind"><p class="mo-line s" style="top:880px">Wait. How did we get here?</p></div>
+  <p class="vhs" id="vhs" style="left:${X0}px; top:250px"><svg width="64" height="34" viewBox="0 0 64 34" style="vertical-align:-3px; margin-right:14px" aria-hidden="true"><path d="M30 0 L0 17 L30 34 Z M62 0 L32 17 L62 34 Z" fill="#ec726f"/></svg>REWIND</p>`;
+  const lonely = `<svg id="lonely" width="60" height="60" viewBox="-30 -30 60 60" aria-hidden="true"><path d="${generateJigsaw({ cols: 1, rows: 1, width: 40, height: 40, seed: 3 }).pieces[0].d}" transform="translate(-20 -20)" fill="#ffb0ab" stroke="#1d2431" stroke-width="2"/></svg>`;
 
   const origin = `<div id="origin">
     <p class="mo-cap" style="top:420px">24 October 2023</p>
     <p class="mo-line s" style="top:480px">First line of code.</p>
-    <p class="mo-sub2" id="o-month" style="top:800px">results in the whole first month.</p>
-    <p class="mo-wink" id="o-proud" style="top:900px">(We were very proud.)</p>
-    <p class="h-abs h-credit mo-cc" id="o-src" style="top:1150px; width:${RW}px">Results logged in November 2023 · data ${date}</p>
+    <p class="mo-sub2" id="o-month" style="top:790px">results in the whole first month.</p>
+    <p class="mo-wink" id="o-proud" style="top:868px">(We were very proud.)</p>
   </div>`;
 
   const imagine = `<div id="imagine"><p class="mo-line" style="top:440px">We never</p><p class="mo-line hot" style="top:540px">imagined this.</p></div>`;
-  const later = `<div id="later"><p class="mo-line s" style="top:830px">pieces later.</p></div>`;
+  const later = `<div id="later"><p class="mo-line s" style="top:800px">pieces later.</p><p class="mo-sub2" id="loc" style="top:884px">And ${fmtInt(Math.floor(LINES_OF_CODE.lines / 10_000) * 10_000)}+ lines of code.</p></div>`;
+  const grow = growth(s);
 
   // the chain: London top-left, New York bottom-right
   const lw = 280, nw = 270, lh = Math.round(lw / s.london.aspect), nh = Math.round(nw / s.nyc.aspect);
@@ -120,15 +158,17 @@ export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
       ${hero(yrs, { size: 360, baseline: 760 }).replace('<p class="h-big"', '<p class="h-big" id="yrs"')}
       <p class="h-abs h-lead" style="top:810px; width:${RW}px; font-size:52px; font-weight:700; white-space:nowrap">years of puzzling. Non-stop.</p>
       <p class="h-abs h-lead" style="top:900px; width:${RW}px; font-size:42px">Start a puzzle in ${s.startYear} and you'd be placing the last piece about now.</p>
+      <p class="h-abs yr" style="top:1040px; width:${RW}px"><span id="yr">${s.startYear}</span><span class="yr-pc">  and still going</span></p>
     </div>
   </div>`;
 
   const thanks = `<div id="thanks">
-    <p class="mo-line s" style="top:440px">Thank you,</p>
-    <p class="mo-line hot" style="top:540px">${fmtInt(s.puzzlers)} puzzlers</p>
-    <p class="mo-line s" style="top:650px">in ${s.countries} countries.</p>
-    <p class="mo-line xl hot" style="top:820px">We love you.</p>
-    <p class="h-abs h-credit mo-cc" style="top:1150px; width:${RW}px">Puzzlers with a public profile and a logged result · data ${date}</p>
+    <p class="mo-line s" style="top:390px">Thank you,</p>
+    <p class="mo-line hot" style="top:480px">${fmtInt(s.puzzlers)} puzzlers</p>
+    <p class="mo-line s" style="top:580px">in ${s.countries} countries.</p>
+    <p class="mo-line xl" style="top:700px">We love you.</p>
+    ${heart(540, 872, 8, 7, 44)}
+    <p class="h-abs h-credit mo-cc" style="top:1205px; width:${RW}px">Public profiles with a logged result · data ${date}</p>
   </div>`;
 
   const send = `<div id="send">
@@ -137,10 +177,10 @@ export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
     <p class="mo-line hot" style="top:690px">you love.</p>
   </div>`;
 
-  const body = `<div id="cf">${rain.html}${burst.html}${love.html}</div>${splash}${counter}${rewind}${origin}${imagine}${later}${chainHtml}${thanks}${send}${poster}`;
+  const body = `<div id="cf">${rain.html}${burst.html}${love.html}</div>${splash}${grow}${lonely}${counter}${rewind}${origin}${imagine}${later}${chainHtml}${thanks}${send}${poster}`;
 
   const css = LOGO_CSS + `
-#rewind, #origin, #imagine, #later, #chainb, #thanks, #send, #poster, #ptext { visibility: hidden; opacity: 0; }
+#rewind, #origin, #imagine, #later, #grow, #chainb, #thanks, #send, #poster, #ptext { visibility: hidden; opacity: 0; }
 .hf > .h-head, .hf > .h-src { visibility: hidden; opacity: 0; z-index: 4; }
 #cf { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .cf { position: absolute; left: 0; top: 0; overflow: visible; }
@@ -160,6 +200,17 @@ export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
 .mo-sub2 { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 50px; font-weight: 600; color: var(--g-ink); z-index: 2; }
 .mo-wink { position: absolute; left: ${X0}px; width: ${RW}px; text-align: center; font-size: 46px; font-weight: 500; font-style: italic; color: var(--g-accent); }
 #poster { position: absolute; inset: 0; z-index: 7; }
+.gb { fill: #626c80; }
+.gb.first { fill: #ec726f; }
+.gb.last { fill: #ec726f; }
+.vhs { position: absolute; white-space: nowrap; display: flex; align-items: center; font-size: 44px; font-weight: 700; letter-spacing: 0.08em; color: #ec726f; visibility: hidden; opacity: 0; }
+#lonely { position: absolute; left: 0; top: 0; z-index: 2; visibility: hidden; overflow: visible; }
+.yr { font-size: 72px; font-weight: 700; color: var(--g-ink); letter-spacing: -0.01em; }
+.yr-pc { font-size: 40px; font-weight: 600; }
+#heart { transform-origin: 50% 55%; }
+.g-axis { position: absolute; height: 3px; background: #7d879c; }
+.g-note { position: absolute; font-size: 36px; font-weight: 700; color: #ec726f; white-space: nowrap; }
+.g-lab { position: absolute; font-size: 30px; font-weight: 600; color: var(--g-soft); white-space: nowrap; }
 `;
 
   const frameHtml = frame({ ground: 'navy', kind: 'story', kicker: '300 million pieces', device: v.device, src: '', rows: { headTop: 296 }, masthead: true, body });
@@ -195,29 +246,53 @@ riseIn('#rewind > *', T.splashOut + 0.3, { dur: 0.35 });
 cue('punch', T.splashOut + 0.3, { what: 'wait, how did we get here?' });
 tl.fromTo(cnt, { v: 300000000 }, { v: D.origin, duration: 1.2, ease: 'power3.inOut', onUpdate: showCnt, immediateRender: false }, T.rewind);
 cue('rewind', T.rewind, { dur: 1.2 });
+tl.set('#vhs', { autoAlpha: 1 }, T.rewind);
+tl.fromTo('#vhs', { opacity: 1 }, { opacity: 0.2, duration: 0.2, repeat: 5, yoyo: true, ease: 'steps(1)', immediateRender: false }, T.rewind);
+tl.set('#vhs', { autoAlpha: 0 }, T.rewind + 1.3);
+tl.fromTo('#count', { x: 0, skewX: 0 }, { x: 10, skewX: -8, duration: 0.06, repeat: 17, yoyo: true, ease: 'none', immediateRender: false }, T.rewind);
+tl.set('#count', { x: 0, skewX: 0 }, T.rewind + 1.15);
 hide('#rewind', T.origin - 0.3);
 
 // ---- flashback
 show('#origin', T.origin, 0.01);
 riseIn('#origin .mo-cap, #origin .mo-line', T.origin, { stagger: 0.4, dur: 0.4 });
-riseIn('#o-month, #o-src', T.month, { stagger: 0.3, dur: 0.4 });
+riseIn('#o-month', T.month, { dur: 0.4 });
 flash('#count', T.month);
+show('#grow', T.month + 0.6, 0.01);
+tl.set('#gbars .gb:not(.first), #g-last', { autoAlpha: 0 }, 0);
+riseIn('#grow .g-axis, #grow .g-lab', T.month + 0.6, { dur: 0.35 });
+popIn('#gbars .gb.first, #g-first', T.month + 1.0);
 riseIn('#o-proud', T.proud, { dur: 0.4 });
 cue('punch-main', T.proud, { what: '(We were very proud.)' });
+tl.set('#lonely', { autoAlpha: 1, x: 990, y: 180, rotation: 0 }, T.proud + 0.4);
+tl.to('#lonely', { y: 940, duration: 1.5, ease: 'none' }, T.proud + 0.4);
+tl.to('#lonely', { x: 960, rotation: 140, duration: 0.5, repeat: 2, yoyo: true, ease: 'sine.inOut' }, T.proud + 0.4);
+tl.set('#lonely', { autoAlpha: 0 }, T.imagine - 0.3);
+cue('pfft', T.proud + 0.4, { what: 'one lonely confetti piece' });
 hide('#origin', T.imagine - 0.3);
+hide('#count', T.imagine - 0.3);
 show('#imagine', T.imagine, 0.01);
 riseIn('#imagine > *', T.imagine, { stagger: 0.5, dur: 0.4 });
+// the growth: every month after the first shoots up, the last one lands on the drop
+tl.set('#gbars .gb:not(.first)', { autoAlpha: 1, scaleY: 0, transformOrigin: '50% 100%' }, T.imagine + 0.2);
+tl.to('#gbars .gb:not(.first)', { scaleY: 1, duration: 0.35, ease: 'power3.out', stagger: (T.drop - T.imagine - 0.75) / D.nMonths }, T.imagine + 0.3);
+cue('build', T.imagine + 0.3, { dur: T.drop - T.imagine - 0.3, what: 'the bars shoot up' });
+popIn('#g-last', T.drop - 0.15);
 
 // ---- KEY: 174 → 300 000 000 + confetti burst
 cue('key', T.drop, { what: 'the counter flies to 300 million' });
+hide('#imagine', T.drop - 0.05, 0.15);
+tl.to('#count', { autoAlpha: 1, duration: 0.05 }, T.drop);
 tl.fromTo(cnt, { v: D.origin }, { v: 300000000, duration: 1.6, ease: 'expo.out', onUpdate: showCnt, onComplete: showCnt, immediateRender: false }, T.drop);
-tl.fromTo('#count', { scale: 0.85 }, { scale: 1, duration: 0.6, ease: 'back.out(3)', immediateRender: false }, T.drop);
+tl.fromTo('#count', { scale: 0.7 }, { scale: 1, duration: 0.6, ease: 'back.out(3)', immediateRender: false }, T.drop);
+flash('#gbars .gb.last', T.drop);
 burstAt('bu', D.burst, T.drop);
-hide('#imagine', T.drop + 1.6, 0.3);
+tl.fromTo('#root .hf', { x: 0, y: 0 }, { x: 14, y: -10, duration: 0.05, repeat: 7, yoyo: true, ease: 'none', immediateRender: false }, T.drop);
+tl.set('#root .hf', { x: 0, y: 0 }, T.drop + 0.42);
 show('#later', T.drop + 0.8, 0.01);
-riseIn('#later > *', T.drop + 0.8, { dur: 0.4 });
+riseIn('#later > *', T.drop + 0.8, { stagger: 0.8, dur: 0.4 });
 show(MAST, T.drop + 1.8);
-hide(['#later', '#count'], T.chain - 0.35);
+hide(['#later', '#count', '#grow'], T.chain - 0.35);
 
 // ---- the chain London → New York
 cue('reveal', T.chain, { what: 'London to New York' });
@@ -228,6 +303,8 @@ tl.fromTo('#chain .ch', { autoAlpha: 0, scale: 0.3, transformOrigin: '50% 50%' }
 tl.set('#chain .ch', { autoAlpha: 0 }, 0);
 countUp('#km', D.km, T.chain + 0.9, 2.4);
 popIn('#b-nyc', T.chain + 3.2);
+tl.fromTo('#b-nyc', { y: 0 }, { y: -26, duration: 0.15, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, T.chain + 3.75);
+cue('bonk', T.chain + 3.75, { what: 'the chain reaches New York' });
 riseIn('#chainb .h-credit, #chainb .h-big + .h-big', T.chain + 3.4, { dur: 0.3 });
 hide('#chainb', T.poster - 0.3);
 
@@ -239,6 +316,8 @@ tl.set(MAST, { autoAlpha: 0 }, T.poster + 0.28);
 tl.set('#ptext', { autoAlpha: 1 }, T.poster + 0.3);
 countUp('#yrs', D.years, T.poster + 0.32, 1.0);
 riseIn('#ptext .h-lead', T.poster + 0.9, { stagger: 1.0, dur: 0.4 });
+riseIn('#ptext .yr', T.poster + 2.3, { dur: 0.35 });
+countUp('#yr', D.year1, T.poster + 2.5, 2.4, n => String(Math.round(D.year0 + (D.year1 - D.year0) * n / D.year1)));
 tl.to('#ptext', { autoAlpha: 0, duration: 0.15 }, T.posterOut);
 tl.set(MAST, { autoAlpha: 1 }, T.posterOut + 0.15);
 tl.to('#poster', { y: -${SEAM + 140}, duration: 0.38, ease: 'power2.in' }, T.posterOut + 0.1);
@@ -247,6 +326,9 @@ tl.set('#poster', { autoAlpha: 0 }, T.posterOut + 0.49);
 // ---- thank you
 show('#thanks', T.thanks, 0.01);
 riseIn('#thanks .mo-line', T.thanks, { stagger: 0.5, dur: 0.4 });
+tl.fromTo('#heart .hp', { autoAlpha: 0, scale: 0.2, transformOrigin: '50% 50%' }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2)', stagger: 0.02, immediateRender: false }, T.thanks + 1.6);
+tl.set('#heart .hp', { autoAlpha: 0 }, 0);
+for (let b = 0; b < 8; b++) { const t = T.thanks + 2.5 + b * 0.5; tl.fromTo('#heart', { scale: 1 }, { scale: 1.08, duration: 0.08, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, t); }
 countUp('#thanks .mo-line.hot:not(.xl)', D.puzzlers, T.thanks + 0.5, 1.0, n => fmtN(n) + ' puzzlers');
 riseIn('#thanks .h-credit', T.thanks + 1.6, { dur: 0.3 });
 cue('punch', T.thanks + 1.5, { what: 'We love you.' });
@@ -270,7 +352,7 @@ ${logo.back(T.loop + 0.4)}
 tl.set({}, {}, ${DURATION});
 `;
   const pick = (a: ReturnType<typeof confetti>) => a.items.map(({ x, y, rot, spin, speed, r1, r2 }) => ({ x, y, rot, spin, speed, r1, r2 }));
-  const data = { T, origin: s.originResults, km: s.chainKm, years: Math.floor(s.years), puzzlers: s.puzzlers, chainN: ch.n, rain: pick(rain), burst: pick(burst), love: pick(love) };
+  const data = { T, year0: s.startYear, year1: Number(s.queriedAt.slice(0, 4)), nMonths: s.months.length, origin: s.originResults, km: s.chainKm, years: Math.floor(s.years), puzzlers: s.puzzlers, chainN: ch.n, rain: pick(rain), burst: pick(burst), love: pick(love) };
   return {
     key, duration: DURATION, coverAt: 0.05, safe: SAFE,
     qaAt: [0.05, 2.0, T.rewind + 0.8, T.month + 1.0, T.proud + 1.0, T.imagine + 1.5, T.drop + 2.5, T.chain + 4.5, T.poster + 3.0, T.thanks + 3.0, T.send + 2.5, DURATION - 0.05],

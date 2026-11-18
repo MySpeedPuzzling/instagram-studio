@@ -98,6 +98,8 @@ def main() -> None:
             hit(c["t"], "zip", S["whoosh"])
         elif kd == "flicker":
             hit(c["t"], "buzz", S["whoosh"])
+            rv = next((x["t"] for x in cues if x["kind"] == "reveal" and x["t"] > c["t"]), c["t"] + 0.6)
+            gaps.append({"t": c["t"] - 0.5, "dur": rv - c["t"] + 1.1, "db": 30})   # the punchline lands in real silence
         elif kd == "reveal":
             hit(c["t"], "boom", S["impact"])
         elif kd == "rewind":
@@ -110,12 +112,13 @@ def main() -> None:
             hit(c["t"], "rattle", S["land"])
         elif kd == "turn":
             hit(c["t"], "squeak", S["land"])
-        elif kd == "hour":                                                 # silence before the punchline
-            gaps.append({"t": c["t"], "dur": 0.95, "db": 14})
+        elif kd == "hour":                                                 # the music drops out until after the fail line
+            fl = next((x["t"] for x in cues if x["kind"] == "fail"), c["t"] + 0.95)
+            gaps.append({"t": c["t"], "dur": fl - c["t"] + 0.6, "db": 30})
         elif kd == "snap":
             hit(c["t"], "click", S["impact"] + 2, pitch=-2); hit(c["t"], "thud", S["impact_soft"])
         elif kd == "fail":
-            hit(c["t"], "sad-trombone", S["impact"]); gaps.append({"t": c["t"] - 0.1, "dur": 2.4, "db": 12})
+            hit(c["t"], "sad-trombone", S["impact"]); gaps.append({"t": c["t"] + 0.6, "dur": 1.6, "db": 10})
     counts = [c for c in cues if c["kind"] == "count" and not str(c.get("sel", "")).startswith("#fast")]
     if counts:                                          # several count-ups at once: one tick track, from the first
         c = counts[0]

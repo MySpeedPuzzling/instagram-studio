@@ -12,7 +12,10 @@ STORY = ("story46", "content/drafts/2026-11-16-weekly-rc1/stories/story-1-video.
 SHELF = ("shelf", "content/drafts/2026-11-12-reel-shelf/reels/reel-shelf.mp4", "content/labs/FX1/src/shelf.cues.json", 0.0)
 UNLUCKY = ("unlucky", "content/drafts/2026-11-13-reel-unlucky/reels/reel-unlucky.mp4", "content/labs/FX1/src/unlucky.cues.json", 0.0)
 # recipe → targets (and whether the comic SFX plan goes on)
-TARGETS = {"R4-caught": [SHELF], "R5-bouncy": [UNLUCKY, SHELF], "R7-epic": [UNLUCKY], "R8-fine": [UNLUCKY]}
+TARGETS = {"R4-caught": [SHELF], "R5-bouncy": [UNLUCKY, SHELF], "R7-epic": [UNLUCKY], "R8-fine": [UNLUCKY],
+           "A-shelf": [SHELF], "B-unlucky": [UNLUCKY]}
+ANCHORS = {"shelf": "key,reveal,outro", "unlucky": "key,outro", "story46": "key,outro"}
+PLANNED = "--planned" in sys.argv   # per-post briefs: stretch each bed to its brief BPM and log hits
 
 
 def run(lab: str) -> None:
@@ -28,6 +31,11 @@ def run(lab: str) -> None:
                 continue
             cmd = ["uvx", "-q", "--with", "librosa", "--with", "soundfile", "python", os.path.join(ROOT, "lab/music/fit.py"),
                    bed, os.path.join(ROOT, video), out, "--hold", str(hold)]
+            if PLANNED:
+                cmd += ["--target-bpm", str(c["bpm"]), "--anchors", ANCHORS[name]]
+                if name == "story46":
+                    plan = os.path.join(ROOT, "content/labs/FX1/plan-recap.json")
+                    cmd += ["--sfx", plan, "--signature", "S1-fall-5321"]
             if cues:
                 cmd += ["--cues", os.path.join(ROOT, cues)]
                 plan = os.path.join(ROOT, f"content/labs/FX1/plan-{name}-comic.json")
@@ -38,7 +46,7 @@ def run(lab: str) -> None:
                 print(f"{c['id']} → {name}: FAILED {r.stderr[-300:]}")
                 continue
             rep = json.loads(r.stdout.strip().splitlines()[-1])
-            print(f"{c['id']} → {name}: drop {rep['drop']}s (+{rep['drop_rise_db']} dB) on {rep['key']}s, {rep['mode']}, {rep['lufs']} LUFS, TP {rep['true_peak_db']}, QA {rep['qa']}")
+            print(f"{c['id']} → {name}: hits {rep.get('hits_ms')} · tempo {(rep.get('stretch') or {}).get('measured_bpm')}→{c.get('bpm')} · drop {rep['drop']}s (+{rep['drop_rise_db']} dB) on {rep['key']}s, {rep['mode']}, {rep['lufs']} LUFS, TP {rep['true_peak_db']}, QA {rep['qa']}")
 
 
 if __name__ == "__main__":

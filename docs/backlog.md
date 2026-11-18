@@ -257,6 +257,18 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
       music"; compare at +24 h with the table in `story46-check.md`.
 - [ ] Served-quality re-check of a Story/Reel (ffprobe of `media_url`): do it in a live session while it's live, or
       make `tools/insights.ts` keep `media_url` for live Stories so unattended checks can download it to /tmp.
+- [ ] **Owner: rate the sound labs** (18 Nov night): MU2 house sound (direction per post type, `desc` vs `fade`
+      ending), FX1 (recap vs comic SFX levels, signature S1–S5, comic Reels), MU3 (2 R4 beds on the pile-of-shame Reel).
+      Then fix templates per series in `content/sound/library.json` + standing feedback "Music beds".
+- [ ] **Owner go needed:** restart the GPU queue that was stopped for low memory: the rest of MU3 (11 beds:
+      `--grid lab/music/mu3_briefs.json --only R7-epic,R8-fine,R5-bouncy,R1-disco,R2-house,R3-phonk,R9-lofi,R10-liftoff,R11-afro,R12-chiptune`)
+      and the MOSS puzzle-foley test (`lab/sfx/moss_gen.py`); one at a time, Docker off, nothing else heavy.
+- [ ] fit.py **loop mode for Reels** (Reels loop: the music should flow back into its start; MU3-R4-s303 flagged
+      "abrupt end" on the looping pile-of-shame Reel).
+- [ ] Optional owner foley session (20 min, iPhone; recipe in `docs/ideas/sound-pipeline.md`) or hand-download the CC0
+      puzzle recordings listed there.
+- [ ] Wire `tools/sound.ts` into the draft flow (`tools/motion.ts … --sound`), restart the review server for Insights
+      "By sound"; then Reels publishing by API.
 - [ ] **Automate the bed fit** (owner 16 Nov: the music must hit the video): find a bed's drop and downbeats
       (beat_this / librosa onset), land the drop on the video's key moment from the motion timeline, join the song's
       own outro on a downbeat, two-pass loudnorm −14 + true-peak limiter; hold the last frame for the sticker.

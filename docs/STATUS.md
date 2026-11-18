@@ -2,7 +2,17 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). **Newest (17 Nov 21:30, unattended final check of the week-46 Story, the first
+`docs/backlog.md` (what to do next). **Newest (18 Nov ~01:00, unattended sound lab night):** the sound pipeline is
+built (plan `docs/ideas/sound-pipeline.md`): the motion kit logs **sound cues** (`<video>.cues.json`), `lab/sfx/plan.py`
+turns them into reactive sound effects (recap/comic; code-made kit incl. comic sounds), `lab/music/fit.py` fits a bed
+(strong drop on the key cue + own outro / natural ending on the last frame / fade), adds the **signature in the bed's
+key**, masters and runs a **QA gate**; `lab/music/vocal_check.py` flags sung tag text (Demucs); **`tools/sound.ts`**
+finishes a rendered video in one step and tags the draft (`audio`, `sfx_style`; Insights groups "By sound" after a
+review-server restart). Labs to rate: **MU2** (house sound: 3 directions × 2 endings × 2 seeds, fitted to the week-46
+Story), **FX1** (SFX on the Story, 5 signature candidates, comic SFX on the pile-of-shame and Unlucky 13 Reels),
+**MU3** (trend recipes: only 2 of 13 beds made). The GPU queue (rest of MU3 + the MOSS puzzle-foley test) was
+**stopped by Claude Code for low memory** at ~00:55 (swap 19.6 GB) and not restarted: needs the owner's go.
+**Before that (17 Nov 21:30, unattended final check of the week-46 Story, the first
 with our own music, `content/reports/story46-check.md`):** at +22.5 h reach **371** (~14 % of followers; teaser 401,
 spreadsheets Story 489), views 476, 0 replies, 0 shares; **exits 21.6 % and taps forward 55 % of views, between the two
 app-music Stories (25.5 %/56 % and 16.9 %/48 %): no warning sign for the music.** Lower reach most likely from the

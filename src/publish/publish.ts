@@ -3,6 +3,7 @@
 //
 //   node src/publish/publish.ts <draft-id>     # publish one approved draft now
 //   node src/publish/publish.ts --due          # publish scheduled drafts that are due (for launchd)
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
@@ -47,9 +48,10 @@ export async function preflight(d: Draft): Promise<PreflightIssue[]> {
   const n = d.slides.length;
   if (d.format === 'carousel' && (n < 2 || n > 10)) issues.push({ problem: `carousel needs 2–10 slides, has ${n}` });
   if (d.format === 'single' && n !== 1) issues.push({ problem: `single image needs exactly 1 slide, has ${n}` });
-  if (d.format === 'reel' || d.format === 'story') issues.push({ problem: `${d.format} publishing is not implemented yet` });
+  if (d.format === 'story') issues.push({ problem: 'story publishing is not implemented yet' });
+  if (d.format === 'reel') issues.push(...reelIssues(d));
   let firstRatio: number | undefined;
-  for (const [i, s] of d.slides.entries()) {
+  for (const [i, s] of d.format === 'reel' ? [] : d.slides.entries()) {
     const file = join(ROOT, s.file);
     const meta = await sharp(file).metadata();
     const ratio = (meta.width ?? 0) / (meta.height ?? 1);
@@ -67,25 +69,44 @@ export async function preflight(d: Draft): Promise<PreflightIssue[]> {
     }
     if ((s.user_tags?.length ?? 0) > 20) issues.push({ slide: i + 1, problem: 'more than 20 photo tags' });
   }
-  const lint = lintCaption(d.caption, d.format === 'carousel' ? 'carousel' : 'single', { searchPhrases: d.search_phrases, properNouns: d.proper_nouns });
+  const lint = lintCaption(d.caption, d.format === 'carousel' ? 'carousel' : d.format === 'reel' ? 'reel' : 'single', { searchPhrases: d.search_phrases, properNouns: d.proper_nouns });
   for (const e of lint.errors) issues.push({ problem: `caption: ${e}` });
   if (!d.caption.trim()) issues.push({ problem: 'caption is empty' });
   if ((d.collaborators?.length ?? 0) > 3) issues.push({ problem: 'more than 3 collaborators' });
   return issues;
 }
 
+/** Reels (Graph API, media_type REELS): one MP4 with sound, H.264 + AAC, 9:16, 3 s–15 min, ≤ 300 MB, the music
+ *  version (`*-sound.mp4`) when the draft has one. Alt text is not sent (the API takes it for images only). */
+export function reelIssues(d: Draft): PreflightIssue[] {
+  const issues: PreflightIssue[] = [];
+  if (d.slides.length !== 1) return [{ problem: `reel needs exactly 1 video, has ${d.slides.length}` }];
+  const file = join(ROOT, d.slides[0].file);
+  if (!/\.mp4$/.test(file) || !existsSync(file)) return [{ slide: 1, problem: `reel video missing or not .mp4: ${d.slides[0].file}` }];
+  const probe = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,codec_name,width,height:format=duration', '-of', 'json', file], { encoding: 'utf8' }));
+  const v = probe.streams.find((x: any) => x.codec_type === 'video'), a = probe.streams.find((x: any) => x.codec_type === 'audio');
+  const dur = Number(probe.format.duration);
+  if (v?.codec_name !== 'h264') issues.push({ slide: 1, problem: `video codec ${v?.codec_name}, needs h264` });
+  if (!a) issues.push({ slide: 1, problem: 'no audio track: attach the music first (tools/sound.ts)' });
+  else if (a.codec_name !== 'aac') issues.push({ slide: 1, problem: `audio codec ${a.codec_name}, needs aac` });
+  if (v && Math.abs(v.width / v.height - 9 / 16) > 0.01) issues.push({ slide: 1, problem: `aspect ${v.width}×${v.height}, needs 9:16` });
+  if (!(dur >= 3 && dur <= 900)) issues.push({ slide: 1, problem: `duration ${dur} s outside 3 s–15 min` });
+  if (statSync(file).size > 300 * 1024 * 1024) issues.push({ slide: 1, problem: 'larger than 300 MB' });
+  return issues;
+}
+
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-async function waitFinished(ig: ReturnType<typeof igClient>, container: string) {
-  // Images are usually ready at once; Meta asks for at most one status call per minute after the first few.
-  const delays = [2, 3, 5, 10, 20, 30, 60, 60, 60, 60];
+async function waitFinished(ig: ReturnType<typeof igClient>, container: string, video = false) {
+  // Images are usually ready at once; videos take a minute or more. Meta asks for at most one status call per minute after the first few.
+  const delays = video ? [10, 20, 30, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60] : [2, 3, 5, 10, 20, 30, 60, 60, 60, 60];
   for (const s of delays) {
     const r = await ig.get(container, { fields: 'status_code,status' });
     if (r.status_code === 'FINISHED') return;
     if (r.status_code === 'ERROR' || r.status_code === 'EXPIRED') throw new Error(`container ${container}: ${r.status_code} ${r.status ?? ''}`);
     await sleep(s * 1000);
   }
-  throw new Error(`container ${container} not ready after 5 minutes`);
+  throw new Error(`container ${container} not ready after ${video ? 14 : 5} minutes`);
 }
 
 /**
@@ -160,15 +181,20 @@ export async function publishDraft(id: string, opts: { host?: MediaHost; now?: D
   try {
     const urls: string[] = [];
     for (const [i, s] of d.slides.entries()) {
-      const key = `${prefix}/slide-${String(i + 1).padStart(2, '0')}.jpg`;
-      urls.push(await host.put(key, join(ROOT, s.file), 'image/jpeg'));
+      const video = d.format === 'reel';
+      const key = `${prefix}/slide-${String(i + 1).padStart(2, '0')}.${video ? 'mp4' : 'jpg'}`;
+      urls.push(await host.put(key, join(ROOT, s.file), video ? 'video/mp4' : 'image/jpeg'));
       keys.push(key);
     }
     const collab: Record<string, string> = d.collaborators?.length ? { collaborators: JSON.stringify(d.collaborators) } : {};
     // Photo tags go on each image container (on carousels: the child, never the CAROUSEL container).
     const tags = (i: number): Record<string, string> => (d.slides[i].user_tags?.length ? { user_tags: JSON.stringify(d.slides[i].user_tags) } : {});
     let container: string;
-    if (d.format === 'single') {
+    if (d.format === 'reel') {
+      // thumb_offset: the cover frame in ms (the motion's coverAt; frame 0 is the payoff by house rule)
+      container = (await ig.post('me/media', { media_type: 'REELS', video_url: urls[0], caption: d.caption, share_to_feed: 'true',
+        thumb_offset: String(d.tags?.cover_ms ?? 50), ...collab })).id;
+    } else if (d.format === 'single') {
       container = (await ig.post('me/media', { image_url: urls[0], caption: d.caption, alt_text: d.slides[0].alt, ...tags(0), ...collab })).id;
     } else {
       const children: string[] = [];
@@ -179,7 +205,7 @@ export async function publishDraft(id: string, opts: { host?: MediaHost; now?: D
       container = (await ig.post('me/media', { media_type: 'CAROUSEL', children: children.join(','), caption: d.caption, ...collab })).id;
     }
     record('created', { container });
-    await waitFinished(ig, container);
+    await waitFinished(ig, container, d.format === 'reel');
     const media = await publishContainer(ig, container, d.caption, startedAt);
     const info = await ig.get(media, { fields: 'permalink,timestamp' });
     record('published', { container, media, permalink: info.permalink });
@@ -191,8 +217,8 @@ export async function publishDraft(id: string, opts: { host?: MediaHost; now?: D
     addFeedback(id, { author: 'claude', kind: 'resolved', text: `published ${info.permalink}` });
     db.prepare(`INSERT INTO media (id, timestamp, media_type, permalink, caption_chars, hashtags, children, source, draft_id, tags)
       VALUES (?, ?, ?, ?, ?, ?, ?, 'pipeline', ?, ?) ON CONFLICT(id) DO UPDATE SET source = 'pipeline', draft_id = excluded.draft_id, tags = excluded.tags`)
-      .run(media, info.timestamp, d.format === 'single' ? 'IMAGE' : 'CAROUSEL_ALBUM', info.permalink, [...d.caption].length,
-        (d.caption.match(/#[\p{L}\d_]+/gu) ?? []).length, d.format === 'single' ? null : d.slides.length, id, JSON.stringify({ pillar: d.pillar, ...d.tags }));
+      .run(media, info.timestamp, d.format === 'single' ? 'IMAGE' : d.format === 'reel' ? 'VIDEO' : 'CAROUSEL_ALBUM', info.permalink, [...d.caption].length,
+        (d.caption.match(/#[\p{L}\d_]+/gu) ?? []).length, d.format === 'carousel' ? d.slides.length : null, id, JSON.stringify({ pillar: d.pillar, ...d.tags }));
     return `published: ${info.permalink}`;
   } catch (e) {
     const msg = (e as Error).message;

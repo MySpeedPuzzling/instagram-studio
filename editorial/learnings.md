@@ -2,6 +2,18 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Weekly Numbers ep. 5 at +48 h (2026-11-18; report `content/reports/weekly5-check-48h.md`)
+- **The series has a reach ceiling: 5 of 5 episodes below the carousel median.** Ep. 5 reached 840 at +48 h (0.77× the
+  2026 median of 1085; +77 on day 2); eps. 1–4 ended at 1282 / 1053 / 786 / 1049. The recap reaches its regular
+  audience and not much further. A different slot or time is unlikely to change that; a cover or topic that travels
+  beyond followers might. n = 5: still a hunch, but a consistent one.
+- **More sends didn't mean more reach, again.** Ep. 5 had the series' best send rate (10 sends, 1.19 % of reach, vs
+  ~0.50 % for eps. 3–4 and 0.66 % for ep. 2) and still reached less than eps. 2 and 4. Same pattern as the import
+  launch: sends from a small circle (players sharing their own slide) don't carry a post to new people. There was no
+  "send this to…" line. n = 2 posts.
+- **Correction:** ep. 2's lifetime numbers are 1053 reach, 7 sends, 6 follows (check 1 misread them as 4 sends,
+  0 follows).
+
 ## Week-46 Story, final read (2026-11-17, +22.5 h; report `content/reports/story46-check.md`)
 - **Baked-in music did no visible harm.** First Story with our own bed instead of app music: exits 21.6 % of views and
   taps forward 55 % of views, between the two earlier app-music Stories (teaser 25.5 % / 56 %, spreadsheets 16.9 % /

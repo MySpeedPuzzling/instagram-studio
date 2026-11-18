@@ -12,6 +12,11 @@ review-server restart). Labs to rate: **MU2** (house sound: 3 directions × 2 en
 Story), **FX1** (SFX on the Story, 5 signature candidates, comic SFX on the pile-of-shame and Unlucky 13 Reels),
 **MU3** (trend recipes: only 2 of 13 beds made). The GPU queue (rest of MU3 + the MOSS puzzle-foley test) was
 **stopped by Claude Code for low memory** at ~00:55 (swap 19.6 GB) and not restarted: needs the owner's go.
+**Also newest (18 Nov ~15:20, unattended +48 h check of Weekly Numbers ep. 5, `content/reports/weekly5-check-48h.md`):**
+reach **840 at +48.1 h (0.77× the carousel median 1085)**: the fifth of five episodes below the median; likely ends
+~900–950. **10 sends = 1.19 % of reach, over twice eps. 3–4 (~0.50 %)**, yet no extra reach. 2 follows, 0 saves,
+69 likes. **Pins kept** (fails on reach, dated recap). The 2 ep. 5 comments are still unanswered (replies proposed).
+Check 1 misread ep. 2 (store: 1053 reach / 7 sends / 6 follows lifetime). Followers 2683. No more checks for ep. 5.
 **Before that (17 Nov 21:30, unattended final check of the week-46 Story, the first
 with our own music, `content/reports/story46-check.md`):** at +22.5 h reach **371** (~14 % of followers; teaser 401,
 spreadsheets Story 489), views 476, 0 replies, 0 shares; **exits 21.6 % and taps forward 55 % of views, between the two

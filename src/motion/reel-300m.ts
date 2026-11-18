@@ -1,16 +1,18 @@
 // Reel "300 million pieces" (passed Mon 16 Nov 2026; owner pick 2026-11-18: concept 1 "Origin story", funny and
 // celebratory: when we started, we couldn't imagine this, thank you, we love you, spread the puzzle love). Code only.
 // Frame 0 is the payoff (300 000 000 + falling piece confetti, already moving).
-//   0.0–3.6   splash: logo, site, 300 000 000, "pieces. Solved together.", confetti
-//   3.6–5.4   "Wait. How did we get here?" the counter rewinds to 174
-//   5.4–11.2  flashback: 24 October 2023, first line of code; 174 results in the first month; (We were very proud.)
-//   11.2–13.4 "We never imagined this."
-//   13.4      KEY (music drop): the counter flies 174 → 300 000 000, confetti burst, "pieces later."
-//   18.0–23.6 laid edge to edge: London Postcard → chain of pieces → New York Postcard, km counter
-//   24.0–29.0 coral poster: 77 years of puzzling, non-stop (start in 1949, finish about now)
-//   29.4–33.6 thank you, N puzzlers in M countries. We love you.
-//   33.8–38.4 spread the puzzle love: send this to a puzzler you love (confetti)
-//   38.4–39.4 loop back to the splash (= frame 0)
+//   0.0–3.4   splash: logo, site, 300 000 000, "pieces. Solved together.", confetti
+//   3.4–7.1   "Wait. How did we get here?" the counter rewinds to 174 (3 s tape rewind, owner v2: slower, with sound)
+//   7.4–15.1  flashback: 24 October 2023, first line of code; 174 results in the first month; (We were very proud.);
+//             one lonely confetti piece drops onto the chart
+//   15.4–19.4 "We never imagined this." while the monthly bars shoot up (and knock the lonely piece away)
+//   19.4      KEY (music drop): the counter flies 174 → 300 000 000, confetti burst, "pieces later.", lines of code
+//   25.4–33.1 laid edge to edge: London Postcard → chain of pieces → New York Postcard, km counter
+//   33.2–41.9 coral poster: 77 years of puzzling, non-stop (start in 1949, finish about now)
+//   42.4–49.1 thank you, N puzzlers in M countries. We love you. (beating heart)
+//   49.4–54.0 spread the puzzle love: send this to a puzzler you love (confetti)
+//   54.0–55.0 loop back to the splash (= frame 0)
+// Owner v2 (18 Nov): every beat was too fast; each now holds 2–4 s longer.
 // Text only in the Reel safe area (x 60–960, y 220–1250).
 import { GROUNDS, W, X0, f1, frame, groundVars, hero, heroFit, posterTopPath, siteLine, type Variant } from '../design/house.ts';
 import { escapeHtml as h, fmtInt } from '../design/page.ts';
@@ -23,9 +25,9 @@ import { PIECE_CM, LON_NYC_KM, LINES_OF_CODE, type Reel300mSpec } from '../posts
 
 const SAFE = FRAMES.reel.safe;
 const RX = SAFE.x1, RW = RX - X0;
-// On a 120 BPM grid (1 bar = 2 s) from the drop at 13.4: proud 9.4, chain 17.4, poster lands 23.4, thanks 29.4, send 33.4.
-const T = { splashOut: 3.4, rewind: 3.8, origin: 5.4, month: 7.4, proud: 9.4, imagine: 11.4, drop: 13.4, chain: 17.4, poster: 23.17, posterOut: 28.6, thanks: 29.4, send: 33.4, loop: 38.0 } as const;
-const DURATION = 39.0;
+// On a 120 BPM grid (1 bar = 2 s) from the drop at 19.4: proud 11.4, chain 25.4, poster lands 33.4, thanks 42.4, send 49.4.
+const T = { splashOut: 3.4, rewind: 3.8, rewindDur: 3.0, origin: 7.4, month: 9.4, proud: 11.4, imagine: 15.4, drop: 19.4, chain: 25.4, poster: 33.17, posterOut: 41.6, thanks: 42.4, send: 49.4, loop: 54.0 } as const;
+const DURATION = 55.0;
 const SEAM = 1262;
 const COUNT_BASE = 760;
 const COLORS = [GROUNDS.coral.bg, '#ffb0ab', GROUNDS.sky.bg, GROUNDS.indigo.bg];
@@ -122,7 +124,8 @@ export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
 
   const rewind = `<div id="rewind"><p class="mo-line s" style="top:880px">Wait. How did we get here?</p></div>
   <p class="vhs" id="vhs" style="left:${X0}px; top:250px"><svg width="64" height="34" viewBox="0 0 64 34" style="vertical-align:-3px; margin-right:14px" aria-hidden="true"><path d="M30 0 L0 17 L30 34 Z M62 0 L32 17 L62 34 Z" fill="#ec726f"/></svg>REWIND</p>`;
-  const lonely = `<svg id="lonely" width="60" height="60" viewBox="-30 -30 60 60" aria-hidden="true"><path d="${generateJigsaw({ cols: 1, rows: 1, width: 40, height: 40, seed: 3 }).pieces[0].d}" transform="translate(-20 -20)" fill="#ffb0ab" stroke="#1d2431" stroke-width="2"/></svg>`;
+  const lp = generateJigsaw({ cols: 3, rows: 3, width: 210, height: 210, seed: 3, tabSize: 0.26, jitter: 0.04 }).pieces.find(p => p.col === 1 && p.row === 1)!;
+  const lonely = `<svg id="lonely" width="120" height="120" viewBox="-60 -60 120 120" aria-hidden="true"><path d="${lp.d}" transform="translate(-105 -105)" fill="${GROUNDS.coral.bg}" stroke="#1d2431" stroke-width="3" stroke-linejoin="round"/></svg>`;
 
   const origin = `<div id="origin">
     <p class="mo-cap" style="top:420px">24 October 2023</p>
@@ -137,7 +140,7 @@ export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
 
   // the chain: London top-left, New York bottom-right
   const lw = 280, nw = 270, lh = Math.round(lw / s.london.aspect), nh = Math.round(nw / s.nyc.aspect);
-  const L = { x: 96, y: 720 }, N = { x: RX - nw, y: 960 };
+  const L = { x: 96, y: 720 }, N = { x: RX - nw, y: 930 };
   const ch = chain([L.x + lw - 10, L.y + lh * 0.55], [700, 640], [420, 1240], [N.x + 10, N.y + nh * 0.45], 46);
   const km = String(s.chainKm);
   const chainHtml = `<div id="chainb">
@@ -147,7 +150,7 @@ export function reel300mMotion(v: Variant, s: Reel300mSpec): Motion {
     <img class="pc-box" id="b-lon" src="${s.london.img}" style="left:${L.x}px; top:${L.y}px; width:${lw}px; height:${lh}px" alt="">
     <img class="pc-box" id="b-nyc" src="${s.nyc.img}" style="left:${N.x}px; top:${N.y}px; width:${nw}px; height:${nh}px" alt="">
     ${hero(km, { size: 120, baseline: 1090, x: X0 + 8, unit: 'km' }).replace('<p class="h-big"', '<p class="h-big" id="km"')}
-    <p class="h-abs h-credit" style="top:1110px; left:${X0 + 8}px; width:540px">About ${PIECE_CM} cm a piece. London–New York ≈ ${LON_NYC_KM} km. Postcards: ${h(s.london.brand)}</p>
+    <p class="h-abs h-credit mo-cc" style="top:1172px; width:${RW}px">${PIECE_CM} cm a piece · London–New York ≈ ${LON_NYC_KM} km<br>Postcards: ${h(s.london.brand)}</p>
   </div>`;
 
   const yrs = String(Math.floor(s.years));
@@ -244,13 +247,13 @@ tl.set('#splash', { autoAlpha: 0 }, T.splashOut + 0.5);
 show('#rewind', T.splashOut + 0.3, 0.01);
 riseIn('#rewind > *', T.splashOut + 0.3, { dur: 0.35 });
 cue('punch', T.splashOut + 0.3, { what: 'wait, how did we get here?' });
-tl.fromTo(cnt, { v: 300000000 }, { v: D.origin, duration: 1.2, ease: 'power3.inOut', onUpdate: showCnt, immediateRender: false }, T.rewind);
-cue('rewind', T.rewind, { dur: 1.2 });
+tl.fromTo(cnt, { v: 300000000 }, { v: D.origin, duration: T.rewindDur, ease: 'power2.inOut', onUpdate: showCnt, immediateRender: false }, T.rewind);
+cue('rewind', T.rewind, { dur: T.rewindDur });
 tl.set('#vhs', { autoAlpha: 1 }, T.rewind);
-tl.fromTo('#vhs', { opacity: 1 }, { opacity: 0.2, duration: 0.2, repeat: 5, yoyo: true, ease: 'steps(1)', immediateRender: false }, T.rewind);
-tl.set('#vhs', { autoAlpha: 0 }, T.rewind + 1.3);
-tl.fromTo('#count', { x: 0, skewX: 0 }, { x: 10, skewX: -8, duration: 0.06, repeat: 17, yoyo: true, ease: 'none', immediateRender: false }, T.rewind);
-tl.set('#count', { x: 0, skewX: 0 }, T.rewind + 1.15);
+tl.fromTo('#vhs', { opacity: 1 }, { opacity: 0.2, duration: 0.25, repeat: Math.round(T.rewindDur / 0.25) - 1, yoyo: true, ease: 'steps(1)', immediateRender: false }, T.rewind);
+tl.set('#vhs', { autoAlpha: 0 }, T.rewind + T.rewindDur + 0.1);
+tl.fromTo('#count', { x: 0, skewX: 0 }, { x: 10, skewX: -8, duration: 0.06, repeat: Math.round(T.rewindDur / 0.06) - 1, yoyo: true, ease: 'none', immediateRender: false }, T.rewind);
+tl.set('#count', { x: 0, skewX: 0 }, T.rewind + T.rewindDur);
 hide('#rewind', T.origin - 0.3);
 
 // ---- flashback
@@ -264,11 +267,14 @@ riseIn('#grow .g-axis, #grow .g-lab', T.month + 0.6, { dur: 0.35 });
 popIn('#gbars .gb.first, #g-first', T.month + 1.0);
 riseIn('#o-proud', T.proud, { dur: 0.4 });
 cue('punch-main', T.proud, { what: '(We were very proud.)' });
-tl.set('#lonely', { autoAlpha: 1, x: 990, y: 180, rotation: 0 }, T.proud + 0.4);
-tl.to('#lonely', { y: 940, duration: 1.5, ease: 'none' }, T.proud + 0.4);
-tl.to('#lonely', { x: 960, rotation: 140, duration: 0.5, repeat: 2, yoyo: true, ease: 'sine.inOut' }, T.proud + 0.4);
-tl.set('#lonely', { autoAlpha: 0 }, T.imagine - 0.3);
-cue('pfft', T.proud + 0.4, { what: 'one lonely confetti piece' });
+tl.set('#lonely', { autoAlpha: 1, x: 860, y: 60, rotation: -20 }, T.proud + 0.6);
+tl.to('#lonely', { y: 1072, duration: 2.4, ease: 'power1.in' }, T.proud + 0.6);
+tl.to('#lonely', { x: 900, rotation: 25, duration: 0.6, repeat: 3, yoyo: true, ease: 'sine.inOut' }, T.proud + 0.6);
+tl.to('#lonely', { x: 870, rotation: 6, duration: 0.25, ease: 'power2.out' }, T.proud + 3.0);
+tl.fromTo('#lonely', { scaleY: 1 }, { scaleY: 0.85, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: '50% 100%', immediateRender: false }, T.proud + 3.0);
+cue('pfft', T.proud + 3.0, { what: 'one lonely confetti piece lands on the chart' });
+tl.to('#lonely', { x: 1180, y: 700, rotation: 400, duration: 0.7, ease: 'power2.out' }, T.drop - 0.45);
+tl.set('#lonely', { autoAlpha: 0 }, T.drop + 0.3);
 hide('#origin', T.imagine - 0.3);
 hide('#count', T.imagine - 0.3);
 show('#imagine', T.imagine, 0.01);
@@ -299,25 +305,25 @@ cue('reveal', T.chain, { what: 'London to New York' });
 show('#chainb', T.chain, 0.01);
 riseIn('#chainb .mo-line', T.chain, { stagger: 0.35, dur: 0.4 });
 popIn('#b-lon', T.chain + 0.6);
-tl.fromTo('#chain .ch', { autoAlpha: 0, scale: 0.3, transformOrigin: '50% 50%' }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2)', stagger: 2.2 / D.chainN, immediateRender: false }, T.chain + 0.9);
+tl.fromTo('#chain .ch', { autoAlpha: 0, scale: 0.3, transformOrigin: '50% 50%' }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2)', stagger: 3.0 / D.chainN, immediateRender: false }, T.chain + 0.9);
 tl.set('#chain .ch', { autoAlpha: 0 }, 0);
-countUp('#km', D.km, T.chain + 0.9, 2.4);
-popIn('#b-nyc', T.chain + 3.2);
-tl.fromTo('#b-nyc', { y: 0 }, { y: -26, duration: 0.15, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, T.chain + 3.75);
-cue('bonk', T.chain + 3.75, { what: 'the chain reaches New York' });
-riseIn('#chainb .h-credit, #chainb .h-big + .h-big', T.chain + 3.4, { dur: 0.3 });
+countUp('#km', D.km, T.chain + 0.9, 3.2);
+popIn('#b-nyc', T.chain + 4.0);
+tl.fromTo('#b-nyc', { y: 0 }, { y: -26, duration: 0.15, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, T.chain + 4.55);
+cue('bonk', T.chain + 4.55, { what: 'the chain reaches New York' });
+riseIn('#chainb .h-credit, #chainb .h-big + .h-big', T.chain + 4.3, { dur: 0.3 });
 hide('#chainb', T.poster - 0.3);
 
 // ---- poster: 77 years
 tl.set('#poster', { autoAlpha: 1 }, T.poster);
 tl.fromTo('#poster', { y: -${SEAM + 140} }, { y: 0, duration: 0.42, ease: 'power3.out', immediateRender: false }, T.poster);
-cue('reveal', 23.4, { what: '77 years' });
+cue('reveal', T.poster + 0.23, { what: '77 years' });
 tl.set(MAST, { autoAlpha: 0 }, T.poster + 0.28);
 tl.set('#ptext', { autoAlpha: 1 }, T.poster + 0.3);
 countUp('#yrs', D.years, T.poster + 0.32, 1.0);
 riseIn('#ptext .h-lead', T.poster + 0.9, { stagger: 1.0, dur: 0.4 });
 riseIn('#ptext .yr', T.poster + 2.3, { dur: 0.35 });
-countUp('#yr', D.year1, T.poster + 2.5, 2.4, n => String(Math.round(D.year0 + (D.year1 - D.year0) * n / D.year1)));
+countUp('#yr', D.year1, T.poster + 2.6, 3.4, n => String(Math.round(D.year0 + (D.year1 - D.year0) * n / D.year1)));
 tl.to('#ptext', { autoAlpha: 0, duration: 0.15 }, T.posterOut);
 tl.set(MAST, { autoAlpha: 1 }, T.posterOut + 0.15);
 tl.to('#poster', { y: -${SEAM + 140}, duration: 0.38, ease: 'power2.in' }, T.posterOut + 0.1);
@@ -328,7 +334,7 @@ show('#thanks', T.thanks, 0.01);
 riseIn('#thanks .mo-line', T.thanks, { stagger: 0.5, dur: 0.4 });
 tl.fromTo('#heart .hp', { autoAlpha: 0, scale: 0.2, transformOrigin: '50% 50%' }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2)', stagger: 0.02, immediateRender: false }, T.thanks + 1.6);
 tl.set('#heart .hp', { autoAlpha: 0 }, 0);
-for (let b = 0; b < 8; b++) { const t = T.thanks + 2.5 + b * 0.5; tl.fromTo('#heart', { scale: 1 }, { scale: 1.08, duration: 0.08, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, t); }
+for (let b = 0; T.thanks + 2.5 + b * 0.5 < T.send - 0.6; b++) { const t = T.thanks + 2.5 + b * 0.5; tl.fromTo('#heart', { scale: 1 }, { scale: 1.08, duration: 0.08, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, t); }
 countUp('#thanks .mo-line.hot:not(.xl)', D.puzzlers, T.thanks + 0.5, 1.0, n => fmtN(n) + ' puzzlers');
 riseIn('#thanks .h-credit', T.thanks + 1.6, { dur: 0.3 });
 cue('punch', T.thanks + 1.5, { what: 'We love you.' });
@@ -355,7 +361,7 @@ tl.set({}, {}, ${DURATION});
   const data = { T, year0: s.startYear, year1: Number(s.queriedAt.slice(0, 4)), nMonths: s.months.length, origin: s.originResults, km: s.chainKm, years: Math.floor(s.years), puzzlers: s.puzzlers, chainN: ch.n, rain: pick(rain), burst: pick(burst), love: pick(love) };
   return {
     key, duration: DURATION, coverAt: 0.05, safe: SAFE,
-    qaAt: [0.05, 2.0, T.rewind + 0.8, T.month + 1.0, T.proud + 1.0, T.imagine + 1.5, T.drop + 2.5, T.chain + 4.5, T.poster + 3.0, T.thanks + 3.0, T.send + 2.5, DURATION - 0.05],
+    qaAt: [0.05, 2.0, T.rewind + 0.8, T.month + 1.0, T.proud + 3.5, T.imagine + 2.5, T.drop + 2.5, T.chain + 5.5, T.poster + 6.5, T.thanks + 4.0, T.send + 2.5, DURATION - 0.05],
     html: composition({ key, title: 'Reel 300 million pieces', duration: DURATION, frameHtml, css, data, script }),
   };
 }

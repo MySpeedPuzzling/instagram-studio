@@ -2,7 +2,13 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). **Newest (18 Nov ~01:00, unattended sound lab night):** the sound pipeline is
+`docs/backlog.md` (what to do next). **Newest (19 Nov ~18:50, unattended +24 h check of the 300M Reel,
+`content/reports/reel300m-check-24h.md`):** reach **531 at +24.1 h (0.69× the Reel median 773**, Unlucky 13 had 576),
+811 views, **69 likes = 13.0 % of reach (best 2026 Reel)**, 1 save, 1 comment (unanswered, reply proposed), **0 sends**
+despite "send this to a puzzler you love". **Avg watch 12.4 s = 22 % of 57 s** (seconds held, share didn't; skip rate
+57.9 %, 2nd-worst). Non-follower share, follows and retention not returned. **The 300M Story was not seen live in
+any pull**: apparently not posted. Followers 2686. Check 2 `check-reel300m-48` Fri 20 Nov 18:50 (pin verdict).
+**Before that (18 Nov ~01:00, unattended sound lab night):** the sound pipeline is
 built (plan `docs/ideas/sound-pipeline.md`): the motion kit logs **sound cues** (`<video>.cues.json`), `lab/sfx/plan.py`
 turns them into reactive sound effects (recap/comic; code-made kit incl. comic sounds), `lab/music/fit.py` fits a bed
 (strong drop on the key cue + own outro / natural ending on the last frame / fade), adds the **signature in the bed's

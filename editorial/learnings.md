@@ -2,6 +2,15 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## 300M Reel at +24 h (2026-11-19; report `content/reports/reel300m-check-24h.md`)
+- **A 57 s Reel isn't watched twice as long.** Average watch 12.4 s (our usual 10–15 s), i.e. 22 % of the video vs
+  29–51 % for the ~30 s Reels; skip rate 57.9 % (2nd-worst follower Reel). Viewers give a Reel ~12 s whatever its
+  length, so the second half (rewind, thank-you) reached few. Keep Reels near 30 s or put the payoff early. n = 1.
+- **Milestone thank-yous are liked, not spread.** 13.0 % likes/reach (best 2026 Reel; next 7.0 %) but reach 531 at
+  +24 h (0.69× the Reel median 773) and 0 sends.
+- **A general send line doesn't produce sends.** "Send this to a puzzler you love" → 0 sends in 24 h; the import
+  launch's specific "send them this" (a useful reason for the receiver) → 47. n = 2: a hunch.
+
 ## Weekly Numbers ep. 5 at +48 h (2026-11-18; report `content/reports/weekly5-check-48h.md`)
 - **The series has a reach ceiling: 5 of 5 episodes below the carousel median.** Ep. 5 reached 840 at +48 h (0.77× the
   2026 median of 1085; +77 on day 2); eps. 1–4 ended at 1282 / 1053 / 786 / 1049. The recap reaches its regular

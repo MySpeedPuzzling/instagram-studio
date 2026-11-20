@@ -2,6 +2,12 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## 300M Reel at +48 h (2026-11-20; report `content/reports/reel300m-check-48h.md`)
+- **Confirmed at +48 h: length buys ~1 s, not twice the watching.** Avg watch 13.3 s = 23 % of 57 s, the lowest share
+  of any Reel (~30 s Reels: 29–51 %); skip rate 56 %. Reach 577 (0.75× the Reel median 773, +46 on day 2), 13.3 %
+  likes/reach (still the best 2026 Reel), 2 saves, **0 sends after 48 h** with a general send line. n = 1.
+- **Milestone posts with a dated number aren't pin material:** below-median reach, and the number ages. Pins kept.
+
 ## 300M Reel at +24 h (2026-11-19; report `content/reports/reel300m-check-24h.md`)
 - **A 57 s Reel isn't watched twice as long.** Average watch 12.4 s (our usual 10–15 s), i.e. 22 % of the video vs
   29–51 % for the ~30 s Reels; skip rate 57.9 % (2nd-worst follower Reel). Viewers give a Reel ~12 s whatever its

@@ -1,8 +1,8 @@
 // Local review app: the owner's approve / refine / reject surface for drafts.
 // Feed, grid and Story mocks show each draft the way followers will meet it (Instagram-simulated previews).
-import { labNavLinks } from './nav.ts';
+import { allLabs, GROUPS, LAB_NAV_CSS, labNavLinks, withLiveNav } from './nav.ts';
 import { INSIGHTS_CSS, draftInsightsPanel, insightsPage, reportPage, thumbOf } from './insights.ts';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { lintCaption, type Pillar } from '../captions/lint.ts';
@@ -31,7 +31,11 @@ const CSS = `
 * { box-sizing: border-box; }
 body { margin: 0; font: 15px/1.45 -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--ink); }
 a { color: var(--accent); text-decoration: none; }
-header { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--line); padding: 10px 20px; display: flex; gap: 18px; align-items: center; }
+header { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--line); padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+header .labnav { order: 9; border-bottom: 0; border-top: 1px solid var(--line); padding: 6px 0 0; margin: 2px 0 0; }
+.labs h2 { font: 600 16px Rubik, sans-serif; margin: 22px 0 10px; } .labs .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.labs a.card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: inherit; text-decoration: none; }
+.labs a.card:hover { border-color: var(--accent); } .labs .card b { display: block; } .labs .card small { color: var(--muted); }
 header b { font: 600 17px Rubik, sans-serif; }
 main { padding: 20px; max-width: 1280px; margin: 0 auto; }
 h2 { font: 600 18px Rubik, sans-serif; margin: 26px 0 10px; text-transform: capitalize; }
@@ -73,8 +77,8 @@ button.primary { background: var(--accent); color: #fff; } button.secondary { ba
 `;
 
 const layout = (title: string, body: string, script = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"><title>${h(title)}</title><style>${CSS}${INSIGHTS_CSS}</style></head>
-<body><header><b>MSP review</b><a href="/review">Drafts</a><a href="/review/insights">Insights</a>${labNavLinks().replace('<a href="/review">Review app</a>', '')}</header><main>${body}</main>
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>${h(title)}</title><style>${CSS}${INSIGHTS_CSS}${LAB_NAV_CSS}</style></head>
+<body><header><b>MSP review</b><a href="/review">Drafts</a><a href="/review/insights">Insights</a><a href="/review/labs">Labs</a><nav class="labnav">${labNavLinks(undefined, { home: false })}</nav></header><main>${body}</main>
 <script>
 async function post(path, data) {
   const r = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data || {}) });
@@ -214,6 +218,16 @@ async function body(req: IncomingMessage): Promise<any> {
 const json = (res: ServerResponse, code: number, data: unknown) => { res.writeHead(code, { 'content-type': 'application/json' }).end(JSON.stringify(data)); return true; };
 const html = (res: ServerResponse, page: string) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }).end(page); return true; };
 
+/** Every lab gallery, grouped, newest first, with when it was last rebuilt. */
+function labsPage(): string {
+  const labs = allLabs().filter(l => l.built);
+  const day = (d?: Date) => (d ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '');
+  return `<div class="labs"><h1 style="font:600 22px Rubik,sans-serif;margin:0">Labs</h1>` + GROUPS.map(g => {
+    const ls = labs.filter(l => l.group === g).sort((a, b) => (b.updated?.getTime() ?? 0) - (a.updated?.getTime() ?? 0));
+    return ls.length ? `<h2>${g}</h2><div class="cards">${ls.map(l => `<a class="card" href="/content/labs/${l.id}/"><b>${h(l.label)}</b><small>${h((l.title ?? '').replace(new RegExp(`^(${l.id}:?\\s*)+`), ''))}${l.updated ? ` · updated ${day(l.updated)}` : ''}</small></a>`).join('')}</div>` : '';
+  }).join('') + `</div>`;
+}
+
 export function reviewHandler(hooks: ReviewHooks = {}): Handler {
   return async (req, res) => {
     const u = new URL(req.url ?? '/', 'http://x');
@@ -221,6 +235,13 @@ export function reviewHandler(hooks: ReviewHooks = {}): Handler {
     try {
       if (req.method === 'GET' && (p === '/' || p === '/review' || p === '/review/')) return html(res, indexPage());
       if (req.method === 'GET' && p === '/review/insights') { const pg = JSON.parse(insightsPage(u.searchParams)); return html(res, layout('Insights', pg.body, pg.script)); }
+      if (req.method === 'GET' && p === '/review/labs') return html(res, layout('Labs', labsPage()));
+      // Lab galleries carry the nav from the day they were built; serve them with the live one so new labs always show.
+      const lp = p.match(/^\/content\/labs\/([\w-]+)\/(?:index\.html)?$/);
+      if (req.method === 'GET' && lp) {
+        const f = join(ROOT, 'content/labs', lp[1], 'index.html');
+        if (existsSync(f)) return html(res, withLiveNav(readFileSync(f, 'utf8'), lp[1]));
+      }
       const rp = p.match(/^\/review\/report\/([\w.%-]+)$/);
       if (req.method === 'GET' && rp) { const pg = reportPage(decodeURIComponent(rp[1])); if (pg) return html(res, layout('Report', pg)); }
       let m = p.match(/^\/review\/d\/([\w-]+)$/);

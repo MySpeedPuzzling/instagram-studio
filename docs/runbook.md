@@ -127,7 +127,7 @@ the app: highlight → edit cover → gallery icon). Czech app: highlights are "
 ## Small labs
 
 `node lab/about/run.ts` renders the Start here cover variants (lab AB1, from the about draft's cached facts) into
-`content/labs/AB1/` with a Works / Unsure / No-go gallery. Add any new lab to `src/review/nav.ts`.
+`content/labs/AB1/` with a Works / Unsure / No-go gallery. Built labs show in the nav and on `/review/labs` automatically (unlisted ones under "Other"); add the lab to `LABS` in `src/review/nav.ts` for a proper label and group. The review server swaps every gallery's baked nav for the live one.
 
 ## Captions
 

@@ -65,6 +65,9 @@ Updated 2026-10-17.
 - [ ] Weekly: week total (weekly-totals) and the day chart differ by ~3 solves (results logged before the week began but finished in it count in one, not the other); align the two filters.
 - [x] Weekly ep. 4 published 9 Nov ~20:25 (https://www.instagram.com/p/DfiE1_1ERhA/), owner picked the boxes cover (B).
 - [x] Boxes cover is the weekly default (`weekly-rc1`, 9 Nov).
+- [x] Weekly ep. 6 (week 47) PUBLISHED Mon 23 Nov 19:42 Prague (https://www.instagram.com/p/DgGDMVNiN6-/, `2026-11-23-weekly-rc1`). Checks: `check-weekly6-24` Tue 24 Nov 18:45 (also the Story), `check-weekly6-48` Wed 25 Nov 19:45 (pin verdict).
+  - [ ] Owner: post the animated Story (`stories/story-1-video.mp4`; music optional, ask before generating a bed) with the "Full report" link sticker bottom right, add to Recaps, remove the oldest week; photo-tag @britey.ponchaut (slide 3, teams 500) and @iffets44 (slide 5, teams) by hand if wanted (API refused both).
+  - [ ] Backfilled history typed in with today's date (week 47: 50 old solves, 93 h on one day) still counts in the week's totals, day chart and hours (~0.6 %); only the most-solves board filters it. Decide whether totals should drop impossible days too.
 - [x] Weekly ep. 5 (week 46) PUBLISHED Mon 16 Nov 15:11 Prague (https://www.instagram.com/p/Dfzio69jjl8/, `2026-11-16-weekly-rc1`, 8 slides, all 11 photo tags ok). Checks: `check-weekly5-24` Tue 17 Nov 14:30 (also reads the Story), `check-weekly5-48` Wed 18 Nov 15:15 (pin verdict). Owner: post the animated Story with the "Full report" link sticker bottom right, add it to Recaps and remove the oldest week (5th week).
   - [x] +24 h check done Tue 17 Nov 14:30 (`content/reports/weekly5-check-24h.md`): reach 763 (0.71× median), **9 sends
     (series record)**, 2 follows; Story 305 reach at +15.5 h, 0 replies. Earlier slot: no visible harm, n = 1.

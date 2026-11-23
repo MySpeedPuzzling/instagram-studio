@@ -142,6 +142,10 @@ How to maintain it:
   time (`tracked_at < now() - 7 days`), or it has an extra week of late-logged solves and a flat week reads as a drop
   (week 43 showed −3.3 % instead of +1.0 %). Same for any period-on-period comparison. (data, 2026-10-26)
 
+- **A day can't hold more than 24 hours of puzzling:** when one puzzler's solves on one finish date (each under 24 h)
+  add up to over 24 h, it's old history typed in with today's date; boards that name players leave that day out
+  (`weekly-active.sql`). Check any surprising leader's rows before featuring them. (data, 2026-11-23, week 47: a new
+  account's 50 backfilled solves topped "most solves" with 55)
 - **Weekly numbers count solves whose finish date is in the week** (`finished_at`), never the day they were logged:
   ~17 % of a week's logged results are older solves typed in later, and results without a finish date (always without a
   time too) are puzzles marked solved in batches (one puzzler "solved" 310 in week 42). Both faked "most solves" and

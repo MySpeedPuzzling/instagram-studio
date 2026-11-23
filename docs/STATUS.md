@@ -2,7 +2,14 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). **Newest (20 Nov ~18:50, unattended +48 h check of the 300M Reel,
+`docs/backlog.md` (what to do next). **Newest (Mon 23 Nov ~07:20, unattended weekly review,
+`content/reports/weekly-review-2026-11-23.md`):** a quiet week (Weekly ep. 5, its Story, the 300M Reel; nothing posted
+Thu 19 to Sun 22 Nov). Nothing beat its median: ep. 5 **942 (0.86×)** with the series' best sends (10, 1.06 %); 300M
+Reel **617 (0.79×)**, 13.5 % likes, 0 sends; week-46 Story 371. Follower Reels are 4 of 4 below the Reel median since
+29 Oct. Followers **2672 → 2694 (+22, ~3 a day, slowest yet)**. Suggestions: ep. 6 at ~15:00 and its Story in the
+evening; no Reels over ~30 s and no general send lines; one pile-of-shame-style "everyone can answer" carousel midweek
+before Advent. 4 comments unanswered (300M Reel, ep. 5 ×2, import), plus older optional ones; replies proposed.
+**Before that (20 Nov ~18:50, unattended +48 h check of the 300M Reel,
 `content/reports/reel300m-check-48h.md`):** reach **577 at +48.1 h (0.75× the Reel median 773**; +46 on day 2;
 Unlucky 13 had 631), 885 views, **77 likes = 13.3 %** (best 2026 Reel), 2 saves, 1 comment (still unanswered, reply
 proposed), **0 sends**. Avg watch **13.3 s = 23 % of 57 s** (seconds held, share is the lowest of any Reel), skip

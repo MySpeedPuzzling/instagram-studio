@@ -2,6 +2,20 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Weekly review 2026-11-23 (week 16–22 Nov; report `content/reports/weekly-review-2026-11-23.md`)
+- **Follower Reels have sat below the Reel median since late October: 4 of 4** (29 Oct–18 Nov: 770 / 772 / 631 / 617
+  vs median 782); the first four (21–24 Oct) reached 1666–2392. Carousels reached 786–2038 over the same weeks. Hunch
+  (n = 4); the cause can't be seen without the follower/non-follower split.
+- **Weekly Numbers: 5 of 5 below the carousel median** (lifetime 1282 / 1053 / 786 / 1049 / 942 vs 1093), with sends
+  per reach up again in ep. 5 (1.06 %, eps. 3–4 ~0.5 %). The series has a reach ceiling, and no sign of fatigue.
+- **Send lines: specific ones work, general ones don't.** 6 posts with a send line: 6 / 0 / 18 / 0 / 47 / 0. The two
+  that named who should get the post and why got 18 and 47; the two general ones (missing piece, 300M) got 0. Hunch
+  (2 against 2). Sends still don't predict reach (import: 47 sends, 0.78× reach at +7.5 d).
+- **A quiet week coincided with the slowest follower growth so far:** 2 feed posts + 1 Story, nothing Thu–Sun,
+  +22 followers in 7 days (~3 a day; ~9 a day the week before, ~15 a day in late October). One week, and the posts
+  were a recap and a thank-you, so a hunch.
+- **Carousels keep growing for over a week:** pile of shame 1941 (+101 h) → 2038 (+11 d).
+
 ## 300M Reel at +48 h (2026-11-20; report `content/reports/reel300m-check-48h.md`)
 - **Confirmed at +48 h: length buys ~1 s, not twice the watching.** Avg watch 13.3 s = 23 % of 57 s, the lowest share
   of any Reel (~30 s Reels: 29–51 %); skip rate 56 %. Reach 577 (0.75× the Reel median 773, +46 on day 2), 13.3 %

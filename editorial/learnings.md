@@ -2,6 +2,16 @@
 
 Aggregate evidence only; no member names. Newest first. Each belief states the evidence and how sure we are.
 
+## Weekly Numbers ep. 6 at +23 h (2026-11-24; report `content/reports/weekly6-check-24h.md`)
+- **First same-age comparison in the series: the evening slot did a bit worse on early numbers.** Ep. 6 (19:42) at
+  +23.0 h: reach 700 (0.64× the carousel median 1096), 4 sends (0.57 %), 0 comments, 2 follows, 47 likes (6.7 %).
+  Ep. 5 (15:11) at +23.3 h: 763, 9 sends (1.18 %), 2 comments, 2 follows, 62 likes (8.1 %). Reach was close (−8 %),
+  but sends and comments were clearly lower. Ep. 5's came in the first hours, while Europe was awake. n = 1 each, with
+  different content and tags: a hunch. It leans towards ~15:00 for the recap; 3–4 more Mondays at 15:00 would settle it.
+- **Reach ceiling: 6 of 6 episodes below the carousel median** (ep. 6 so far 0.64×).
+- **No week-47 Story was posted** (0 live Stories at the pulls after publishing), so "own music at the evening time"
+  is still untested.
+
 ## Weekly review 2026-11-23 (week 16–22 Nov; report `content/reports/weekly-review-2026-11-23.md`)
 - **Follower Reels have sat below the Reel median since late October: 4 of 4** (29 Oct–18 Nov: 770 / 772 / 631 / 617
   vs median 782); the first four (21–24 Oct) reached 1666–2392. Carousels reached 786–2038 over the same weeks. Hunch

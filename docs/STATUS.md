@@ -2,7 +2,13 @@
 
 **Start here in every new Claude Code session.** Then read `docs/decisions.md` (owner decisions; they override
 everything else), `editorial/standing-feedback.md` (the owner's standing rules for every post, Reel and Story) and
-`docs/backlog.md` (what to do next). **Newest (Mon 23 Nov ~07:20, unattended weekly review,
+`docs/backlog.md` (what to do next). **Newest (Tue 24 Nov ~18:45, unattended +24 h check of Weekly ep. 6,
+`content/reports/weekly6-check-24h.md`):** reach **700 at +23.0 h (0.64× the carousel median 1096)**, against 763 for
+ep. 5 at the same age; **4 sends** (0.57 %, all overnight; ep. 5 had 9), 0 comments, 2 follows, 47 likes (6.7 %).
+This is the first same-age comparison. Posting at 19:42 instead of 15:11 looks a bit worse on early sends and
+comments (n = 1 each, a hunch). **No week-47 Story was posted** (0 live Stories since publishing). No new comments;
+4 older ones are still unanswered. The +48 h check with the pin verdict runs Wed 25 Nov 19:45.
+**Before that (Mon 23 Nov ~07:20, unattended weekly review,
 `content/reports/weekly-review-2026-11-23.md`):** a quiet week (Weekly ep. 5, its Story, the 300M Reel; nothing posted
 Thu 19 to Sun 22 Nov). Nothing beat its median: ep. 5 **942 (0.86×)** with the series' best sends (10, 1.06 %); 300M
 Reel **617 (0.79×)**, 13.5 % likes, 0 sends; week-46 Story 371. Follower Reels are 4 of 4 below the Reel median since

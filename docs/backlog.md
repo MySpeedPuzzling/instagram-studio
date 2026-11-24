@@ -66,6 +66,9 @@ Updated 2026-10-17.
 - [x] Weekly ep. 4 published 9 Nov ~20:25 (https://www.instagram.com/p/DfiE1_1ERhA/), owner picked the boxes cover (B).
 - [x] Boxes cover is the weekly default (`weekly-rc1`, 9 Nov).
 - [x] Weekly ep. 6 (week 47) PUBLISHED Mon 23 Nov 19:42 Prague (https://www.instagram.com/p/DgGDMVNiN6-/, `2026-11-23-weekly-rc1`). Checks: `check-weekly6-24` Tue 24 Nov 18:45 (also the Story), `check-weekly6-48` Wed 25 Nov 19:45 (pin verdict).
+  - [x] +24 h check done Tue 24 Nov 18:45 (`content/reports/weekly6-check-24h.md`): reach 700 at +23.0 h (0.64× median;
+    ep. 5 at the same age 763), **4 sends** (ep. 5: 9), 0 comments, 2 follows. The evening slot was a bit worse on early
+    sends and comments; n = 1 each, a hunch. **No week-47 Story found** (0 live Stories at the pulls since publishing).
   - [ ] Owner: post the animated Story (`stories/story-1-video.mp4`; music optional, ask before generating a bed) with the "Full report" link sticker bottom right, add to Recaps, remove the oldest week; photo-tag @britey.ponchaut (slide 3, teams 500) and @iffets44 (slide 5, teams) by hand if wanted (API refused both).
   - [ ] Backfilled history typed in with today's date (week 47: 50 old solves, 93 h on one day) still counts in the week's totals, day chart and hours (~0.6 %); only the most-solves board filters it. Decide whether totals should drop impossible days too.
 - [x] Weekly ep. 5 (week 46) PUBLISHED Mon 16 Nov 15:11 Prague (https://www.instagram.com/p/Dfzio69jjl8/, `2026-11-16-weekly-rc1`, 8 slides, all 11 photo tags ok). Checks: `check-weekly5-24` Tue 17 Nov 14:30 (also reads the Story), `check-weekly5-48` Wed 18 Nov 15:15 (pin verdict). Owner: post the animated Story with the "Full report" link sticker bottom right, add it to Recaps and remove the oldest week (5th week).
@@ -264,7 +267,8 @@ Design `docs/ideas/advent-of-puzzle.md`, evidence `research_notes/…/giveaways_
       vs app-music Stories; lower reach likely the late hour. n = 1.
 - [ ] Owner: note the week-46 Story's link taps ("Full report" sticker) from the archive (not in the API).
 - [ ] Week-47 Story (Mon 23 Nov): own music again, at the usual evening time, to separate "late hour" from "own
-      music"; compare at +24 h with the table in `story46-check.md`.
+      music"; compare at +24 h with the table in `story46-check.md`. **Not posted as of Tue 24 Nov 18:45** (no Story in
+      the API since ep. 6); post it late, or move the test to week 48.
 - [ ] Served-quality re-check of a Story/Reel (ffprobe of `media_url`): do it in a live session while it's live, or
       make `tools/insights.ts` keep `media_url` for live Stories so unattended checks can download it to /tmp.
 - [ ] **Owner: rate the sound labs** (18 Nov night): MU2 house sound (direction per post type, `desc` vs `fade`
